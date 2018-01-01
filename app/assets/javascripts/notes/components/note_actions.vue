@@ -52,7 +52,7 @@
         'getUserDataByProp',
       ]),
       shouldShowActionsDropdown() {
-        return this.currentUserId && (this.canEdit || this.canReportAsAbuse);
+            return false;
       },
       canAddAwardEmoji() {
         return this.currentUserId;
@@ -114,22 +114,7 @@
           </span>
       </a>
     </div>
-    <div
-      v-if="canEdit"
-      class="note-actions-item">
-      <button
-        @click="onEdit"
-        v-tooltip
-        type="button"
-        title="Edit comment"
-        class="note-action-button js-note-edit btn btn-transparent"
-        data-container="body"
-        data-placement="bottom">
-          <span
-            v-html="editSvg"
-            class="link-highlight"></span>
-      </button>
-    </div>
+
     <div
       v-if="shouldShowActionsDropdown"
       class="dropdown more-actions note-actions-item">
