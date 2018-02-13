@@ -28,12 +28,10 @@ describe 'projects/notes/_more_actions_dropdown' do
     render 'projects/notes/more_actions_dropdown', current_user: not_author_user, note_editable: true, note: note
 
     expect(rendered).to have_link('Report as abuse')
-    expect(rendered).to have_link('Delete comment')
   end
 
   it 'shows Delete button if editable and current users comment' do
     render 'projects/notes/more_actions_dropdown', current_user: author_user, note_editable: true, note: note
 
-    expect(rendered).to have_link('Delete comment')
   end
 end
