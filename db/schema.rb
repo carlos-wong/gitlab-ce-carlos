@@ -2135,8 +2135,8 @@ ActiveRecord::Schema.define(version: 20180320182229) do
   add_foreign_key "u2f_registrations", "users"
   add_foreign_key "user_callouts", "users", on_delete: :cascade
   add_foreign_key "user_custom_attributes", "users", on_delete: :cascade
-  add_foreign_key "user_interacted_projects", "projects", name: "fk_722ceba4f7", on_delete: :cascade
-  add_foreign_key "user_interacted_projects", "users", name: "fk_0894651f08", on_delete: :cascade
+  add_foreign_key "user_interacted_projects", "projects", on_delete: :cascade
+  add_foreign_key "user_interacted_projects", "users", on_delete: :cascade
   add_foreign_key "user_synced_attributes_metadata", "users", on_delete: :cascade
   add_foreign_key "users_star_projects", "projects", name: "fk_22cd27ddfc", on_delete: :cascade
   add_foreign_key "web_hook_logs", "web_hooks", on_delete: :cascade
