@@ -178,23 +178,6 @@ export default {
       </a>
     </div>
     <div
-      v-if="canEdit"
-      class="note-actions-item">
-      <button
-        @click="onEdit"
-        v-tooltip
-        type="button"
-        title="Edit comment"
-        class="note-action-button js-note-edit btn btn-transparent"
-        data-container="body"
-        data-placement="bottom">
-        <span
-          v-html="editSvg"
-          class="link-highlight">
-        </span>
-      </button>
-    </div>
-    <div
       v-if="shouldShowActionsDropdown"
       class="dropdown more-actions note-actions-item">
       <button
@@ -215,16 +198,6 @@ export default {
           <a :href="reportAbusePath">
             Report as abuse
           </a>
-        </li>
-        <li v-if="canEdit">
-          <button
-            @click.prevent="onDelete"
-            class="btn btn-transparent js-note-delete js-note-delete"
-            type="button">
-            <span class="text-danger">
-              Delete comment
-            </span>
-          </button>
         </li>
       </ul>
     </div>
