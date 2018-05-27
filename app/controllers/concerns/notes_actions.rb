@@ -53,15 +53,21 @@ module NotesActions
 
   # rubocop:disable Gitlab/ModuleWithInstanceVariables
   def update
-    @note = Notes::UpdateService.new(project, current_user, note_params).execute(note)
+    puts "carlos debug update note"
+    # @note = Notes::UpdateService.new(project, current_user, note_params).execute(note)
 
-    if @note.is_a?(Note)
-      Notes::RenderService.new(current_user).execute([@note])
-    end
+    # if @note.is_a?(Note)
+    #   Notes::RenderService.new(current_user).execute([@note])
+    # end
 
+    # respond_to do |format|
+    #   format.json { render json: note_json(@note) }
+    #   format.html { redirect_back_or_default }
+    # end
+    puts "carlos disable update note"
     respond_to do |format|
-      format.json { render json: note_json(@note) }
-      format.html { redirect_back_or_default }
+      format.json { head :bad_request }
+      # format.js { head :bad_request }
     end
   end
   # rubocop:enable Gitlab/ModuleWithInstanceVariables
