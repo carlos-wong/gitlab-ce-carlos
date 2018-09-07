@@ -75,17 +75,5 @@ export default {
       v-html="titleHtml"
     >
     </h2>
-    <button
-      v-tooltip
-      v-if="showInlineEditButton && canUpdate"
-      type="button"
-      class="btn btn-default btn-edit btn-svg js-issuable-edit"
-      title="Edit title and description"
-      data-placement="bottom"
-      data-container="body"
-      @click="edit"
-      v-html="pencilIcon"
-    >
-    </button>
   </div>
 </template>

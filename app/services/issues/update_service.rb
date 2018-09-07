@@ -5,10 +5,15 @@ module Issues
     include SpamCheckService
 
     def execute(issue)
-      handle_move_between_ids(issue)
-      filter_spam_check_params
-      change_issue_duplicate(issue)
-      move_issue_to_new_project(issue) || update(issue)
+      puts 'carlos debug update issue excute'
+      puts "debug push right #{can?(current_user, :push_to_delete_protected_branch, @project)}"
+      if can?(current_user, :push_to_delete_protected_branch, @project)
+        puts 'debug check user is master'
+        handle_move_between_ids(issue)
+        filter_spam_check_params
+        change_issue_duplicate(issue)
+        move_issue_to_new_project(issue) || update(issue)
+      end
     end
 
     def before_update(issue)

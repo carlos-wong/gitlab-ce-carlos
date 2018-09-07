@@ -4,7 +4,7 @@ module Issues
   class CloseService < Issues::BaseService
     # Closes the supplied issue if the current user is able to do so.
     def execute(issue, commit: nil, notifications: true, system_note: true)
-      return issue unless can?(current_user, :update_issue, issue)
+      return issue unless can?(current_user, :push_to_delete_protected_branch, @project)
 
       close_issue(issue,
                   commit: commit,

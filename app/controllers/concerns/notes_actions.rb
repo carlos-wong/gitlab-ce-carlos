@@ -53,26 +53,34 @@ module NotesActions
 
   # rubocop:disable Gitlab/ModuleWithInstanceVariables
   def update
-    @note = Notes::UpdateService.new(project, current_user, note_params).execute(note)
+    puts "carlos debug update note"
+    # @note = Notes::UpdateService.new(project, current_user, note_params).execute(note)
 
-    if @note.is_a?(Note)
-      prepare_notes_for_rendering([@note])
-    end
+    # if @note.is_a?(Note)
+    #   Notes::RenderService.new(current_user).execute([@note])
+    # end
 
+    # respond_to do |format|
+    #   format.json { render json: note_json(@note) }
+    #   format.html { redirect_back_or_default }
+    # end
+    puts "carlos disable update note"
     respond_to do |format|
-      format.json { render json: note_json(@note) }
-      format.html { redirect_back_or_default }
+      format.json { head :bad_request }
+      # format.js { head :bad_request }
     end
   end
   # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
   def destroy
-    if note.editable?
-      Notes::DestroyService.new(project, current_user).execute(note)
-    end
+    puts "carlos debug destory note #{note.editable?}"
+    puts "check right #{can?(current_user, :admin_note, note)}"
+    #if note.editable?
+    #  Notes::DestroyService.new(project, current_user).execute(note)
+    #end
 
     respond_to do |format|
-      format.js { head :ok }
+      format.js { head :bad_request }
     end
   end
 

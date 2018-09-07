@@ -107,9 +107,11 @@ module API
           requires :note_id, type: Integer, desc: 'The ID of a note'
         end
         delete ":id/#{noteables_str}/:noteable_id/notes/:note_id" do
-          noteable = find_noteable(parent_type, noteables_str, params[:noteable_id])
+          puts params
+          puts "delete note id #{params}"
+          # noteable = find_noteable(parent_type, noteables_str, params[:noteable_id])
 
-          delete_note(noteable, params[:note_id])
+          # delete_note(noteable, params[:note_id])
         end
       end
     end

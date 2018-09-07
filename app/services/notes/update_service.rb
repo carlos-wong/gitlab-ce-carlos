@@ -3,6 +3,8 @@
 module Notes
   class UpdateService < BaseService
     def execute(note)
+      puts "carlos debug update note try to return note"
+      return note
       return note unless note.editable?
 
       old_mentioned_users = note.mentioned_users.to_a
