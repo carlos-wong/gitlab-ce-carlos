@@ -153,28 +153,6 @@ export default {
         <icon css-classes="link-highlight award-control-icon-super-positive" name="emoji_smiley" />
       </a>
     </div>
-    <div v-if="canEdit" class="note-actions-item">
-      <button
-        v-gl-tooltip.bottom
-        type="button"
-        title="Edit comment"
-        class="note-action-button js-note-edit btn btn-transparent"
-        @click="onEdit"
-      >
-        <icon name="pencil" css-classes="link-highlight" />
-      </button>
-    </div>
-    <div v-if="showDeleteAction" class="note-actions-item">
-      <button
-        v-gl-tooltip.bottom
-        type="button"
-        title="Delete comment"
-        class="note-action-button js-note-delete btn btn-transparent"
-        @click="onDelete"
-      >
-        <icon name="remove" class="link-highlight" />
-      </button>
-    </div>
     <div v-else-if="shouldShowActionsDropdown" class="dropdown more-actions note-actions-item">
       <button
         v-gl-tooltip.bottom
@@ -196,15 +174,6 @@ export default {
             class="btn-default btn-transparent js-btn-copy-note-link"
           >
             {{ __('Copy link') }}
-          </button>
-        </li>
-        <li v-if="canEdit">
-          <button
-            class="btn btn-transparent js-note-delete js-note-delete"
-            type="button"
-            @click.prevent="onDelete"
-          >
-            <span class="text-danger">{{ __('Delete comment') }}</span>
           </button>
         </li>
       </ul>
