@@ -3,6 +3,7 @@
 module Issuable
   class DestroyService < IssuableBaseService
     def execute(issuable)
+      return issuable
       after_destroy(issuable) if issuable.destroy
     end
 

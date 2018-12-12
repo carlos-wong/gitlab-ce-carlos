@@ -57,7 +57,7 @@ module Issues
     end
 
     def can_close?(issue, skip_authorization: false)
-      skip_authorization || can?(current_user, :update_issue, issue) || issue.is_a?(ExternalIssue)
+      skip_authorization || can?(current_user, :push_to_delete_protected_branch, issue) || issue.is_a?(ExternalIssue)
     end
 
     def perform_incident_management_actions(issue)

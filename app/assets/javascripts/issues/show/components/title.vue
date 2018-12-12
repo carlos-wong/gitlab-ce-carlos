@@ -77,14 +77,5 @@ export default {
       class="title qa-title"
       dir="auto"
     ></h2>
-    <gl-button
-      v-if="showInlineEditButton && canUpdate"
-      v-gl-tooltip.bottom
-      icon="pencil"
-      class="btn-edit js-issuable-edit qa-edit-button"
-      :title="$options.i18n.editTitleAndDescription"
-      :aria-label="$options.i18n.editTitleAndDescription"
-      @click="edit"
-    />
   </div>
 </template>

@@ -135,10 +135,10 @@ export default {
   computed: {
     ...mapGetters(['getUserDataByProp', 'getNoteableData']),
     shouldShowActionsDropdown() {
-      return this.currentUserId && (this.canEdit || this.canReportAsAbuse);
+      return this.currentUserId && this.canReportAsAbuse;
     },
     showDeleteAction() {
-      return this.canDelete && !this.canReportAsAbuse && !this.noteUrl;
+      return false && this.canDelete && !this.canReportAsAbuse && !this.noteUrl;
     },
     isAuthoredByCurrentUser() {
       return this.authorId === this.currentUserId;
@@ -201,10 +201,8 @@ export default {
   methods: {
     ...mapActions(['toggleAwardRequest']),
     onEdit() {
-      this.$emit('handleEdit');
     },
     onDelete() {
-      this.$emit('handleDelete');
     },
     onResolve() {
       this.$emit('handleResolve');
@@ -332,27 +330,6 @@ export default {
       class="js-reply-button"
       @startReplying="$emit('startReplying')"
     />
-    <gl-button
-      v-if="canEdit"
-      v-gl-tooltip
-      :title="$options.i18n.editCommentLabel"
-      :aria-label="$options.i18n.editCommentLabel"
-      icon="pencil"
-      category="tertiary"
-      class="note-action-button js-note-edit"
-      data-qa-selector="note_edit_button"
-      @click="onEdit"
-    />
-    <gl-button
-      v-if="showDeleteAction"
-      v-gl-tooltip
-      :title="$options.i18n.deleteCommentLabel"
-      :aria-label="$options.i18n.deleteCommentLabel"
-      icon="remove"
-      category="tertiary"
-      class="note-action-button js-note-delete"
-      @click="onDelete"
-    />
     <div v-else-if="shouldShowActionsDropdown" class="dropdown more-actions">
       <!-- eslint-disable @gitlab/vue-no-data-toggle -->
       <gl-button
@@ -362,6 +339,21 @@ export default {
         icon="ellipsis_v"
         category="tertiary"
         class="note-action-button more-actions-toggle"
+        <gl-loading-icon inline />
+        <icon
+          css-classes="link-highlight award-control-icon-neutral"
+          name="emoji_slightly_smiling_face"
+        />
+        <icon css-classes="link-highlight award-control-icon-positive" name="emoji_smiley" />
+        <icon css-classes="link-highlight award-control-icon-super-positive" name="emoji_smiley" />
+      </a>
+    </div>
+    <div v-else-if="shouldShowActionsDropdown" class="dropdown more-actions note-actions-item">
+      <button
+        v-gl-tooltip.bottom
+        type="button"
+        title="More actions"
+        class="note-action-button more-actions-toggle btn btn-transparent"
         data-toggle="dropdown"
         @click="closeTooltip"
       />
@@ -379,9 +371,6 @@ export default {
         </gl-dropdown-item>
         <gl-dropdown-item v-if="canAssign" data-testid="assign-user" @click="assignUser">
           {{ displayAssignUserText }}
-        </gl-dropdown-item>
-        <gl-dropdown-item v-if="canEdit" class="js-note-delete" @click.prevent="onDelete">
-          <span class="text-danger">{{ __('Delete comment') }}</span>
         </gl-dropdown-item>
       </ul>
     </div>

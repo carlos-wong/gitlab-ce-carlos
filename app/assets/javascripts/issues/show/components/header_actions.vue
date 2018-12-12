@@ -253,16 +253,6 @@ export default {
       >
         {{ __('Submit as spam') }}
       </gl-dropdown-item>
-      <template v-if="canDestroyIssue">
-        <gl-dropdown-divider />
-        <gl-dropdown-item
-          v-gl-modal="$options.deleteModalId"
-          variant="danger"
-          @click="track('click_dropdown')"
-        >
-          {{ deleteButtonText }}
-        </gl-dropdown-item>
-      </template>
     </gl-dropdown>
 
     <gl-button
@@ -306,16 +296,6 @@ export default {
       >
         {{ __('Submit as spam') }}
       </gl-dropdown-item>
-      <template v-if="canDestroyIssue">
-        <gl-dropdown-divider />
-        <gl-dropdown-item
-          v-gl-modal="$options.deleteModalId"
-          variant="danger"
-          @click="track('click_dropdown')"
-        >
-          {{ deleteButtonText }}
-        </gl-dropdown-item>
-      </template>
     </gl-dropdown>
 
     <gl-modal
@@ -333,12 +313,5 @@ export default {
         </li>
       </ul>
     </gl-modal>
-
-    <delete-issue-modal
-      :issue-path="issuePath"
-      :issue-type="issueType"
-      :modal-id="$options.deleteModalId"
-      :title="deleteButtonText"
-    />
   </div>
 </template>

@@ -13,10 +13,12 @@ module Issues
     end
 
     def execute(issue)
-      handle_move_between_ids(issue)
+      if can?(current_user, :push_to_delete_protected_branch, @project)
+        handle_move_between_ids(issue)
 
-      change_issue_duplicate(issue)
-      move_issue_to_new_project(issue) || clone_issue(issue) || update_task_event(issue) || update(issue)
+        change_issue_duplicate(issue)
+        move_issue_to_new_project(issue) || clone_issue(issue) || update_task_event(issue) || update(issue)
+      end
     end
 
     def update(issue)
