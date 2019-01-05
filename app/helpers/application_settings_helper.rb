@@ -20,10 +20,22 @@ module ApplicationSettingsHelper
   def enabled_protocol
     case Gitlab::CurrentSettings.enabled_git_access_protocol
     when 'http'
-      gitlab_config.protocol
+      Gitlab.config.gitlab.protocol
     when 'ssh'
       'ssh'
     end
+  end
+
+  def all_protocols_enabled?
+    Gitlab::CurrentSettings.enabled_git_access_protocol.blank?
+  end
+
+  def ssh_enabled?
+    all_protocols_enabled? || enabled_protocol == 'ssh'
+  end
+
+  def http_enabled?
+    all_protocols_enabled? || Gitlab::CurrentSettings.enabled_git_access_protocol == 'http'
   end
 
   def enabled_project_button(project, protocol)
