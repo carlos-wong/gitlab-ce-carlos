@@ -340,6 +340,9 @@ Any security warnings are also
 NOTE: **Note:**
 The Auto SAST stage will be skipped on licenses other than Ultimate.
 
+NOTE: **Note:**
+The Auto SAST job requires GitLab Runner 11.5 or above.
+
 ### Auto Dependency Scanning **[ULTIMATE]**
 
 > Introduced in [GitLab Ultimate][ee] 10.7.
@@ -355,6 +358,9 @@ Any security warnings are also
 
 NOTE: **Note:**
 The Auto Dependency Scanning stage will be skipped on licenses other than Ultimate.
+
+NOTE: **Note:**
+The Auto Dependency Scanning job requires GitLab Runner 11.5 or above.
 
 ### Auto License Management **[ULTIMATE]**
 
@@ -567,7 +573,7 @@ To view the metrics, open the
 While Auto DevOps provides great defaults to get you started, you can customize
 almost everything to fit your needs; from custom [buildpacks](#custom-buildpacks),
 to [`Dockerfile`s](#custom-dockerfile), [Helm charts](#custom-helm-chart), or
-even copying the complete [CI/CD configuration](#customizing-gitlab-ci-yml)
+even copying the complete [CI/CD configuration](#customizing-gitlab-ciyml)
 into your project to enable staging and canary deployments, and more.
 
 ### Custom buildpacks

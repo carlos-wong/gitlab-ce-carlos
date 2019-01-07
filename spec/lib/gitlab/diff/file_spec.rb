@@ -310,7 +310,7 @@ describe Gitlab::Diff::File do
     context 'when the content changed' do
       context 'when the file represented by the diff file is binary' do
         before do
-          allow(diff_file).to receive(:raw_binary?).and_return(true)
+          allow(diff_file).to receive(:binary?).and_return(true)
         end
 
         it 'returns a No Preview viewer' do
@@ -345,7 +345,7 @@ describe Gitlab::Diff::File do
 
       context 'when the file represented by the diff file is binary' do
         before do
-          allow(diff_file).to receive(:raw_binary?).and_return(true)
+          allow(diff_file).to receive(:binary?).and_return(true)
         end
 
         it 'returns an Added viewer' do
@@ -380,7 +380,7 @@ describe Gitlab::Diff::File do
 
       context 'when the file represented by the diff file is binary' do
         before do
-          allow(diff_file).to receive(:raw_binary?).and_return(true)
+          allow(diff_file).to receive(:binary?).and_return(true)
         end
 
         it 'returns a Deleted viewer' do
@@ -436,7 +436,7 @@ describe Gitlab::Diff::File do
         allow(diff_file).to receive(:deleted_file?).and_return(false)
         allow(diff_file).to receive(:renamed_file?).and_return(false)
         allow(diff_file).to receive(:mode_changed?).and_return(false)
-        allow(diff_file).to receive(:raw_text?).and_return(false)
+        allow(diff_file).to receive(:text?).and_return(false)
       end
 
       it 'returns a No Preview viewer' do
@@ -583,6 +583,12 @@ describe Gitlab::Diff::File do
       end
     end
 
+    describe '#empty?' do
+      it 'returns true' do
+        expect(diff_file.empty?).to be_truthy
+      end
+    end
+
     describe '#different_type?' do
       it 'returns false' do
         expect(diff_file).not_to be_different_type
@@ -659,6 +665,89 @@ describe Gitlab::Diff::File do
         EOS
 
         expect(diff_file.diff_hunk(diff_line)).to eq(diff_hunk.strip)
+      end
+    end
+  end
+
+  describe '#empty?' do
+    let(:project) do
+      create(:project, :custom_repo, files: {})
+    end
+    let(:branch_name) { 'master' }
+
+    def create_file(file_name, content)
+      Files::CreateService.new(
+        project,
+        project.owner,
+        commit_message: 'Update',
+        start_branch: branch_name,
+        branch_name: branch_name,
+        file_path: file_name,
+        file_content: content
+      ).execute
+
+      project.commit(branch_name).diffs.diff_files.first
+    end
+
+    def update_file(file_name, content)
+      Files::UpdateService.new(
+        project,
+        project.owner,
+        commit_message: 'Update',
+        start_branch: branch_name,
+        branch_name: branch_name,
+        file_path: file_name,
+        file_content: content
+      ).execute
+
+      project.commit(branch_name).diffs.diff_files.first
+    end
+
+    def delete_file(file_name)
+      Files::DeleteService.new(
+        project,
+        project.owner,
+        commit_message: 'Update',
+        start_branch: branch_name,
+        branch_name: branch_name,
+        file_path: file_name
+      ).execute
+
+      project.commit(branch_name).diffs.diff_files.first
+    end
+
+    context 'when empty file is created' do
+      it 'returns true' do
+        diff_file = create_file('empty.md', '')
+
+        expect(diff_file.empty?).to be_truthy
+      end
+    end
+
+    context 'when empty file is deleted' do
+      it 'returns true' do
+        create_file('empty.md', '')
+        diff_file = delete_file('empty.md')
+
+        expect(diff_file.empty?).to be_truthy
+      end
+    end
+
+    context 'when file with content is truncated' do
+      it 'returns false' do
+        create_file('with-content.md', 'file content')
+        diff_file = update_file('with-content.md', '')
+
+        expect(diff_file.empty?).to be_falsey
+      end
+    end
+
+    context 'when empty file has content added' do
+      it 'returns false' do
+        create_file('empty.md', '')
+        diff_file = update_file('empty.md', 'new content')
+
+        expect(diff_file.empty?).to be_falsey
       end
     end
   end

@@ -3,6 +3,7 @@
 class Notify < BaseMailer
   include ActionDispatch::Routing::PolymorphicRoutes
   include GitlabRoutingHelper
+  include EmailsHelper
 
   include Emails::Issues
   include Emails::MergeRequests
@@ -13,7 +14,9 @@ class Notify < BaseMailer
   include Emails::Pipelines
   include Emails::Members
   include Emails::AutoDevops
+  include Emails::RemoteMirrors
 
+  helper MilestonesHelper
   helper MergeRequestsHelper
   helper DiffHelper
   helper BlobHelper
@@ -193,6 +196,7 @@ class Notify < BaseMailer
     headers['X-GitLab-Project'] = @project.name
     headers['X-GitLab-Project-Id'] = @project.id
     headers['X-GitLab-Project-Path'] = @project.full_path
+    headers['List-Id'] = "#{@project.full_path} <#{create_list_id_string(@project)}>"
   end
 
   def add_unsubscription_headers_and_links

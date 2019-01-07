@@ -1,6 +1,5 @@
 <script>
 import { GlPopover, GlSkeletonLoading } from '@gitlab/ui';
-import { __, sprintf } from '~/locale';
 import UserAvatarImage from '../user_avatar/user_avatar_image.vue';
 import { glEmojiTag } from '../../../emoji';
 
@@ -86,7 +85,8 @@ export default {
           <gl-skeleton-loading v-else :lines="1" class="animation-container-small mb-1" />
         </div>
         <div class="text-secondary">
-          {{ jobLine }}
+          <div v-if="user.bio" class="js-bio">{{ user.bio }}</div>
+          <div v-if="user.organization" class="js-organization">{{ user.organization }}</div>
           <gl-skeleton-loading
             v-if="jobInfoIsLoading"
             :lines="1"

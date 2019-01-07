@@ -15,7 +15,7 @@ describe Groups::Settings::CiCdController do
       end
 
       it 'renders show with 200 status code' do
-        get :show, group_id: group
+        get :show, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to render_template(:show)
@@ -28,7 +28,7 @@ describe Groups::Settings::CiCdController do
       end
 
       it 'renders a 404' do
-        get :show, group_id: group
+        get :show, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(404)
       end
@@ -36,7 +36,7 @@ describe Groups::Settings::CiCdController do
   end
 
   describe 'PUT #reset_registration_token' do
-    subject { put :reset_registration_token, group_id: group }
+    subject { put :reset_registration_token, params: { group_id: group } }
 
     context 'when user is owner' do
       before do

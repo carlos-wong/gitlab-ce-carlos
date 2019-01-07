@@ -48,8 +48,8 @@ class MergeRequest < ActiveRecord::Base
   # is the inverse of MergeRequest#merge_request_diff, which means it may not be
   # the latest diff, because we could have loaded any diff from this particular
   # MR. If we haven't already loaded a diff, then it's fine to load the latest.
-  def merge_request_diff(*args)
-    fallback = latest_merge_request_diff if args.empty? && !association(:merge_request_diff).loaded?
+  def merge_request_diff
+    fallback = latest_merge_request_diff unless association(:merge_request_diff).loaded?
 
     fallback || super
   end
@@ -105,7 +105,9 @@ class MergeRequest < ActiveRecord::Base
 
     before_transition any => :opened do |merge_request|
       merge_request.merge_jid = nil
+    end
 
+    after_transition any => :opened do |merge_request|
       merge_request.run_after_commit do
         UpdateHeadPipelineForMergeRequestWorker.perform_async(merge_request.id)
       end
@@ -408,6 +410,28 @@ class MergeRequest < ActiveRecord::Base
     merge_request_diffs.where.not(id: merge_request_diff.id)
   end
 
+  def preloads_discussion_diff_highlighting?
+    true
+  end
+
+  def preload_discussions_diff_highlight
+    preloadable_files = note_diff_files.for_commit_or_unresolved
+
+    discussions_diffs.load_highlight(preloadable_files.pluck(:id))
+  end
+
+  def discussions_diffs
+    strong_memoize(:discussions_diffs) do
+      Gitlab::DiscussionsDiff::FileCollection.new(note_diff_files.to_a)
+    end
+  end
+
+  def note_diff_files
+    NoteDiffFile
+      .where(diff_note: discussion_notes)
+      .includes(diff_note: :project)
+  end
+
   def diff_size
     # Calling `merge_request_diff.diffs.real_size` will also perform
     # highlighting, which we don't need here.
@@ -617,10 +641,6 @@ class MergeRequest < ActiveRecord::Base
       merge_request_diffs.create
       reload_merge_request_diff
     end
-  end
-
-  def reload_merge_request_diff
-    merge_request_diff(true)
   end
 
   def viewable_diffs

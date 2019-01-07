@@ -163,9 +163,11 @@ module API
     end
 
     def find_branch!(branch_name)
-      user_project.repository.find_branch(branch_name) || not_found!('Branch')
-    rescue Gitlab::Git::CommandError
-      render_api_error!('The branch refname is invalid', 400)
+      if Gitlab::GitRefValidator.validate(branch_name)
+        user_project.repository.find_branch(branch_name) || not_found!('Branch')
+      else
+        render_api_error!('The branch refname is invalid', 400)
+      end
     end
 
     def find_project_label(id)
@@ -291,7 +293,7 @@ module API
         end
       end
       permitted_attrs = ActionController::Parameters.new(attrs).permit!
-      Gitlab.rails5? ? permitted_attrs.to_h : permitted_attrs
+      permitted_attrs.to_h
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

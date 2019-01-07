@@ -80,12 +80,14 @@
         endpoint: diffs_project_merge_request_path(@project, @merge_request, 'json', request.query_parameters),
         help_page_path: suggest_changes_help_path,
         current_user_data: UserSerializer.new(project: @project).represent(current_user, {}, MergeRequestUserEntity).to_json,
-        project_path: project_path(@merge_request.project)} }
+        project_path: project_path(@merge_request.project),
+        changes_empty_state_illustration: image_path('illustrations/merge_request_changes_empty.svg') } }
 
     .mr-loading-status
       = spinner
 
-= render 'shared/issuable/sidebar', issuable: @merge_request
+= render 'shared/issuable/sidebar', issuable_sidebar: @issuable_sidebar, assignees: @merge_request.assignees
+
 - if @merge_request.can_be_reverted?(current_user)
   = render "projects/commit/change", type: 'revert', commit: @merge_request.merge_commit, title: @merge_request.title
 - if @merge_request.can_be_cherry_picked?

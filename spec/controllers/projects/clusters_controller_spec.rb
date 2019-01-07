@@ -18,7 +18,7 @@ describe Projects::ClustersController do
 
   describe 'GET index' do
     def go(params = {})
-      get :index, params.reverse_merge(namespace_id: project.namespace.to_param, project_id: project)
+      get :index, params: params.reverse_merge(namespace_id: project.namespace.to_param, project_id: project)
     end
 
     describe 'functionality' do
@@ -80,7 +80,7 @@ describe Projects::ClustersController do
 
   describe 'GET new' do
     def go
-      get :new, namespace_id: project.namespace, project_id: project
+      get :new, params: { namespace_id: project.namespace, project_id: project }
     end
 
     describe 'functionality for new cluster' do
@@ -174,7 +174,7 @@ describe Projects::ClustersController do
     end
 
     def go
-      post :create_gcp, params.merge(namespace_id: project.namespace, project_id: project)
+      post :create_gcp, params: params.merge(namespace_id: project.namespace, project_id: project)
     end
 
     describe 'functionality' do
@@ -261,7 +261,7 @@ describe Projects::ClustersController do
     end
 
     def go
-      post :create_user, params.merge(namespace_id: project.namespace, project_id: project)
+      post :create_user, params: params.merge(namespace_id: project.namespace, project_id: project)
     end
 
     describe 'functionality' do
@@ -311,7 +311,7 @@ describe Projects::ClustersController do
 
     describe 'security' do
       before do
-        allow(ClusterPlatformConfigureWorker).to receive(:perform_async)
+        allow(ClusterConfigureWorker).to receive(:perform_async)
         stub_kubeclient_get_namespace('https://kubernetes.example.com', namespace: 'my-namespace')
       end
 
@@ -331,9 +331,11 @@ describe Projects::ClustersController do
 
     def go
       get :cluster_status,
-        namespace_id: project.namespace.to_param,
-        project_id: project.to_param,
-        id: cluster,
+        params: {
+          namespace_id: project.namespace.to_param,
+          project_id: project.to_param,
+          id: cluster
+        },
         format: :json
     end
 
@@ -369,9 +371,11 @@ describe Projects::ClustersController do
 
     def go
       get :show,
-        namespace_id: project.namespace,
-        project_id: project,
-        id: cluster
+        params: {
+          namespace_id: project.namespace,
+          project_id: project,
+          id: cluster
+        }
     end
 
     describe 'functionality' do
@@ -397,15 +401,15 @@ describe Projects::ClustersController do
 
   describe 'PUT update' do
     def go(format: :html)
-      put :update, params.merge(namespace_id: project.namespace.to_param,
-                                project_id: project.to_param,
-                                id: cluster,
-                                format: format
-                               )
+      put :update, params: params.merge(namespace_id: project.namespace.to_param,
+                                        project_id: project.to_param,
+                                        id: cluster,
+                                        format: format
+                                       )
     end
 
     before do
-      allow(ClusterPlatformConfigureWorker).to receive(:perform_async)
+      allow(ClusterConfigureWorker).to receive(:perform_async)
       stub_kubeclient_get_namespace('https://kubernetes.example.com', namespace: 'my-namespace')
     end
 
@@ -500,9 +504,11 @@ describe Projects::ClustersController do
 
     def go
       delete :destroy,
-        namespace_id: project.namespace,
-        project_id: project,
-        id: cluster
+        params: {
+          namespace_id: project.namespace,
+          project_id: project,
+          id: cluster
+        }
     end
 
     describe 'functionality' do

@@ -5,9 +5,8 @@ class DashboardGroupMilestone < GlobalMilestone
 
   attr_reader :group_name
 
-  override :initialize
   def initialize(milestone)
-    super(milestone.title, Array(milestone))
+    super
 
     @group_name = milestone.group.full_name
   end
@@ -18,23 +17,5 @@ class DashboardGroupMilestone < GlobalMilestone
              .order_by_name_asc
              .active
              .map { |m| new(m) }
-  end
-
-  override :group_milestone?
-  def group_milestone?
-    @first_milestone.group_milestone?
-  end
-
-  override :milestoneish_ids
-  def milestoneish_ids
-    milestones.map(&:id)
-  end
-
-  def group
-    @first_milestone.group
-  end
-
-  def iid
-    @first_milestone.iid
   end
 end

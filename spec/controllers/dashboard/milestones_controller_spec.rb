@@ -34,7 +34,7 @@ describe Dashboard::MilestonesController do
     render_views
 
     def view_milestone
-      get :show, id: milestone.safe_title, title: milestone.title
+      get :show, params: { id: milestone.safe_title, title: milestone.title }
     end
 
     it 'shows milestone page' do
@@ -52,7 +52,7 @@ describe Dashboard::MilestonesController do
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response.size).to eq(2)
-      expect(json_response.map { |i| i["first_milestone"]["id"] }).to match_array([group_milestone.id, project_milestone.id])
+      expect(json_response.map { |i| i["name"] }).to match_array([group_milestone.name, project_milestone.name])
       expect(json_response.map { |i| i["group_name"] }.compact).to match_array(group.name)
     end
 

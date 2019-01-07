@@ -1,6 +1,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
+import EmptyFileViewer from '~/vue_shared/components/diff_viewer/viewers/empty_file.vue';
 import InlineDiffView from './inline_diff_view.vue';
 import ParallelDiffView from './parallel_diff_view.vue';
 import NoteForm from '../../notes/components/note_form.vue';
@@ -17,6 +18,7 @@ export default {
     NoteForm,
     DiffDiscussions,
     ImageDiffOverlay,
+    EmptyFileViewer,
   },
   props: {
     diffFile: {
@@ -42,6 +44,9 @@ export default {
     },
     isTextFile() {
       return this.diffFile.viewer.name === 'text';
+    },
+    errorMessage() {
+      return this.diffFile.viewer.error;
     },
     diffFileCommentForm() {
       return this.getCommentFormForDiffFile(this.diffFile.file_hash);
@@ -73,16 +78,17 @@ export default {
 
 <template>
   <div class="diff-content">
-    <div class="diff-viewer">
+    <div v-if="!errorMessage" class="diff-viewer">
       <template v-if="isTextFile">
+        <empty-file-viewer v-if="diffFile.empty" />
         <inline-diff-view
-          v-if="isInlineView"
+          v-else-if="isInlineView"
           :diff-file="diffFile"
           :diff-lines="diffFile.highlighted_diff_lines || []"
           :help-page-path="helpPagePath"
         />
         <parallel-diff-view
-          v-if="isParallelView"
+          v-else-if="isParallelView"
           :diff-file="diffFile"
           :diff-lines="diffFile.parallel_diff_lines || []"
           :help-page-path="helpPagePath"
@@ -125,6 +131,9 @@ export default {
           />
         </div>
       </diff-viewer>
+    </div>
+    <div v-else class="diff-viewer">
+      <div class="nothing-here-block" v-html="errorMessage"></div>
     </div>
   </div>
 </template>

@@ -2167,6 +2167,39 @@ describe NotificationService, :mailer do
     end
   end
 
+  context 'Remote mirror notifications' do
+    describe '#remote_mirror_update_failed' do
+      let(:project) { create(:project) }
+      let(:remote_mirror) { create(:remote_mirror, project: project) }
+      let(:u_blocked) { create(:user, :blocked) }
+      let(:u_silence) { create_user_with_notification(:disabled, 'silent-maintainer', project) }
+      let(:u_owner)   { project.owner }
+      let(:u_maintainer1) { create(:user) }
+      let(:u_maintainer2) { create(:user) }
+      let(:u_developer) { create(:user) }
+
+      before do
+        project.add_maintainer(u_blocked)
+        project.add_maintainer(u_silence)
+        project.add_maintainer(u_maintainer1)
+        project.add_maintainer(u_maintainer2)
+        project.add_developer(u_developer)
+
+        # Mock remote update
+        allow(project.repository).to receive(:async_remove_remote)
+        allow(project.repository).to receive(:add_remote)
+
+        reset_delivered_emails!
+      end
+
+      it 'emails current watching maintainers' do
+        notification.remote_mirror_update_failed(remote_mirror)
+
+        should_only_email(u_maintainer1, u_maintainer2, u_owner)
+      end
+    end
+  end
+
   def build_team(project)
     @u_watcher               = create_global_setting_for(create(:user), :watch)
     @u_participating         = create_global_setting_for(create(:user), :participating)
@@ -2217,7 +2250,7 @@ describe NotificationService, :mailer do
   # Creates a nested group only if supported
   # to avoid errors on MySQL
   def create_nested_group
-    if Group.supports_nested_groups?
+    if Group.supports_nested_objects?
       parent_group = create(:group, :public)
       child_group = create(:group, :public, parent: parent_group)
 
@@ -2244,7 +2277,7 @@ describe NotificationService, :mailer do
   end
 
   def add_member_for_parent_group(user, project)
-    return unless Group.supports_nested_groups?
+    return unless Group.supports_nested_objects?
 
     project.reload
 
@@ -2252,13 +2285,13 @@ describe NotificationService, :mailer do
   end
 
   def should_email_nested_group_user(user, times: 1, recipients: email_recipients)
-    return unless Group.supports_nested_groups?
+    return unless Group.supports_nested_objects?
 
     should_email(user, times: 1, recipients: email_recipients)
   end
 
   def should_not_email_nested_group_user(user, recipients: email_recipients)
-    return unless Group.supports_nested_groups?
+    return unless Group.supports_nested_objects?
 
     should_not_email(user, recipients: email_recipients)
   end

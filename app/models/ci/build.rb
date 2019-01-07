@@ -225,6 +225,10 @@ module Ci
         next unless build.project
 
         build.deployment&.drop
+      end
+
+      after_transition any => [:failed] do |build|
+        next unless build.project
 
         if build.retry_failure?
           begin
@@ -845,6 +849,7 @@ module Ci
         variables.append(key: 'CI_JOB_NAME', value: name)
         variables.append(key: 'CI_JOB_STAGE', value: stage)
         variables.append(key: 'CI_COMMIT_SHA', value: sha)
+        variables.append(key: 'CI_COMMIT_SHORT_SHA', value: short_sha)
         variables.append(key: 'CI_COMMIT_BEFORE_SHA', value: before_sha)
         variables.append(key: 'CI_COMMIT_REF_NAME', value: ref)
         variables.append(key: 'CI_COMMIT_REF_SLUG', value: ref_slug)

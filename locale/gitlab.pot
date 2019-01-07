@@ -19,6 +19,9 @@ msgstr ""
 msgid " Status"
 msgstr ""
 
+msgid " or "
+msgstr ""
+
 msgid "%d addition"
 msgid_plural "%d additions"
 msgstr[0] ""
@@ -95,9 +98,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "%{actionText} & %{openOrClose} %{noteable}"
-msgstr ""
-
-msgid "%{bio} at %{organization}"
 msgstr ""
 
 msgid "%{commit_author_link} authored %{commit_timeago}"
@@ -186,6 +186,9 @@ msgid "+ %{count} more"
 msgstr ""
 
 msgid "+ %{moreCount} more"
+msgstr ""
+
+msgid ", or "
 msgstr ""
 
 msgid "- Runner is active and can process any new jobs"
@@ -438,7 +441,13 @@ msgstr ""
 msgid "AdminProjects|Delete project"
 msgstr ""
 
+msgid "AdminSettings|Environment variables are protected by default"
+msgstr ""
+
 msgid "AdminSettings|Specify a domain to use by default for every project's Auto Review Apps and Auto Deploy stages."
+msgstr ""
+
+msgid "AdminSettings|When creating a new environment variable it will be protected by default."
 msgstr ""
 
 msgid "AdminUsers|Block user"
@@ -523,6 +532,9 @@ msgid "An error accured whilst committing your changes."
 msgstr ""
 
 msgid "An error has occurred"
+msgstr ""
+
+msgid "An error occured while fetching the releases. Please try again."
 msgstr ""
 
 msgid "An error occurred creating the new branch."
@@ -709,6 +721,9 @@ msgid "Artifacts"
 msgstr ""
 
 msgid "Ask your group maintainer to set up a group Runner."
+msgstr ""
+
+msgid "Assets"
 msgstr ""
 
 msgid "Assign custom color like #FF0000"
@@ -1494,6 +1509,9 @@ msgstr ""
 msgid "ClusterIntegration|Choose which of your environments will use this cluster."
 msgstr ""
 
+msgid "ClusterIntegration|Clusters are utilized by selecting the nearest ancestor with a matching environment scope. For example, project clusters will override group clusters."
+msgstr ""
+
 msgid "ClusterIntegration|Copy API URL"
 msgstr ""
 
@@ -1534,6 +1552,15 @@ msgid "ClusterIntegration|Environment scope"
 msgstr ""
 
 msgid "ClusterIntegration|Every new Google Cloud Platform (GCP) account receives $300 in credit upon %{sign_up_link}. In partnership with Google, GitLab is able to offer an additional $200 for both new and existing GCP accounts to get started with GitLab's Google Kubernetes Engine Integration."
+msgstr ""
+
+msgid "ClusterIntegration|Failed to configure Google Kubernetes Engine Cluster: %{message}"
+msgstr ""
+
+msgid "ClusterIntegration|Failed to request to Google Cloud Platform: %{message}"
+msgstr ""
+
+msgid "ClusterIntegration|Failed to run Kubeclient: %{message}"
 msgstr ""
 
 msgid "ClusterIntegration|Fetching machine types"
@@ -2587,6 +2614,9 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
+msgid "Download asset"
+msgstr ""
+
 msgid "Download tar"
 msgstr ""
 
@@ -2662,6 +2692,9 @@ msgstr ""
 msgid "Embed"
 msgstr ""
 
+msgid "Empty file"
+msgstr ""
+
 msgid "Enable"
 msgstr ""
 
@@ -2720,6 +2753,15 @@ msgid "Enter the merge request description"
 msgstr ""
 
 msgid "Enter the merge request title"
+msgstr ""
+
+msgid "Environment variables"
+msgstr ""
+
+msgid "Environment variables are applied to environments via the runner. They can be protected by only exposing them to protected branches or tags. You can use environment variables for passwords, secret keys, or whatever you want."
+msgstr ""
+
+msgid "Environment variables are configured by your administrator to be %{link_start}protected%{link_end} by default"
 msgstr ""
 
 msgid "Environments"
@@ -3100,6 +3142,9 @@ msgstr ""
 msgid "Forking in progress"
 msgstr ""
 
+msgid "Forks"
+msgstr ""
+
 msgid "Format"
 msgstr ""
 
@@ -3146,6 +3191,9 @@ msgid "Generate a default set of labels"
 msgstr ""
 
 msgid "Geo"
+msgstr ""
+
+msgid "Getting started with releases"
 msgstr ""
 
 msgid "Git"
@@ -3732,7 +3780,7 @@ msgstr ""
 msgid "Job|The artifacts were removed"
 msgstr ""
 
-msgid "Job|The artifacts will be removed in"
+msgid "Job|The artifacts will be removed"
 msgstr ""
 
 msgid "Job|This job is stuck because the project doesn't have any runners online assigned to it."
@@ -4066,9 +4114,6 @@ msgstr ""
 msgid "Merge Request"
 msgstr ""
 
-msgid "Merge Request:"
-msgstr ""
-
 msgid "Merge Requests"
 msgstr ""
 
@@ -4106,6 +4151,9 @@ msgid "MergeRequests|started a discussion on %{linkStart}an old version of the d
 msgstr ""
 
 msgid "MergeRequests|started a discussion on %{linkStart}the diff%{linkEnd}"
+msgstr ""
+
+msgid "MergeRequests|started a discussion on an outdated change in commit %{linkStart}%{commitId}%{linkEnd}"
 msgstr ""
 
 msgid "MergeRequests|started a discussion on commit %{linkStart}%{commitId}%{linkEnd}"
@@ -4368,6 +4416,9 @@ msgstr ""
 msgid "No"
 msgstr ""
 
+msgid "No activities found"
+msgstr ""
+
 msgid "No assignee"
 msgstr ""
 
@@ -4375,6 +4426,9 @@ msgid "No branches found"
 msgstr ""
 
 msgid "No changes"
+msgstr ""
+
+msgid "No changes between %{ref_start}%{source_branch}%{ref_end} and %{ref_start}%{target_branch}%{ref_end}"
 msgstr ""
 
 msgid "No connection could be made to a Gitaly Server, please check your logs!"
@@ -4599,6 +4653,9 @@ msgid "Oops, are you sure?"
 msgstr ""
 
 msgid "Open"
+msgstr ""
+
+msgid "Open Documentation"
 msgstr ""
 
 msgid "Open in Xcode"
@@ -4979,6 +5036,9 @@ msgstr ""
 msgid "Profiles| You are going to change the username %{currentUsernameBold} to %{newUsernameBold}. Profile and projects will be redirected to the %{newUsername} namespace but this redirect will expire once the %{currentUsername} namespace is registered by another user or group. Please update your Git repository remotes as soon as possible."
 msgstr ""
 
+msgid "Profiles|@username"
+msgstr ""
+
 msgid "Profiles|Account scheduled for removal."
 msgstr ""
 
@@ -5000,7 +5060,10 @@ msgstr ""
 msgid "Profiles|Choose file..."
 msgstr ""
 
-msgid "Profiles|Choose to show contributions of private projects on your public profile without any project, repository or organization information."
+msgid "Profiles|Choose to show contributions of private projects on your public profile without any project, repository or organization information"
+msgstr ""
+
+msgid "Profiles|City, country"
 msgstr ""
 
 msgid "Profiles|Clear status"
@@ -5031,6 +5094,9 @@ msgid "Profiles|Don't display activity-related personal information on your prof
 msgstr ""
 
 msgid "Profiles|Edit Profile"
+msgstr ""
+
+msgid "Profiles|Enter your name, so people you know can recognize you"
 msgstr ""
 
 msgid "Profiles|Invalid password"
@@ -5072,7 +5138,7 @@ msgstr ""
 msgid "Profiles|Some options are unavailable for LDAP accounts"
 msgstr ""
 
-msgid "Profiles|Tell us about yourself in fewer than 250 characters."
+msgid "Profiles|Tell us about yourself in fewer than 250 characters"
 msgstr ""
 
 msgid "Profiles|The maximum file size allowed is 200KB."
@@ -5081,7 +5147,7 @@ msgstr ""
 msgid "Profiles|This doesn't look like a public SSH key, are you sure you want to add it?"
 msgstr ""
 
-msgid "Profiles|This email will be displayed on your public profile."
+msgid "Profiles|This email will be displayed on your public profile"
 msgstr ""
 
 msgid "Profiles|This email will be used for web based operations, such as edits and merges. %{learn_more}"
@@ -5090,10 +5156,10 @@ msgstr ""
 msgid "Profiles|This emoji and message will appear on your profile and throughout the interface."
 msgstr ""
 
-msgid "Profiles|This feature is experimental and translations are not complete yet."
+msgid "Profiles|This feature is experimental and translations are not complete yet"
 msgstr ""
 
-msgid "Profiles|This information will appear on your profile."
+msgid "Profiles|This information will appear on your profile"
 msgstr ""
 
 msgid "Profiles|Type your %{confirmationValue} to confirm:"
@@ -5120,10 +5186,10 @@ msgstr ""
 msgid "Profiles|Username successfully changed"
 msgstr ""
 
-msgid "Profiles|Website"
+msgid "Profiles|What's your status?"
 msgstr ""
 
-msgid "Profiles|What's your status?"
+msgid "Profiles|Who you represent or work for"
 msgstr ""
 
 msgid "Profiles|You can change your avatar here"
@@ -5144,22 +5210,31 @@ msgstr ""
 msgid "Profiles|You must transfer ownership or delete these groups before you can delete your account."
 msgstr ""
 
+msgid "Profiles|Your LinkedIn profile name from linkedin.com/in/profilename"
+msgstr ""
+
 msgid "Profiles|Your account is currently an owner in these groups:"
 msgstr ""
 
-msgid "Profiles|Your email address was automatically set based on your %{provider_label} account."
+msgid "Profiles|Your email address was automatically set based on your %{provider_label} account"
 msgstr ""
 
-msgid "Profiles|Your location was automatically set based on your %{provider_label} account."
+msgid "Profiles|Your location was automatically set based on your %{provider_label} account"
 msgstr ""
 
-msgid "Profiles|Your name was automatically set based on your %{provider_label} account, so people you know can recognize you."
+msgid "Profiles|Your name was automatically set based on your %{provider_label} account, so people you know can recognize you"
 msgstr ""
 
 msgid "Profiles|Your status"
 msgstr ""
 
 msgid "Profiles|e.g. My MacBook key"
+msgstr ""
+
+msgid "Profiles|username"
+msgstr ""
+
+msgid "Profiles|website.com"
 msgstr ""
 
 msgid "Profiles|your account"
@@ -5479,6 +5554,12 @@ msgstr ""
 msgid "Related merge requests"
 msgstr ""
 
+msgid "Releases"
+msgstr ""
+
+msgid "Releases mark specific points in a project's development history, communicate information about the type of change, and deliver on prepared, often compiled, versions of the software to be reused elsewhere. Currently, releases can only be created through the API."
+msgstr ""
+
 msgid "Remind later"
 msgstr ""
 
@@ -5618,6 +5699,9 @@ msgid "Response metrics (Custom)"
 msgstr ""
 
 msgid "Response metrics (HA Proxy)"
+msgstr ""
+
+msgid "Response metrics (NGINX Ingress VTS)"
 msgstr ""
 
 msgid "Response metrics (NGINX Ingress)"
@@ -6158,7 +6242,7 @@ msgstr ""
 msgid "SortOptions|Least popular"
 msgstr ""
 
-msgid "SortOptions|Milestone"
+msgid "SortOptions|Milestone due date"
 msgstr ""
 
 msgid "SortOptions|Milestone due later"
@@ -6275,6 +6359,9 @@ msgstr ""
 msgid "Starred projects"
 msgstr ""
 
+msgid "Stars"
+msgstr ""
+
 msgid "Start a %{new_merge_request} with these changes"
 msgstr ""
 
@@ -6366,6 +6453,9 @@ msgid "System metrics (Custom)"
 msgstr ""
 
 msgid "System metrics (Kubernetes)"
+msgstr ""
+
+msgid "Tag"
 msgstr ""
 
 msgid "Tags"
@@ -6617,7 +6707,7 @@ msgstr ""
 msgid "Third party offers"
 msgstr ""
 
-msgid "This %{viewer} could not be displayed because %{reason}."
+msgid "This %{viewer} could not be displayed because %{reason}. You can %{options} instead."
 msgstr ""
 
 msgid "This GitLab instance does not provide any shared Runners yet. Instance administrators can register shared Runners in the admin area."
@@ -7083,10 +7173,13 @@ msgstr ""
 msgid "Trending"
 msgstr ""
 
-msgid "Trigger"
+msgid "Trigger this manual action"
 msgstr ""
 
-msgid "Trigger this manual action"
+msgid "Trigger token:"
+msgstr ""
+
+msgid "Trigger variables:"
 msgstr ""
 
 msgid "Triggers can force a specific branch or tag to get rebuilt with an API call.  These tokens will impersonate their associated user including their access to projects and their project permissions."
@@ -7282,15 +7375,6 @@ msgid "Users"
 msgstr ""
 
 msgid "Users requesting access to"
-msgstr ""
-
-msgid "Variables"
-msgstr ""
-
-msgid "Variables are applied to environments via the runner. They can be protected by only exposing them to protected branches or tags. You can use variables for passwords, secret keys, or whatever you want."
-msgstr ""
-
-msgid "Variables:"
 msgstr ""
 
 msgid "Various container registry settings."
@@ -7816,13 +7900,28 @@ msgstr ""
 msgid "https://your-bitbucket-server"
 msgstr ""
 
+msgid "image diff"
+msgstr ""
+
 msgid "import flow"
 msgstr ""
 
 msgid "importing"
 msgstr ""
 
+msgid "in"
+msgstr ""
+
 msgid "issue boards"
+msgstr ""
+
+msgid "it is stored externally"
+msgstr ""
+
+msgid "it is stored in LFS"
+msgstr ""
+
+msgid "it is too large"
 msgstr ""
 
 msgid "latest deployment"
@@ -8065,6 +8164,9 @@ msgstr ""
 msgid "remove due date"
 msgstr ""
 
+msgid "rendered diff"
+msgstr ""
+
 msgid "reply"
 msgid_plural "replies"
 msgstr[0] ""
@@ -8074,6 +8176,9 @@ msgid "should be higher than %{access} inherited membership from group %{group_n
 msgstr ""
 
 msgid "source"
+msgstr ""
+
+msgid "source diff"
 msgstr ""
 
 msgid "spendCommand|%{slash_command} will update the sum of the time spent."
@@ -8095,6 +8200,9 @@ msgid "uses Kubernetes clusters to deploy your code!"
 msgstr ""
 
 msgid "view it on GitLab"
+msgstr ""
+
+msgid "view the blob"
 msgstr ""
 
 msgid "with %{additions} additions, %{deletions} deletions."

@@ -30,7 +30,7 @@ GitLab can seamlessly deploy and manage Prometheus on a [connected Kubernetes cl
 
 Once you have a connected Kubernetes cluster with Helm installed, deploying a managed Prometheus is as easy as a single click.
 
-1. Go to the `Operations > Kubernetes` page, to view your connected clusters
+1. Go to the **Operations > Kubernetes** page to view your connected clusters
 1. Select the cluster you would like to deploy Prometheus to
 1. Click the **Install** button to deploy Prometheus to the cluster
 
@@ -41,6 +41,7 @@ Once you have a connected Kubernetes cluster with Helm installed, deploying a ma
 Prometheus is deployed into the `gitlab-managed-apps` namespace, using the [official Helm chart](https://github.com/kubernetes/charts/tree/master/stable/prometheus). Prometheus is only accessible within the cluster, with GitLab communicating through the [Kubernetes API](https://kubernetes.io/docs/concepts/overview/kubernetes-api/).
 
 The Prometheus server will [automatically detect and monitor](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Ckubernetes_sd_config%3E) nodes, pods, and endpoints. To configure a resource to be monitored by Prometheus, simply set the following [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/):
+
 * `prometheus.io/scrape` to `true` to enable monitoring of the resource.
 * `prometheus.io/port` to define the port of the metrics endpoint.
 * `prometheus.io/path` to define the path of the metrics endpoint. Defaults to `/metrics`.
@@ -87,7 +88,7 @@ to integrate with.
 Once configured, GitLab will attempt to retrieve performance metrics for any
 environment which has had a successful deployment.
 
-GitLab will automatically scan the Prometheus server for metrics from known serves like Kubernetes and NGINX, and attempt to identify individual environment. The supported metrics and scan process is detailed in our [Prometheus Metric Library documentation](prometheus_library/metrics.html). 
+GitLab will automatically scan the Prometheus server for metrics from known serves like Kubernetes and NGINX, and attempt to identify individual environment. The supported metrics and scan process is detailed in our [Prometheus Metric Library documentation](prometheus_library/index.md).
 
 You can view the performance dashboard for an environment by [clicking on the monitoring button](../../../ci/environments.md#monitoring-environments).
 

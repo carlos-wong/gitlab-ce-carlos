@@ -106,6 +106,9 @@ export default {
         (!this.mr.isNothingToMergeState && !this.mr.isMergedState)
       );
     },
+    shouldRenderCollaborationStatus() {
+      return this.mr.allowCollaboration && this.mr.isOpen;
+    },
     shouldRenderMergedPipeline() {
       return this.mr.state === 'merged' && !_.isEmpty(this.mr.mergePipeline);
     },
@@ -155,13 +158,13 @@ export default {
       };
       return new MRWidgetService(endpoints);
     },
-    checkStatus(cb) {
+    checkStatus(cb, isRebased) {
       return this.service
         .checkStatus()
         .then(res => res.data)
         .then(data => {
           this.handleNotification(data);
-          this.mr.setData(data);
+          this.mr.setData(data, isRebased);
           this.setFaviconHelper();
 
           if (cb) {
@@ -263,6 +266,10 @@ export default {
         this.checkStatus(cb);
       });
 
+      eventHub.$on('MRWidgetRebaseSuccess', cb => {
+        this.checkStatus(cb, true);
+      });
+
       // `params` should be an Array contains a Boolean, like `[true]`
       // Passing parameter as Boolean didn't work.
       eventHub.$on('SetBranchRemoveFlag', params => {
@@ -311,7 +318,7 @@ export default {
       <div class="mr-widget-section">
         <component :is="componentName" :mr="mr" :service="service" />
 
-        <section v-if="mr.allowCollaboration" class="mr-info-list mr-links">
+        <section v-if="shouldRenderCollaborationStatus" class="mr-info-list mr-links">
           {{ s__('mrWidget|Allows commits from members who can merge to the target branch') }}
         </section>
 

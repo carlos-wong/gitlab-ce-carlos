@@ -559,6 +559,57 @@ describe MergeRequest do
     end
   end
 
+  describe '#preload_discussions_diff_highlight' do
+    let(:merge_request) { create(:merge_request) }
+
+    context 'with commit diff note' do
+      let(:other_merge_request) { create(:merge_request) }
+
+      let!(:diff_note) do
+        create(:diff_note_on_commit, project: merge_request.project)
+      end
+
+      let!(:other_mr_diff_note) do
+        create(:diff_note_on_commit, project: other_merge_request.project)
+      end
+
+      it 'preloads diff highlighting' do
+        expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
+          note_diff_file = diff_note.note_diff_file
+
+          expect(collection)
+            .to receive(:load_highlight)
+            .with([note_diff_file.id]).and_call_original
+        end
+
+        merge_request.preload_discussions_diff_highlight
+      end
+    end
+
+    context 'with merge request diff note' do
+      let!(:unresolved_diff_note) do
+        create(:diff_note_on_merge_request, project: merge_request.project, noteable: merge_request)
+      end
+
+      let!(:resolved_diff_note) do
+        create(:diff_note_on_merge_request, :resolved, project: merge_request.project, noteable: merge_request)
+      end
+
+      it 'preloads diff highlighting' do
+        expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
+          note_diff_file = unresolved_diff_note.note_diff_file
+
+          expect(collection)
+            .to receive(:load_highlight)
+            .with([note_diff_file.id])
+            .and_call_original
+        end
+
+        merge_request.preload_discussions_diff_highlight
+      end
+    end
+  end
+
   describe '#diff_size' do
     let(:merge_request) do
       build(:merge_request, source_branch: 'expand-collapse-files', target_branch: 'master')
@@ -1358,7 +1409,7 @@ describe MergeRequest do
       it 'does not raises a NameError exception' do
         allow_any_instance_of(service_class_name.constantize).to receive(:execute).and_return(nil)
 
-        expect { subject }.not_to raise_error(NameError)
+        expect { subject }.not_to raise_error
       end
     end
   end
@@ -2092,7 +2143,7 @@ describe MergeRequest do
           head_commit_sha: commit.sha
         )
 
-        subject.merge_request_diff(true)
+        subject.reload_merge_request_diff
       end
     end
 

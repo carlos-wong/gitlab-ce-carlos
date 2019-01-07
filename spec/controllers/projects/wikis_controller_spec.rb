@@ -20,7 +20,7 @@ describe Projects::WikisController do
   describe 'GET #show' do
     render_views
 
-    subject { get :show, namespace_id: project.namespace, project_id: project, id: wiki_title }
+    subject { get :show, params: { namespace_id: project.namespace, project_id: project, id: wiki_title } }
 
     it 'limits the retrieved pages for the sidebar' do
       expect(controller).to receive(:load_wiki).and_return(project_wiki)
@@ -52,56 +52,24 @@ describe Projects::WikisController do
 
       let(:path) { upload_file_to_wiki(project, user, file_name) }
 
-      subject { get :show, namespace_id: project.namespace, project_id: project, id: path }
+      before do
+        get :show, params: { namespace_id: project.namespace, project_id: project, id: path }
+      end
 
       context 'when file is an image' do
         let(:file_name) { 'dk.png' }
 
-        context 'when feature flag workhorse_set_content_type is' do
-          before do
-            stub_feature_flags(workhorse_set_content_type: flag_value)
+        it 'delivers the image' do
+          expect(response.headers['Content-Disposition']).to match(/^inline/)
+          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+        end
 
-            subject
-          end
+        context 'when file is a svg' do
+          let(:file_name) { 'unsanitized.svg' }
 
-          context 'enabled' do
-            let(:flag_value) { true }
-
-            it 'delivers the image' do
-              expect(response.headers['Content-Type']).to eq('image/png')
-              expect(response.headers['Content-Disposition']).to match(/^inline/)
-              expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
-            end
-
-            context 'when file is a svg' do
-              let(:file_name) { 'unsanitized.svg' }
-
-              it 'delivers the image' do
-                expect(response.headers['Content-Type']).to eq('image/svg+xml')
-                expect(response.headers['Content-Disposition']).to match(/^attachment/)
-                expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
-              end
-            end
-          end
-
-          context 'disabled' do
-            let(:flag_value) { false }
-
-            it 'renders the content inline' do
-              expect(response.headers['Content-Type']).to eq('image/png')
-              expect(response.headers['Content-Disposition']).to match(/^inline/)
-              expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq nil
-            end
-
-            context 'when file is a svg' do
-              let(:file_name) { 'unsanitized.svg' }
-
-              it 'renders the content as an attachment' do
-                expect(response.headers['Content-Type']).to eq('image/svg+xml')
-                expect(response.headers['Content-Disposition']).to match(/^attachment/)
-                expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq nil
-              end
-            end
+          it 'delivers the image' do
+            expect(response.headers['Content-Disposition']).to match(/^inline/)
+            expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
           end
         end
       end
@@ -109,32 +77,9 @@ describe Projects::WikisController do
       context 'when file is a pdf' do
         let(:file_name) { 'git-cheat-sheet.pdf' }
 
-        context 'when feature flag workhorse_set_content_type is' do
-          before do
-            stub_feature_flags(workhorse_set_content_type: flag_value)
-
-            subject
-          end
-
-          context 'enabled' do
-            let(:flag_value) { true }
-
-            it 'sets the content type to sets the content response headers' do
-              expect(response.headers['Content-Type']).to eq 'application/octet-stream'
-              expect(response.headers['Content-Disposition']).to match(/^inline/)
-              expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
-            end
-          end
-
-          context 'disabled' do
-            let(:flag_value) { false }
-
-            it 'sets the content response headers' do
-              expect(response.headers['Content-Type']).to eq 'application/octet-stream'
-              expect(response.headers['Content-Disposition']).to match(/^inline/)
-              expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq nil
-            end
-          end
+        it 'sets the content type to sets the content response headers' do
+          expect(response.headers['Content-Disposition']).to match(/^inline/)
+          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
         end
       end
     end
@@ -142,14 +87,14 @@ describe Projects::WikisController do
 
   describe 'POST #preview_markdown' do
     it 'renders json in a correct format' do
-      post :preview_markdown, namespace_id: project.namespace, project_id: project, id: 'page/path', text: '*Markdown* text'
+      post :preview_markdown, params: { namespace_id: project.namespace, project_id: project, id: 'page/path', text: '*Markdown* text' }
 
       expect(JSON.parse(response.body).keys).to match_array(%w(body references))
     end
   end
 
   describe 'GET #edit' do
-    subject { get(:edit, namespace_id: project.namespace, project_id: project, id: wiki_title) }
+    subject { get(:edit, params: { namespace_id: project.namespace, project_id: project, id: wiki_title }) }
 
     context 'when page content encoding is invalid' do
       it 'redirects to show' do
@@ -178,10 +123,12 @@ describe Projects::WikisController do
     let(:new_content) { 'New content' }
     subject do
       patch(:update,
-            namespace_id: project.namespace,
-            project_id: project,
-            id: wiki_title,
-            wiki: { title: new_title, content: new_content })
+            params: {
+              namespace_id: project.namespace,
+              project_id: project,
+              id: wiki_title,
+              wiki: { title: new_title, content: new_content }
+            })
     end
 
     context 'when page content encoding is invalid' do

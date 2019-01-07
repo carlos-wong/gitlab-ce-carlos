@@ -72,10 +72,10 @@ module Gitlab
           entry :services, Entry::Services,
             description: 'Services that will be used to execute this job.'
 
-          entry :only, Entry::OnlyPolicy,
+          entry :only, Entry::Policy,
             description: 'Refs policy this job will be executed for.'
 
-          entry :except, Entry::ExceptPolicy,
+          entry :except, Entry::Policy,
             description: 'Refs policy this job will be executed for.'
 
           entry :variables, Entry::Variables,
