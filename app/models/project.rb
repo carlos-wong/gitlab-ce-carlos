@@ -187,6 +187,7 @@ class Project < ActiveRecord::Base
   has_one :import_state, autosave: true, class_name: 'ProjectImportState', inverse_of: :project
   has_one :import_export_upload, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :project_repository, inverse_of: :project
+  has_one :error_tracking_setting, inverse_of: :project, class_name: 'ErrorTracking::ProjectErrorTrackingSetting'
 
   # Merge Requests for target project should be removed with it
   has_many :merge_requests, foreign_key: 'target_project_id', inverse_of: :target_project
@@ -295,6 +296,8 @@ class Project < ActiveRecord::Base
                                 allow_destroy: true,
                                 reject_if: ->(attrs) { attrs[:id].blank? && attrs[:url].blank? }
 
+  accepts_nested_attributes_for :error_tracking_setting, update_only: true
+
   delegate :name, to: :owner, allow_nil: true, prefix: true
   delegate :members, to: :team, prefix: true
   delegate :add_user, :add_users, to: :team
@@ -330,8 +333,8 @@ class Project < ActiveRecord::Base
   validates :star_count, numericality: { greater_than_or_equal_to: 0 }
   validate :check_limit, on: :create
   validate :check_repository_path_availability, on: :update, if: ->(project) { project.renamed? }
-  validate :visibility_level_allowed_by_group
-  validate :visibility_level_allowed_as_fork
+  validate :visibility_level_allowed_by_group, if: -> { changes.has_key?(:visibility_level) }
+  validate :visibility_level_allowed_as_fork, if: -> { changes.has_key?(:visibility_level) }
   validate :check_wiki_path_conflict
   validate :validate_pages_https_only, if: -> { changes.has_key?(:pages_https_only) }
   validates :repository_storage,
@@ -912,11 +915,16 @@ class Project < ActiveRecord::Base
   def new_issuable_address(author, address_type)
     return unless Gitlab::IncomingEmail.supports_issue_creation? && author
 
+    # check since this can come from a request parameter
+    return unless %w(issue merge_request).include?(address_type)
+
     author.ensure_incoming_email_token!
 
-    suffix = address_type == 'merge_request' ? '+merge-request' : ''
-    Gitlab::IncomingEmail.reply_address(
-      "#{full_path}#{suffix}+#{author.incoming_email_token}")
+    suffix = address_type.dasherize
+
+    # example: incoming+h5bp-html5-boilerplate-8-1234567890abcdef123456789-issue@localhost.com
+    # example: incoming+h5bp-html5-boilerplate-8-1234567890abcdef123456789-merge-request@localhost.com
+    Gitlab::IncomingEmail.reply_address("#{full_path_slug}-#{project_id}-#{author.incoming_email_token}-#{suffix}")
   end
 
   def build_commit_note(commit)
@@ -1700,6 +1708,13 @@ class Project < ActiveRecord::Base
       .append(key: 'CI_PROJECT_VISIBILITY', value: visibility)
       .concat(container_registry_variables)
       .concat(auto_devops_variables)
+      .concat(api_variables)
+  end
+
+  def api_variables
+    Gitlab::Ci::Variables::Collection.new.tap do |variables|
+      variables.append(key: 'CI_API_V4_URL', value: API::Helpers::Version.new('v4').root_url)
+    end
   end
 
   def container_registry_variables
@@ -1772,6 +1787,24 @@ class Project < ActiveRecord::Base
 
   rescue ActiveRecord::RecordNotSaved => e
     handle_update_attribute_error(e, value)
+  end
+
+  # Tries to set repository as read_only, checking for existing Git transfers in progress beforehand
+  #
+  # @return [Boolean] true when set to read_only or false when an existing git transfer is in progress
+  def set_repository_read_only!
+    with_lock do
+      break false if git_transfer_in_progress?
+
+      update_column(:repository_read_only, true)
+    end
+  end
+
+  # Set repository as writable again
+  def set_repository_writable!
+    with_lock do
+      update_column(repository_read_only, false)
+    end
   end
 
   def pushes_since_gc
@@ -1888,13 +1921,15 @@ class Project < ActiveRecord::Base
   def migrate_to_hashed_storage!
     return unless storage_upgradable?
 
-    update!(repository_read_only: true)
-
-    if repo_reference_count > 0 || wiki_reference_count > 0
+    if git_transfer_in_progress?
       ProjectMigrateHashedStorageWorker.perform_in(Gitlab::ReferenceCounter::REFERENCE_EXPIRE_TIME, id)
     else
       ProjectMigrateHashedStorageWorker.perform_async(id)
     end
+  end
+
+  def git_transfer_in_progress?
+    repo_reference_count > 0 || wiki_reference_count > 0
   end
 
   def storage_version=(value)
@@ -1928,23 +1963,15 @@ class Project < ActiveRecord::Base
                                 .where('project_authorizations.project_id = merge_requests.target_project_id')
                                 .limit(1)
                                 .select(1)
-    source_of_merge_requests.opened
-      .where(allow_collaboration: true)
-      .where('EXISTS (?)', developer_access_exists)
+    merge_requests_allowing_collaboration.where('EXISTS (?)', developer_access_exists)
+  end
+
+  def any_branch_allows_collaboration?(user)
+    fetch_branch_allows_collaboration(user)
   end
 
   def branch_allows_collaboration?(user, branch_name)
-    return false unless user
-
-    cache_key = "user:#{user.id}:#{branch_name}:branch_allows_push"
-
-    memoized_results = strong_memoize(:branch_allows_collaboration) do
-      Hash.new do |result, cache_key|
-        result[cache_key] = fetch_branch_allows_collaboration?(user, branch_name)
-      end
-    end
-
-    memoized_results[cache_key]
+    fetch_branch_allows_collaboration(user, branch_name)
   end
 
   def licensed_features
@@ -2017,6 +2044,12 @@ class Project < ActiveRecord::Base
   end
 
   private
+
+  def merge_requests_allowing_collaboration(source_branch = nil)
+    relation = source_of_merge_requests.opened.where(allow_collaboration: true)
+    relation = relation.where(source_branch: source_branch) if source_branch
+    relation
+  end
 
   def create_new_pool_repository
     pool = begin
@@ -2142,25 +2175,18 @@ class Project < ActiveRecord::Base
     raise ex
   end
 
-  def fetch_branch_allows_collaboration?(user, branch_name)
-    check_access = -> do
-      next false if empty_repo?
+  def fetch_branch_allows_collaboration(user, branch_name = nil)
+    return false unless user
 
-      merge_requests = source_of_merge_requests.opened
-                         .where(allow_collaboration: true)
+    Gitlab::SafeRequestStore.fetch("project-#{id}:branch-#{branch_name}:user-#{user.id}:branch_allows_collaboration") do
+      next false if empty_repo?
 
       # Issue for N+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/49322
       Gitlab::GitalyClient.allow_n_plus_1_calls do
-        if branch_name
-          merge_requests.find_by(source_branch: branch_name)&.can_be_merged_by?(user)
-        else
-          merge_requests.any? { |merge_request| merge_request.can_be_merged_by?(user) }
+        merge_requests_allowing_collaboration(branch_name).any? do |merge_request|
+          merge_request.can_be_merged_by?(user)
         end
       end
-    end
-
-    Gitlab::SafeRequestStore.fetch("project-#{id}:branch-#{branch_name}:user-#{user.id}:branch_allows_collaboration") do
-      check_access.call
     end
   end
 

@@ -45,7 +45,7 @@ export default {
       return this.release.author || {};
     },
     hasAuthor() {
-      return _.isEmpty(this.author);
+      return !_.isEmpty(this.author);
     },
   },
 };
@@ -87,7 +87,7 @@ export default {
 
       <div
         v-if="assets.links.length || assets.sources.length"
-        Sclass="card-text prepend-top-default"
+        class="card-text prepend-top-default"
       >
         <b>
           {{ __('Assets') }}

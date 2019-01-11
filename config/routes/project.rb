@@ -361,6 +361,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
         collection do
           post :bulk_update
+          post :import_csv
         end
       end
 
@@ -445,6 +446,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # its preferable to keep it below all other project routes
       draw :wiki
       draw :repository
+
+      namespace :settings do
+        resource :operations, only: [:show, :update]
+      end
     end
 
     resources(:projects,

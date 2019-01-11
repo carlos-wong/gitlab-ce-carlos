@@ -120,6 +120,13 @@ Release:
 - project_id
 - created_at
 - updated_at
+Releases::Link:
+- id
+- release_id
+- url
+- name
+- created_at
+- updated_at
 ProjectMember:
 - id
 - access_level
@@ -593,3 +600,8 @@ ResourceLabelEvent:
 - label_id
 - user_id
 - created_at
+ErrorTracking::ProjectErrorTrackingSetting:
+- id
+- api_url
+- enabled
+- project_id

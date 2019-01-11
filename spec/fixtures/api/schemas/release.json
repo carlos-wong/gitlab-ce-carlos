@@ -12,6 +12,17 @@
     },
     "author": {
       "oneOf": [{ "type": "null" }, { "$ref": "public_api/v4/user/basic.json" }]
+    },
+    "assets": {
+      "count": { "type": "integer" },
+      "links": { "$ref": "release/links.json" },
+      "sources": {
+        "type": "array",
+        "items": {
+          "format": "zip",
+          "url": "string"
+        }
+      }
     }
   },
   "additionalProperties": false

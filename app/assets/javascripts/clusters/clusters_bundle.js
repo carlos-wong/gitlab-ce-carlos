@@ -1,6 +1,6 @@
 import Visibility from 'visibilityjs';
 import Vue from 'vue';
-import initDismissableCallout from '~/dismissable_callout';
+import PersistentUserCallout from '../persistent_user_callout';
 import { s__, sprintf } from '../locale';
 import Flash from '../flash';
 import Poll from '../lib/utils/poll';
@@ -32,6 +32,7 @@ export default class Clusters {
       installKnativePath,
       installPrometheusPath,
       managePrometheusPath,
+      hasRbac,
       clusterType,
       clusterStatus,
       clusterStatusReason,
@@ -45,6 +46,7 @@ export default class Clusters {
     this.store.setManagePrometheusPath(managePrometheusPath);
     this.store.updateStatus(clusterStatus);
     this.store.updateStatusReason(clusterStatusReason);
+    this.store.updateRbac(hasRbac);
     this.service = new ClustersService({
       endpoint: statusPath,
       installHelmEndpoint: installHelmPath,
@@ -67,7 +69,7 @@ export default class Clusters {
     this.showTokenButton = document.querySelector('.js-show-cluster-token');
     this.tokenField = document.querySelector('.js-cluster-token');
 
-    initDismissableCallout('.js-cluster-security-warning');
+    Clusters.initDismissableCallout();
     initSettingsPanels();
     setupToggleButtons(document.querySelector('.js-cluster-enable-toggle-area'));
     this.initApplications(clusterType);
@@ -102,10 +104,17 @@ export default class Clusters {
             ingressHelpPath: this.state.ingressHelpPath,
             managePrometheusPath: this.state.managePrometheusPath,
             ingressDnsHelpPath: this.state.ingressDnsHelpPath,
+            rbac: this.state.rbac,
           },
         });
       },
     });
+  }
+
+  static initDismissableCallout() {
+    const callout = document.querySelector('.js-cluster-security-warning');
+
+    if (callout) new PersistentUserCallout(callout); // eslint-disable-line no-new
   }
 
   addListeners() {

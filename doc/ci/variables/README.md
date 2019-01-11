@@ -80,7 +80,8 @@ future GitLab releases.**
 | **CI_MERGE_REQUEST_TARGET_BRANCH_NAME**   | 11.6   | all    | The target branch name of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
 | **CI_NODE_INDEX**                         | 11.5   | all    | Index of the job in the job set. If the job is not parallelized, this variable is not set. |
 | **CI_NODE_TOTAL**                         | 11.5   | all    | Total number of instances of this job running in parallel. If the job is not parallelized, this variable is set to `1`. |
-| **CI_PIPELINE_ID**                        | 8.10   | 0.5    | The unique id of the current pipeline that GitLab CI uses internally |
+| **CI_API_V4_URL**                         | 11.7   | all    | The GitLab API v4 root URL |
+| **CI_PIPELINE_ID**                        | 8.10   | all    | The unique id of the current pipeline that GitLab CI uses internally |
 | **CI_PIPELINE_IID**                       | 11.0   | all    | The unique id of the current pipeline scoped to project |
 | **CI_PIPELINE_SOURCE**                    | 10.0   | all    | Indicates how the pipeline was triggered. Possible options are: `push`, `web`, `trigger`, `schedule`, `api`, and `pipeline`. For pipelines created before GitLab 9.5, this will show as `unknown` |
 | **CI_PIPELINE_TRIGGERED**                 | all    | all    | The flag to indicate that job was [triggered] |
@@ -248,6 +249,23 @@ the project services that you are using to learn which variables they define.
 
 An example project service that defines deployment variables is the
 [Kubernetes integration](../../user/project/clusters/index.md#deployment-variables).
+
+## Auto DevOps application variables
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/49056) in GitLab 11.7.
+
+You can configure [Auto DevOps](../../topics/autodevops/index.md) to
+pass CI variables to the running application by prefixing the key of the
+variable with `K8S_SECRET_`.
+
+These [prefixed
+variables](../../topics/autodevops/index.md#application-secret-variables) will
+then be available as environment variables on the running application
+container.
+
+CAUTION: **Caution:**
+Variables with multiline values are not currently supported due to
+limitations with the current Auto DevOps scripting environment.
 
 ## Debug tracing
 
