@@ -16,8 +16,6 @@ module ErrorTracking
 
     validates :token, presence: true, if: :enabled
 
-    validate :validate_api_url_path
-
     attr_encrypted :token,
       mode: :per_attribute_iv,
       key: Settings.attr_encrypted_db_key_base_truncated,
@@ -82,13 +80,6 @@ module ErrorTracking
       url.sub('api/0/projects/', '')
     end
 
-    private
-
-    def validate_api_url_path
-      unless URI(api_url).path.starts_with?('/api/0/projects')
-        errors.add(:api_url, 'path needs to start with /api/0/projects')
-      end
-    rescue URI::InvalidURIError
     def api_host
       return if api_url.blank?
 
