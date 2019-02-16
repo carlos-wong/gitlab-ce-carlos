@@ -132,7 +132,7 @@ module QA
         end
 
         def attribute(name, &block)
-          @base.dynamic_attributes.module_eval do
+          @base.module_eval do
             attr_writer(name)
 
             define_method(name) do

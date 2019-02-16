@@ -1844,6 +1844,26 @@ describe Ci::Build do
     context 'when there is no environment' do
       it { is_expected.to be_nil }
     end
+
+    context 'when build has a start environment' do
+      let(:build) { create(:ci_build, :deploy_to_production, pipeline: pipeline) }
+
+      it 'does not expand environment name' do
+        expect(build).not_to receive(:expanded_environment_name)
+
+        subject
+      end
+    end
+
+    context 'when build has a stop environment' do
+      let(:build) { create(:ci_build, :stop_review_app, pipeline: pipeline) }
+
+      it 'expands environment name' do
+        expect(build).to receive(:expanded_environment_name)
+
+        subject
+      end
+    end
   end
 
   describe '#play' do
@@ -2133,6 +2153,8 @@ describe Ci::Build do
           { key: 'CI_PROJECT_NAMESPACE', value: project.namespace.full_path, public: true },
           { key: 'CI_PROJECT_URL', value: project.web_url, public: true },
           { key: 'CI_PROJECT_VISIBILITY', value: 'private', public: true },
+          { key: 'CI_PAGES_DOMAIN', value: Gitlab.config.pages.host, public: true },
+          { key: 'CI_PAGES_URL', value: project.pages_url, public: true },
           { key: 'CI_API_V4_URL', value: 'http://localhost/api/v4', public: true },
           { key: 'CI_PIPELINE_IID', value: pipeline.iid.to_s, public: true },
           { key: 'CI_CONFIG_PATH', value: pipeline.ci_yaml_file_path, public: true },
@@ -2480,7 +2502,7 @@ describe Ci::Build do
     context 'when container registry is enabled' do
       let(:container_registry_enabled) { true }
       let(:ci_registry) do
-        { key: 'CI_REGISTRY', value: 'registry.example.com',  public: true }
+        { key: 'CI_REGISTRY', value: 'registry.example.com', public: true }
       end
       let(:ci_registry_image) do
         { key: 'CI_REGISTRY_IMAGE', value: project.container_registry_url, public: true }

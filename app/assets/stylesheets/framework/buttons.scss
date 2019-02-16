@@ -42,6 +42,10 @@
   color: $text;
   border-color: $border;
 
+  &.btn-border-color {
+    border-color: $border-color;
+  }
+
   > .icon {
     color: $text;
   }
@@ -483,7 +487,7 @@
 // All disabled buttons, regardless of color, type, etc
 %disabled {
   background-color: $gray-light !important;
-  border-color: $theme-gray-200 !important;
+  border-color: $gray-200 !important;
   color: $gl-text-color-disabled !important;
   opacity: 1 !important;
   cursor: default !important;

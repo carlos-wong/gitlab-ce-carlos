@@ -311,6 +311,11 @@ For installations from source:
           remote_directory: 'my.s3.bucket'
           # Turns on AWS Server-Side Encryption with Amazon S3-Managed Keys for backups, this is optional
           # encryption: 'AES256'
+          # Turns on AWS Server-Side Encryption with Amazon Customer-Provided Encryption Keys for backups, this is optional
+          #   This should be set to the base64-encoded encryption key for Amazon S3 to use to encrypt or decrypt your data.
+          #   'encryption' must also be set in order for this to have any effect.
+          #   To avoid storing the key on disk, the key can also be specified via the `GITLAB_BACKUP_ENCRYPTION_KEY` environment variable.
+          # encryption_key: '<base64 key>'
           # Specifies Amazon S3 storage class to use for backups, this is optional
           # storage_class: 'STANDARD'
     ```
@@ -373,7 +378,7 @@ with the name of your bucket:
 If you want to use Google Cloud Storage to save backups, you'll have to create
 an access key from the Google console first:
 
-1. Go to the storage settings page https://console.cloud.google.com/storage/settings
+1. Go to the storage settings page <https://console.cloud.google.com/storage/settings>
 1. Select "Interoperability" and create an access key
 1. Make note of the "Access Key" and "Secret" and replace them in the
    configurations below

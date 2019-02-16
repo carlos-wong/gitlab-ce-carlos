@@ -139,6 +139,78 @@ describe Issuable do
     it 'returns issues with a matching description for a query shorter than 3 chars' do
       expect(issuable_class.full_search(searchable_issue2.description.downcase)).to eq([searchable_issue2])
     end
+
+    context 'when matching columns is "title"' do
+      it 'returns issues with a matching title' do
+        expect(issuable_class.full_search(searchable_issue.title, matched_columns: 'title'))
+          .to eq([searchable_issue])
+      end
+
+      it 'returns no issues with a matching description' do
+        expect(issuable_class.full_search(searchable_issue.description, matched_columns: 'title'))
+          .to be_empty
+      end
+    end
+
+    context 'when matching columns is "description"' do
+      it 'returns no issues with a matching title' do
+        expect(issuable_class.full_search(searchable_issue.title, matched_columns: 'description'))
+          .to be_empty
+      end
+
+      it 'returns issues with a matching description' do
+        expect(issuable_class.full_search(searchable_issue.description, matched_columns: 'description'))
+          .to eq([searchable_issue])
+      end
+    end
+
+    context 'when matching columns is "title,description"' do
+      it 'returns issues with a matching title' do
+        expect(issuable_class.full_search(searchable_issue.title, matched_columns: 'title,description'))
+          .to eq([searchable_issue])
+      end
+
+      it 'returns issues with a matching description' do
+        expect(issuable_class.full_search(searchable_issue.description, matched_columns: 'title,description'))
+          .to eq([searchable_issue])
+      end
+    end
+
+    context 'when matching columns is nil"' do
+      it 'returns issues with a matching title' do
+        expect(issuable_class.full_search(searchable_issue.title, matched_columns: nil))
+          .to eq([searchable_issue])
+      end
+
+      it 'returns issues with a matching description' do
+        expect(issuable_class.full_search(searchable_issue.description, matched_columns: nil))
+          .to eq([searchable_issue])
+      end
+    end
+
+    context 'when matching columns is "invalid"' do
+      it 'returns issues with a matching title' do
+        expect(issuable_class.full_search(searchable_issue.title, matched_columns: 'invalid'))
+          .to eq([searchable_issue])
+      end
+
+      it 'returns issues with a matching description' do
+        expect(issuable_class.full_search(searchable_issue.description, matched_columns: 'invalid'))
+          .to eq([searchable_issue])
+      end
+    end
+
+    context 'when matching columns is "title,invalid"' do
+      it 'returns issues with a matching title' do
+        expect(issuable_class.full_search(searchable_issue.title, matched_columns: 'title,invalid'))
+          .to eq([searchable_issue])
+      end
+
+      it 'returns no issues with a matching description' do
+        expect(issuable_class.full_search(searchable_issue.description, matched_columns: 'title,invalid'))
+          .to be_empty
+      end
+    end
   end
 
   describe '.to_ability_name' do
@@ -566,7 +638,7 @@ describe Issuable do
     end
 
     let(:merged_mr) { create(:merge_request, :merged, author: contributor, target_project: project, source_project: project) }
-    let(:open_mr)  { create(:merge_request, author: first_time_contributor, target_project: project, source_project: project) }
+    let(:open_mr) { create(:merge_request, author: first_time_contributor, target_project: project, source_project: project) }
     let(:merged_mr_other_project) { create(:merge_request, :merged, author: first_time_contributor, target_project: other_project, source_project: other_project) }
 
     context "for merge requests" do

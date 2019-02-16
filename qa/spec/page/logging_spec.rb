@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
 require 'capybara/dsl'
+require 'logger'
 
 describe QA::Support::Page::Logging do
   include Support::StubENV
 
-  let(:page) { double().as_null_object }
+  let(:page) { double.as_null_object }
 
   before do
-    logger = Logger.new $stdout
+    logger = ::Logger.new $stdout
     logger.level = ::Logger::DEBUG
     QA::Runtime::Logger.logger = logger
 
@@ -74,11 +75,32 @@ describe QA::Support::Page::Logging do
       .to output(/has_element\? :element returned true/).to_stdout_from_any_process
   end
 
+  it 'logs has_no_element?' do
+    allow(page).to receive(:has_no_css?).and_return(true)
+
+    expect { subject.has_no_element?(:element) }
+      .to output(/has_no_element\? :element returned true/).to_stdout_from_any_process
+  end
+
+  it 'logs has_text?' do
+    allow(page).to receive(:has_text?).and_return(true)
+
+    expect { subject.has_text? 'foo' }
+      .to output(/has_text\?\('foo'\) returned true/).to_stdout_from_any_process
+  end
+
   it 'logs has_no_text?' do
     allow(page).to receive(:has_no_text?).with('foo').and_return(true)
 
     expect { subject.has_no_text? 'foo' }
       .to output(/has_no_text\?\('foo'\) returned true/).to_stdout_from_any_process
+  end
+
+  it 'logs finished_loading?' do
+    expect { subject.finished_loading? }
+      .to output(/waiting for loading to complete\.\.\./).to_stdout_from_any_process
+    expect { subject.finished_loading? }
+      .to output(/loading complete after .* seconds$/).to_stdout_from_any_process
   end
 
   it 'logs within_element' do

@@ -34,14 +34,13 @@ export default {
       required: false,
       default: false,
     },
+    baseVersionPath: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   computed: {
-    baseVersion() {
-      return {
-        name: 'hii',
-        versionIndex: -1,
-      };
-    },
     targetVersions() {
       if (this.mergeRequestVersion) {
         return this.otherVersions;
@@ -62,6 +61,9 @@ export default {
       );
     },
     href(version) {
+      if (this.isBase(version)) {
+        return this.baseVersionPath;
+      }
       if (this.showCommitCount) {
         return version.version_path;
       }
@@ -139,7 +141,7 @@ export default {
                   <time-ago
                     v-if="version.created_at"
                     :time="version.created_at"
-                    class="js-timeago js-timeago-render"
+                    class="js-timeago"
                   />
                 </small>
               </div>

@@ -38,6 +38,7 @@ be served on.
 | Group pages | `groupname.example.io` | `http(s)://groupname.example.io` |
 | Project pages owned by a user  | `projectname` | `http(s)://username.example.io/projectname` |
 | Project pages owned by a group | `projectname` | `http(s)://groupname.example.io/projectname`|
+| Project pages owned by a subgroup | `subgroup/projectname` | `http(s)://groupname.example.io/subgroup/projectname`|
 
 > **Warning:**
 > There are some known [limitations](#limitations) regarding namespaces served
@@ -177,7 +178,7 @@ Supposed your repository contained the following files:
 ```
 ├── index.html
 ├── css
-│   └── main.css
+│   └── main.css
 └── js
     └── main.js
 ```
@@ -332,7 +333,7 @@ public/
 │ └ index.html.gz
 │
 ├── css/
-│   └─┬ main.css
+│   └─┬ main.css
 │     └ main.css.gz
 │
 └── js/
@@ -354,6 +355,57 @@ pages:
 By pre-compressing the files and including both versions in the artifact, Pages
 can serve requests for both compressed and uncompressed content without
 needing to compress files on-demand.
+
+### Resolving ambiguous URLs
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/issues/95) in GitLab 11.8
+
+GitLab Pages makes assumptions about which files to serve when receiving a
+request for a URL that does not include an extension.
+
+Consider a Pages site deployed with the following files:
+
+```
+public/
+├─┬ index.html
+│ ├ data.html
+│ └ info.html
+│
+├── data/
+│   └── index.html
+├── info/
+│   └── details.html
+└── other/
+    └── index.html
+```
+
+Pages supports reaching each of these files through several different URLs. In
+particular, it will always look for an `index.html` file if the URL only
+specifies the directory. If the URL references a file that doesn't exist, but
+adding `.html` to the URL leads to a file that *does* exist, it will be served
+instead. Here are some examples of what will happen given the above Pages site:
+
+| URL path             | HTTP response | File served |
+| -------------------- | ------------- | ----------- |
+| `/`                  | `200 OK`      | `public/index.html` |
+| `/index.html`        | `200 OK`      | `public/index.html` |
+| `/index`             | `200 OK`      | `public/index.html` |
+| `/data`              | `200 OK`      | `public/data/index.html` |
+| `/data/`             | `200 OK`      | `public/data/index.html` |
+| `/data.html`         | `200 OK`      | `public/data.html` |
+| `/info`              | `200 OK`      | `public/info.html` |
+| `/info/`             | `200 OK`      | `public/info.html` |
+| `/info.html`         | `200 OK`      | `public/info.html` |
+| `/info/details`      | `200 OK`      | `public/info/details.html` |
+| `/info/details.html` | `200 OK`      | `public/info/details.html` |
+| `/other`             | `302 Found`   | `public/other/index.html` |
+| `/other/`            | `200 OK`      | `public/other/index.html` |
+| `/other/index`       | `200 OK`      | `public/other/index.html` |
+| `/other/index.html`  | `200 OK`      | `public/other/index.html` |
+
+NOTE: **Note:**
+When `public/data/index.html` exists, it takes priority over the `public/data.html`
+file for both the `/data` and `/data/` URL paths.
 
 ### Add a custom domain to your Pages website
 
@@ -494,8 +546,8 @@ don't redirect HTTP to HTTPS.
 
 [rfc]: https://tools.ietf.org/html/rfc2818#section-3.1 "HTTP Over TLS RFC"
 
-GitLab Pages [does **not** support subgroups](../../group/subgroups/index.md#limitations).
-You can only create the highest level group website.
+GitLab Pages [does **not** support group websites for subgroups](../../group/subgroups/index.md#limitations).
+You can only create the highest-level group website.
 
 ## Redirects in GitLab Pages
 

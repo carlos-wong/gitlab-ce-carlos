@@ -1,3 +1,7 @@
+/**
+ * @module common-utils
+ */
+
 import $ from 'jquery';
 import axios from './axios_utils';
 import { getLocationHash } from './url_utility';
@@ -118,12 +122,13 @@ export const handleLocationHash = () => {
 
 // Check if element scrolled into viewport from above or below
 // Courtesy http://stackoverflow.com/a/7557433/414749
-export const isInViewport = el => {
+export const isInViewport = (el, offset = {}) => {
   const rect = el.getBoundingClientRect();
+  const { top, left } = offset;
 
   return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
+    rect.top >= (top || 0) &&
+    rect.left >= (left || 0) &&
     rect.bottom <= window.innerHeight &&
     rect.right <= window.innerWidth
   );
@@ -213,6 +218,22 @@ export const scrollToElement = element => {
     },
     200,
   );
+};
+
+/**
+ * Returns a function that can only be invoked once between
+ * each browser screen repaint.
+ * @param {Function} fn
+ */
+export const debounceByAnimationFrame = fn => {
+  let requestId;
+
+  return function debounced(...args) {
+    if (requestId) {
+      window.cancelAnimationFrame(requestId);
+    }
+    requestId = window.requestAnimationFrame(() => fn.apply(this, args));
+  };
 };
 
 /**
@@ -425,13 +446,14 @@ export const historyPushState = newUrl => {
 };
 
 /**
- * Returns true for a String "true" and false otherwise.
- * This is the opposite of Boolean(...).toString()
+ * Returns true for a String value of "true" and false otherwise.
+ * This is the opposite of Boolean(...).toString().
+ * `parseBoolean` is idempotent.
  *
  * @param  {String} value
  * @returns {Boolean}
  */
-export const parseBoolean = value => value === 'true';
+export const parseBoolean = value => (value && value.toString()) === 'true';
 
 /**
  * Converts permission provided as strings to booleans.
@@ -449,10 +471,16 @@ export const convertPermissionToBoolean = permission => {
 };
 
 /**
+ * @callback backOffCallback
+ * @param {Function} next
+ * @param {Function} stop
+ */
+
+/**
  * Back Off exponential algorithm
  * backOff :: (Function<next, stop>, Number) -> Promise<Any, Error>
  *
- * @param {Function<next, stop>} fn function to be called
+ * @param {backOffCallback} fn function to be called
  * @param {Number} timeout
  * @return {Promise<Any, Error>}
  * @example
@@ -602,10 +630,18 @@ export const spriteIcon = (icon, className = '') => {
 
 /**
  * This method takes in object with snake_case property names
- * and returns new object with camelCase property names
+ * and returns a new object with camelCase property names
  *
  * Reasoning for this method is to ensure consistent property
  * naming conventions across JS code.
+ *
+ * This method also supports additional params in `options` object
+ *
+ * @param {Object} obj - Object to be converted.
+ * @param {Object} options - Object containing additional options.
+ * @param {boolean} options.deep - FLag to allow deep object converting
+ * @param {Array[]} dropKeys - List of properties to discard while building new object
+ * @param {Array[]} ignoreKeyNames - List of properties to leave intact (as snake_case) while building new object
  */
 export const convertObjectPropsToCamelCase = (obj = {}, options = {}) => {
   if (obj === null) {
@@ -613,12 +649,26 @@ export const convertObjectPropsToCamelCase = (obj = {}, options = {}) => {
   }
 
   const initial = Array.isArray(obj) ? [] : {};
+  const { deep = false, dropKeys = [], ignoreKeyNames = [] } = options;
 
   return Object.keys(obj).reduce((acc, prop) => {
     const result = acc;
     const val = obj[prop];
 
-    if (options.deep && (isObject(val) || Array.isArray(val))) {
+    // Drop properties from new object if
+    // there are any mentioned in options
+    if (dropKeys.indexOf(prop) > -1) {
+      return acc;
+    }
+
+    // Skip converting properties in new object
+    // if there are any mentioned in options
+    if (ignoreKeyNames.indexOf(prop) > -1) {
+      result[prop] = obj[prop];
+      return acc;
+    }
+
+    if (deep && (isObject(val) || Array.isArray(val))) {
       result[convertToCamelCase(prop)] = convertObjectPropsToCamelCase(val, options);
     } else {
       result[convertToCamelCase(prop)] = obj[prop];

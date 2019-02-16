@@ -46,8 +46,8 @@ Version 0.9.0 and above of [NGINX ingress](https://github.com/kubernetes/ingress
 
 Next, the ingress needs to be annotated for Prometheus monitoring. Two new annotations need to be added:
 
-* `prometheus.io/scrape: "true"`
-* `prometheus.io/port: "10254"`
+- `prometheus.io/scrape: "true"`
+- `prometheus.io/port: "10254"`
 
 Managing these settings depends on how NGINX ingress has been deployed. If you have deployed via the [official Helm chart](https://github.com/kubernetes/charts/tree/master/stable/nginx-ingress), metrics can be enabled with `controller.stats.enabled` along with the required annotations. Alternatively it is possible edit the NGINX ingress YML directly in the [Kubernetes dashboard](https://github.com/kubernetes/dashboard).
 

@@ -2,7 +2,9 @@
 import $ from 'jquery';
 import { mapGetters, mapActions } from 'vuex';
 import { escape } from 'underscore';
+import { truncateSha } from '~/lib/utils/text_utility';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
+import { s__, sprintf } from '../../locale';
 import Flash from '../../flash';
 import userAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_link.vue';
 import noteHeader from './note_header.vue';
@@ -27,6 +29,11 @@ export default {
       type: Object,
       required: true,
     },
+    discussion: {
+      type: Object,
+      required: false,
+      default: null,
+    },
     line: {
       type: Object,
       required: false,
@@ -36,6 +43,11 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+    commit: {
+      type: Object,
+      required: false,
+      default: () => null,
     },
   },
   data() {
@@ -47,7 +59,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['targetNoteHash', 'getNoteableData', 'getUserData']),
+    ...mapGetters(['targetNoteHash', 'getNoteableData', 'getUserData', 'commentsDisabled']),
     author() {
       return this.note.author;
     },
@@ -72,6 +84,34 @@ export default {
     },
     isTarget() {
       return this.targetNoteHash === this.noteAnchorId;
+    },
+    discussionId() {
+      if (this.discussion) {
+        return this.discussion.id;
+      }
+      return '';
+    },
+    showReplyButton() {
+      if (!this.discussion || !this.getNoteableData.current_user.can_create_note) {
+        return false;
+      }
+
+      return this.discussion.individual_note && !this.commentsDisabled;
+    },
+    actionText() {
+      if (!this.commit) {
+        return '';
+      }
+
+      // We need to do this to ensure we have the currect sentence order
+      // when translating this as the sentence order may change from one
+      // language to the next. See:
+      // https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24427#note_133713771
+      const { id, url } = this.commit;
+      const commitLink = `<a class="commit-sha monospace" href="${escape(url)}">${truncateSha(
+        id,
+      )}</a>`;
+      return sprintf(s__('MergeRequests|commented on commit %{commitLink}'), { commitLink }, false);
     },
   },
 
@@ -200,18 +240,16 @@ export default {
     </div>
     <div class="timeline-content">
       <div class="note-header">
-        <note-header
-          v-once
-          :author="author"
-          :created-at="note.created_at"
-          :note-id="note.id"
-          action-text="commented"
-        />
+        <note-header v-once :author="author" :created-at="note.created_at" :note-id="note.id">
+          <span v-if="commit" v-html="actionText"></span>
+          <span v-else class="d-none d-sm-inline">&middot;</span>
+        </note-header>
         <note-actions
           :author-id="author.id"
           :note-id="note.id"
           :note-url="note.noteable_note_url"
           :access-level="note.human_access"
+          :show-reply="showReplyButton"
           :can-edit="note.current_user.can_edit"
           :can-award-emoji="note.current_user.can_award_emoji"
           :can-delete="note.current_user.can_edit"
@@ -222,6 +260,7 @@ export default {
           :is-resolved="note.resolved"
           :is-resolving="isResolving"
           :resolved-by="note.resolved_by"
+          :discussion-id="discussionId"
           @handleEdit="editHandler"
           @handleDelete="deleteHandler"
           @handleResolve="resolveHandler"

@@ -99,6 +99,7 @@ module QA
         autoload :LDAPNoTLS, 'qa/scenario/test/integration/ldap_no_tls'
         autoload :LDAPTLS, 'qa/scenario/test/integration/ldap_tls'
         autoload :InstanceSAML, 'qa/scenario/test/integration/instance_saml'
+        autoload :OAuth, 'qa/scenario/test/integration/oauth'
         autoload :Kubernetes, 'qa/scenario/test/integration/kubernetes'
         autoload :Mattermost, 'qa/scenario/test/integration/mattermost'
         autoload :ObjectStorage, 'qa/scenario/test/integration/object_storage'
@@ -158,6 +159,10 @@ module QA
       autoload :Activity, 'qa/page/project/activity'
       autoload :Menu, 'qa/page/project/menu'
 
+      module Branches
+        autoload :Show, 'qa/page/project/branches/show'
+      end
+
       module Commit
         autoload :Show, 'qa/page/project/commit/show'
       end
@@ -189,6 +194,15 @@ module QA
         autoload :MergeRequest, 'qa/page/project/settings/merge_request'
         autoload :Members, 'qa/page/project/settings/members'
         autoload :MirroringRepositories, 'qa/page/project/settings/mirroring_repositories'
+      end
+
+      module SubMenus
+        autoload :CiCd, 'qa/page/project/sub_menus/ci_cd'
+        autoload :Common, 'qa/page/project/sub_menus/common'
+        autoload :Issues, 'qa/page/project/sub_menus/issues'
+        autoload :Operations, 'qa/page/project/sub_menus/operations'
+        autoload :Repository, 'qa/page/project/sub_menus/repository'
+        autoload :Settings, 'qa/page/project/sub_menus/settings'
       end
 
       module Issue
@@ -260,9 +274,11 @@ module QA
 
       module Settings
         autoload :Repository, 'qa/page/admin/settings/repository'
+        autoload :General, 'qa/page/admin/settings/general'
 
         module Component
           autoload :RepositoryStorage, 'qa/page/admin/settings/component/repository_storage'
+          autoload :AccountAndLimit, 'qa/page/admin/settings/component/account_and_limit'
         end
       end
     end
@@ -277,6 +293,7 @@ module QA
     #
     module Component
       autoload :ClonePanel, 'qa/page/component/clone_panel'
+      autoload :LazyLoader, 'qa/page/component/lazy_loader'
       autoload :LegacyClonePanel, 'qa/page/component/legacy_clone_panel'
       autoload :Dropzone, 'qa/page/component/dropzone'
       autoload :GroupsFilter, 'qa/page/component/groups_filter'
@@ -326,6 +343,13 @@ module QA
       module Page
         autoload :Base, 'qa/vendor/saml_idp/page/base'
         autoload :Login, 'qa/vendor/saml_idp/page/login'
+      end
+    end
+
+    module Github
+      module Page
+        autoload :Base, 'qa/vendor/github/page/base'
+        autoload :Login, 'qa/vendor/github/page/login'
       end
     end
   end

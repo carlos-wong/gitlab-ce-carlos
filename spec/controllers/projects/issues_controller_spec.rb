@@ -42,7 +42,9 @@ describe Projects::IssuesController do
 
       it_behaves_like "issuables list meta-data", :issue
 
-      it_behaves_like 'set sort order from user preference'
+      it_behaves_like 'set sort order from user preference' do
+        let(:sorting_param) { 'updated_asc' }
+      end
 
       it "returns index" do
         get :index, params: { namespace_id: project.namespace, project_id: project }
@@ -66,7 +68,7 @@ describe Projects::IssuesController do
     end
 
     context 'with page param' do
-      let(:last_page) { project.issues.page().total_pages }
+      let(:last_page) { project.issues.page.total_pages }
       let!(:issue_list) { create_list(:issue, 2, project: project) }
 
       before do
@@ -375,6 +377,23 @@ describe Projects::IssuesController do
         go(id: issue.iid)
 
         expect(response).to have_gitlab_http_status(200)
+      end
+    end
+
+    context 'when getting the changes' do
+      before do
+        project.add_developer(user)
+
+        sign_in(user)
+      end
+
+      it 'returns the necessary data' do
+        go(id: issue.iid)
+
+        data = JSON.parse(response.body)
+
+        expect(data).to include('title_text', 'description', 'description_text')
+        expect(data).to include('task_status', 'lock_version')
       end
     end
   end
@@ -1073,9 +1092,9 @@ describe Projects::IssuesController do
     end
 
     def import_csv
-      post :import_csv, namespace_id: project.namespace.to_param,
-                        project_id: project.to_param,
-                        file: file
+      post :import_csv, params: { namespace_id: project.namespace.to_param,
+                                  project_id: project.to_param,
+                                  file: file }
     end
   end
 
@@ -1118,6 +1137,7 @@ describe Projects::IssuesController do
 
       context 'when user is setting notes filters' do
         let(:issuable) { issue }
+        let(:issuable_parent) { project }
         let!(:discussion_note) { create(:discussion_note_on_issue, :system, noteable: issuable, project: project) }
 
         it_behaves_like 'issuable notes filter'

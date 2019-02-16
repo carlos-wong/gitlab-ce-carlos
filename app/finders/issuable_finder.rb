@@ -18,6 +18,7 @@
 #     assignee_id: integer or 'None' or 'Any'
 #     assignee_username: string
 #     search: string
+#     in: 'title', 'description', or a string joining them with comma
 #     label_name: string
 #     sort: string
 #     non_archived: boolean
@@ -56,6 +57,7 @@ class IssuableFinder
       milestone_title
       my_reaction_emoji
       search
+      in
     ]
   end
 
@@ -149,6 +151,18 @@ class IssuableFinder
       end
   end
 
+  def related_groups
+    if project? && project && project.group && Ability.allowed?(current_user, :read_group, project.group)
+      project.group.self_and_ancestors
+    elsif group
+      [group]
+    elsif current_user
+      Gitlab::ObjectHierarchy.new(current_user.authorized_groups, current_user.groups).all_objects
+    else
+      []
+    end
+  end
+
   def project?
     params[:project_id].present?
   end
@@ -163,8 +177,10 @@ class IssuableFinder
   end
 
   # rubocop: disable CodeReuse/ActiveRecord
-  def projects(items = nil)
-    return @projects = project if project?
+  def projects
+    return @projects if defined?(@projects)
+
+    return @projects = [project] if project?
 
     projects =
       if current_user && params[:authorized_only].presence && !current_user_related?
@@ -289,7 +305,7 @@ class IssuableFinder
   def use_subquery_for_search?
     strong_memoize(:use_subquery_for_search) do
       attempt_group_search_optimizations? &&
-        Feature.enabled?(:use_subquery_for_group_issues_search, default_enabled: false)
+        Feature.enabled?(:use_subquery_for_group_issues_search, default_enabled: true)
     end
   end
 
@@ -394,7 +410,7 @@ class IssuableFinder
       items = klass.with(cte.to_arel).from(klass.table_name)
     end
 
-    items.full_search(search)
+    items.full_search(search, matched_columns: params[:in])
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -459,7 +475,7 @@ class IssuableFinder
       elsif filter_by_any_milestone?
         items = items.any_milestone
       elsif filter_by_upcoming_milestone?
-        upcoming_ids = Milestone.upcoming_ids_by_projects(projects(items))
+        upcoming_ids = Milestone.upcoming_ids(projects, related_groups)
         items = items.left_joins_milestones.where(milestone_id: upcoming_ids)
       elsif filter_by_started_milestone?
         items = items.left_joins_milestones.where('milestones.start_date <= NOW()')

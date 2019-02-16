@@ -82,6 +82,38 @@ describe MergeRequest do
     end
   end
 
+  describe '#default_squash_commit_message' do
+    let(:project) { subject.project }
+
+    def commit_collection(commit_hashes)
+      raw_commits = commit_hashes.map { |raw| Commit.from_hash(raw, project) }
+
+      CommitCollection.new(project, raw_commits)
+    end
+
+    it 'returns the oldest multiline commit message' do
+      commits = commit_collection([
+        { message: 'Singleline', parent_ids: [] },
+        { message: "Second multiline\nCommit message", parent_ids: [] },
+        { message: "First multiline\nCommit message", parent_ids: [] }
+      ])
+
+      expect(subject).to receive(:commits).and_return(commits)
+
+      expect(subject.default_squash_commit_message).to eq("First multiline\nCommit message")
+    end
+
+    it 'returns the merge request title if there are no multiline commits' do
+      commits = commit_collection([
+        { message: 'Singleline', parent_ids: [] }
+      ])
+
+      expect(subject).to receive(:commits).and_return(commits)
+
+      expect(subject.default_squash_commit_message).to eq(subject.title)
+    end
+  end
+
   describe 'modules' do
     subject { described_class }
 
@@ -920,18 +952,18 @@ describe MergeRequest do
     end
   end
 
-  describe '#merge_commit_message' do
+  describe '#default_merge_commit_message' do
     it 'includes merge information as the title' do
       request = build(:merge_request, source_branch: 'source', target_branch: 'target')
 
-      expect(request.merge_commit_message)
+      expect(request.default_merge_commit_message)
         .to match("Merge branch 'source' into 'target'\n\n")
     end
 
     it 'includes its title in the body' do
       request = build(:merge_request, title: 'Remove all technical debt')
 
-      expect(request.merge_commit_message)
+      expect(request.default_merge_commit_message)
         .to match("Remove all technical debt\n\n")
     end
 
@@ -943,34 +975,34 @@ describe MergeRequest do
       allow(subject.project).to receive(:default_branch).and_return(subject.target_branch)
       subject.cache_merge_request_closes_issues!
 
-      expect(subject.merge_commit_message)
+      expect(subject.default_merge_commit_message)
         .to match("Closes #{issue.to_reference}")
     end
 
     it 'includes its reference in the body' do
       request = build_stubbed(:merge_request)
 
-      expect(request.merge_commit_message)
+      expect(request.default_merge_commit_message)
         .to match("See merge request #{request.to_reference(full: true)}")
     end
 
     it 'excludes multiple linebreak runs when description is blank' do
       request = build(:merge_request, title: 'Title', description: nil)
 
-      expect(request.merge_commit_message).not_to match("Title\n\n\n\n")
+      expect(request.default_merge_commit_message).not_to match("Title\n\n\n\n")
     end
 
     it 'includes its description in the body' do
       request = build(:merge_request, description: 'By removing all code')
 
-      expect(request.merge_commit_message(include_description: true))
+      expect(request.default_merge_commit_message(include_description: true))
         .to match("By removing all code\n\n")
     end
 
     it 'does not includes its description in the body' do
       request = build(:merge_request, description: 'By removing all code')
 
-      expect(request.merge_commit_message)
+      expect(request.default_merge_commit_message)
         .not_to match("By removing all code\n\n")
     end
   end
@@ -991,6 +1023,34 @@ describe MergeRequest do
     end
   end
 
+  describe '#committers' do
+    it 'returns all the committers of every commit in the merge request' do
+      users = subject.commits.map(&:committer_email).uniq.map do |email|
+        create(:user, email: email)
+      end
+
+      expect(subject.committers).to match_array(users)
+    end
+
+    it 'returns an empty array if no committer is associated with a user' do
+      expect(subject.committers).to be_empty
+    end
+  end
+
+  describe '#authors' do
+    it 'returns a list with all the committers in the merge request and author' do
+      users = subject.commits.map(&:committer_email).uniq.map do |email|
+        create(:user, email: email)
+      end
+
+      expect(subject.authors).to match_array([subject.author, *users])
+    end
+
+    it 'returns only the author if no committer is associated with a user' do
+      expect(subject.authors).to contain_exactly(subject.author)
+    end
+  end
+
   describe '#hook_attrs' do
     it 'delegates to Gitlab::HookData::MergeRequestBuilder#build' do
       builder = double
@@ -1004,7 +1064,7 @@ describe MergeRequest do
   end
 
   describe '#diverged_commits_count' do
-    let(:project)      { create(:project, :repository) }
+    let(:project) { create(:project, :repository) }
     let(:forked_project) { fork_project(project, nil, repository: true) }
 
     context 'when the target branch does not exist anymore' do
@@ -2270,9 +2330,9 @@ describe MergeRequest do
   end
 
   describe "#source_project_missing?" do
-    let(:project)      { create(:project) }
+    let(:project) { create(:project) }
     let(:forked_project) { fork_project(project) }
-    let(:user)         { create(:user) }
+    let(:user) { create(:user) }
     let(:unlink_project) { Projects::UnlinkForkService.new(forked_project, user) }
 
     context "when the fork exists" do
@@ -2342,9 +2402,9 @@ describe MergeRequest do
   end
 
   describe "#closed_without_fork?" do
-    let(:project)      { create(:project) }
+    let(:project) { create(:project) }
     let(:forked_project) { fork_project(project) }
-    let(:user)         { create(:user) }
+    let(:user) { create(:user) }
     let(:unlink_project) { Projects::UnlinkForkService.new(forked_project, user) }
 
     context "when the merge request is closed" do
@@ -2466,7 +2526,7 @@ describe MergeRequest do
         expect(merge_request.mergeable_with_quick_action?(user, last_diff_sha: mr_sha)).to be_falsey
       end
 
-      context 'closed MR'  do
+      context 'closed MR' do
         before do
           merge_request.update_attribute(:state, :closed)
         end
@@ -2476,7 +2536,7 @@ describe MergeRequest do
         end
       end
 
-      context 'MR with WIP'  do
+      context 'MR with WIP' do
         before do
           merge_request.update_attribute(:title, 'WIP: some MR')
         end
@@ -2486,19 +2546,19 @@ describe MergeRequest do
         end
       end
 
-      context 'sha differs from the MR diff_head_sha'  do
+      context 'sha differs from the MR diff_head_sha' do
         it 'is not mergeable' do
           expect(merge_request.mergeable_with_quick_action?(developer, last_diff_sha: 'some other sha')).to be_falsey
         end
       end
 
-      context 'sha is not provided'  do
+      context 'sha is not provided' do
         it 'is not mergeable' do
           expect(merge_request.mergeable_with_quick_action?(developer)).to be_falsey
         end
       end
 
-      context 'with pipeline ok'  do
+      context 'with pipeline ok' do
         before do
           create_pipeline(:success)
         end
@@ -2508,7 +2568,7 @@ describe MergeRequest do
         end
       end
 
-      context 'with failing pipeline'  do
+      context 'with failing pipeline' do
         before do
           create_pipeline(:failed)
         end
@@ -2518,7 +2578,7 @@ describe MergeRequest do
         end
       end
 
-      context 'with running pipeline'  do
+      context 'with running pipeline' do
         before do
           create_pipeline(:running)
         end

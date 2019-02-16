@@ -34,7 +34,7 @@ in October 2018.
 The [`gitlab-kramdown`](https://gitlab.com/gitlab-org/gitlab_kramdown)
 gem will support all [GFM markup](../../user/markdown.md) in the future. For now,
 use regular markdown markup, following the rules on this style guide. For a complete
-Kramdown reference, check the [GiLab Markdown Kramdown Guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/).
+Kramdown reference, check the [GitLab Markdown Kramdown Guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/).
 Use Kramdown markup wisely: do not overuse its specific markup (e.g., `{:.class}`) as it will not render properly in
 [`/help`](#gitlab-help).
 
@@ -94,6 +94,20 @@ yield a useful result, and ensuring content is helpful and easy to consume.
     - List item 1
     - List item 2
     ```
+
+### Tables overlapping the ToC
+
+By default, all tables have a width of 100% on docs.gitlab.com.
+In a few cases, the table will overlap the table of contents (ToC).
+For these cases, add an entry to the document's frontmatter to
+render them displaying block. This will make sure the table
+is displayed behind the ToC, scrolling horizontally:
+
+```md
+---
+table_display_block: true
+---
+```
 
 ## Emphasis
 
@@ -222,6 +236,15 @@ For other punctuation rules, please refer to the
   E.g., instead of writing something like `Read more about GitLab Issue Boards [here](LINK)`,
   write `Read more about [GitLab Issue Boards](LINK)`.
 
+### Unlinking emails
+
+By default, all email addresses will render in an email tag on docs.gitlab.com.
+To escape the code block and unlink email addresses, use two backticks:
+
+```md
+`` example@email.com ``
+```
+
 ## Navigation
 
 To indicate the steps of navigation through the UI:
@@ -262,6 +285,16 @@ Inside the document:
 - If a heading is placed right after an image, always add three dashes (`---`)
   between the image and the heading.
 
+### Remove image shadow
+
+All images displayed on docs.gitlab.com have a box shadow by default.
+To remove the box shadow, use the image class `.image-noshadow` applied
+directly to an HTML `img` tag:
+
+```html
+<img src="path/to/image.jpg" alt="Alt text (required)" class="image-noshadow">
+```
+
 ## Code blocks
 
 - Always wrap code added to a sentence in inline code blocks (``` ` ```).
@@ -272,20 +305,26 @@ Inside the document:
 - For regular code blocks, always use a highlighting class corresponding to the
   language for better readability. Examples:
 
-      ```md
-       ```ruby
-       Ruby code
-       ```
+  ````
+  ```ruby
+  Ruby code
+  ```
 
-       ```js
-       JavaScript code
-       ```
+  ```js
+  JavaScript code
+  ```
 
-       ```md
-       Markdown code
-       ```
-      ```
+  ```md
+  Markdown code
+  ```
 
+  ```text
+  Code for which no specific highlighting class is available.
+  ```
+  ````
+
+- To display raw markdown instead of rendered markdown, use four backticks on their own lines around the
+  markdown to display. See [example](https://gitlab.com/gitlab-org/gitlab-ce/blob/8c1991b9bb7e3b8d606481fdea316d633cfa5eb7/doc/development/documentation/styleguide.md#L275-287).
 - For a complete reference on code blocks, check the [Kramdown guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/#code-blocks).
 
 ## Alert boxes
@@ -383,7 +422,7 @@ Which renders to:
 > ### This is an `h3`
 >{:.no_toc}
 
-## Specific sections and terms
+## Terms
 
 To maintain consistency through GitLab documentation, the following guides documentation authors
 on agreed styles and usage of terms.
@@ -412,7 +451,7 @@ The following are recommended verbs for specific uses.
 |:------------|:--------------------------------|:-------------------|
 | "go"        | making a browser go to location | "navigate", "open" |
 
-### GitLab versions and tiers
+## GitLab versions and tiers
 
 - Every piece of documentation that comes with a new feature should declare the
   GitLab version that feature got introduced. Right below the heading add a
@@ -437,7 +476,7 @@ The following are recommended verbs for specific uses.
     > [Introduced](<link-to-issue>) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
     ```
 
-#### Early versions of EE
+### Early versions of EE
 
 If the feature was created before GitLab 9.2 (before [different EE tiers were introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/1851)):
 
@@ -450,7 +489,7 @@ For example:
 > [Introduced](<link-to-issue>) in GitLab Enterprise Edition 9.0. Available in [GitLab Premium](https://about.gitlab.com/pricing/).
 ```
 
-### Product badges
+## Product badges
 
 When a feature is available in EE-only tiers, add the corresponding tier according to the
 feature availability:
@@ -471,12 +510,16 @@ keyword "only":
 The tier should be ideally added to headers, so that the full badge will be displayed.
 However, it can be also mentioned from paragraphs, list items, and table cells. For these cases,
 the tier mention will be represented by an orange question mark that will show the tiers on hover.
-E.g., `**[STARTER]**` renders **[STARTER]**, `**[STARTER ONLY]**` renders **[STARTER ONLY]**.
+
+For example:
+
+- `**[STARTER]**` renders as **[STARTER]**
+- `**[STARTER ONLY]**` renders as **[STARTER ONLY]**
 
 The absence of tiers' mentions mean that the feature is available in GitLab Core,
 GitLab.com Free, and all higher tiers.
 
-#### How it works
+### How it works
 
 Introduced by [!244](https://gitlab.com/gitlab-com/gitlab-docs/merge_requests/244),
 the special markup `**[STARTER]**` will generate a `span` element to trigger the

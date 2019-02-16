@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe API::Users do
-  let(:user)  { create(:user) }
+  let(:user)  { create(:user, username: 'user.with.dot') }
   let(:admin) { create(:admin) }
   let(:key) { create(:key, user: user) }
   let(:gpg_key) { create(:gpg_key, user: user) }
@@ -1785,7 +1785,7 @@ describe API::Users do
   end
 
   describe 'POST /users/:id/unblock' do
-    let(:blocked_user)  { create(:user, state: 'blocked') }
+    let(:blocked_user) { create(:user, state: 'blocked') }
 
     before do
       admin

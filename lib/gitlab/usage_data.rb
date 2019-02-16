@@ -81,6 +81,7 @@ module Gitlab
             pages_domains: count(PagesDomain),
             projects: count(Project),
             projects_imported_from_github: count(Project.where(import_type: 'github')),
+            projects_with_repositories_enabled: count(ProjectFeature.where('repository_access_level > ?', ProjectFeature::DISABLED)),
             protected_branches: count(ProtectedBranch),
             releases: count(Release),
             remote_mirrors: count(RemoteMirror),
@@ -89,8 +90,14 @@ module Gitlab
             todos: count(Todo),
             uploads: count(Upload),
             web_hooks: count(WebHook)
-          }.merge(services_usage).merge(approximate_counts)
-        }
+          }
+          .merge(services_usage)
+          .merge(approximate_counts)
+        }.tap do |data|
+          if Feature.enabled?(:group_overview_security_dashboard)
+            data[:counts][:user_preferences] = user_preferences_usage
+          end
+        end
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
@@ -156,6 +163,10 @@ module Gitlab
           projects_jira_cloud_active: services['cloud'] || 0,
           projects_jira_active: services['server'] == -1 ? -1 : services.values.sum
         }
+      end
+
+      def user_preferences_usage
+        {} # augmented in EE
       end
 
       def count(relation, fallback: -1)

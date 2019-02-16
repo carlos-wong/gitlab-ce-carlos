@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  # Failure issue: https://gitlab.com/gitlab-org/quality/staging/issues/31
+  context 'Create', :quarantine do
     describe 'Merge request squashing' do
-      it 'user squashes commits while merging'  do
+      it 'user squashes commits while merging' do
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
 

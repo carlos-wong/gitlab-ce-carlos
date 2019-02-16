@@ -141,7 +141,7 @@ describe Projects::ImportService do
           result = subject.execute
 
           expect(result[:status]).to eq :error
-          expect(result[:message]).to eq "Error importing repository #{project.import_url} into #{project.full_path} - Failed to import the repository [FILTERED]"
+          expect(result[:message]).to eq "Error importing repository #{project.safe_import_url} into #{project.full_path} - Failed to import the repository [FILTERED]"
         end
 
         context 'when repository import scheduled' do

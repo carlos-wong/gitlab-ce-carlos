@@ -27,11 +27,6 @@ export default {
       type: String,
       required: true,
     },
-    markdownVersion: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
     addSpacingClasses: {
       type: Boolean,
       required: false,
@@ -158,7 +153,7 @@ export default {
         this.markdownPreviewLoading = true;
         this.markdownPreview = __('Loading…');
         this.$http
-          .post(this.versionedPreviewPath(), { text })
+          .post(this.markdownPreviewPath, { text })
           .then(resp => resp.json())
           .then(data => this.renderMarkdown(data))
           .catch(() => new Flash(__('Error loading markdown preview')));
@@ -182,16 +177,9 @@ export default {
         this.hasSuggestion = data.references.suggestions && data.references.suggestions.length;
       }
 
-      this.$nextTick(() => {
-        $(this.$refs['markdown-preview']).renderGFM();
-      });
-    },
-
-    versionedPreviewPath() {
-      const { markdownPreviewPath, markdownVersion } = this;
-      return `${markdownPreviewPath}${
-        markdownPreviewPath.indexOf('?') === -1 ? '?' : '&'
-      }markdown_version=${markdownVersion}`;
+      this.$nextTick()
+        .then(() => $(this.$refs['markdown-preview']).renderGFM())
+        .catch(() => new Flash(__('Error rendering markdown preview')));
     },
   },
 };

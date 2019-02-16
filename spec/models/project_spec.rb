@@ -209,9 +209,14 @@ describe Project do
 
     it 'does not allow new projects beyond user limits' do
       project2 = build(:project)
-      allow(project2).to receive(:creator).and_return(double(can_create_project?: false, projects_limit: 0).as_null_object)
+
+      allow(project2)
+        .to receive(:creator)
+        .and_return(
+          double(can_create_project?: false, projects_limit: 0).as_null_object
+        )
+
       expect(project2).not_to be_valid
-      expect(project2.errors[:limit_reached].first).to match(/Personal project creation is not allowed/)
     end
 
     describe 'wiki path conflict' do
@@ -1129,13 +1134,13 @@ describe Project do
 
   describe '#pipeline_for' do
     let(:project) { create(:project, :repository) }
-    let!(:pipeline) { create_pipeline }
+    let!(:pipeline) { create_pipeline(project) }
 
     shared_examples 'giving the correct pipeline' do
       it { is_expected.to eq(pipeline) }
 
       context 'return latest' do
-        let!(:pipeline2) { create_pipeline }
+        let!(:pipeline2) { create_pipeline(project) }
 
         it { is_expected.to eq(pipeline2) }
       end
@@ -1151,13 +1156,6 @@ describe Project do
       subject { project.pipeline_for('master') }
 
       it_behaves_like 'giving the correct pipeline'
-    end
-
-    def create_pipeline
-      create(:ci_pipeline,
-             project: project,
-             ref: 'master',
-             sha: project.commit('master').sha)
     end
   end
 
@@ -1441,6 +1439,24 @@ describe Project do
       it "returns a empty list" do
         is_expected.to be_empty
       end
+    end
+  end
+
+  describe '#visibility_level' do
+    let(:project) { build(:project) }
+
+    subject { project.visibility_level }
+
+    context 'by default' do
+      it { is_expected.to eq(Gitlab::VisibilityLevel::PRIVATE) }
+    end
+
+    context 'when set to INTERNAL in application settings' do
+      before do
+        stub_application_setting(default_project_visibility: Gitlab::VisibilityLevel::INTERNAL)
+      end
+
+      it { is_expected.to eq(Gitlab::VisibilityLevel::INTERNAL) }
     end
   end
 
@@ -1749,7 +1765,7 @@ describe Project do
     context 'using a regular repository' do
       it 'creates the repository' do
         expect(shell).to receive(:create_repository)
-          .with(project.repository_storage, project.disk_path)
+          .with(project.repository_storage, project.disk_path, project.full_path)
           .and_return(true)
 
         expect(project.repository).to receive(:after_create)
@@ -1759,7 +1775,7 @@ describe Project do
 
       it 'adds an error if the repository could not be created' do
         expect(shell).to receive(:create_repository)
-          .with(project.repository_storage, project.disk_path)
+          .with(project.repository_storage, project.disk_path, project.full_path)
           .and_return(false)
 
         expect(project.repository).not_to receive(:after_create)
@@ -1792,7 +1808,7 @@ describe Project do
         .and_return(false)
 
       allow(shell).to receive(:create_repository)
-        .with(project.repository_storage, project.disk_path)
+        .with(project.repository_storage, project.disk_path, project.full_path)
         .and_return(true)
 
       expect(project).to receive(:create_repository).with(force: true)
@@ -1816,7 +1832,7 @@ describe Project do
         .and_return(false)
 
       expect(shell).to receive(:create_repository)
-        .with(project.repository_storage, project.disk_path)
+        .with(project.repository_storage, project.disk_path, project.full_path)
         .and_return(true)
 
       project.ensure_repository
@@ -1946,38 +1962,21 @@ describe Project do
     end
   end
 
-  describe '#latest_successful_builds_for and #latest_successful_build_for' do
-    def create_pipeline(status = 'success')
-      create(:ci_pipeline, project: project,
-                           sha: project.commit.sha,
-                           ref: project.default_branch,
-                           status: status)
-    end
-
-    def create_build(new_pipeline = pipeline, name = 'test')
-      create(:ci_build, :success, :artifacts,
-             pipeline: new_pipeline,
-             status: new_pipeline.status,
-             name: name)
-    end
-
+  describe '#latest_successful_build_for' do
     let(:project) { create(:project, :repository) }
-    let(:pipeline) { create_pipeline }
+    let(:pipeline) { create_pipeline(project) }
 
     context 'with many builds' do
       it 'gives the latest builds from latest pipeline' do
-        pipeline1 = create_pipeline
-        pipeline2 = create_pipeline
+        pipeline1 = create_pipeline(project)
+        pipeline2 = create_pipeline(project)
         create_build(pipeline1, 'test')
         create_build(pipeline1, 'test2')
         build1_p2 = create_build(pipeline2, 'test')
-        build2_p2 = create_build(pipeline2, 'test2')
+        create_build(pipeline2, 'test2')
 
-        latest_builds = project.latest_successful_builds_for
-        single_build = project.latest_successful_build_for(build1_p2.name)
-
-        expect(latest_builds).to contain_exactly(build2_p2, build1_p2)
-        expect(single_build).to eq(build1_p2)
+        expect(project.latest_successful_build_for(build1_p2.name))
+          .to eq(build1_p2)
       end
     end
 
@@ -1986,51 +1985,90 @@ describe Project do
 
       context 'standalone pipeline' do
         it 'returns builds for ref for default_branch' do
-          builds = project.latest_successful_builds_for
-          single_build = project.latest_successful_build_for(build.name)
-
-          expect(builds).to contain_exactly(build)
-          expect(single_build).to eq(build)
+          expect(project.latest_successful_build_for(build.name))
+            .to eq(build)
         end
 
-        it 'returns empty relation if the build cannot be found for #latest_successful_builds_for' do
-          builds = project.latest_successful_builds_for('TAIL')
-
-          expect(builds).to be_kind_of(ActiveRecord::Relation)
-          expect(builds).to be_empty
-        end
-
-        it 'returns exception if the build cannot be found for #latest_successful_build_for' do
-          expect { project.latest_successful_build_for(build.name, 'TAIL') }.to raise_error(ActiveRecord::RecordNotFound)
+        it 'returns empty relation if the build cannot be found' do
+          expect(project.latest_successful_build_for('TAIL'))
+            .to be_nil
         end
       end
 
       context 'with some pending pipeline' do
         before do
-          create_build(create_pipeline('pending'))
+          create_build(create_pipeline(project, 'pending'))
         end
 
         it 'gives the latest build from latest pipeline' do
-          latest_builds = project.latest_successful_builds_for
-          last_single_build = project.latest_successful_build_for(build.name)
-
-          expect(latest_builds).to contain_exactly(build)
-          expect(last_single_build).to eq(build)
+          expect(project.latest_successful_build_for(build.name))
+            .to eq(build)
         end
       end
     end
 
     context 'with pending pipeline' do
-      before do
+      it 'returns empty relation' do
         pipeline.update(status: 'pending')
-        create_build(pipeline)
+        pending_build = create_build(pipeline)
+
+        expect(project.latest_successful_build_for(pending_build.name)).to be_nil
+      end
+    end
+  end
+
+  describe '#latest_successful_build_for!' do
+    let(:project) { create(:project, :repository) }
+    let(:pipeline) { create_pipeline(project) }
+
+    context 'with many builds' do
+      it 'gives the latest builds from latest pipeline' do
+        pipeline1 = create_pipeline(project)
+        pipeline2 = create_pipeline(project)
+        create_build(pipeline1, 'test')
+        create_build(pipeline1, 'test2')
+        build1_p2 = create_build(pipeline2, 'test')
+        create_build(pipeline2, 'test2')
+
+        expect(project.latest_successful_build_for(build1_p2.name))
+          .to eq(build1_p2)
+      end
+    end
+
+    context 'with succeeded pipeline' do
+      let!(:build) { create_build }
+
+      context 'standalone pipeline' do
+        it 'returns builds for ref for default_branch' do
+          expect(project.latest_successful_build_for!(build.name))
+            .to eq(build)
+        end
+
+        it 'returns exception if the build cannot be found' do
+          expect { project.latest_successful_build_for!(build.name, 'TAIL') }
+            .to raise_error(ActiveRecord::RecordNotFound)
+        end
       end
 
-      it 'returns empty relation' do
-        builds = project.latest_successful_builds_for
+      context 'with some pending pipeline' do
+        before do
+          create_build(create_pipeline(project, 'pending'))
+        end
 
-        expect(builds).to be_kind_of(ActiveRecord::Relation)
-        expect(builds).to be_empty
+        it 'gives the latest build from latest pipeline' do
+          expect(project.latest_successful_build_for!(build.name))
+            .to eq(build)
+        end
+      end
+    end
+
+    context 'with pending pipeline' do
+      it 'returns empty relation' do
+        pipeline.update(status: 'pending')
+        pending_build = create_build(pipeline)
+
+        expect { project.latest_successful_build_for!(pending_build.name) }
+          .to raise_error(ActiveRecord::RecordNotFound)
       end
     end
   end
@@ -3138,7 +3176,7 @@ describe Project do
     context 'when the project is in a subgroup' do
       let(:group) { create(:group, :nested) }
 
-      it { is_expected.to be(false) }
+      it { is_expected.to be(true) }
     end
   end
 
@@ -3270,7 +3308,7 @@ describe Project do
   end
 
   context 'legacy storage' do
-    let(:project) { create(:project, :repository, :legacy_storage) }
+    set(:project) { create(:project, :repository, :legacy_storage) }
     let(:gitlab_shell) { Gitlab::Shell.new }
     let(:project_storage) { project.send(:storage) }
 
@@ -3325,13 +3363,14 @@ describe Project do
     end
 
     describe '#migrate_to_hashed_storage!' do
+      let(:project) { create(:project, :empty_repo, :legacy_storage) }
+
       it 'returns true' do
         expect(project.migrate_to_hashed_storage!).to be_truthy
       end
 
-      it 'does not validate project visibility' do
-        expect(project).not_to receive(:visibility_level_allowed_as_fork)
-        expect(project).not_to receive(:visibility_level_allowed_by_group)
+      it 'does not run validation' do
+        expect(project).not_to receive(:valid?)
 
         project.migrate_to_hashed_storage!
       end
@@ -3361,7 +3400,7 @@ describe Project do
   end
 
   context 'hashed storage' do
-    let(:project) { create(:project, :repository, skip_disk_validation: true) }
+    set(:project) { create(:project, :repository, skip_disk_validation: true) }
     let(:gitlab_shell) { Gitlab::Shell.new }
     let(:hash) { Digest::SHA2.hexdigest(project.id.to_s) }
     let(:hashed_prefix) { File.join('@hashed', hash[0..1], hash[2..3]) }
@@ -3418,6 +3457,8 @@ describe Project do
     end
 
     describe '#migrate_to_hashed_storage!' do
+      let(:project) { create(:project, :repository, skip_disk_validation: true) }
+
       it 'returns nil' do
         expect(project.migrate_to_hashed_storage!).to be_nil
       end
@@ -3427,10 +3468,12 @@ describe Project do
       end
 
       context 'when partially migrated' do
-        it 'returns true' do
+        it 'enqueues a job' do
           project = create(:project, storage_version: 1, skip_disk_validation: true)
 
-          expect(project.migrate_to_hashed_storage!).to be_truthy
+          Sidekiq::Testing.fake! do
+            expect { project.migrate_to_hashed_storage! }.to change(ProjectMigrateHashedStorageWorker.jobs, :size).by(1)
+          end
         end
       end
     end
@@ -3808,6 +3851,7 @@ describe Project do
       expect(import_state).to receive(:remove_jid)
       expect(project).to receive(:after_create_default_branch)
       expect(project).to receive(:refresh_markdown_cache!)
+      expect(InternalId).to receive(:flush_records!).with(project: project)
 
       project.after_import
     end
@@ -3972,7 +4016,7 @@ describe Project do
 
   describe '#badges' do
     let(:project_group) { create(:group) }
-    let(:project) {  create(:project, path: 'avatar', namespace: project_group) }
+    let(:project) { create(:project, path: 'avatar', namespace: project_group) }
 
     before do
       create_list(:project_badge, 2, project: project)
@@ -4471,7 +4515,101 @@ describe Project do
     end
   end
 
+  describe '#leave_pool_repository' do
+    let(:pool) { create(:pool_repository) }
+    let(:project) { create(:project, :repository, pool_repository: pool) }
+
+    it 'removes the membership' do
+      project.leave_pool_repository
+
+      expect(pool.member_projects.reload).not_to include(project)
+    end
+  end
+
+  describe '#check_personal_projects_limit' do
+    context 'when creating a project for a group' do
+      it 'does nothing' do
+        creator = build(:user)
+        project = build(:project, namespace: build(:group), creator: creator)
+
+        allow(creator)
+          .to receive(:can_create_project?)
+          .and_return(false)
+
+        project.check_personal_projects_limit
+
+        expect(project.errors).to be_empty
+      end
+    end
+
+    context 'when the user is not allowed to create a personal project' do
+      let(:user) { build(:user) }
+      let(:project) { build(:project, creator: user) }
+
+      before do
+        allow(user)
+          .to receive(:can_create_project?)
+          .and_return(false)
+      end
+
+      context 'when the project limit is zero' do
+        it 'adds a validation error' do
+          allow(user)
+            .to receive(:projects_limit)
+            .and_return(0)
+
+          project.check_personal_projects_limit
+
+          expect(project.errors[:limit_reached].first)
+            .to match(/Personal project creation is not allowed/)
+        end
+      end
+
+      context 'when the project limit is greater than zero' do
+        it 'adds a validation error' do
+          allow(user)
+            .to receive(:projects_limit)
+            .and_return(5)
+
+          project.check_personal_projects_limit
+
+          expect(project.errors[:limit_reached].first)
+            .to match(/Your project limit is 5 projects/)
+        end
+      end
+    end
+
+    context 'when the user is allowed to create personal projects' do
+      it 'does nothing' do
+        user = build(:user)
+        project = build(:project, creator: user)
+
+        allow(user)
+          .to receive(:can_create_project?)
+          .and_return(true)
+
+        project.check_personal_projects_limit
+
+        expect(project.errors).to be_empty
+      end
+    end
+  end
+
   def rugged_config
     rugged_repo(project.repository).config
+  end
+
+  def create_pipeline(project, status = 'success')
+    create(:ci_pipeline, project: project,
+                         sha: project.commit.sha,
+                         ref: project.default_branch,
+                         status: status)
+  end
+
+  def create_build(new_pipeline = pipeline, name = 'test')
+    create(:ci_build, :success, :artifacts,
+           pipeline: new_pipeline,
+           status: new_pipeline.status,
+           name: name)
   end
 end

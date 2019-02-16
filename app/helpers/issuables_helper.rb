@@ -209,7 +209,7 @@ module IssuablesHelper
   end
 
   def issuable_labels_tooltip(labels, limit: 5)
-    first, last = labels.partition.with_index { |_, i| i < limit  }
+    first, last = labels.partition.with_index { |_, i| i < limit }
 
     if labels && labels.any?
       label_names = first.collect { |label| label.fetch(:title) }
@@ -268,7 +268,7 @@ module IssuablesHelper
       issuableRef: issuable.to_reference,
       markdownPreviewPath: preview_markdown_path(parent),
       markdownDocsPath: help_page_path('user/markdown'),
-      markdownVersion: issuable.cached_markdown_version,
+      lockVersion: issuable.lock_version,
       issuableTemplates: issuable_templates(issuable),
       initialTitleHtml: markdown_field(issuable, :title),
       initialTitleText: issuable.title,

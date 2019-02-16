@@ -43,7 +43,8 @@ module API
                         desc: 'Return issues sorted in `asc` or `desc` order.'
         optional :milestone, type: String, desc: 'Return issues for a specific milestone'
         optional :iids, type: Array[Integer], desc: 'The IID array of issues'
-        optional :search, type: String, desc: 'Search issues for text present in the title or description'
+        optional :search, type: String, desc: 'Search issues for text present in the title, description, or any combination of these'
+        optional :in, type: String, desc: '`title`, `description`, or a string joining them with comma'
         optional :created_after, type: DateTime, desc: 'Return issues created after the specified time'
         optional :created_before, type: DateTime, desc: 'Return issues created before the specified time'
         optional :updated_after, type: DateTime, desc: 'Return issues updated after the specified time'
@@ -294,7 +295,7 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'List merge requests that are related to the issue'  do
+      desc 'List merge requests that are related to the issue' do
         success Entities::MergeRequestBasic
       end
       params do
@@ -318,7 +319,7 @@ module API
         present paginate(merge_requests), with: Entities::MergeRequestBasic, current_user: current_user, project: user_project
       end
 
-      desc 'List merge requests closing issue'  do
+      desc 'List merge requests closing issue' do
         success Entities::MergeRequestBasic
       end
       params do
@@ -335,7 +336,7 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'List participants for an issue'  do
+      desc 'List participants for an issue' do
         success Entities::UserBasic
       end
       params do

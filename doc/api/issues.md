@@ -31,6 +31,7 @@ GET /issues?iids[]=42&iids[]=43
 GET /issues?author_id=5
 GET /issues?assignee_id=5
 GET /issues?my_reaction_emoji=star
+GET /issues?search=foo&in=title
 ```
 
 | Attribute           | Type             | Required   | Description                                                                                                                                         |
@@ -46,6 +47,7 @@ GET /issues?my_reaction_emoji=star
 | `order_by`          | string           | no         | Return issues ordered by `created_at` or `updated_at` fields. Default is `created_at`                                                               |
 | `sort`              | string           | no         | Return issues sorted in `asc` or `desc` order. Default is `desc`                                                                                    |
 | `search`            | string           | no         | Search issues against their `title` and `description`                                                                                               |
+| `in`                | string           | no         | Modify the scope of the `search` attribute. `title`, `description`, or a string joining them with comma. Default is `title,description`              |
 | `created_after`     | datetime         | no         | Return issues created on or after the given time                                                                                                    |
 | `created_before`    | datetime         | no         | Return issues created on or before the given time                                                                                                   |
 | `updated_after`     | datetime         | no         | Return issues updated on or after the given time                                                                                                    |
@@ -106,6 +108,8 @@ Example response:
       "created_at" : "2016-01-04T15:31:51.081Z",
       "iid" : 6,
       "labels" : [],
+      "upvotes": 4,
+      "downvotes": 0,
       "user_notes_count": 1,
       "due_date": "2016-07-22",
       "web_url": "http://example.com/example/example/issues/6",
@@ -214,6 +218,8 @@ Example response:
          "name" : "Dr. Luella Kovacek"
       },
       "labels" : [],
+      "upvotes": 4,
+      "downvotes": 0,
       "id" : 41,
       "title" : "Ut commodi ullam eos dolores perferendis nihil sunt.",
       "updated_at" : "2016-01-04T15:31:46.176Z",
@@ -327,6 +333,8 @@ Example response:
          "name" : "Dr. Luella Kovacek"
       },
       "labels" : [],
+      "upvotes": 4,
+      "downvotes": 0,
       "id" : 41,
       "title" : "Ut commodi ullam eos dolores perferendis nihil sunt.",
       "updated_at" : "2016-01-04T15:31:46.176Z",
@@ -421,6 +429,8 @@ Example response:
       "name" : "Dr. Luella Kovacek"
    },
    "labels" : [],
+   "upvotes": 4,
+   "downvotes": 0,
    "id" : 41,
    "title" : "Ut commodi ullam eos dolores perferendis nihil sunt.",
    "updated_at" : "2016-01-04T15:31:46.176Z",
@@ -494,6 +504,8 @@ Example response:
    "labels" : [
       "bug"
    ],
+   "upvotes": 4,
+   "downvotes": 0,
    "author" : {
       "name" : "Alexandra Bashirian",
       "avatar_url" : null,
@@ -592,6 +604,8 @@ Example response:
    "labels" : [
       "bug"
    ],
+   "upvotes": 4,
+   "downvotes": 0,
    "id" : 85,
    "assignees" : [],
    "assignee" : null,
@@ -676,6 +690,8 @@ Example response:
   "closed_at": null,
   "closed_by": null,
   "labels": [],
+  "upvotes": 4,
+  "downvotes": 0,
   "milestone": null,
   "assignees": [{
     "name": "Miss Monserrate Beier",
@@ -758,6 +774,8 @@ Example response:
   "closed_at": null,
   "closed_by": null,
   "labels": [],
+  "upvotes": 4,
+  "downvotes": 0,
   "milestone": null,
   "assignees": [{
     "name": "Miss Monserrate Beier",
@@ -839,6 +857,8 @@ Example response:
   "created_at": "2016-04-05T21:41:45.217Z",
   "updated_at": "2016-04-07T13:02:37.905Z",
   "labels": [],
+  "upvotes": 4,
+  "downvotes": 0,
   "milestone": null,
   "assignee": {
     "name": "Edwardo Grady",

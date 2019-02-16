@@ -109,7 +109,8 @@ module API
         optional :my_reaction_emoji, type: String, desc: 'Return issues reacted by the authenticated user by the given emoji'
         optional :source_branch, type: String, desc: 'Return merge requests with the given source branch'
         optional :target_branch, type: String, desc: 'Return merge requests with the given target branch'
-        optional :search, type: String, desc: 'Search merge requests for text present in the title or description'
+        optional :search, type: String, desc: 'Search merge requests for text present in the title, description, or any combination of these'
+        optional :in, type: String, desc: '`title`, `description`, or a string joining them with comma'
         optional :wip, type: String, values: %w[yes no], desc: 'Search merge requests for WIP in the title'
         use :pagination
       end
@@ -179,7 +180,7 @@ module API
           optional :assignee_id, type: Integer, desc: 'The ID of a user to assign the merge request'
           optional :milestone_id, type: Integer, desc: 'The ID of a milestone to assign the merge request'
           optional :labels, type: String, desc: 'Comma-separated list of label names'
-          optional :remove_source_branch, type: Boolean, desc: 'Remove source branch when merging'
+          optional :remove_source_branch, type: Boolean, desc: 'Delete source branch when merging'
           optional :allow_collaboration, type: Boolean, desc: 'Allow commits from members who can merge to the target branch'
           optional :allow_maintainer_to_push, type: Boolean, as: :allow_collaboration, desc: '[deprecated] See allow_collaboration'
           optional :squash, type: Grape::API::Boolean, desc: 'When true, the commits will be squashed into a single commit on merge'
@@ -342,6 +343,7 @@ module API
       end
       params do
         optional :merge_commit_message, type: String, desc: 'Custom merge commit message'
+        optional :squash_commit_message, type: String, desc: 'Custom squash commit message'
         optional :should_remove_source_branch, type: Boolean,
                                                desc: 'When true, the source branch will be deleted if possible'
         optional :merge_when_pipeline_succeeds, type: Boolean,
@@ -369,6 +371,7 @@ module API
 
         merge_params = {
           commit_message: params[:merge_commit_message],
+          squash_commit_message: params[:squash_commit_message],
           should_remove_source_branch: params[:should_remove_source_branch]
         }
 

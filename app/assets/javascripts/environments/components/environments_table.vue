@@ -23,12 +23,6 @@ export default {
       required: false,
       default: false,
     },
-
-    canCreateDeployment: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
   },
   methods: {
     folderUrl(model) {
@@ -64,7 +58,6 @@ export default {
         is="environment-item"
         :key="`environment-item-${i}`"
         :model="model"
-        :can-create-deployment="canCreateDeployment"
         :can-read-environment="canReadEnvironment"
       />
 
@@ -79,15 +72,14 @@ export default {
             v-for="(children, index) in model.children"
             :key="`env-item-${i}-${index}`"
             :model="children"
-            :can-create-deployment="canCreateDeployment"
             :can-read-environment="canReadEnvironment"
           />
 
           <div :key="`sub-div-${i}`">
             <div class="text-center prepend-top-10">
-              <a :href="folderUrl(model)" class="btn btn-default">
-                {{ s__('Environments|Show all') }}
-              </a>
+              <a :href="folderUrl(model)" class="btn btn-default">{{
+                s__('Environments|Show all')
+              }}</a>
             </div>
           </div>
         </template>

@@ -105,7 +105,10 @@ export default {
 
       if (discussion.diff_file) {
         diffData.file_hash = discussion.diff_file.file_hash;
-        diffData.truncated_diff_lines = discussion.truncated_diff_lines || [];
+
+        diffData.truncated_diff_lines = utils.prepareDiffLines(
+          discussion.truncated_diff_lines || [],
+        );
       }
 
       // To support legacy notes, should be very rare case.
@@ -243,7 +246,7 @@ export default {
   [types.SET_DISCUSSION_DIFF_LINES](state, { discussionId, diffLines }) {
     const discussion = utils.findNoteObjectById(state.discussions, discussionId);
 
-    discussion.truncated_diff_lines = diffLines;
+    discussion.truncated_diff_lines = utils.prepareDiffLines(diffLines);
   },
 
   [types.DISABLE_COMMENTS](state, value) {
@@ -260,5 +263,10 @@ export default {
         discussion.notes.some(note => note.resolvable && !note.resolved),
     ).length;
     state.hasUnresolvedDiscussions = state.unresolvedDiscussionsCount > 1;
+  },
+
+  [types.CONVERT_TO_DISCUSSION](state, discussionId) {
+    const discussion = utils.findNoteObjectById(state.discussions, discussionId);
+    Object.assign(discussion, { individual_note: false });
   },
 };

@@ -24,10 +24,6 @@ export default {
       type: Boolean,
       required: true,
     },
-    canCreateDeployment: {
-      type: Boolean,
-      required: true,
-    },
     canReadEnvironment: {
       type: Boolean,
       required: true,
@@ -96,9 +92,9 @@ export default {
       <tabs :tabs="tabs" scope="environments" @onChangeTab="onChangeTab" />
 
       <div v-if="canCreateEnvironment && !isLoading" class="nav-controls">
-        <a :href="newEnvironmentPath" class="btn btn-success">
-          {{ s__('Environments|New environment') }}
-        </a>
+        <a :href="newEnvironmentPath" class="btn btn-success">{{
+          s__('Environments|New environment')
+        }}</a>
       </div>
     </div>
 
@@ -106,7 +102,6 @@ export default {
       :is-loading="isLoading"
       :environments="state.environments"
       :pagination="state.paginationInformation"
-      :can-create-deployment="canCreateDeployment"
       :can-read-environment="canReadEnvironment"
       @onChangePage="onChangePage"
     >

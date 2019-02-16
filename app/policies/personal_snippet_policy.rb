@@ -32,4 +32,6 @@ class PersonalSnippetPolicy < BasePolicy
     enable :create_note
     enable :award_emoji
   end
+
+  rule { full_private_access }.enable :read_personal_snippet
 end

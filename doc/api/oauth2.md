@@ -95,6 +95,7 @@ NOTE: **Note:**
 Check the [RFC spec](https://tools.ietf.org/html/rfc6749#section-4.2) for a
 detailed flow description.
 
+
 CAUTION: **Important:**
 Avoid using this flow for applications that store data outside of the GitLab
 instance. If you do, make sure to verify `application id` associated with the
@@ -206,3 +207,4 @@ or you can put the token to the Authorization header:
 ```
 curl --header "Authorization: Bearer OAUTH-TOKEN" https://gitlab.example.com/api/v4/user
 ```
+
