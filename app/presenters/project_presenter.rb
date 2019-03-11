@@ -256,7 +256,8 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
     elsif repository.contribution_guide.present?
       AnchorData.new(false,
                      statistic_icon('doc-text') + _('CONTRIBUTING'),
-                     contribution_guide_path)
+                     contribution_guide_path,
+                     'default')
     end
   end
 
@@ -312,6 +313,10 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
 
   def topics_to_show
     project.tag_list.take(MAX_TOPICS_TO_SHOW) # rubocop: disable CodeReuse/ActiveRecord
+  end
+
+  def topics_not_shown
+    project.tag_list - topics_to_show
   end
 
   def count_of_extra_topics_not_shown

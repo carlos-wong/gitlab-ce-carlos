@@ -6,6 +6,7 @@ import * as constants from '../constants';
 import eventHub from '../event_hub';
 import noteableNote from './noteable_note.vue';
 import noteableDiscussion from './noteable_discussion.vue';
+import discussionFilterNote from './discussion_filter_note.vue';
 import systemNote from '../../vue_shared/components/notes/system_note.vue';
 import commentForm from './comment_form.vue';
 import placeholderNote from '../../vue_shared/components/notes/placeholder_note.vue';
@@ -24,6 +25,7 @@ export default {
     placeholderNote,
     placeholderSystemNote,
     skeletonLoadingContainer,
+    discussionFilterNote,
   },
   props: {
     noteableData: {
@@ -60,9 +62,11 @@ export default {
     ...mapGetters([
       'isNotesFetched',
       'discussions',
+      'convertedDisscussionIds',
       'getNotesDataByProp',
       'isLoading',
       'commentsDisabled',
+      'getNoteableData',
     ]),
     noteableType() {
       return this.noteableData.noteableType;
@@ -78,6 +82,9 @@ export default {
 
       return this.discussions;
     },
+    canReply() {
+      return this.getNoteableData.current_user.can_create_note && !this.commentsDisabled;
+    },
   },
   watch: {
     shouldShow() {
@@ -85,8 +92,15 @@ export default {
         this.fetchNotes();
       }
     },
+    allDiscussions() {
+      if (this.discussonsCount) {
+        this.discussonsCount.textContent = this.allDiscussions.length;
+      }
+    },
   },
   created() {
+    this.discussonsCount = document.querySelector('.js-discussions-count');
+
     this.setNotesData(this.notesData);
     this.setNoteableData(this.noteableData);
     this.setUserData(this.userData);
@@ -128,6 +142,7 @@ export default {
       'setNotesFetchedState',
       'expandDiscussion',
       'startTaskList',
+      'convertToDiscussion',
     ]),
     fetchNotes() {
       if (this.isFetching) return null;
@@ -175,6 +190,11 @@ export default {
         }
       }
     },
+    startReplying(discussionId) {
+      return this.convertToDiscussion(discussionId)
+        .then(() => this.$nextTick())
+        .then(() => eventHub.$emit('startReplying', discussionId));
+    },
   },
   systemNote: constants.SYSTEM_NOTE,
 };
@@ -193,7 +213,9 @@ export default {
           />
           <placeholder-note v-else :key="discussion.id" :note="discussion.notes[0]" />
         </template>
-        <template v-else-if="discussion.individual_note">
+        <template
+          v-else-if="discussion.individual_note && !convertedDisscussionIds.includes(discussion.id)"
+        >
           <system-note
             v-if="discussion.notes[0].system"
             :key="discussion.id"
@@ -203,7 +225,8 @@ export default {
             v-else
             :key="discussion.id"
             :note="discussion.notes[0]"
-            :discussion="discussion"
+            :show-reply-button="canReply"
+            @startReplying="startReplying(discussion.id)"
           />
         </template>
         <noteable-discussion
@@ -214,6 +237,7 @@ export default {
           :help-page-path="helpPagePath"
         />
       </template>
+      <discussion-filter-note v-show="commentsDisabled" />
     </ul>
 
     <comment-form v-if="!commentsDisabled" :noteable-type="noteableType" />

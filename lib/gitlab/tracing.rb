@@ -13,5 +13,25 @@ module Gitlab
     def self.connection_string
       ENV['GITLAB_TRACING']
     end
+
+    def self.tracing_url_template
+      ENV['GITLAB_TRACING_URL']
+    end
+
+    def self.tracing_url_enabled?
+      enabled? && tracing_url_template.present?
+    end
+
+    # This will provide a link into the distributed tracing for the current trace,
+    # if it has been captured.
+    def self.tracing_url
+      return unless tracing_url_enabled?
+
+      # Avoid using `format` since it can throw TypeErrors
+      # which we want to avoid on unsanitised env var input
+      tracing_url_template.to_s
+        .gsub(/\{\{\s*correlation_id\s*\}\}/, Gitlab::CorrelationId.current_id.to_s)
+        .gsub(/\{\{\s*service\s*\}\}/, Gitlab.process_name)
+    end
   end
 end

@@ -122,7 +122,7 @@ Check this [page](vuex.md) for more details.
 
 ## Style guide
 
-Please refer to the Vue section of our [style guide](style_guide_js.md#vue-js)
+Please refer to the Vue section of our [style guide](style_guide_js.md#vuejs)
 for best practices while writing your Vue components and templates.
 
 ## Testing Vue Components
@@ -132,7 +132,7 @@ Each Vue component has a unique output. This output is always present in the ren
 Although we can test each method of a Vue component individually, our goal must be to test the output
 of the render/template function, which represents the state at all times.
 
-Make use of the [axios mock adapter](axios.md#mock-axios-response-on-tests) to mock data returned.
+Make use of the [axios mock adapter](axios.md#mock-axios-response-in-tests) to mock data returned.
 
 Here's how we would test the Todo App above:
 
@@ -223,12 +223,12 @@ need to test the rendered output. [Vue][vue-test] guide's to unit test show us e
 
 ## Vue.js Expert Role
 One should apply to be a Vue.js expert by opening an MR when the Merge Request's they create and review show:
+
 - Deep understanding of Vue and Vuex reactivy
 - Vue and Vuex code are structured according to both official and our guidelines
 - Full understanding of testing a Vue and Vuex application
 - Vuex code follows the [documented pattern](./vuex.md#actions-pattern-request-and-receive-namespaces)
 - Knowledge about the existing Vue and Vuex applications and existing reusable components
-
 
 [vue-docs]: http://vuejs.org/guide/index.html
 [issue-boards]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/app/assets/javascripts/boards

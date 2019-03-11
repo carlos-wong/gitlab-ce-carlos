@@ -5,6 +5,7 @@
 ### Realtime Components
 
 When writing code for realtime features we have to keep a couple of things in mind:
+
 1. Do not overload the server with requests.
 1. It should feel realtime.
 
@@ -12,16 +13,16 @@ Thus, we must strike a balance between sending requests and the feeling of realt
 Use the following rules when creating realtime solutions.
 
 1. The server will tell you how much to poll by sending `Poll-Interval` in the header.
-Use that as your polling interval. This way it is [easy for system administrators to change the
-polling rate](../../administration/polling.md).
-A `Poll-Interval: -1` means you should disable polling, and this must be implemented.
+   Use that as your polling interval. This way it is [easy for system administrators to change the
+   polling rate](../../administration/polling.md).
+   A `Poll-Interval: -1` means you should disable polling, and this must be implemented.
 1. A response with HTTP status different from 2XX should disable polling as well.
 1. Use a common library for polling.
 1. Poll on active tabs only. Please use [Visibility](https://github.com/ai/visibilityjs).
 1. Use regular polling intervals, do not use backoff polling, or jitter, as the interval will be
-controlled by the server.
+   controlled by the server.
 1. The backend code will most likely be using etags. You do not and should not check for status
-`304 Not Modified`. The browser will transform it for you.
+   `304 Not Modified`. The browser will transform it for you.
 
 ### Lazy Loading Images
 
@@ -168,7 +169,6 @@ General tips:
 - [Google PageSpeed Insights][pagespeed-insights] grades web pages and provides feedback to improve the page.
 - [Profiling with Chrome DevTools][google-devtools-profiling]
 - [Browser Diet][browser-diet] is a community-built guide that catalogues practical tips for improving web page performance.
-
 
 [web-page-test]: http://www.webpagetest.org/
 [pagespeed-insights]: https://developers.google.com/speed/pagespeed/insights/

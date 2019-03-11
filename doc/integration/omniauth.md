@@ -199,7 +199,7 @@ from the Omniauth provider's documentation.
 
         sudo -u git -H bundle install --without development test mysql --path vendor/bundle --no-deployment
 
-    > These are the same commands you used in the [Install Gems section](#install-gems) with `--path vendor/bundle --no-deployment` instead of `--deployment`.
+    > These are the same commands you used during initial installation in the [Install Gems section](../install/installation.md#install-gems) with `--path vendor/bundle --no-deployment` instead of `--deployment`.
 
 -   Start GitLab:
 
@@ -230,7 +230,6 @@ By default Sign In is enabled via all the OAuth Providers that have been configu
 In order to enable/disable an OmniAuth provider, go to Admin Area -> Settings -> Sign-in Restrictions section -> Enabled OAuth Sign-In sources and select the providers you want to enable or disable.
 
 ![Enabled OAuth Sign-In sources](img/enabled-oauth-sign-in-sources.png)
-
 
 ## Disabling Omniauth
 

@@ -4,12 +4,38 @@ require 'spec_helper'
 shared_examples 'languages and percentages JSON response' do
   let(:expected_languages) { project.repository.languages.map { |language| language.values_at(:label, :value)}.to_h }
 
+  before do
+    allow(project.repository).to receive(:languages).and_return(
+      [{ value: 66.69, label: "Ruby", color: "#701516", highlight: "#701516" },
+       { value: 22.98, label: "JavaScript", color: "#f1e05a", highlight: "#f1e05a" },
+       { value: 7.91, label: "HTML", color: "#e34c26", highlight: "#e34c26" },
+       { value: 2.42, label: "CoffeeScript", color: "#244776", highlight: "#244776" }]
+    )
+  end
+
   it 'returns expected language values' do
     get api("/projects/#{project.id}/languages", user)
 
     expect(response).to have_gitlab_http_status(:ok)
     expect(json_response).to eq(expected_languages)
     expect(json_response.count).to be > 1
+  end
+
+  context 'when the languages were detected before' do
+    before do
+      Projects::DetectRepositoryLanguagesService.new(project, project.owner).execute
+    end
+
+    it 'returns the detection from the database' do
+      # Allow this to happen once, so the expected languages can be determined
+      expect(project.repository).to receive(:languages).once
+
+      get api("/projects/#{project.id}/languages", user)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response).to eq(expected_languages)
+      expect(json_response.count).to be > 1
+    end
   end
 end
 
@@ -753,7 +779,7 @@ describe API::Projects do
     let!(:public_project) { create(:project, :public, name: 'public_project', creator_id: user4.id, namespace: user4.namespace) }
 
     it 'returns error when user not found' do
-      get api('/users/9999/projects/')
+      get api('/users/0/projects/')
 
       expect(response).to have_gitlab_http_status(404)
       expect(json_response['message']).to eq('404 User Not Found')
@@ -1414,7 +1440,7 @@ describe API::Projects do
         end
 
         it 'fails if forked_from project which does not exist' do
-          post api("/projects/#{project_fork_target.id}/fork/9999", admin)
+          post api("/projects/#{project_fork_target.id}/fork/0", admin)
           expect(response).to have_gitlab_http_status(404)
         end
 
@@ -1977,7 +2003,7 @@ describe API::Projects do
       end
 
       it 'returns not_found(404) for not existing project' do
-        get api("/projects/9999999999/languages", user)
+        get api("/projects/0/languages", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
@@ -2062,6 +2088,11 @@ describe API::Projects do
     let(:project) do
       create(:project, :repository, creator: user, namespace: user.namespace)
     end
+
+    let(:project2) do
+      create(:project, :repository, creator: user, namespace: user.namespace)
+    end
+
     let(:group) { create(:group) }
     let(:group2) do
       group = create(:group, name: 'group2_name')
@@ -2077,6 +2108,7 @@ describe API::Projects do
 
     before do
       project.add_reporter(user2)
+      project2.add_reporter(user2)
     end
 
     context 'when authenticated' do
@@ -2190,6 +2222,48 @@ describe API::Projects do
 
         expect(response).to have_gitlab_http_status(201)
         expect(json_response['namespace']['name']).to eq(group.name)
+      end
+
+      it 'accepts a path for the target project' do
+        post api("/projects/#{project.id}/fork", user2), params: { path: 'foobar' }
+
+        expect(response).to have_gitlab_http_status(201)
+        expect(json_response['name']).to eq(project.name)
+        expect(json_response['path']).to eq('foobar')
+        expect(json_response['owner']['id']).to eq(user2.id)
+        expect(json_response['namespace']['id']).to eq(user2.namespace.id)
+        expect(json_response['forked_from_project']['id']).to eq(project.id)
+        expect(json_response['import_status']).to eq('scheduled')
+        expect(json_response).to include("import_error")
+      end
+
+      it 'fails to fork if path is already taken' do
+        post api("/projects/#{project.id}/fork", user2), params: { path: 'foobar' }
+        post api("/projects/#{project2.id}/fork", user2), params: { path: 'foobar' }
+
+        expect(response).to have_gitlab_http_status(409)
+        expect(json_response['message']['path']).to eq(['has already been taken'])
+      end
+
+      it 'accepts a name for the target project' do
+        post api("/projects/#{project.id}/fork", user2), params: { name: 'My Random Project' }
+
+        expect(response).to have_gitlab_http_status(201)
+        expect(json_response['name']).to eq('My Random Project')
+        expect(json_response['path']).to eq(project.path)
+        expect(json_response['owner']['id']).to eq(user2.id)
+        expect(json_response['namespace']['id']).to eq(user2.namespace.id)
+        expect(json_response['forked_from_project']['id']).to eq(project.id)
+        expect(json_response['import_status']).to eq('scheduled')
+        expect(json_response).to include("import_error")
+      end
+
+      it 'fails to fork if name is already taken' do
+        post api("/projects/#{project.id}/fork", user2), params: { name: 'My Random Project' }
+        post api("/projects/#{project2.id}/fork", user2), params: { name: 'My Random Project' }
+
+        expect(response).to have_gitlab_http_status(409)
+        expect(json_response['message']['name']).to eq(['has already been taken'])
       end
     end
 

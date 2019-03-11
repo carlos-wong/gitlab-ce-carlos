@@ -9,18 +9,6 @@ describe Clusters::Applications::Prometheus do
   include_examples 'cluster application helm specs', :clusters_applications_prometheus
   include_examples 'cluster application initial status specs'
 
-  describe '.installed' do
-    subject { described_class.installed }
-
-    let!(:cluster) { create(:clusters_applications_prometheus, :installed) }
-
-    before do
-      create(:clusters_applications_prometheus, :errored)
-    end
-
-    it { is_expected.to contain_exactly(cluster) }
-  end
-
   describe 'transition to installed' do
     let(:project) { create(:project) }
     let(:cluster) { create(:cluster, :with_installed_helm, projects: [project]) }
@@ -36,65 +24,6 @@ describe Clusters::Applications::Prometheus do
       expect(prometheus_service).to receive(:update).with(active: true)
 
       subject.make_installed
-    end
-  end
-
-  describe '#ready' do
-    let(:project) { create(:project) }
-    let(:cluster) { create(:cluster, projects: [project]) }
-
-    it 'returns true when installed' do
-      application = build(:clusters_applications_prometheus, :installed, cluster: cluster)
-
-      expect(application).to be_ready
-    end
-
-    it 'returns false when not_installable' do
-      application = build(:clusters_applications_prometheus, :not_installable, cluster: cluster)
-
-      expect(application).not_to be_ready
-    end
-
-    it 'returns false when installable' do
-      application = build(:clusters_applications_prometheus, :installable, cluster: cluster)
-
-      expect(application).not_to be_ready
-    end
-
-    it 'returns false when scheduled' do
-      application = build(:clusters_applications_prometheus, :scheduled, cluster: cluster)
-
-      expect(application).not_to be_ready
-    end
-
-    it 'returns false when installing' do
-      application = build(:clusters_applications_prometheus, :installing, cluster: cluster)
-
-      expect(application).not_to be_ready
-    end
-
-    it 'returns false when errored' do
-      application = build(:clusters_applications_prometheus, :errored, cluster: cluster)
-
-      expect(application).not_to be_ready
-    end
-
-    it 'returns true when updating' do
-      application = build(:clusters_applications_prometheus, :updating, cluster: cluster)
-
-      expect(application).to be_ready
-    end
-
-    it 'returns true when updated' do
-      application = build(:clusters_applications_prometheus, :updated, cluster: cluster)
-
-      expect(application).to be_ready
-    end
-
-    it 'returns true when errored' do
-      application = build(:clusters_applications_prometheus, :update_errored, cluster: cluster)
-
-      expect(application).to be_ready
     end
   end
 
@@ -192,7 +121,7 @@ describe Clusters::Applications::Prometheus do
     end
 
     context 'with knative installed' do
-      let(:knative) { create(:clusters_applications_knative, :installed ) }
+      let(:knative) { create(:clusters_applications_knative, :updated ) }
       let(:prometheus) { create(:clusters_applications_prometheus, cluster: knative.cluster) }
 
       subject { prometheus.install_command }

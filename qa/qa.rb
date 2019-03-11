@@ -62,6 +62,11 @@ module QA
     autoload :Fork, 'qa/resource/fork'
     autoload :SSHKey, 'qa/resource/ssh_key'
 
+    module Events
+      autoload :Base, 'qa/resource/events/base'
+      autoload :Project, 'qa/resource/events/project'
+    end
+
     module Repository
       autoload :Push, 'qa/resource/repository/push'
       autoload :ProjectPush, 'qa/resource/repository/project_push'
@@ -255,6 +260,10 @@ module QA
       autoload :Sidebar, 'qa/page/issuable/sidebar'
     end
 
+    module Alert
+      autoload :AutoDevopsAlert, 'qa/page/alert/auto_devops_alert'
+    end
+
     module Layout
       autoload :Banner, 'qa/page/layout/banner'
     end
@@ -361,6 +370,8 @@ module QA
       autoload :Logging, 'qa/support/page/logging'
     end
     autoload :Api, 'qa/support/api'
+    autoload :Waiter, 'qa/support/waiter'
+    autoload :Retrier, 'qa/support/retrier'
   end
 end
 

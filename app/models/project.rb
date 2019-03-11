@@ -85,7 +85,7 @@ class Project < ActiveRecord::Base
   default_value_for :snippets_enabled, gitlab_config_features.snippets
   default_value_for :only_allow_merge_if_all_discussions_are_resolved, false
 
-  add_authentication_token_field :runners_token, encrypted: true, migrating: true
+  add_authentication_token_field :runners_token, encrypted: -> { Feature.enabled?(:projects_tokens_optional_encryption) ? :optional : :required }
 
   before_validation :mark_remote_mirrors_for_removal, if: -> { RemoteMirror.table_exists? }
 
@@ -147,7 +147,6 @@ class Project < ActiveRecord::Base
   has_one :pipelines_email_service
   has_one :irker_service
   has_one :pivotaltracker_service
-  has_one :hipchat_service
   has_one :flowdock_service
   has_one :assembla_service
   has_one :asana_service
@@ -161,6 +160,7 @@ class Project < ActiveRecord::Base
   has_one :pushover_service
   has_one :jira_service
   has_one :redmine_service
+  has_one :youtrack_service
   has_one :custom_issue_tracker_service
   has_one :bugzilla_service
   has_one :gitlab_issue_tracker_service, inverse_of: :project
@@ -249,10 +249,10 @@ class Project < ActiveRecord::Base
   has_many :container_repositories, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :commit_statuses
-  # The relation :all_pipelines is intented to be used when we want to get the
+  # The relation :all_pipelines is intended to be used when we want to get the
   # whole list of pipelines associated to the project
   has_many :all_pipelines, class_name: 'Ci::Pipeline', inverse_of: :project
-  # The relation :ci_pipelines is intented to be used when we want to get only
+  # The relation :ci_pipelines is intended to be used when we want to get only
   # those pipeline which are directly related to CI. There are
   # other pipelines, like webide ones, that we won't retrieve
   # if we use this relation.
@@ -306,6 +306,7 @@ class Project < ActiveRecord::Base
   delegate :group_runners_enabled, :group_runners_enabled=, :group_runners_enabled?, to: :ci_cd_settings
   delegate :group_clusters_enabled?, to: :group, allow_nil: true
   delegate :root_ancestor, to: :namespace, allow_nil: true
+  delegate :last_pipeline, to: :commit, allow_nil: true
 
   # Validations
   validates :creator, presence: true, on: :create
@@ -596,6 +597,14 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def ci_pipelines
+    if builds_enabled?
+      super
+    else
+      super.external
+    end
+  end
+
   # returns all ancestor-groups upto but excluding the given namespace
   # when no namespace is given, all ancestors upto the top are returned
   def ancestors_upto(top = nil, hierarchy_order: nil)
@@ -628,6 +637,10 @@ class Project < ActiveRecord::Base
 
   def has_auto_devops_implicitly_disabled?
     auto_devops&.enabled.nil? && !(Gitlab::CurrentSettings.auto_devops_enabled? || Feature.enabled?(:force_autodevops_on_by_default, self))
+  end
+
+  def daily_statistics_enabled?
+    Feature.enabled?(:project_daily_statistics, self, default_enabled: true)
   end
 
   def empty_repo?
@@ -1207,7 +1220,7 @@ class Project < ActiveRecord::Base
     "#{web_url}.git"
   end
 
-  # Is overriden in EE
+  # Is overridden in EE
   def lfs_http_url_to_repo(_)
     http_url_to_repo
   end
@@ -1217,7 +1230,7 @@ class Project < ActiveRecord::Base
   end
 
   def fork_source
-    return nil unless forked?
+    return unless forked?
 
     forked_from_project || fork_network&.root_project
   end
@@ -1666,7 +1679,7 @@ class Project < ActiveRecord::Base
   end
 
   def export_path
-    return nil unless namespace.present? || hashed_storage?(:repository)
+    return unless namespace.present? || hashed_storage?(:repository)
 
     import_export_shared.archive_path
   end
@@ -1830,7 +1843,7 @@ class Project < ActiveRecord::Base
   # Set repository as writable again
   def set_repository_writable!
     with_lock do
-      update_column(repository_read_only, false)
+      update_column(:repository_read_only, false)
     end
   end
 
@@ -1917,6 +1930,14 @@ class Project < ActiveRecord::Base
     persisted? && path_changed?
   end
 
+  def human_merge_method
+    if merge_method == :ff
+      'Fast-forward'
+    else
+      merge_method.to_s.humanize
+    end
+  end
+
   def merge_method
     if self.merge_requests_ff_only_enabled
       :ff
@@ -1949,9 +1970,19 @@ class Project < ActiveRecord::Base
     return unless storage_upgradable?
 
     if git_transfer_in_progress?
-      ProjectMigrateHashedStorageWorker.perform_in(Gitlab::ReferenceCounter::REFERENCE_EXPIRE_TIME, id)
+      HashedStorage::ProjectMigrateWorker.perform_in(Gitlab::ReferenceCounter::REFERENCE_EXPIRE_TIME, id)
     else
-      ProjectMigrateHashedStorageWorker.perform_async(id)
+      HashedStorage::ProjectMigrateWorker.perform_async(id)
+    end
+  end
+
+  def rollback_to_legacy_storage!
+    return if legacy_storage?
+
+    if git_transfer_in_progress?
+      HashedStorage::ProjectRollbackWorker.perform_in(Gitlab::ReferenceCounter::REFERENCE_EXPIRE_TIME, id)
+    else
+      HashedStorage::ProjectRollbackWorker.perform_async(id)
     end
   end
 
@@ -2072,6 +2103,10 @@ class Project < ActiveRecord::Base
 
   def link_pool_repository
     pool_repository&.link_repository(repository)
+  end
+
+  def has_pool_repository?
+    pool_repository.present?
   end
 
   private

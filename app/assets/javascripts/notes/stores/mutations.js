@@ -193,6 +193,10 @@ export default {
     const noteObj = utils.findNoteObjectById(state.discussions, note.discussion_id);
 
     if (noteObj.individual_note) {
+      if (note.type === constants.DISCUSSION_NOTE) {
+        noteObj.individual_note = false;
+      }
+
       noteObj.notes.splice(0, 1, note);
     } else {
       const comment = utils.findNoteObjectById(noteObj.notes, note.id);
@@ -266,7 +270,14 @@ export default {
   },
 
   [types.CONVERT_TO_DISCUSSION](state, discussionId) {
-    const discussion = utils.findNoteObjectById(state.discussions, discussionId);
-    Object.assign(discussion, { individual_note: false });
+    const convertedDisscussionIds = [...state.convertedDisscussionIds, discussionId];
+    Object.assign(state, { convertedDisscussionIds });
+  },
+
+  [types.REMOVE_CONVERTED_DISCUSSION](state, discussionId) {
+    const convertedDisscussionIds = [...state.convertedDisscussionIds];
+
+    convertedDisscussionIds.splice(convertedDisscussionIds.indexOf(discussionId), 1);
+    Object.assign(state, { convertedDisscussionIds });
   },
 };

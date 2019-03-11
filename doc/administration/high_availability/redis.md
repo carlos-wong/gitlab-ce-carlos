@@ -359,11 +359,17 @@ following section assumes you are using Omnibus GitLab Enterprise Edition.
 For the Omnibus Community Edition and installations from source, follow the
 [Redis HA source install](redis_source.md) guide.
 
+NOTE: **Note:** If you are using an external Redis Sentinel instance, be sure
+to exclude the `requirepass` parameter from the Sentinel
+configuration. This parameter will cause clients to report `NOAUTH
+Authentication required.`. [Redis Sentinel 3.2.x does not support
+password authentication](https://github.com/antirez/redis/issues/3279).
+
 Now that the Redis servers are all set up, let's configure the Sentinel
 servers.
 
 If you are not sure if your Redis servers are working and replicating
-correctly, please read the [Troubleshooting Replication](#troubleshooting-replication)
+correctly, please read the [Troubleshooting Replication](#troubleshooting-redis-replication)
 and fix it before proceeding with Sentinel setup.
 
 You must have at least `3` Redis Sentinel servers, and they need to
@@ -854,7 +860,6 @@ To make sure your configuration is correct:
 
     You should see a different port after a few seconds delay
     (the failover/reconnect time).
-
 
 ## Changelog
 

@@ -409,13 +409,6 @@ describe('common_utils', () => {
     });
   });
 
-  describe('convertPermissionToBoolean', () => {
-    it('should convert a boolean in a string to a boolean', () => {
-      expect(commonUtils.convertPermissionToBoolean('true')).toEqual(true);
-      expect(commonUtils.convertPermissionToBoolean('false')).toEqual(false);
-    });
-  });
-
   describe('backOff', () => {
     beforeEach(() => {
       // shortcut our timeouts otherwise these tests will take a long time to finish
@@ -855,6 +848,7 @@ describe('common_utils', () => {
     });
 
     it('returns true when provided `el` is in viewport', () => {
+      el.setAttribute('style', `position: absolute; right: ${window.innerWidth + 0.2};`);
       document.body.appendChild(el);
 
       expect(commonUtils.isInViewport(el)).toBe(true);

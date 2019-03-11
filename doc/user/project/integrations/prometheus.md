@@ -89,7 +89,7 @@ to integrate with.
 Once configured, GitLab will attempt to retrieve performance metrics for any
 environment which has had a successful deployment.
 
-GitLab will automatically scan the Prometheus server for metrics from known serves like Kubernetes and NGINX, and attempt to identify individual environment. The supported metrics and scan process is detailed in our [Prometheus Metrics Library documentation](prometheus_library/index.md).
+GitLab will automatically scan the Prometheus server for metrics from known servers like Kubernetes and NGINX, and attempt to identify individual environment. The supported metrics and scan process is detailed in our [Prometheus Metrics Library documentation](prometheus_library/index.md).
 
 You can view the performance dashboard for an environment by [clicking on the monitoring button](../../../ci/environments.md#monitoring-environments).
 
@@ -120,7 +120,7 @@ If the "No data found" screen continues to appear, it could be due to:
 - No successful deployments have occurred to this environment.
 - Prometheus does not have performance data for this environment, or the metrics
   are not labeled correctly. To test this, connect to the Prometheus server and
-  [run a query](#gitlab-prometheus-queries), replacing `$CI_ENVIRONMENT_SLUG`
+  [run a query](prometheus_library/kubernetes.html#metrics-supported), replacing `$CI_ENVIRONMENT_SLUG`
   with the name of your environment.
 
 [autodeploy]: ../../../ci/autodeploy/index.md

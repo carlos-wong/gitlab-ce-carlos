@@ -43,6 +43,7 @@ module Clusters
       # We expect to be `active?` only when enabled and cluster is created (the api_url is assigned)
       validates :api_url, public_url: true, presence: true
       validates :token, presence: true
+      validates :ca_cert, certificate: true, allow_blank: true, if: :ca_cert_changed?
 
       validate :prevent_modification, on: :update
 
@@ -94,7 +95,7 @@ module Clusters
             # https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22433
             variables
               .append(key: 'KUBE_URL', value: api_url)
-              .append(key: 'KUBE_TOKEN', value: token, public: false)
+              .append(key: 'KUBE_TOKEN', value: token, public: false, masked: true)
               .append(key: 'KUBE_NAMESPACE', value: actual_namespace)
               .append(key: 'KUBECONFIG', value: kubeconfig, public: false, file: true)
           end

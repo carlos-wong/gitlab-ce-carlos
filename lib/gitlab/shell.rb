@@ -280,7 +280,10 @@ module Gitlab
     #   add_namespace("default", "gitlab")
     #
     def add_namespace(storage, name)
-      Gitlab::GitalyClient::NamespaceService.new(storage).add(name)
+      # https://gitlab.com/gitlab-org/gitlab-ce/issues/58012
+      Gitlab::GitalyClient.allow_n_plus_1_calls do
+        Gitlab::GitalyClient::NamespaceService.new(storage).add(name)
+      end
     rescue GRPC::InvalidArgument => e
       raise ArgumentError, e.message
     end
@@ -337,14 +340,14 @@ module Gitlab
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
+    def hooks_path
+      File.join(gitlab_shell_path, 'hooks')
+    end
+
     protected
 
     def gitlab_shell_path
       File.expand_path(Gitlab.config.gitlab_shell.path)
-    end
-
-    def gitlab_shell_hooks_path
-      File.expand_path(Gitlab.config.gitlab_shell.hooks_path)
     end
 
     def gitlab_shell_user_home

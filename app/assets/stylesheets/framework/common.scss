@@ -48,7 +48,20 @@
   color: $brand-info;
 }
 
-.hint { font-style: italic; color: $gl-gray-400; }
+.text-break-word {
+  word-break: break-all;
+}
+
+.text-underline,
+.text-underline:hover {
+  text-decoration: underline;
+}
+
+.hint {
+  font-style: italic;
+  color: $gl-gray-400;
+}
+
 .light { color: $gl-text-color; }
 
 .slead {
@@ -149,13 +162,14 @@ p.time {
   text-shadow: none;
 }
 
-.thin_area {
+.thin-area {
   height: 150px;
 }
 
 // Fix issue with notes & lists creating a bunch of bottom borders.
 li.note {
   img { max-width: 100%; }
+
   .note-title {
     li {
       border-bottom: 0 !important;
@@ -326,7 +340,7 @@ img.emoji {
 
 .disabled-content {
   pointer-events: none;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .break-word {
@@ -390,7 +404,9 @@ img.emoji {
 .flex-grow { flex-grow: 1; }
 .flex-no-shrink { flex-shrink: 0; }
 .ws-initial { white-space: initial; }
+.ws-normal { white-space: normal; }
 .overflow-auto { overflow: auto; }
+
 .d-flex-center {
   display: flex;
   align-items: center;
@@ -442,3 +458,19 @@ img.emoji {
 .position-left-0 { left: 0; }
 .position-right-0 { right: 0; }
 .position-top-0 { top: 0; }
+
+.drag-handle {
+  width: 4px;
+
+  &:hover {
+    background-color: $white-normal;
+  }
+
+  &.is-dragging {
+    background-color: $gray-600;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

@@ -275,6 +275,7 @@ class User < ApplicationRecord
   scope :confirmed, -> { where.not(confirmed_at: nil) }
   scope :by_username, -> (usernames) { iwhere(username: Array(usernames).map(&:to_s)) }
   scope :for_todos, -> (todos) { where(id: todos.select(:user_id)) }
+  scope :with_emails, -> { preload(:emails) }
 
   # Limits the users to those that have TODOs, optionally in the given state.
   #
@@ -387,7 +388,7 @@ class User < ApplicationRecord
       find_by(id: user_id)
     end
 
-    def filter(filter_name)
+    def filter_items(filter_name)
       case filter_name
       when 'admins'
         admins
@@ -469,7 +470,7 @@ class User < ApplicationRecord
     end
 
     def by_login(login)
-      return nil unless login
+      return unless login
 
       if login.include?('@'.freeze)
         unscoped.iwhere(email: login).take
@@ -1165,6 +1166,10 @@ class User < ApplicationRecord
 
   def manageable_groups
     Gitlab::ObjectHierarchy.new(owned_or_maintainers_groups).base_and_descendants
+  end
+
+  def manageable_groups_with_routes
+    manageable_groups.eager_load(:route).order('routes.path')
   end
 
   def namespaces

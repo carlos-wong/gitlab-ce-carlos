@@ -244,6 +244,10 @@ module API
       authorize! :read_build, user_project
     end
 
+    def authorize_destroy_artifacts!
+      authorize! :destroy_artifacts, user_project
+    end
+
     def authorize_update_builds!
       authorize! :update_build, user_project
     end
@@ -297,6 +301,12 @@ module API
 
     def filter_by_search(items, text)
       items.search(text)
+    end
+
+    def order_options_with_tie_breaker
+      order_options = { params[:order_by] => params[:sort] }
+      order_options['id'] ||= 'desc'
+      order_options
     end
 
     # error helpers
@@ -393,7 +403,7 @@ module API
 
     # rubocop: disable CodeReuse/ActiveRecord
     def reorder_projects(projects)
-      projects.reorder(params[:order_by] => params[:sort])
+      projects.reorder(order_options_with_tie_breaker)
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

@@ -2,7 +2,6 @@
 comments: false
 ---
 
-
 # Training
 
 This training material is the markdown used to generate training slides
@@ -87,6 +86,7 @@ git config --global user.email you@example.com
 ```bash
 git config --global --list
 ```
+
 - You might want or be required to use an SSH key.
     - Instructions: [SSH](http://doc.gitlab.com/ce/ssh/README.html)
 
@@ -204,7 +204,6 @@ git push origin squash_some_bugs
 - When accepting, always delete the branch
 - Anyone can comment, not just the assignee
 - Push corrections to the same branch
-
 
 ---
 
@@ -395,7 +394,6 @@ git revert vs git reset
 Reset removes the commit while revert removes the changes but leaves the commit
 Revert is safer considering we can revert a revert
 
-
     # Changed file
     git commit -am "bug introduced"
     git revert HEAD
@@ -416,6 +414,7 @@ Revert is safer considering we can revert a revert
 ---
 
 ### Version Control
+
  - Local VCS was used with a filesystem or a simple db.
  - Centralized VCS such as Subversion includes collaboration but
    still is prone to data loss as the main server is the single point of

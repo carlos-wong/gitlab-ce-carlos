@@ -1333,7 +1333,7 @@ describe MergeRequest do
 
       let!(:merge_request_pipeline) do
         create(:ci_pipeline,
-               source: :merge_request,
+               source: :merge_request_event,
                project: project,
                ref: source_ref,
                sha: shas.second,
@@ -1372,7 +1372,7 @@ describe MergeRequest do
 
         let!(:merge_request_pipeline_2) do
           create(:ci_pipeline,
-                 source: :merge_request,
+                 source: :merge_request_event,
                  project: project,
                  ref: source_ref,
                  sha: shas.first,
@@ -1399,7 +1399,7 @@ describe MergeRequest do
 
         let!(:merge_request_pipeline_2) do
           create(:ci_pipeline,
-                 source: :merge_request,
+                 source: :merge_request_event,
                  project: project,
                  ref: source_ref,
                  sha: shas.first,
@@ -2605,8 +2605,9 @@ describe MergeRequest do
 
     let!(:first_pipeline) { create(:ci_pipeline_without_jobs, pipeline_arguments) }
     let!(:last_pipeline) { create(:ci_pipeline_without_jobs, pipeline_arguments) }
+    let!(:last_pipeline_with_other_ref) { create(:ci_pipeline_without_jobs, pipeline_arguments.merge(ref: 'other')) }
 
-    it 'returns latest pipeline' do
+    it 'returns latest pipeline for the target branch' do
       expect(merge_request.base_pipeline).to eq(last_pipeline)
     end
   end

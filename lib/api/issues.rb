@@ -28,14 +28,13 @@ module API
         args[:scope] = args[:scope].underscore if args[:scope]
 
         issues = IssuesFinder.new(current_user, args).execute
-          .preload(:assignees, :labels, :notes, :timelogs, :project, :author, :closed_by)
-
-        issues.reorder(args[:order_by] => args[:sort])
+                   .with_api_entity_associations
+        issues.reorder(order_options_with_tie_breaker)
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
       params :issues_params do
-        optional :labels, type: String, desc: 'Comma-separated list of label names'
+        optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
         optional :milestone, type: String, desc: 'Milestone title'
         optional :order_by, type: String, values: %w[created_at updated_at], default: 'created_at',
                             desc: 'Return issues ordered by `created_at` or `updated_at` fields.'
@@ -55,6 +54,7 @@ module API
         optional :scope, type: String, values: %w[created-by-me assigned-to-me created_by_me assigned_to_me all],
                          desc: 'Return issues for the given scope: `created_by_me`, `assigned_to_me` or `all`'
         optional :my_reaction_emoji, type: String, desc: 'Return issues reacted by the authenticated user by the given emoji'
+        optional :confidential, type: Boolean, desc: 'Filter confidential or public issues'
         use :pagination
 
         use :issues_params_ee
@@ -65,7 +65,7 @@ module API
         optional :assignee_ids, type: Array[Integer], desc: 'The array of user IDs to assign issue'
         optional :assignee_id,  type: Integer, desc: '[Deprecated] The ID of a user to assign issue'
         optional :milestone_id, type: Integer, desc: 'The ID of a milestone to assign issue'
-        optional :labels, type: String, desc: 'Comma-separated list of label names'
+        optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
         optional :due_date, type: String, desc: 'Date string in the format YEAR-MONTH-DAY'
         optional :confidential, type: Boolean, desc: 'Boolean parameter if the issue should be confidential'
         optional :discussion_locked, type: Boolean, desc: " Boolean parameter indicating if the issue's discussion is locked"
@@ -304,19 +304,14 @@ module API
       get ':id/issues/:issue_iid/related_merge_requests' do
         issue = find_project_issue(params[:issue_iid])
 
-        merge_request_iids = ::Issues::ReferencedMergeRequestsService.new(user_project, current_user)
+        merge_requests = ::Issues::ReferencedMergeRequestsService.new(user_project, current_user)
           .execute(issue)
           .flatten
-          .map(&:iid)
 
-        merge_requests =
-          if merge_request_iids.present?
-            MergeRequestsFinder.new(current_user, project_id: user_project.id, iids: merge_request_iids).execute
-          else
-            MergeRequest.none
-          end
-
-        present paginate(merge_requests), with: Entities::MergeRequestBasic, current_user: current_user, project: user_project
+        present paginate(::Kaminari.paginate_array(merge_requests)),
+          with: Entities::MergeRequestBasic,
+          current_user: current_user,
+          project: user_project
       end
 
       desc 'List merge requests closing issue' do

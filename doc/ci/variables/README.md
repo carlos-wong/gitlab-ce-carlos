@@ -53,6 +53,8 @@ future GitLab releases.**
 | Variable                                  | GitLab | Runner | Description |
 |-------------------------------------------|--------|--------|-------------|
 | **ARTIFACT_DOWNLOAD_ATTEMPTS**            | 8.15   | 1.9    | Number of attempts to download artifacts running a job |
+| **CHAT_INPUT**                            | 10.6   | all    | Additional arguments passed in the [ChatOps](../chatops/README.md) command |
+| **CHAT_CHANNEL**                          | 10.6   | all    | Source chat channel which triggered the [ChatOps](../chatops/README.md) command |
 | **CI**                                    | all    | 0.4    | Mark that job is executed in CI environment |
 | **CI_COMMIT_BEFORE_SHA**                  | 11.2   | all    | The previous latest commit present on a branch before a push request. |
 | **CI_COMMIT_DESCRIPTION**                 | 10.8   | all    | The description of the commit: the message without first line, if the title is shorter than 100 characters; full message in other case. |
@@ -68,7 +70,7 @@ future GitLab releases.**
 | **CI_DEPLOY_PASSWORD**                    | 10.8   | all    | Authentication password of the [GitLab Deploy Token][gitlab-deploy-token], only present if the Project has one related.|
 | **CI_DEPLOY_USER**                        | 10.8   | all    | Authentication username of the [GitLab Deploy Token][gitlab-deploy-token], only present if the Project has one related.|
 | **CI_DISPOSABLE_ENVIRONMENT**             | all    | 10.1   | Marks that the job is executed in a disposable environment (something that is created only for this job and disposed of/destroyed after the execution - all executors except `shell` and `ssh`). If the environment is disposable, it is set to true, otherwise it is not defined at all. |
-| **CI_ENVIRONMENT_NAME**                   | 8.15   | all    | The name of the environment for this job. Only present if [`environment:name`](../yaml/README.md#environmenturl) is set. |
+| **CI_ENVIRONMENT_NAME**                   | 8.15   | all    | The name of the environment for this job. Only present if [`environment:name`](../yaml/README.md#environmentname) is set. |
 | **CI_ENVIRONMENT_SLUG**                   | 8.15   | all    | A simplified version of the environment name, suitable for inclusion in DNS, URLs, Kubernetes labels, etc. Only present if [`environment:name`](../yaml/README.md#environmentname) is set. |
 | **CI_ENVIRONMENT_URL**                    | 9.3    | all    | The URL of the environment for this job. Only present if [`environment:url`](../yaml/README.md#environmenturl) is set. |
 | **CI_JOB_ID**                             | 9.0    | all    | The unique id of the current job that GitLab CI uses internally |
@@ -77,17 +79,23 @@ future GitLab releases.**
 | **CI_JOB_STAGE**                          | 9.0    | 0.5    | The name of the stage as defined in `.gitlab-ci.yml` |
 | **CI_JOB_TOKEN**                          | 9.0    | 1.2    | Token used for authenticating with the [GitLab Container Registry][registry] and downloading [dependent repositories][dependent-repositories] |
 | **CI_JOB_URL**                            | 11.1   | 0.5    | Job details URL |
-| **CI_MERGE_REQUEST_ID**                   | 11.6   | all    | The ID of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_IID**                  | 11.6   | all    | The IID of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_PROJECT_ID**           | 11.6   | all    | The ID of the project of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_PROJECT_PATH**         | 11.6   | all    | The path of the project of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) (e.g. `namespace/awesome-project`) |
-| **CI_MERGE_REQUEST_PROJECT_URL**          | 11.6   | all    | The URL of the project of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) (e.g. `http://192.168.10.15:3000/namespace/awesome-project`) |
-| **CI_MERGE_REQUEST_REF_PATH**             | 11.6   | all    | The ref path of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md). (e.g. `refs/merge-requests/1/head`) |
-| **CI_MERGE_REQUEST_SOURCE_BRANCH_NAME**   | 11.6   | all    | The source branch name of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_SOURCE_PROJECT_ID**    | 11.6   | all    | The ID of the source project of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_SOURCE_PROJECT_PATH**  | 11.6   | all    | The path of the source project of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_SOURCE_PROJECT_URL**   | 11.6   | all    | The URL of the source project of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
-| **CI_MERGE_REQUEST_TARGET_BRANCH_NAME**   | 11.6   | all    | The target branch name of the merge request if it's [pipelines for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_ID**                   | 11.6   | all    | The ID of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_IID**                  | 11.6   | all    | The IID of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_PROJECT_ID**           | 11.6   | all    | The ID of the project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_PROJECT_PATH**         | 11.6   | all    | The path of the project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) (e.g. `namespace/awesome-project`) |
+| **CI_MERGE_REQUEST_PROJECT_URL**          | 11.6   | all    | The URL of the project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) (e.g. `http://192.168.10.15:3000/namespace/awesome-project`) |
+| **CI_MERGE_REQUEST_REF_PATH**             | 11.6   | all    | The ref path of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). (e.g. `refs/merge-requests/1/head`) |
+| **CI_MERGE_REQUEST_SOURCE_BRANCH_NAME**   | 11.6   | all    | The source branch name of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_SOURCE_BRANCH_SHA**    | 11.9   | all    | The HEAD sha of the source branch of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_SOURCE_PROJECT_ID**    | 11.6   | all    | The ID of the source project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_SOURCE_PROJECT_PATH**  | 11.6   | all    | The path of the source project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_SOURCE_PROJECT_URL**   | 11.6   | all    | The URL of the source project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_TARGET_BRANCH_NAME**   | 11.6   | all    | The target branch name of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_TARGET_BRANCH_SHA**    | 11.9   | all    | The HEAD sha of the target branch of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_TITLE**                | 11.9   | all    | The title of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_ASSIGNEES**            | 11.9   | all    | Comma-separated list of usernames of assignees for the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). [Multiple assignees for merge requests](https://gitlab.com/gitlab-org/gitlab-ee/issues/2004) is scheduled for a future release |
+| **CI_MERGE_REQUEST_MILESTONE**            | 11.9   | all    | The milestone title of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
+| **CI_MERGE_REQUEST_LABELS**               | 11.9   | all    | Comma-separated label names of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) |
 | **CI_NODE_INDEX**                         | 11.5   | all    | Index of the job in the job set. If the job is not parallelized, this variable is not set. |
 | **CI_NODE_TOTAL**                         | 11.5   | all    | Total number of instances of this job running in parallel. If the job is not parallelized, this variable is set to `1`. |
 | **CI_API_V4_URL**                         | 11.7   | all    | The GitLab API v4 root URL |

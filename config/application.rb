@@ -97,7 +97,7 @@ module Gitlab
     #
     # NOTE: It is **IMPORTANT** to also update gitlab-workhorse's filter when adding parameters here to not
     #       introduce another security vulnerability: https://gitlab.com/gitlab-org/gitlab-workhorse/issues/182
-    config.filter_parameters += [/token$/, /password/, /secret/, /key$/]
+    config.filter_parameters += [/token$/, /password/, /secret/, /key$/, /^note$/, /^text$/]
     config.filter_parameters += %i(
       certificate
       encrypted_key
@@ -146,6 +146,8 @@ module Gitlab
     config.assets.precompile << "emoji_sprites.css"
     config.assets.precompile << "errors.css"
     config.assets.precompile << "csslab.css"
+
+    config.assets.precompile << "highlight/themes/*.css"
 
     # Import gitlab-svgs directly from vendored directory
     config.assets.paths << "#{config.root}/node_modules/@gitlab/svgs/dist"

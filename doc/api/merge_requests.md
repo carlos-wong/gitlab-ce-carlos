@@ -160,7 +160,6 @@ will be the same. In the case of a merge request from a fork,
 `target_project_id` and `project_id` will be the same and
 `source_project_id` will be the fork project's ID.
 
-
 Parameters:
 
 | Attribute           | Type           | Required | Description                                                                                                                    |
@@ -435,6 +434,9 @@ Parameters:
     "avatar_url": null,
     "web_url" : "https://gitlab.example.com/admin"
   },
+  "user" : {
+    "can_merge" : false
+   }
   "assignee": {
     "id": 1,
     "name": "Administrator",
@@ -528,7 +530,6 @@ Parameters:
 - `id` (required) - The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user
 - `merge_request_iid` (required) - The internal ID of the merge request
 
-
 ```json
 [
   {
@@ -562,7 +563,6 @@ Parameters:
 
 - `id` (required) - The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user
 - `merge_request_iid` (required) - The internal ID of the merge request
-
 
 ```json
 [
@@ -1098,6 +1098,40 @@ Parameters:
     "start_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00"
   },
   "diverged_commits_count": 2
+}
+```
+
+## Merge to default merge ref path
+
+Merge the changes between the merge request source and target branches into `refs/merge-requests/:iid/merge` 
+ref, of the target project repository. This ref will have the state the target branch would have if
+a regular merge action was taken.
+
+This is not a regular merge action given it doesn't change the merge request state in any manner.
+
+This ref (`refs/merge-requests/:iid/merge`) is **always** overwritten when submitting
+requests to this API, so none of its state is kept or used in the process.
+
+If the merge request has conflicts, is empty or already merged,
+you'll get a `400` and a descriptive error message. If you don't have permissions to do so, 
+you'll get a `403`.
+
+It returns the HEAD commit of `refs/merge-requests/:iid/merge` in the response body in
+case of `200`.
+
+```
+PUT /projects/:id/merge_requests/:merge_request_iid/merge_to_ref
+```
+
+Parameters:
+
+- `id` (required) - The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user
+- `merge_request_iid` (required)            - Internal ID of MR
+- `merge_commit_message` (optional)         - Custom merge commit message
+
+```json
+{
+  "commit_id": "854a3a7a17acbcc0bbbea170986df1eb60435f34"
 }
 ```
 

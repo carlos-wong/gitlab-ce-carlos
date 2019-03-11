@@ -99,6 +99,7 @@ module API
         optional :author_email, type: String, desc: 'Author email for commit'
         optional :author_name, type: String, desc: 'Author name for commit'
         optional :stats, type: Boolean, default: true, desc: 'Include commit stats'
+        optional :force, type: Boolean, default: false, desc: 'When `true` overwrites the target branch with a new commit based on the `start_branch`'
       end
       post ':id/repository/commits' do
         authorize_push_to_branch!(params[:branch])
@@ -330,6 +331,22 @@ module API
         ).execute
 
         present paginate(commit_merge_requests), with: Entities::MergeRequestBasic
+      end
+
+      desc "Get a commit's GPG signature" do
+        success Entities::CommitSignature
+      end
+      params do
+        requires :sha, type: String, desc: 'A commit sha, or the name of a branch or tag'
+      end
+      get ':id/repository/commits/:sha/signature', requirements: API::COMMIT_ENDPOINT_REQUIREMENTS do
+        commit = user_project.commit(params[:sha])
+        not_found! 'Commit' unless commit
+
+        signature = commit.signature
+        not_found! 'GPG Signature' unless signature
+
+        present signature, with: Entities::CommitSignature
       end
     end
   end

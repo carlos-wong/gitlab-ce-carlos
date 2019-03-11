@@ -127,10 +127,11 @@ ci_pipelines:
 - scheduled_actions
 - artifacts
 - pipeline_schedule
-- merge_requests
+- merge_requests_as_head_pipeline
 - merge_request
 - deployments
 - environments
+- chat_data
 pipeline_variables:
 - pipeline
 stages:
@@ -219,7 +220,6 @@ project:
 - packagist_service
 - pivotaltracker_service
 - prometheus_service
-- hipchat_service
 - flowdock_service
 - assembla_service
 - asana_service
@@ -233,6 +233,7 @@ project:
 - pushover_service
 - jira_service
 - redmine_service
+- youtrack_service
 - custom_issue_tracker_service
 - bugzilla_service
 - gitlab_issue_tracker_service

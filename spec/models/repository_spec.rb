@@ -1373,6 +1373,29 @@ describe Repository do
     end
   end
 
+  describe '#merge_to_ref' do
+    let(:merge_request) do
+      create(:merge_request, source_branch: 'feature',
+                             target_branch: 'master',
+                             source_project: project)
+    end
+
+    it 'writes merge of source and target to MR merge_ref_path' do
+      merge_commit_id = repository.merge_to_ref(user,
+                                                merge_request.diff_head_sha,
+                                                merge_request,
+                                                merge_request.merge_ref_path,
+                                                'Custom message')
+
+      merge_commit = repository.commit(merge_commit_id)
+
+      expect(merge_commit.message).to eq('Custom message')
+      expect(merge_commit.author_name).to eq(user.name)
+      expect(merge_commit.author_email).to eq(user.commit_email)
+      expect(repository.blob_at(merge_commit.id, 'files/ruby/feature.rb')).to be_present
+    end
+  end
+
   describe '#ff_merge' do
     before do
       repository.add_branch(user, 'ff-target', 'feature~5')
@@ -2214,7 +2237,7 @@ describe Repository do
     rugged.references.create("refs/remotes/#{remote_name}/#{branch_name}", target.id)
   end
 
-  describe '#ancestor?' do
+  shared_examples '#ancestor?' do
     let(:commit) { repository.commit }
     let(:ancestor) { commit.parents.first }
 
@@ -2236,6 +2259,20 @@ describe Repository do
       expect(repository.ancestor?(commit.id, Gitlab::Git::BLANK_SHA)).to eq(false)
       expect(repository.ancestor?( Gitlab::Git::BLANK_SHA, commit.id)).to eq(false)
     end
+  end
+
+  describe '#ancestor? with Gitaly enabled' do
+    it_behaves_like "#ancestor?"
+  end
+
+  describe '#ancestor? with Rugged enabled', :enable_rugged do
+    it 'calls out to the Rugged implementation' do
+      allow_any_instance_of(Rugged).to receive(:merge_base).with(repository.commit.id, Gitlab::Git::BLANK_SHA).and_call_original
+
+      repository.ancestor?(repository.commit.id, Gitlab::Git::BLANK_SHA)
+    end
+
+    it_behaves_like '#ancestor?'
   end
 
   describe '#archive_metadata' do

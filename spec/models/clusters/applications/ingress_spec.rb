@@ -16,18 +16,6 @@ describe Clusters::Applications::Ingress do
     allow(ClusterWaitForIngressIpAddressWorker).to receive(:perform_async)
   end
 
-  describe '.installed' do
-    subject { described_class.installed }
-
-    let!(:cluster) { create(:clusters_applications_ingress, :installed) }
-
-    before do
-      create(:clusters_applications_ingress, :errored)
-    end
-
-    it { is_expected.to contain_exactly(cluster) }
-  end
-
   describe '#make_installed!' do
     before do
       application.make_installed!
@@ -63,6 +51,14 @@ describe Clusters::Applications::Ingress do
 
     context 'when there is already an external_ip' do
       let(:application) { create(:clusters_applications_ingress, :installed, external_ip: '111.222.222.111') }
+
+      it 'does not schedule a ClusterWaitForIngressIpAddressWorker' do
+        expect(ClusterWaitForIngressIpAddressWorker).not_to have_received(:perform_in)
+      end
+    end
+
+    context 'when there is already an external_hostname' do
+      let(:application) { create(:clusters_applications_ingress, :installed, external_hostname: 'localhost.localdomain') }
 
       it 'does not schedule a ClusterWaitForIngressIpAddressWorker' do
         expect(ClusterWaitForIngressIpAddressWorker).not_to have_received(:perform_in)

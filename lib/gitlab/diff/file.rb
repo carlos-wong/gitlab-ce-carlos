@@ -75,7 +75,7 @@ module Gitlab
       end
 
       def line_for_position(pos)
-        return nil unless pos.position_type == 'text'
+        return unless pos.position_type == 'text'
 
         # This method is normally used to find which line the diff was
         # commented on, and in this context, it's normally the raw diff persisted
@@ -293,6 +293,10 @@ module Gitlab
         end
       end
 
+      def viewer
+        rich_viewer || simple_viewer
+      end
+
       def simple_viewer
         @simple_viewer ||= simple_viewer_class.new(self)
       end
@@ -323,6 +327,16 @@ module Gitlab
         end
 
         lines
+      end
+
+      def fully_expanded?
+        return true if binary?
+
+        lines = diff_lines_for_serializer
+
+        return true if lines.nil?
+
+        lines.none? { |line| line.type.to_s == 'match' }
       end
 
       private

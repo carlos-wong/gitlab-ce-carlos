@@ -13,7 +13,7 @@ Starting with GitLab 11.3, the Auto DevOps pipeline is enabled by default for al
 projects. If it has not been explicitly enabled for the project, Auto DevOps will be automatically
 disabled on the first pipeline failure. Your project will continue to use an alternative
 [CI/CD configuration file](../../ci/yaml/README.md) if one is found. A GitLab
-administrator can [change this setting](../../user/admin_area/settings/continuous_integration.html#auto-devops)
+administrator can [change this setting](../../user/admin_area/settings/continuous_integration.html#auto-devops-core-only)
 in the admin area.
 
 With Auto DevOps, the software development process becomes easier to set up
@@ -58,15 +58,15 @@ project in a simple and automatic way:
 
 1. [Auto Build](#auto-build)
 1. [Auto Test](#auto-test)
-1. [Auto Code Quality](#auto-code-quality) **[STARTER]**
-1. [Auto SAST (Static Application Security Testing)](#auto-sast) **[ULTIMATE]**
-1. [Auto Dependency Scanning](#auto-dependency-scanning) **[ULTIMATE]**
-1. [Auto License Management](#auto-license-management) **[ULTIMATE]**
+1. [Auto Code Quality](#auto-code-quality-starter) **[STARTER]**
+1. [Auto SAST (Static Application Security Testing)](#auto-sast-ultimate) **[ULTIMATE]**
+1. [Auto Dependency Scanning](#auto-dependency-scanning-ultimate) **[ULTIMATE]**
+1. [Auto License Management](#auto-license-management-ultimate) **[ULTIMATE]**
 1. [Auto Container Scanning](#auto-container-scanning)
 1. [Auto Review Apps](#auto-review-apps)
-1. [Auto DAST (Dynamic Application Security Testing)](#auto-dast) **[ULTIMATE]**
+1. [Auto DAST (Dynamic Application Security Testing)](#auto-dast-ultimate) **[ULTIMATE]**
 1. [Auto Deploy](#auto-deploy)
-1. [Auto Browser Performance Testing](#auto-browser-performance-testing) **[PREMIUM]**
+1. [Auto Browser Performance Testing](#auto-browser-performance-testing-premium) **[PREMIUM]**
 1. [Auto Monitoring](#auto-monitoring)
 
 As Auto DevOps relies on many different components, it's good to have a basic
@@ -114,7 +114,7 @@ To make full use of Auto DevOps, you will need:
    will need Prometheus installed somewhere (inside or outside your cluster) and
    configured to scrape your Kubernetes cluster. To get response metrics
    (in addition to system metrics), you need to
-   [configure Prometheus to monitor NGINX](../../user/project/integrations/prometheus_library/nginx_ingress.md#configuring-prometheus-to-monitor-for-nginx-ingress-metrics).
+   [configure Prometheus to monitor NGINX](../../user/project/integrations/prometheus_library/nginx_ingress.md#configuring-nginx-ingress-monitoring).
    The [Prometheus service](../../user/project/integrations/prometheus.md)
    integration needs to be enabled for the project, or enabled as a
    [default service template](../../user/project/integrations/services_templates.md)
@@ -166,7 +166,7 @@ them to the Kubernetes pods that run your application(s).
 
 When using Auto DevOps, you may want to deploy different environments to
 different Kubernetes clusters. This is possible due to the 1:1 connection that
-[exists between them](../../user/project/clusters/index.md#multiple-kubernetes-clusters).
+[exists between them](../../user/project/clusters/index.md#multiple-kubernetes-clusters-premium).
 
 In the [Auto DevOps template](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml)
 (used behind the scenes by Auto DevOps), there are currently 3 defined environment names that you need to know:
@@ -179,7 +179,7 @@ Those environments are tied to jobs that use [Auto Deploy](#auto-deploy), so
 except for the environment scope, they would also need to have a different
 domain they would be deployed to. This is why you need to define a separate
 `KUBE_INGRESS_BASE_DOMAIN` variable for all the above
-[based on the environment](../../ci/variables/README.md#limiting-environment-scopes-of-variables).
+[based on the environment](https://docs.gitlab.com/ee/ci/variables/index.html#limiting-environment-scopes-of-variables-premium).
 
 The following table is an example of how the three different clusters would
 be configured.
@@ -188,7 +188,7 @@ be configured.
 | ------------ | -------------- | ----------------------------- | ------------- | ------ |
 | review       |  `review/*`    | `review.example.com`  | `review/*`      | The review cluster which will run all [Review Apps](../../ci/review_apps/index.md). `*` is a wildcard, which means it will be used by every environment name starting with `review/`. |
 | staging      |  `staging`     | `staging.example.com` | `staging`       | (Optional) The staging cluster which will run the deployments of the staging environments. You need to [enable it first](#deploy-policy-for-staging-and-production-environments). |
-| production   |  `production`  | `example.com`         | `production`    | The production cluster which will run the deployments of the production environment. You can use [incremental rollouts](#incremental-rollout-to-production). |
+| production   |  `production`  | `example.com`         | `production`    | The production cluster which will run the deployments of the production environment. You can use [incremental rollouts](#incremental-rollout-to-production-premium). |
 
 To add a different cluster for each environment:
 
@@ -269,12 +269,12 @@ The available options are:
 - **Continuous deployment to production**: Enables [Auto Deploy](#auto-deploy)
   with `master` branch directly deployed to production.
 - **Continuous deployment to production using timed incremental rollout**: Sets the
-  [`INCREMENTAL_ROLLOUT_MODE`](#timed-incremental-rollout-to-production) variable
+  [`INCREMENTAL_ROLLOUT_MODE`](#timed-incremental-rollout-to-production-premium) variable
   to `timed`, and production deployment will be executed with a 5 minute delay between
   each increment in rollout.
 - **Automatic deployment to staging, manual deployment to production**: Sets the
   [`STAGING_ENABLED`](#deploy-policy-for-staging-and-production-environments) and
-  [`INCREMENTAL_ROLLOUT_MODE`](#incremental-rollout-to-production) variables
+  [`INCREMENTAL_ROLLOUT_MODE`](#incremental-rollout-to-production-premium) variables
   to `1` and `manual`. This means:
 
   - `master` branch is directly deployed to staging.
@@ -291,7 +291,7 @@ Auto Build creates a build of the application using an existing `Dockerfile` or
 Heroku buildpacks.
 
 Either way, the resulting Docker image is automatically pushed to the
-[Container Registry][container-registry] and tagged with the commit SHA.
+[Container Registry][container-registry] and tagged with the commit SHA or tag.
 
 #### Auto Build using a Dockerfile
 
@@ -503,7 +503,7 @@ Auto Deploy doesn't include deployments to staging or canary by default, but the
 [Auto DevOps template] contains job definitions for these tasks if you want to
 enable them.
 
-You can make use of [environment variables](#helm-chart-variables) to automatically
+You can make use of [environment variables](#environment-variables) to automatically
 scale your pod replicas.
 
 It's important to note that when a project is deployed to a Kubernetes cluster,
@@ -553,7 +553,7 @@ Herokuish](https://github.com/gliderlabs/herokuish#paths)
 
 > [Introduced][ce-19507] in GitLab 11.0.
 
-For internal and private projects a [GitLab Deploy Token](../../user/project/deploy_tokens/index.md###gitlab-deploy-token)
+For internal and private projects a [GitLab Deploy Token](../../user/project/deploy_tokens/index.md#gitlab-deploy-token)
 will be automatically created, when Auto DevOps is enabled and the Auto DevOps settings are saved. This Deploy Token
 can be used for permanent access to the registry.
 
@@ -581,7 +581,7 @@ The metrics include:
 
 In order to make use of monitoring you need to:
 
-1. [Deploy Prometheus](../../user/project/integrations/prometheus.md#configuring-your-own-prometheus-server-within-kubernetes) into your Kubernetes cluster
+1. [Deploy Prometheus](../../user/project/integrations/prometheus.md) into your Kubernetes cluster
 1. If you would like response metrics, ensure you are running at least version
    0.9.0 of NGINX Ingress and
    [enable Prometheus metrics](https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/customization/custom-vts-metrics-prometheus/nginx-vts-metrics-conf.yaml).
@@ -684,7 +684,7 @@ also be customized, and you can easily use a [custom buildpack](#custom-buildpac
 
 | **Variable**                 | **Description**                                                                                                                                                                                                               |
 | ------------                 | ---------------                                                                                                                                                                                                               |
-| `AUTO_DEVOPS_DOMAIN`         | The [Auto DevOps domain](#auto-devops-domain). By default, set automatically by the [Auto DevOps setting](#enabling-auto-devops). This variable is deprecated and [is scheduled to be removed](https://gitlab.com/gitlab-org/gitlab-ce/issues/56959). Use `KUBE_INGRESS_BASE_DOMAIN` instead. |
+| `AUTO_DEVOPS_DOMAIN`         | The [Auto DevOps domain](#auto-devops-base-domain). By default, set automatically by the [Auto DevOps setting](#enablingdisabling-auto-devops). This variable is deprecated and [is scheduled to be removed](https://gitlab.com/gitlab-org/gitlab-ce/issues/56959). Use `KUBE_INGRESS_BASE_DOMAIN` instead. |
 | `AUTO_DEVOPS_CHART`          | The Helm Chart used to deploy your apps; defaults to the one [provided by GitLab](https://gitlab.com/charts/auto-deploy-app).                                                             |
 | `AUTO_DEVOPS_CHART_REPOSITORY` | The Helm Chart repository used to search for charts; defaults to `https://charts.gitlab.io`. |
 | `REPLICAS`                   | The number of replicas to deploy; defaults to 1.                                                                                                                                                                              |
@@ -697,14 +697,15 @@ also be customized, and you can easily use a [custom buildpack](#custom-buildpac
 | `POSTGRES_USER`              | The PostgreSQL user; defaults to `user`. Set it to use a custom username.                                                                                                                                                     |
 | `POSTGRES_PASSWORD`          | The PostgreSQL password; defaults to `testing-password`. Set it to use a custom password.                                                                                                                                     |
 | `POSTGRES_DB`                | The PostgreSQL database name; defaults to the value of [`$CI_ENVIRONMENT_SLUG`](../../ci/variables/README.md#predefined-environment-variables). Set it to use a custom database name.                               |
+| `POSTGRES_VERSION`           | Tag for the [`postgres` Docker image](https://hub.docker.com/_/postgres) to use. Defaults to `9.6.2`. |
 | `BUILDPACK_URL`              | The buildpack's full URL. It can point to either Git repositories or a tarball URL. For Git repositories, it is possible to point to a specific `ref`, for example `https://github.com/heroku/heroku-buildpack-ruby.git#v142` |
 | `SAST_CONFIDENCE_LEVEL`      | The minimum confidence level of security issues you want to be reported; `1` for Low, `2` for Medium, `3` for High; defaults to `3`.|
 | `DEP_SCAN_DISABLE_REMOTE_CHECKS` | Whether remote Dependency Scanning checks are disabled; defaults to `"false"`. Set to `"true"` to disable checks that send data to GitLab central servers. [Read more about remote checks](https://gitlab.com/gitlab-org/security-products/dependency-scanning#remote-checks).|
 | `DB_INITIALIZE`              | From GitLab 11.4, this variable can be used to specify the command to run to initialize the application's PostgreSQL database. It runs inside the application pod. |
 | `DB_MIGRATE`                 | From GitLab 11.4, this variable can be used to specify the command to run to migrate the application's PostgreSQL database. It runs inside the application pod. |
 | `STAGING_ENABLED`            | From GitLab 10.8, this variable can be used to define a [deploy policy for staging and production environments](#deploy-policy-for-staging-and-production-environments). |
-| `CANARY_ENABLED`             | From GitLab 11.0, this variable can be used to define a [deploy policy for canary environments](#deploy-policy-for-canary-environments). |
-| `INCREMENTAL_ROLLOUT_MODE`| From GitLab 11.4, this variable, if present, can be used to enable an [incremental rollout](#incremental-rollout-to-production) of your application for the production environment.<br/>Set to: <ul><li>`manual`, for manual deployment jobs.</li><li>`timed`, for automatic rollout deployments with a 5 minute delay each one.</li></ul> |
+| `CANARY_ENABLED`             | From GitLab 11.0, this variable can be used to define a [deploy policy for canary environments](#deploy-policy-for-canary-environments-premium). |
+| `INCREMENTAL_ROLLOUT_MODE`| From GitLab 11.4, this variable, if present, can be used to enable an [incremental rollout](#incremental-rollout-to-production-premium) of your application for the production environment.<br/>Set to: <ul><li>`manual`, for manual deployment jobs.</li><li>`timed`, for automatic rollout deployments with a 5 minute delay each one.</li></ul> |
 | `TEST_DISABLED`              | From GitLab 11.0, this variable can be used to disable the `test` job. If the variable is present, the job will not be created. |
 | `CODE_QUALITY_DISABLED`       | From GitLab 11.0, this variable can be used to disable the `codequality` job. If the variable is present, the job will not be created. |
 | `SAST_DISABLED`              | From GitLab 11.0, this variable can be used to disable the `sast` job. If the variable is present, the job will not be created. |
@@ -938,7 +939,7 @@ TIP: **Tip:**
 You can also set this inside your [project's settings](#deployment-strategy).
 
 This configuration based on
-[incremental rollout to production](#incremental-rollout-to-production).
+[incremental rollout to production](#incremental-rollout-to-production-premium).
 
 Everything behaves the same way, except:
 

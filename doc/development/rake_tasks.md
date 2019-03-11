@@ -73,6 +73,7 @@ To make sure that indices still fit. You could find great details in:
 ## Run tests
 
 In order to run the test you can use the following commands:
+
 - `rake spec` to run the rspec suite
 - `rake karma` to run the karma test suite
 - `rake gitlab:test` to run all the tests
@@ -150,7 +151,6 @@ following:
 ```
 bundle exec rake gemojione:digests
 ```
-
 
 This will update the file `fixtures/emojis/digests.json` based on the currently
 available Emoji.

@@ -3,7 +3,7 @@ comments: false
 ---
 
 > **Note**: We **do not** recommend using the AWS Elastic File System (EFS), as it can result
-in [significantly degraded performance](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/doc/administration/high_availability/nfs.md#aws-elastic-file-system).
+in [significantly degraded performance](../../../administration/high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs).
 
 # High Availability on AWS
 
@@ -80,7 +80,6 @@ our newly created VPC.
 
 ![Route Table](img/route_table.png)
 
-
 ### Internet Gateway
 
 Now still on the same dashboard head over to Internet Gateways and
@@ -126,10 +125,10 @@ image below we have the settings for this article but note the
 following two options which are of particular interest for HA:
 
 1. Multi-AZ-Deployment is recommended as redundancy. Read more at
-[High Availability (Multi-AZ)](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html)
+   [High Availability (Multi-AZ)](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html)
 1. While we chose a General Purpose (SSD) for this article a Provisioned
-IOPS (SSD) is best suited for HA. Read more about it at
-[Storage for Amazon RDS](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html)
+   IOPS (SSD) is best suited for HA. Read more about it at
+   [Storage for Amazon RDS](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html)
 
 ![RDS Instance Specs](img/instance_specs.png)
 
@@ -183,7 +182,7 @@ Another option is to build a simple NFS server using a vanilla Linux server back
 by AWS Elastic Block Storage (EBS).
 
 > **Note:** GitLab does not recommend using AWS Elastic File System (EFS). See
-  details in [High Availability NFS documentation](../../../administration/high_availability/nfs.md#aws-elastic-file-system)
+  details in [High Availability NFS documentation](../../../administration/high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs)
 
 ***
 
@@ -238,7 +237,6 @@ running reconfigure we need to make sure all our services are tied down
 so just leave the reconfigure command until after we edit our gitlab.rb
 file.
 
-
 ### Extension for PostgreSQL
 
 Connect to your new RDS instance to verify access and to install
@@ -276,8 +274,6 @@ username, and password.
 
 Next, we only need to configure the Redis section by adding the host and
 uncommenting the port.
-
-
 
 The last configuration step is to [change the default file locations ](http://docs.gitlab.com/ee/administration/high_availability/nfs.html)
 to make the EFS integration easier to manage.
@@ -343,7 +339,6 @@ the Advanced Details section where we have a [User Data](http://docs.aws.amazon.
 text area that allows us to add a lot of custom configurations which
 allows you to add a custom script for when launching an instance. Let's
 add the following script to the User Data section:
-
 
     #cloud-config
     package_upgrade: true

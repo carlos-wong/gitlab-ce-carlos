@@ -11,7 +11,7 @@ With GitLab Pages you can host for free your static websites on GitLab.
 Combined with the power of [GitLab CI] and the help of [GitLab Runner] you can
 deploy static pages for your individual projects, your user or your group.
 
-Read [GitLab Pages on GitLab.com](#gitlab-pages-on-gitlab-com) for specific
+Read [GitLab Pages on GitLab.com](#gitlab-pages-on-gitlabcom) for specific
 information, if you are using GitLab.com to host your website.
 
 ## Getting started with GitLab Pages domains
@@ -151,7 +151,7 @@ Depending on how you plan to publish your website, the steps defined in the
 
 Be aware that Pages are by default branch/tag agnostic and their deployment
 relies solely on what you specify in `.gitlab-ci.yml`. If you don't limit the
-`pages` job with the [`only` parameter](../../../ci/yaml/README.md#only-and-except),
+`pages` job with the [`only` parameter](../../../ci/yaml/README.md#only-and-except-simplified),
 whenever a new commit is pushed to whatever branch or tag, the Pages will be
 overwritten. In the example below, we limit the Pages to be deployed whenever
 a commit is pushed only on the `master` branch:
@@ -252,7 +252,7 @@ get you started.
 
 Remember that GitLab Pages are by default branch/tag agnostic and their
 deployment relies solely on what you specify in `.gitlab-ci.yml`. You can limit
-the `pages` job with the [`only` parameter](../../../ci/yaml/README.md#only-and-except),
+the `pages` job with the [`only` parameter](../../../ci/yaml/README.md#only-and-except-simplified),
 whenever a new commit is pushed to a branch that will be used specifically for
 your pages.
 
@@ -348,8 +348,8 @@ This can be achieved by including a `script:` command like this in your
 pages:
   # Other directives
   script:
-    - # build the public/ directory first
-    - find public -type f -iregex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -execdir gzip -f --keep {} \;
+    # Build the public/ directory first
+    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec gzip -f -k {} \;
 ```
 
 By pre-compressing the files and including both versions in the artifact, Pages
@@ -410,7 +410,7 @@ file for both the `/data` and `/data/` URL paths.
 ### Add a custom domain to your Pages website
 
 For a complete guide on Pages domains, read through the article
-[GitLab Pages from A to Z: Part 3 - Setting Up Custom Domains - DNS Records and SSL/TLS Certificates](getting_started_part_three.md#setting-up-custom-domains-dns-records-and-ssl-tls-certificates)
+[GitLab Pages from A to Z: Part 3 - GitLab Pages custom domains and SSL/TLS Certificates](getting_started_part_three.md)
 
 If this setting is enabled by your GitLab administrator, you should be able to
 see the **New Domain** button when visiting your project's settings through the
@@ -451,7 +451,7 @@ private key when adding a new domain.
 ![Pages upload cert](img/pages_upload_cert.png)
 
 For a complete guide on Pages domains, read through the article
-[GitLab Pages from A to Z: Part 3 - Setting Up Custom Domains - DNS Records and SSL/TLS Certificates](getting_started_part_three.md#setting-up-custom-domains-dns-records-and-ssl-tls-certificates)
+[GitLab Pages from A to Z: Part 3 - GitLab Pages custom domains and SSL/TLS Certificates](getting_started_part_three.md)
 
 ### Custom error codes pages
 

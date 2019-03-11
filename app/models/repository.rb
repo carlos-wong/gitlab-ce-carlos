@@ -79,7 +79,7 @@ class Repository
   end
 
   def raw_repository
-    return nil unless full_path
+    return unless full_path
 
     @raw_repository ||= initialize_raw_repository
   end
@@ -103,7 +103,7 @@ class Repository
   end
 
   def commit(ref = nil)
-    return nil unless exists?
+    return unless exists?
     return ref if ref.is_a?(::Commit)
 
     find_commit(ref || root_ref)
@@ -288,13 +288,16 @@ class Repository
       # Rugged seems to throw a `ReferenceError` when given branch_names rather
       # than SHA-1 hashes
       number_commits_behind, number_commits_ahead =
-        raw_repository.count_commits_between(
+        raw_repository.diverging_commit_count(
           @root_ref_hash,
           branch.dereferenced_target.sha,
-          left_right: true,
           max_count: MAX_DIVERGING_COUNT)
 
-      { behind: number_commits_behind, ahead: number_commits_ahead }
+      if number_commits_behind + number_commits_ahead >= MAX_DIVERGING_COUNT
+        { distance: MAX_DIVERGING_COUNT }
+      else
+        { behind: number_commits_behind, ahead: number_commits_ahead }
+      end
     end
   end
 
@@ -849,6 +852,12 @@ class Repository
         nil # Return value does not matter.
       end
     end
+  end
+
+  def merge_to_ref(user, source_sha, merge_request, target_ref, message)
+    branch = merge_request.target_branch
+
+    raw.merge_to_ref(user, source_sha, branch, target_ref, message)
   end
 
   def ff_merge(user, source, target_branch, merge_request: nil)

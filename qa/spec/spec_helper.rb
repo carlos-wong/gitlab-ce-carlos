@@ -1,22 +1,11 @@
 require_relative '../qa'
+require 'rspec/retry'
 
-Dir[::File.join(__dir__, 'support', '**', '*.rb')].each { |f| require f }
+%w[helpers shared_examples].each do |d|
+  Dir[::File.join(__dir__, d, '**', '*.rb')].each { |f| require f }
+end
 
 RSpec.configure do |config|
-  ServerNotRespondingError = Class.new(RuntimeError)
-
-  # The login page could take some time to load the first time it is visited.
-  # We visit the login page and wait for it to properly load only once at the beginning of the suite.
-  config.before(:suite) do
-    if QA::Runtime::Scenario.respond_to?(:gitlab_address)
-      QA::Runtime::Browser.visit(:gitlab, QA::Page::Main::Login)
-
-      unless QA::Page::Main::Login.perform(&:page_loaded?)
-        raise ServerNotRespondingError, "Login page did not load at #{QA::Page::Main::Login.perform(&:current_url)}"
-      end
-    end
-  end
-
   config.before(:context) do
     if self.class.metadata.keys.include?(:quarantine)
       skip_or_run_quarantined_tests(self.class.metadata.keys, config.inclusion_filter.rules.keys)
@@ -43,6 +32,17 @@ RSpec.configure do |config|
   config.profile_examples = 10
   config.order = :random
   Kernel.srand config.seed
+
+  # show retry status in spec process
+  config.verbose_retry = true
+
+  # show exception that triggers a retry if verbose_retry is set to true
+  config.display_try_failure_messages = true
+
+  config.around do |example|
+    retry_times = example.metadata.keys.include?(:quarantine) ? 1 : 3
+    example.run_with_retry retry: retry_times
+  end
 end
 
 # Skip tests in quarantine unless we explicitly focus on them.

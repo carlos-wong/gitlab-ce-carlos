@@ -130,6 +130,36 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
       end
     end
 
+    context 'ca_cert' do
+      let(:kubernetes) { build(:cluster_platform_kubernetes, ca_pem: ca_pem) }
+
+      context 'with a valid certificate' do
+        let(:ca_pem) { File.read(Rails.root.join('spec/fixtures/clusters/sample_cert.pem')) }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'with an invalid certificate' do
+        let(:ca_pem) { "invalid" }
+
+        it { is_expected.to be_falsey }
+
+        context 'but the certificate is not being updated' do
+          before do
+            allow(kubernetes).to receive(:ca_cert_changed?).and_return(false)
+          end
+
+          it { is_expected.to be_truthy }
+        end
+      end
+
+      context 'with no certificate' do
+        let(:ca_pem) { "" }
+
+        it { is_expected.to be_truthy }
+      end
+    end
+
     describe 'when using reserved namespaces' do
       subject { build(:cluster_platform_kubernetes, namespace: namespace) }
 
@@ -218,7 +248,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
     let!(:cluster) { create(:cluster, :project, platform_kubernetes: kubernetes) }
     let(:kubernetes) { create(:cluster_platform_kubernetes, api_url: api_url, ca_cert: ca_pem) }
     let(:api_url) { 'https://kube.domain.com' }
-    let(:ca_pem) { 'CA PEM DATA' }
+    let(:ca_pem) { File.read(Rails.root.join('spec/fixtures/clusters/sample_cert.pem')) }
 
     subject { kubernetes.predefined_variables(project: cluster.project) }
 
@@ -239,7 +269,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
 
       it 'sets KUBE_TOKEN' do
         expect(subject).to include(
-          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false }
+          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false, masked: true }
         )
       end
     end
@@ -251,7 +281,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
 
       it 'sets KUBE_TOKEN' do
         expect(subject).to include(
-          { key: 'KUBE_TOKEN', value: kubernetes_namespace.service_account_token, public: false }
+          { key: 'KUBE_TOKEN', value: kubernetes_namespace.service_account_token, public: false, masked: true }
         )
       end
     end
@@ -267,7 +297,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
 
       it 'sets KUBE_TOKEN' do
         expect(subject).to include(
-          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false }
+          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false, masked: true }
         )
       end
     end
@@ -279,7 +309,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
 
       it 'sets KUBE_TOKEN' do
         expect(subject).to include(
-          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false }
+          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false, masked: true }
         )
       end
     end
@@ -308,7 +338,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
 
         it 'sets KUBE_TOKEN' do
           expect(subject).to include(
-            { key: 'KUBE_TOKEN', value: kubernetes_namespace.service_account_token, public: false }
+            { key: 'KUBE_TOKEN', value: kubernetes_namespace.service_account_token, public: false, masked: true }
           )
         end
       end

@@ -41,13 +41,13 @@ $t-gray-a-04: rgba($black, 0.04);
 $t-gray-a-06: rgba($black, 0.06);
 $t-gray-a-08: rgba($black, 0.08);
 
-$gl-gray-100: #dddddd;
-$gl-gray-200: #cccccc;
-$gl-gray-350: #aaaaaa;
-$gl-gray-400: #999999;
-$gl-gray-500: #777777;
-$gl-gray-600: #666666;
-$gl-gray-700: #555555;
+$gl-gray-100: #ddd;
+$gl-gray-200: #ccc;
+$gl-gray-350: #aaa;
+$gl-gray-400: #999;
+$gl-gray-500: #777;
+$gl-gray-600: #666;
+$gl-gray-700: #555;
 
 $green-50: #f1fdf6;
 $green-100: #dcf5e7;
@@ -100,7 +100,7 @@ $red-950: #4b140b;
 $gray-50: #fafafa;
 $gray-100: #f2f2f2;
 $gray-200: #dfdfdf;
-$gray-300: #cccccc;
+$gray-300: #ccc;
 $gray-400: #bababa;
 $gray-500: #a7a7a7;
 $gray-600: #919191;
@@ -252,7 +252,7 @@ $gl-padding-top: 10px;
 $gl-sidebar-padding: 22px;
 $gl-bar-padding: 3px;
 $input-horizontal-padding: 12px;
-$browserScrollbarSize: 10px;
+$browser-scrollbar-size: 10px;
 
 /*
  * Misc
@@ -266,6 +266,7 @@ $container-text-max-width: 540px;
 $gl-avatar-size: 40px;
 $border-radius-default: 4px;
 $border-radius-small: 2px;
+$border-radius-large: 8px;
 $default-icon-size: 18px;
 $layout-link-gray: #7e7c7c;
 $btn-side-margin: 10px;
@@ -277,6 +278,8 @@ $general-hover-transition-duration: 100ms;
 $general-hover-transition-curve: linear;
 $highlight-changes-color: rgb(235, 255, 232);
 $performance-bar-height: 35px;
+$system-header-height: 35px;
+$system-footer-height: $system-header-height;
 $flash-height: 52px;
 $context-header-height: 60px;
 $breadcrumb-min-height: 48px;
@@ -321,8 +324,8 @@ $line-select-yellow: #fcf8e7;
 $line-select-yellow-dark: #f0e2bd;
 $dark-diff-match-bg: rgba(255, 255, 255, 0.3);
 $dark-diff-match-color: rgba(255, 255, 255, 0.1);
-$diff-image-info-color: gray;
-$diff-view-modes-color: gray;
+$diff-image-info-color: #808080;
+$diff-view-modes-color: #808080;
 $diff-view-modes-border: #c1c1c1;
 $diff-jagged-border-gradient-color: darken($white-normal, 8%);
 
@@ -341,6 +344,7 @@ $regular-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-San
 $dropdown-width: 300px;
 $dropdown-min-height: 40px;
 $dropdown-max-height: 312px;
+$dropdown-max-height-lg: 445px;
 $dropdown-vertical-offset: 4px;
 $dropdown-empty-row-bg: rgba(#000, 0.04);
 $dropdown-shadow-color: rgba(#000, 0.1);
@@ -406,6 +410,8 @@ $status-icon-size: 22px;
 $award-emoji-menu-shadow: rgba(0, 0, 0, 0.175);
 $award-emoji-positive-add-bg: #fed159;
 $award-emoji-positive-add-lines: #bb9c13;
+$award-emoji-width: 376px;
+$award-emoji-width-xs: 300px;
 
 /*
  * Search Box

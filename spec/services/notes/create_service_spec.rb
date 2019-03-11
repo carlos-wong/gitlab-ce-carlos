@@ -220,6 +220,19 @@ describe Notes::CreateService do
             expect(note.note).to eq "HELLO\nWORLD"
           end
         end
+
+        context 'when note only have commands' do
+          it 'adds commands applied message to note errors' do
+            note_text = %(/close)
+            service = double(:service)
+            allow(Issues::UpdateService).to receive(:new).and_return(service)
+            expect(service).to receive(:execute)
+
+            note = described_class.new(project, user, opts.merge(note: note_text)).execute
+
+            expect(note.errors[:commands_only]).to be_present
+          end
+        end
       end
 
       context 'as a user who cannot update the target' do
@@ -311,7 +324,14 @@ describe Notes::CreateService do
         end
 
         it 'converts existing note to DiscussionNote' do
-          expect { subject }.to change { existing_note.reload.type }.from(nil).to('DiscussionNote')
+          expect do
+            existing_note
+
+            Timecop.freeze(Time.now + 1.minute) { subject }
+
+            existing_note.reload
+          end.to change { existing_note.type }.from(nil).to('DiscussionNote')
+             .and change { existing_note.updated_at }
         end
       end
     end

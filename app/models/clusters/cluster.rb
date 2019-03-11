@@ -67,6 +67,7 @@ module Clusters
     delegate :available?, to: :application_prometheus, prefix: true, allow_nil: true
     delegate :available?, to: :application_knative, prefix: true, allow_nil: true
     delegate :external_ip, to: :application_ingress, prefix: true, allow_nil: true
+    delegate :external_hostname, to: :application_ingress, prefix: true, allow_nil: true
 
     alias_attribute :base_domain, :domain
 
@@ -99,7 +100,7 @@ module Clusters
       where('NOT EXISTS (?)', subquery)
     end
 
-    scope :with_knative_installed, -> { joins(:application_knative).merge(Clusters::Applications::Knative.installed) }
+    scope :with_knative_installed, -> { joins(:application_knative).merge(Clusters::Applications::Knative.available) }
 
     scope :preload_knative, -> {
       preload(

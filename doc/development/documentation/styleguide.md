@@ -36,7 +36,7 @@ gem will support all [GFM markup](../../user/markdown.md) in the future. For now
 use regular markdown markup, following the rules on this style guide. For a complete
 Kramdown reference, check the [GitLab Markdown Kramdown Guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/).
 Use Kramdown markup wisely: do not overuse its specific markup (e.g., `{:.class}`) as it will not render properly in
-[`/help`](#gitlab-help).
+[`/help`](index.md#gitlab-help).
 
 ## Content
 
@@ -112,7 +112,7 @@ table_display_block: true
 ## Emphasis
 
 - Use double asterisks (`**`) to mark a word or text in bold (`**bold**`).
-- Use undescore (`_`) for text in italics (`_italic_`).
+- Use underscore (`_`) for text in italics (`_italic_`).
 - Use greater than (`>`) for blockquotes.
 
 ## Punctuation
@@ -236,6 +236,24 @@ For other punctuation rules, please refer to the
   E.g., instead of writing something like `Read more about GitLab Issue Boards [here](LINK)`,
   write `Read more about [GitLab Issue Boards](LINK)`.
 
+### Links to confidential issues
+
+Don't link directly to [confidential issues](../../user/project/issues/confidential_issues.md). These will fail for:
+
+- Those without sufficient permissions.
+- Automated link checkers.
+
+Instead:
+
+- Mention in the text that the information is contained in a confidential issue. This will reduce confusion.
+- Provide a link in back ticks (`` ` ``) so that those with access to the issue can easily navigate to it.
+
+Example:
+
+```md
+For more information, see the [confidential issue](https://docs.gitlab.com/ee/user/project/issues/confidential_issues.html) `https://gitlab.com/gitlab-org/gitlab-ce/issues/<issue_number>`.
+```
+
 ### Unlinking emails
 
 By default, all email addresses will render in an email tag on docs.gitlab.com.
@@ -305,7 +323,7 @@ directly to an HTML `img` tag:
 - For regular code blocks, always use a highlighting class corresponding to the
   language for better readability. Examples:
 
-  ````
+  ````md
   ```ruby
   Ruby code
   ```
@@ -612,7 +630,7 @@ In this case:
 - The code blocks are indented one or more spaces under the list item to render
   correctly.
 - Different highlighting languages are used for each config in the code block.
-- The [references](#references) guide is used for reconfigure/restart.
+- The [GitLab Restart](#gitlab-restart) section is used to explain a required restart/reconfigure of GitLab.
 
 ## API
 

@@ -71,6 +71,7 @@
                 = render 'shared/issuable/user_dropdown_item',
                   user: User.new(username: '{{username}}', name: '{{name}}'),
                   avatar: { lazy: true, url: '{{avatar_url}}' }
+            = render_if_exists 'shared/issuable/approver_dropdown'
             #js-dropdown-milestone.filtered-search-input-dropdown-menu.dropdown-menu
               %ul{ data: { dropdown: true } }
                 %li.filter-dropdown-item{ data: { value: 'None' } }
@@ -121,6 +122,14 @@
                     %span.js-data-value.prepend-left-10
                       {{name}}
             #js-dropdown-wip.filtered-search-input-dropdown-menu.dropdown-menu
+              %ul.filter-dropdown{ data: { dropdown: true } }
+                %li.filter-dropdown-item{ data: { value: 'yes', capitalize: true } }
+                  %button.btn.btn-link{ type: 'button' }
+                    = _('Yes')
+                %li.filter-dropdown-item{ data: { value: 'no', capitalize: true } }
+                  %button.btn.btn-link{ type: 'button' }
+                    = _('No')
+            #js-dropdown-confidential.filtered-search-input-dropdown-menu.dropdown-menu
               %ul.filter-dropdown{ data: { dropdown: true } }
                 %li.filter-dropdown-item{ data: { value: 'yes', capitalize: true } }
                   %button.btn.btn-link{ type: 'button' }

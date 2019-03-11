@@ -320,6 +320,18 @@ describe API::MergeRequests do
       expect(json_response.first['title']).to eq merge_request_closed.title
       expect(json_response.first['id']).to eq merge_request_closed.id
     end
+
+    it 'avoids N+1 queries' do
+      control = ActiveRecord::QueryRecorder.new do
+        get api("/projects/#{project.id}/merge_requests", user)
+      end.count
+
+      create(:merge_request, author: user, assignee: user, source_project: project, target_project: project, created_at: base_time)
+
+      expect do
+        get api("/projects/#{project.id}/merge_requests", user)
+      end.not_to exceed_query_limit(control)
+    end
   end
 
   describe "GET /groups/:id/merge_requests" do
@@ -372,6 +384,7 @@ describe API::MergeRequests do
       expect(json_response['force_close_merge_request']).to be_falsy
       expect(json_response['changes_count']).to eq(merge_request.merge_request_diff.real_size)
       expect(json_response['merge_error']).to eq(merge_request.merge_error)
+      expect(json_response['user']['can_merge']).to be_truthy
       expect(json_response).not_to include('rebase_in_progress')
     end
 
@@ -440,7 +453,7 @@ describe API::MergeRequests do
     end
 
     it "returns a 404 error if merge_request_iid not found" do
-      get api("/projects/#{project.id}/merge_requests/999", user)
+      get api("/projects/#{project.id}/merge_requests/0", user)
       expect(response).to have_gitlab_http_status(404)
     end
 
@@ -499,6 +512,15 @@ describe API::MergeRequests do
         expect(json_response['allow_maintainer_to_push']).to be_truthy
       end
     end
+
+    it 'indicates if a user cannot merge the MR' do
+      user2 = create(:user)
+      project.add_reporter(user2)
+
+      get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user2)
+
+      expect(json_response['user']['can_merge']).to be_falsy
+    end
   end
 
   describe 'GET /projects/:id/merge_requests/:merge_request_iid/participants' do
@@ -521,7 +543,7 @@ describe API::MergeRequests do
     end
 
     it 'returns a 404 when merge_request_iid not found' do
-      get api("/projects/#{project.id}/merge_requests/999/commits", user)
+      get api("/projects/#{project.id}/merge_requests/0/commits", user)
       expect(response).to have_gitlab_http_status(404)
     end
 
@@ -541,7 +563,7 @@ describe API::MergeRequests do
     end
 
     it 'returns a 404 when merge_request_iid not found' do
-      get api("/projects/#{project.id}/merge_requests/999/changes", user)
+      get api("/projects/#{project.id}/merge_requests/0/changes", user)
       expect(response).to have_gitlab_http_status(404)
     end
 
@@ -595,26 +617,115 @@ describe API::MergeRequests do
     end
   end
 
-  describe "POST /projects/:id/merge_requests" do
+  describe 'POST /projects/:id/merge_requests' do
     context 'between branches projects' do
-      it "returns merge_request" do
-        post api("/projects/#{project.id}/merge_requests", user),
-             params: {
-               title: 'Test merge_request',
-               source_branch: 'feature_conflict',
-               target_branch: 'master',
-               author: user,
-               labels: 'label, label2',
-               milestone_id: milestone.id,
-               squash: true
-             }
+      context 'different labels' do
+        let(:params) do
+          {
+            title: 'Test merge_request',
+            source_branch: 'feature_conflict',
+            target_branch: 'master',
+            author_id: user.id,
+            milestone_id: milestone.id,
+            squash: true
+          }
+        end
 
-        expect(response).to have_gitlab_http_status(201)
-        expect(json_response['title']).to eq('Test merge_request')
-        expect(json_response['labels']).to eq(%w(label label2))
-        expect(json_response['milestone']['id']).to eq(milestone.id)
-        expect(json_response['squash']).to be_truthy
-        expect(json_response['force_remove_source_branch']).to be_falsy
+        shared_examples_for 'creates merge request with labels' do
+          it 'returns merge_request' do
+            params[:labels] = labels
+            post api("/projects/#{project.id}/merge_requests", user), params: params
+
+            expect(response).to have_gitlab_http_status(201)
+            expect(json_response['title']).to eq('Test merge_request')
+            expect(json_response['labels']).to eq(%w(label label2))
+            expect(json_response['milestone']['id']).to eq(milestone.id)
+            expect(json_response['squash']).to be_truthy
+            expect(json_response['force_remove_source_branch']).to be_falsy
+          end
+        end
+
+        it_behaves_like 'creates merge request with labels' do
+          let(:labels) { 'label, label2' }
+        end
+
+        it_behaves_like 'creates merge request with labels' do
+          let(:labels) { %w(label label2) }
+        end
+
+        it_behaves_like 'creates merge request with labels' do
+          let(:labels) { %w(label label2) }
+        end
+
+        it 'creates merge request with special label names' do
+          params[:labels] = 'label, label?, label&foo, ?, &'
+          post api("/projects/#{project.id}/merge_requests", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to include 'label'
+          expect(json_response['labels']).to include 'label?'
+          expect(json_response['labels']).to include 'label&foo'
+          expect(json_response['labels']).to include '?'
+          expect(json_response['labels']).to include '&'
+        end
+
+        it 'creates merge request with special label names as array' do
+          params[:labels] = ['label', 'label?', 'label&foo, ?, &', '1, 2', 3, 4]
+          post api("/projects/#{project.id}/merge_requests", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to include 'label'
+          expect(json_response['labels']).to include 'label?'
+          expect(json_response['labels']).to include 'label&foo'
+          expect(json_response['labels']).to include '?'
+          expect(json_response['labels']).to include '&'
+          expect(json_response['labels']).to include '1'
+          expect(json_response['labels']).to include '2'
+          expect(json_response['labels']).to include '3'
+          expect(json_response['labels']).to include '4'
+        end
+
+        it 'empty label param does not add any labels' do
+          params[:labels] = ''
+          post api("/projects/#{project.id}/merge_requests", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to eq([])
+        end
+
+        it 'empty label param as array does not add any labels, but only explicitly as json' do
+          params[:labels] = []
+          post api("/projects/#{project.id}/merge_requests", user),
+            params: params.to_json,
+            headers: { 'Content-Type': 'application/json' }
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to eq([])
+        end
+
+        xit 'empty label param as array, does not add any labels' do
+          params[:labels] = []
+          post api("/projects/#{project.id}/merge_requests", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to eq([])
+        end
+
+        it 'array with one empty string element does not add labels' do
+          params[:labels] = ['']
+          post api("/projects/#{project.id}/merge_requests", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to eq([])
+        end
+
+        it 'array with multiple empty string elements, does not add labels' do
+          params[:labels] = ['', '', '']
+          post api("/projects/#{project.id}/merge_requests", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['labels']).to eq([])
+        end
       end
 
       it "returns 422 when source_branch equals target_branch" do
@@ -639,23 +750,6 @@ describe API::MergeRequests do
         post api("/projects/#{project.id}/merge_requests", user),
         params: { target_branch: 'master', source_branch: 'markdown' }
         expect(response).to have_gitlab_http_status(400)
-      end
-
-      it 'allows special label names' do
-        post api("/projects/#{project.id}/merge_requests", user),
-             params: {
-               title: 'Test merge_request',
-               source_branch: 'markdown',
-               target_branch: 'master',
-               author: user,
-               labels: 'label, label?, label&foo, ?, &'
-             }
-        expect(response).to have_gitlab_http_status(201)
-        expect(json_response['labels']).to include 'label'
-        expect(json_response['labels']).to include 'label?'
-        expect(json_response['labels']).to include 'label&foo'
-        expect(json_response['labels']).to include '?'
-        expect(json_response['labels']).to include '&'
       end
 
       context 'with existing MR' do
@@ -974,6 +1068,70 @@ describe API::MergeRequests do
         expect(squash_commit.message).to eq(merge_request.default_squash_commit_message)
       end
     end
+
+    describe "the should_remove_source_branch param" do
+      let(:source_repository) { merge_request.source_project.repository }
+      let(:source_branch) { merge_request.source_branch }
+
+      it 'removes the source branch when set' do
+        put(
+          api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user),
+          params: { should_remove_source_branch: true }
+        )
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(source_repository.branch_exists?(source_branch)).to be_falsy
+      end
+    end
+  end
+
+  describe "PUT /projects/:id/merge_requests/:merge_request_iid/merge_to_ref" do
+    let(:pipeline) { create(:ci_pipeline_without_jobs) }
+    let(:url) do
+      "/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge_to_ref"
+    end
+
+    it 'returns the generated ID from the merge service in case of success' do
+      put api(url, user), params: { merge_commit_message: 'Custom message' }
+
+      commit = project.commit(json_response['commit_id'])
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(json_response['commit_id']).to be_present
+      expect(commit.message).to eq('Custom message')
+    end
+
+    it "returns 400 if branch can't be merged" do
+      merge_request.update!(state: 'merged')
+
+      put api(url, user)
+
+      expect(response).to have_gitlab_http_status(400)
+      expect(json_response['message'])
+        .to eq("Merge request is not mergeable to #{merge_request.merge_ref_path}")
+    end
+
+    it 'returns 403 if user has no permissions to merge to the ref' do
+      user2 = create(:user)
+      project.add_reporter(user2)
+
+      put api(url, user2)
+
+      expect(response).to have_gitlab_http_status(403)
+      expect(json_response['message']).to eq('403 Forbidden')
+    end
+
+    it 'returns 404 for an invalid merge request IID' do
+      put api("/projects/#{project.id}/merge_requests/12345/merge_to_ref", user)
+
+      expect(response).to have_gitlab_http_status(404)
+    end
+
+    it "returns 404 if the merge request id is used instead of iid" do
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user)
+
+      expect(response).to have_gitlab_http_status(404)
+    end
   end
 
   describe "PUT /projects/:id/merge_requests/:merge_request_iid" do
@@ -1024,19 +1182,97 @@ describe API::MergeRequests do
       expect(json_response['force_remove_source_branch']).to be_truthy
     end
 
-    it 'allows special label names' do
-      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
-        params: {
-          title: 'new issue',
-          labels: 'label, label?, label&foo, ?, &'
-        }
+    context 'when updating labels' do
+      it 'allows special label names' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: 'label, label?, label&foo, ?, &'
+          }
 
-      expect(response.status).to eq(200)
-      expect(json_response['labels']).to include 'label'
-      expect(json_response['labels']).to include 'label?'
-      expect(json_response['labels']).to include 'label&foo'
-      expect(json_response['labels']).to include '?'
-      expect(json_response['labels']).to include '&'
+        expect(response.status).to eq(200)
+        expect(json_response['labels']).to include 'label'
+        expect(json_response['labels']).to include 'label?'
+        expect(json_response['labels']).to include 'label&foo'
+        expect(json_response['labels']).to include '?'
+        expect(json_response['labels']).to include '&'
+      end
+
+      it 'also accepts labels as an array' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: ['label', 'label?', 'label&foo, ?, &', '1, 2', 3, 4]
+          }
+
+        expect(response.status).to eq(200)
+        expect(json_response['labels']).to include 'label'
+        expect(json_response['labels']).to include 'label?'
+        expect(json_response['labels']).to include 'label&foo'
+        expect(json_response['labels']).to include '?'
+        expect(json_response['labels']).to include '&'
+        expect(json_response['labels']).to include '1'
+        expect(json_response['labels']).to include '2'
+        expect(json_response['labels']).to include '3'
+        expect(json_response['labels']).to include '4'
+      end
+
+      it 'empty label param removes labels' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: ''
+          }
+
+        expect(response.status).to eq(200)
+        expect(json_response['labels']).to eq []
+      end
+
+      it 'label param as empty array, but only explicitly as json, removes labels' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: []
+          }.to_json,
+          headers: { 'Content-Type' => 'application/json' }
+
+        expect(response.status).to eq(200)
+        expect(json_response['labels']).to eq []
+      end
+
+      xit 'empty label as array, removes labels' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: []
+          }
+
+        expect(response.status).to eq(200)
+        # fails, as grape ommits for some reason empty array as optional param value, so nothing it passed along
+        expect(json_response['labels']).to eq []
+      end
+
+      it 'array with one empty string element removes labels' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: ['']
+          }
+
+        expect(response.status).to eq(200)
+        expect(json_response['labels']).to eq []
+      end
+
+      it 'array with multiple empty string elements, removes labels' do
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+          params: {
+            title: 'new issue',
+            labels: ['', '', '']
+          }
+
+        expect(response.status).to eq(200)
+        expect(json_response['labels']).to eq []
+      end
     end
 
     it 'does not update state when title is empty' do
