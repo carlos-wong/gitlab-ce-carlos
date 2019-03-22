@@ -173,10 +173,10 @@ ActiveRecord::Schema.define(version: 20190301182457) do
     t.integer "diff_max_patch_bytes", default: 102400, null: false
     t.integer "archive_builds_in_seconds"
     t.string "commit_email_hostname"
-    t.string "runners_registration_token_encrypted"
     t.boolean "protected_ci_variables", default: false, null: false
-    t.integer "first_day_of_week", default: 0, null: false
+    t.string "runners_registration_token_encrypted"
     t.integer "local_markdown_version", default: 0, null: false
+    t.integer "first_day_of_week", default: 0, null: false
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id", using: :btree
   end
 
@@ -1843,7 +1843,6 @@ ActiveRecord::Schema.define(version: 20190301182457) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true, using: :btree
-    t.index ["path"], name: "index_redirect_routes_on_path_text_pattern_ops", using: :btree, opclasses: {"path"=>"varchar_pattern_ops"}
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id", using: :btree
   end
 
