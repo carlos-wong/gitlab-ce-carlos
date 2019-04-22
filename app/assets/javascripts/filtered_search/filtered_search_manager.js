@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { getParameterByName, getUrlParamsArray } from '~/lib/utils/common_utils';
 import IssuableFilteredSearchTokenKeys from '~/filtered_search/issuable_filtered_search_token_keys';
+import recentSearchesStorageKeys from 'ee_else_ce/filtered_search/recent_searches_storage_keys';
 import { visitUrl } from '../lib/utils/url_utility';
 import Flash from '../flash';
 import FilteredSearchContainer from './container';
@@ -36,10 +37,11 @@ export default class FilteredSearchManager {
     this.tokensContainer = this.container.querySelector('.tokens-container');
     this.filteredSearchTokenKeys = filteredSearchTokenKeys;
     this.stateFiltersSelector = stateFiltersSelector;
-    this.recentsStorageKeyNames = {
-      issues: 'issue-recent-searches',
-      merge_requests: 'merge-request-recent-searches',
-    };
+
+    const { multipleAssignees } = this.filteredSearchInput.dataset;
+    if (multipleAssignees && this.filteredSearchTokenKeys.enableMultipleAssignees) {
+      this.filteredSearchTokenKeys.enableMultipleAssignees();
+    }
 
     this.recentSearchesStore = new RecentSearchesStore({
       isLocalStorageAvailable: RecentSearchesService.isAvailable(),
@@ -51,7 +53,7 @@ export default class FilteredSearchManager {
     const fullPath = this.searchHistoryDropdownElement
       ? this.searchHistoryDropdownElement.dataset.fullPath
       : 'project';
-    const recentSearchesKey = `${fullPath}-${this.recentsStorageKeyNames[this.page]}`;
+    const recentSearchesKey = `${fullPath}-${recentSearchesStorageKeys[this.page]}`;
     this.recentSearchesService = new RecentSearchesService(recentSearchesKey);
   }
 
@@ -504,14 +506,7 @@ export default class FilteredSearchManager {
         const match = this.filteredSearchTokenKeys.searchByKeyParam(keyParam);
 
         if (match) {
-          // Use lastIndexOf because the token key is allowed to contain underscore
-          // e.g. 'my_reaction' is the token key of 'my_reaction_emoji'
-          const lastIndexOf = keyParam.lastIndexOf('_');
-          let sanitizedKey = lastIndexOf !== -1 ? keyParam.slice(0, lastIndexOf) : keyParam;
-          // Replace underscore with hyphen in the sanitizedkey.
-          // e.g. 'my_reaction' => 'my-reaction'
-          sanitizedKey = sanitizedKey.replace('_', '-');
-          const { symbol } = match;
+          const { key, symbol } = match;
           let quotationsToUse = '';
 
           if (sanitizedValue.indexOf(' ') !== -1) {
@@ -520,10 +515,10 @@ export default class FilteredSearchManager {
           }
 
           hasFilteredSearch = true;
-          const canEdit = this.canEdit && this.canEdit(sanitizedKey, sanitizedValue);
+          const canEdit = this.canEdit && this.canEdit(key, sanitizedValue);
           const { uppercaseTokenName, capitalizeTokenValue } = match;
           FilteredSearchVisualTokens.addFilterVisualToken(
-            sanitizedKey,
+            key,
             `${symbol}${quotationsToUse}${sanitizedValue}${quotationsToUse}`,
             {
               canEdit,

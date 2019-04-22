@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Clusters::Applications::Jupyter do
@@ -43,7 +45,7 @@ describe Clusters::Applications::Jupyter do
 
     it { is_expected.to be_an_instance_of(Gitlab::Kubernetes::Helm::InstallCommand) }
 
-    it 'should be initialized with 4 arguments' do
+    it 'is initialized with 4 arguments' do
       expect(subject.name).to eq('jupyter')
       expect(subject.chart).to eq('jupyter/jupyterhub')
       expect(subject.version).to eq('0.9-174bbd5')
@@ -63,7 +65,7 @@ describe Clusters::Applications::Jupyter do
     context 'application failed to install previously' do
       let(:jupyter) { create(:clusters_applications_jupyter, :errored, version: '0.0.1') }
 
-      it 'should be initialized with the locked version' do
+      it 'is initialized with the locked version' do
         expect(subject.version).to eq('0.9-174bbd5')
       end
     end
@@ -75,7 +77,7 @@ describe Clusters::Applications::Jupyter do
 
     subject { application.files }
 
-    it 'should include valid values' do
+    it 'includes valid values' do
       expect(values).to include('ingress')
       expect(values).to include('hub')
       expect(values).to include('rbac')

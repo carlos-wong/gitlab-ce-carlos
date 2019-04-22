@@ -80,7 +80,7 @@ describe 'Clusters Applications', :js do
         context 'on an abac cluster' do
           let(:cluster) { create(:cluster, :provided_by_gcp, :rbac_disabled, projects: [project]) }
 
-          it 'should show info block and not be installable' do
+          it 'shows info block and not be installable' do
             page.within('.js-cluster-application-row-knative') do
               expect(page).to have_css('.rbac-notice')
               expect(page.find(:css, '.js-cluster-application-install-button')['disabled']).to eq('true')
@@ -91,7 +91,7 @@ describe 'Clusters Applications', :js do
         context 'on an rbac cluster' do
           let(:cluster) { create(:cluster, :provided_by_gcp, projects: [project]) }
 
-          it 'should not show callout block and be installable' do
+          it 'does not show callout block and be installable' do
             page.within('.js-cluster-application-row-knative') do
               expect(page).not_to have_css('.rbac-notice')
               expect(page).to have_css('.js-cluster-application-install-button:not([disabled])')
@@ -227,7 +227,7 @@ describe 'Clusters Applications', :js do
               expect(page).to have_css('.js-cluster-application-install-button', exact_text: 'Installed')
               expect(page).to have_css('.js-cluster-application-install-button[disabled]')
               expect(page).to have_selector('.js-no-endpoint-message')
-              expect(page.find('.js-endpoint').value).to eq('?')
+              expect(page).to have_selector('.js-ingress-ip-loading-icon')
 
               # We receive the external IP address and display
               Clusters::Cluster.last.application_ingress.update!(external_ip: '192.168.1.100')

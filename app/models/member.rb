@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Member < ActiveRecord::Base
+class Member < ApplicationRecord
   include AfterCommitQueue
   include Sortable
   include Importable
@@ -28,7 +28,7 @@ class Member < ActiveRecord::Base
     presence: {
       if: :invite?
     },
-    email: {
+    devise_email: {
       allow_nil: true
     },
     uniqueness: {

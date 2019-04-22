@@ -66,6 +66,7 @@ RSpec.configure do |config|
     metadata[:type] = match[1].singularize.to_sym if match
   end
 
+  config.include LicenseHelpers
   config.include ActiveJob::TestHelper
   config.include ActiveSupport::Testing::TimeHelpers
   config.include CycleAnalyticsHelpers
@@ -96,6 +97,7 @@ RSpec.configure do |config|
   config.include MigrationsHelpers, :migration
   config.include RedisHelpers
   config.include Rails.application.routes.url_helpers, type: :routing
+  config.include PolicyHelpers, type: :policy
 
   if ENV['CI']
     # This includes the first try, i.e. tests will be run 4 times before failing.

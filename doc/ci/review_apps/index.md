@@ -12,8 +12,8 @@ Review Apps are a collaboration tool that takes the hard work out of providing a
 Review Apps:
 
 - Provide an automatic live preview of changes made in a feature branch by spinning up a dynamic environment for your merge requests.
-- Allow designers and product manages to see your changes without needing to check out your branch and run your changes in a sandbox environment.
-- Are fully integrated with the [GitLab DevOps LifeCycle](../../README.md#complete-devops-with-gitlab).
+- Allow designers and product managers to see your changes without needing to check out your branch and run your changes in a sandbox environment.
+- Are fully integrated with the [GitLab DevOps LifeCycle](../../README.md#the-entire-devops-lifecycle).
 - Allow you to deploy your changes wherever you want.
 
 ![Review Apps Workflow](img/continuous-delivery-review-apps.svg)
@@ -33,7 +33,7 @@ In this example, you can see a branch was:
 
 ## How do Review Apps work?
 
-The basis of Review Apps in GitLab is [dynamic environments](../environments.md#dynamic-environments), which allow you to dynamically create a new environment for each branch.
+The basis of Review Apps in GitLab is [dynamic environments](../environments.md#configuring-dynamic-environments), which allow you to dynamically create a new environment for each branch.
 
 Access to the Review App is made available as a link on the [merge request](../../user/project/merge_requests.md) relevant to the branch. Review Apps enable you to review all changes proposed by the merge request in live environment.
 
@@ -60,14 +60,14 @@ To get a better understanding of Review Apps, review documentation on how enviro
 1. Learn about [environments](../environments.md) and their role in the development workflow.
 1. Learn about [CI variables](../variables/README.md) and how they can be used in your CI jobs.
 1. Explore the [`environment` syntax](../yaml/README.md#environment) as defined in `.gitlab-ci.yml`. This will become a primary reference.
-1. Additionally, find out about [manual actions](../environments.md#manually-deploying-to-environments) and how you can use them to deploy to critical environments like production with the push of a button.
+1. Additionally, find out about [manual actions](../environments.md#configuring-manual-deployments) and how you can use them to deploy to critical environments like production with the push of a button.
 1. Follow the [example tutorials](#examples). These will guide you through setting up infrastructure and using Review Apps.
 
 ### Configuring dynamic environments
 
 Configuring Review Apps dynamic environments depends on your technology stack and infrastructure.
 
-For more information, see [dynamic environments](../environments.md#dynamic-environments) documentation to understand how to define and create them.
+For more information, see [dynamic environments](../environments.md#configuring-dynamic-environments) documentation to understand how to define and create them.
 
 ### Creating and destroying Review Apps
 
@@ -81,7 +81,7 @@ The process of adding Review Apps in your workflow is as follows:
 
 1. Set up the infrastructure to host and deploy the Review Apps.
 1. [Install](https://docs.gitlab.com/runner/install/) and [configure](https://docs.gitlab.com/runner/commands/) a Runner to do deployment.
-1. Set up a job in `.gitlab-ci.yml` that uses the predefined [predefined CI environment variable](../variables/README.md) `${CI_COMMIT_REF_NAME}` to create dynamic environments and restrict it to run only on branches.
+1. Set up a job in `.gitlab-ci.yml` that uses the [predefined CI environment variable](../variables/README.md) `${CI_COMMIT_REF_NAME}` to create dynamic environments and restrict it to run only on branches.
 1. Optionally, set a job that [manually stops](../environments.md#stopping-an-environment) the Review Apps.
 
 After adding Review Apps to your workflow, you follow the branched Git flow. That is:

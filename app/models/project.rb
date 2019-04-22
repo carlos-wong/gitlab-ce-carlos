@@ -2,7 +2,7 @@
 
 require 'carrierwave/orm/activerecord'
 
-class Project < ActiveRecord::Base
+class Project < ApplicationRecord
   include Gitlab::ConfigHelper
   include Gitlab::ShellAdapter
   include Gitlab::VisibilityLevel
@@ -38,7 +38,6 @@ class Project < ActiveRecord::Base
   BoardLimitExceeded = Class.new(StandardError)
 
   STATISTICS_ATTRIBUTE = 'repositories_count'.freeze
-  NUMBER_OF_PERMITTED_BOARDS = 1
   UNKNOWN_IMPORT_URL = 'http://unknown.git'.freeze
   # Hashed Storage versions handle rolling out new storage to project and dependents models:
   # nil: legacy
@@ -137,7 +136,7 @@ class Project < ActiveRecord::Base
   alias_attribute :parent_id, :namespace_id
 
   has_one :last_event, -> {order 'events.created_at DESC'}, class_name: 'Event'
-  has_many :boards, before_add: :validate_board_limit
+  has_many :boards
 
   # Project services
   has_one :campfire_service
@@ -632,12 +631,21 @@ class Project < ActiveRecord::Base
   end
 
   def has_auto_devops_implicitly_enabled?
-    auto_devops&.enabled.nil? &&
-      (Gitlab::CurrentSettings.auto_devops_enabled? || Feature.enabled?(:force_autodevops_on_by_default, self))
+    auto_devops_config = first_auto_devops_config
+
+    auto_devops_config[:scope] != :project && auto_devops_config[:status]
   end
 
   def has_auto_devops_implicitly_disabled?
-    auto_devops&.enabled.nil? && !(Gitlab::CurrentSettings.auto_devops_enabled? || Feature.enabled?(:force_autodevops_on_by_default, self))
+    auto_devops_config = first_auto_devops_config
+
+    auto_devops_config[:scope] != :project && !auto_devops_config[:status]
+  end
+
+  def first_auto_devops_config
+    return namespace.first_auto_devops_config if auto_devops&.enabled.nil?
+
+    { scope: :project, status: auto_devops&.enabled || Feature.enabled?(:force_autodevops_on_by_default, self) }
   end
 
   def daily_statistics_enabled?
@@ -1201,11 +1209,9 @@ class Project < ActiveRecord::Base
 
   def repo_exists?
     strong_memoize(:repo_exists) do
-      begin
-        repository.exists?
-      rescue
-        false
-      end
+      repository.exists?
+    rescue
+      false
     end
   end
 
@@ -1998,12 +2004,8 @@ class Project < ActiveRecord::Base
     @storage = nil if storage_version_changed?
   end
 
-  def gl_repository(is_wiki:)
-    Gitlab::GlRepository.gl_repository(self, is_wiki)
-  end
-
-  def reference_counter(wiki: false)
-    Gitlab::ReferenceCounter.new(gl_repository(is_wiki: wiki))
+  def reference_counter(type: Gitlab::GlRepository::PROJECT)
+    Gitlab::ReferenceCounter.new(type.identifier_for_subject(self))
   end
 
   def badges
@@ -2032,6 +2034,11 @@ class Project < ActiveRecord::Base
 
   def branch_allows_collaboration?(user, branch_name)
     fetch_branch_allows_collaboration(user, branch_name)
+  end
+
+  def external_authorization_classification_label
+    super || ::Gitlab::CurrentSettings.current_application_settings
+               .external_authorization_service_default_label
   end
 
   def licensed_features
@@ -2100,7 +2107,7 @@ class Project < ActiveRecord::Base
   end
 
   def leave_pool_repository
-    pool_repository&.unlink_repository(repository) && update_column(:pool_repository_id, nil)
+    pool_repository&.mark_obsolete_if_last(repository) && update_column(:pool_repository_id, nil)
   end
 
   def link_pool_repository
@@ -2147,7 +2154,7 @@ class Project < ActiveRecord::Base
   end
 
   def wiki_reference_count
-    reference_counter(wiki: true).value
+    reference_counter(type: Gitlab::GlRepository::WIKI).value
   end
 
   def check_repository_absence!
@@ -2185,17 +2192,6 @@ class Project < ActiveRecord::Base
 
   def pushes_since_gc_redis_shared_state_key
     "projects/#{id}/pushes_since_gc"
-  end
-
-  # Similar to the normal callbacks that hook into the life cycle of an
-  # Active Record object, you can also define callbacks that get triggered
-  # when you add an object to an association collection. If any of these
-  # callbacks throw an exception, the object will not be added to the
-  # collection. Before you add a new board to the boards collection if you
-  # already have 1, 2, or n it will fail, but it if you have 0 that is lower
-  # than the number of permitted boards per project it won't fail.
-  def validate_board_limit(board)
-    raise BoardLimitExceeded, 'Number of permitted boards exceeded' if boards.size >= NUMBER_OF_PERMITTED_BOARDS
   end
 
   def update_project_statistics

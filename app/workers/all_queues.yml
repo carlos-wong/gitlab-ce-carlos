@@ -21,6 +21,7 @@
 - cronjob:trending_projects
 - cronjob:issue_due_scheduler
 - cronjob:prune_web_hook_logs
+- cronjob:schedule_migrate_external_diffs
 
 - gcp_cluster:cluster_install_app
 - gcp_cluster:cluster_patch_app
@@ -71,6 +72,7 @@
 - pipeline_hooks:build_hooks
 - pipeline_hooks:pipeline_hooks
 - pipeline_processing:build_finished
+- pipeline_processing:ci_build_prepare
 - pipeline_processing:build_queue
 - pipeline_processing:build_success
 - pipeline_processing:pipeline_process
@@ -118,6 +120,7 @@
 - invalid_gpg_signature_update
 - irker
 - merge
+- migrate_external_diffs
 - namespaceless_project_destroy
 - new_issue
 - new_merge_request

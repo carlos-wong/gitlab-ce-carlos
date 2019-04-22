@@ -57,6 +57,32 @@ describe('diffs/components/app', () => {
     wrapper.destroy();
   });
 
+  it('adds container-limiting classes when showFileTree is false with inline diffs', () => {
+    createComponent({}, ({ state }) => {
+      state.diffs.showTreeList = false;
+      state.diffs.isParallelView = false;
+    });
+
+    expect(wrapper.contains('.container-limited.limit-container-width')).toBe(true);
+  });
+
+  it('does not add container-limiting classes when showFileTree is false with inline diffs', () => {
+    createComponent({}, ({ state }) => {
+      state.diffs.showTreeList = true;
+      state.diffs.isParallelView = false;
+    });
+
+    expect(wrapper.contains('.container-limited.limit-container-width')).toBe(false);
+  });
+
+  it('does not add container-limiting classes when isFluidLayout', () => {
+    createComponent({ isFluidLayout: true }, ({ state }) => {
+      state.diffs.isParallelView = false;
+    });
+
+    expect(wrapper.contains('.container-limited.limit-container-width')).toBe(false);
+  });
+
   it('displays loading icon on loading', () => {
     createComponent({}, ({ state }) => {
       state.diffs.isLoading = true;
@@ -395,6 +421,63 @@ describe('diffs/components/app', () => {
       createComponent();
 
       expect(wrapper.find(TreeList).exists()).toBe(true);
+    });
+  });
+
+  describe('hideTreeListIfJustOneFile', () => {
+    let toggleShowTreeList;
+
+    beforeEach(() => {
+      toggleShowTreeList = jasmine.createSpy('toggleShowTreeList');
+    });
+
+    afterEach(() => {
+      localStorage.removeItem('mr_tree_show');
+    });
+
+    it('calls toggleShowTreeList when only 1 file', () => {
+      createComponent({}, ({ state }) => {
+        state.diffs.diffFiles.push({ sha: '123' });
+      });
+
+      wrapper.setMethods({
+        toggleShowTreeList,
+      });
+
+      wrapper.vm.hideTreeListIfJustOneFile();
+
+      expect(toggleShowTreeList).toHaveBeenCalledWith(false);
+    });
+
+    it('does not call toggleShowTreeList when more than 1 file', () => {
+      createComponent({}, ({ state }) => {
+        state.diffs.diffFiles.push({ sha: '123' });
+        state.diffs.diffFiles.push({ sha: '124' });
+      });
+
+      wrapper.setMethods({
+        toggleShowTreeList,
+      });
+
+      wrapper.vm.hideTreeListIfJustOneFile();
+
+      expect(toggleShowTreeList).not.toHaveBeenCalled();
+    });
+
+    it('does not call toggleShowTreeList when localStorage is set', () => {
+      localStorage.setItem('mr_tree_show', 'true');
+
+      createComponent({}, ({ state }) => {
+        state.diffs.diffFiles.push({ sha: '123' });
+      });
+
+      wrapper.setMethods({
+        toggleShowTreeList,
+      });
+
+      wrapper.vm.hideTreeListIfJustOneFile();
+
+      expect(toggleShowTreeList).not.toHaveBeenCalled();
     });
   });
 });

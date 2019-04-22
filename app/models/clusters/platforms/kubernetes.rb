@@ -2,7 +2,7 @@
 
 module Clusters
   module Platforms
-    class Kubernetes < ActiveRecord::Base
+    class Kubernetes < ApplicationRecord
       include Gitlab::Kubernetes
       include ReactiveCaching
       include EnumWithNil
@@ -54,7 +54,7 @@ module Clusters
 
       delegate :project, to: :cluster, allow_nil: true
       delegate :enabled?, to: :cluster, allow_nil: true
-      delegate :managed?, to: :cluster, allow_nil: true
+      delegate :provided_by_user?, to: :cluster, allow_nil: true
       delegate :allow_user_defined_namespace?, to: :cluster, allow_nil: true
       delegate :kubernetes_namespace, to: :cluster
 
@@ -110,7 +110,7 @@ module Clusters
       # short time later
       def terminals(environment)
         with_reactive_cache do |data|
-          pods = filter_by_label(data[:pods], app: environment.slug)
+          pods = filter_by_project_environment(data[:pods], project.full_path_slug, environment.slug)
           terminals = pods.flat_map { |pod| terminals_for_pod(api_url, actual_namespace, pod) }.compact
           terminals.each { |terminal| add_terminal_auth(terminal, terminal_auth) }
         end
@@ -219,7 +219,7 @@ module Clusters
       end
 
       def prevent_modification
-        return unless managed?
+        return if provided_by_user?
 
         if api_url_changed? || token_changed? || ca_pem_changed?
           errors.add(:base, _('Cannot modify managed Kubernetes cluster'))

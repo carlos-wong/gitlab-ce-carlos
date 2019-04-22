@@ -126,6 +126,7 @@ Settings['issues_tracker'] ||= {}
 # GitLab
 #
 Settings['gitlab'] ||= Settingslogic.new({})
+Settings.gitlab['default_project_creation'] ||= ::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS
 Settings.gitlab['default_projects_limit'] ||= 100000
 Settings.gitlab['default_branch_protection'] ||= 2
 Settings.gitlab['default_can_create_group'] = true if Settings.gitlab['default_can_create_group'].nil?
@@ -238,6 +239,7 @@ Settings.pages.admin['certificate'] ||= ''
 #
 Settings['external_diffs'] ||= Settingslogic.new({})
 Settings.external_diffs['enabled']      = false if Settings.external_diffs['enabled'].nil?
+Settings.external_diffs['when']         = 'always' if Settings.external_diffs['when'].nil?
 Settings.external_diffs['storage_path'] = Settings.absolute(Settings.external_diffs['storage_path'] || File.join(Settings.shared['path'], 'external-diffs'))
 Settings.external_diffs['object_store'] = ObjectStoreSettings.parse(Settings.external_diffs['object_store'])
 
@@ -344,6 +346,10 @@ Settings.cron_jobs['prune_web_hook_logs_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['prune_web_hook_logs_worker']['cron'] ||= '0 */1 * * *'
 Settings.cron_jobs['prune_web_hook_logs_worker']['job_class'] = 'PruneWebHookLogsWorker'
 
+Settings.cron_jobs['schedule_migrate_external_diffs_worker'] ||= Settingslogic.new({})
+Settings.cron_jobs['schedule_migrate_external_diffs_worker']['cron'] ||= '15 * * * *'
+Settings.cron_jobs['schedule_migrate_external_diffs_worker']['job_class'] = 'ScheduleMigrateExternalDiffsWorker'
+
 #
 # Sidekiq
 #
@@ -356,6 +362,7 @@ Settings['sidekiq']['log_format'] ||= 'default'
 Settings['gitlab_shell'] ||= Settingslogic.new({})
 Settings.gitlab_shell['path']           = Settings.absolute(Settings.gitlab_shell['path'] || Settings.gitlab['user_home'] + '/gitlab-shell/')
 Settings.gitlab_shell['hooks_path']     = :deprecated_use_gitlab_shell_path_instead
+Settings.gitlab_shell['authorized_keys_file'] ||= nil
 Settings.gitlab_shell['secret_file'] ||= Rails.root.join('.gitlab_shell_secret')
 Settings.gitlab_shell['receive_pack']   = true if Settings.gitlab_shell['receive_pack'].nil?
 Settings.gitlab_shell['upload_pack']    = true if Settings.gitlab_shell['upload_pack'].nil?

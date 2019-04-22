@@ -4,6 +4,7 @@ class Projects::GitHttpController < Projects::GitHttpClientController
   include WorkhorseRequest
 
   before_action :access_check
+  prepend_before_action :deny_head_requests, only: [:info_refs]
 
   rescue_from Gitlab::GitAccess::UnauthorizedError, with: :render_403
   rescue_from Gitlab::GitAccess::NotFoundError, with: :render_404
@@ -32,6 +33,10 @@ class Projects::GitHttpController < Projects::GitHttpClientController
 
   private
 
+  def deny_head_requests
+    head :forbidden if request.head?
+  end
+
   def download_request?
     upload_pack?
   end
@@ -50,7 +55,7 @@ class Projects::GitHttpController < Projects::GitHttpClientController
 
   def render_ok
     set_workhorse_internal_api_content_type
-    render json: Gitlab::Workhorse.git_http_ok(repository, wiki?, user, action_name)
+    render json: Gitlab::Workhorse.git_http_ok(repository, repo_type, user, action_name)
   end
 
   def render_403(exception)
@@ -94,7 +99,7 @@ class Projects::GitHttpController < Projects::GitHttpClientController
   end
 
   def access_klass
-    @access_klass ||= wiki? ? Gitlab::GitAccessWiki : Gitlab::GitAccess
+    @access_klass ||= repo_type.access_checker_class
   end
 
   def project_path

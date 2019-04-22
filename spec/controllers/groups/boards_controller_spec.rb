@@ -22,28 +22,6 @@ describe Groups::BoardsController do
         expect(response.content_type).to eq 'text/html'
       end
 
-      it 'redirects to latest visited board' do
-        board = create(:board, group: group)
-        create(:board_group_recent_visit, group: board.group, board: board, user: user)
-
-        list_boards
-
-        expect(response).to redirect_to(group_board_path(id: board.id))
-      end
-
-      it 'renders template if visited board is not found' do
-        temporary_board = create(:board, group: group)
-        visited = create(:board_group_recent_visit, group: temporary_board.group, board: temporary_board, user: user)
-        temporary_board.delete
-
-        allow_any_instance_of(Boards::Visits::LatestService).to receive(:execute).and_return(visited)
-
-        list_boards
-
-        expect(response).to render_template :index
-        expect(response.content_type).to eq 'text/html'
-      end
-
       context 'with unauthorized user' do
         before do
           allow(Ability).to receive(:allowed?).with(user, :read_cross_project, :global).and_return(true)
@@ -102,6 +80,10 @@ describe Groups::BoardsController do
           expect(response.content_type).to eq 'application/json'
         end
       end
+    end
+
+    it_behaves_like 'disabled when using an external authorization service' do
+      subject { list_boards }
     end
 
     def list_boards(format: :html)
@@ -180,6 +162,10 @@ describe Groups::BoardsController do
 
         expect(response).to have_gitlab_http_status(404)
       end
+    end
+
+    it_behaves_like 'disabled when using an external authorization service' do
+      subject { read_board board: board }
     end
 
     def read_board(board:, format: :html)

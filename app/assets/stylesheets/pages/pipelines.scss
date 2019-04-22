@@ -498,7 +498,8 @@
       list-style: none;
     }
 
-    &:last-child {
+    // when downstream pipelines are present, the last stage isn't the last column
+    &:last-child:not(.has-downstream) {
       .build {
         // Remove right connecting horizontal line from first build in last stage
         &:first-child::after {
@@ -515,7 +516,8 @@
       }
     }
 
-    &:first-child {
+    // when upstream pipelines are present, the first stage isn't the first column
+    &:first-child:not(.has-upstream) {
       .build {
         // Remove left curved connectors from all builds in first stage
         &:not(:first-child)::before {
@@ -710,15 +712,9 @@
   top: 8px;
 }
 
+.ci-build-text,
 .ci-status-text {
-  max-width: 110px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
-  display: inline-block;
-  position: relative;
-  font-weight: $gl-font-weight-normal;
+  font-weight: 200;
 }
 
 @mixin mini-pipeline-graph-color(
@@ -793,6 +789,7 @@
     @include mini-pipeline-graph-color($white, $orange-100, $orange-200, $orange-500, $orange-600, $orange-700);
   }
 
+  &.ci-status-icon-preparing,
   &.ci-status-icon-running {
     @include mini-pipeline-graph-color($white, $blue-100, $blue-200, $blue-500, $blue-600, $blue-700);
   }
@@ -909,26 +906,6 @@ button.mini-pipeline-graph-dropdown-toggle {
         flex: 1;
       }
 
-      // build name
-      .ci-build-text,
-      .ci-status-text {
-        font-weight: 200;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        max-width: 70%;
-        margin-left: 2px;
-        display: inline-block;
-
-        &::after {
-          content: '';
-          display: block;
-        }
-
-        @include media-breakpoint-down(xs) {
-          max-width: 60%;
-        }
-      }
 
       .ci-status-icon {
         @extend .append-right-8;

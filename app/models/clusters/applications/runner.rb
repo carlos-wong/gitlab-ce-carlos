@@ -2,8 +2,8 @@
 
 module Clusters
   module Applications
-    class Runner < ActiveRecord::Base
-      VERSION = '0.2.0'.freeze
+    class Runner < ApplicationRecord
+      VERSION = '0.3.0'.freeze
 
       self.table_name = 'clusters_applications_runners'
 
@@ -13,7 +13,7 @@ module Clusters
       include ::Clusters::Concerns::ApplicationData
 
       belongs_to :runner, class_name: 'Ci::Runner', foreign_key: :runner_id
-      delegate :project, to: :cluster
+      delegate :project, :group, to: :cluster
 
       default_value_for :version, VERSION
 
@@ -55,12 +55,17 @@ module Clusters
       end
 
       def runner_create_params
-        {
+        attributes = {
           name: 'kubernetes-cluster',
-          runner_type: :project_type,
-          tag_list: %w(kubernetes cluster),
-          projects: [project]
+          runner_type: cluster.cluster_type,
+          tag_list: %w[kubernetes cluster]
         }
+
+        if cluster.group_type?
+          attributes.merge(groups: [group])
+        elsif cluster.project_type?
+          attributes.merge(projects: [project])
+        end
       end
 
       def gitlab_url

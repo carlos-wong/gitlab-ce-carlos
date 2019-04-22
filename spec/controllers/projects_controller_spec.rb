@@ -1,6 +1,7 @@
 require('spec_helper')
 
 describe ProjectsController do
+  include ExternalAuthorizationServiceHelpers
   include ProjectForksHelper
 
   let(:project) { create(:project) }
@@ -77,6 +78,10 @@ describe ProjectsController do
       end
 
       context "user has access to project" do
+        before do
+          expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
+        end
+
         context "and does not have notification setting" do
           it "initializes notification as disabled" do
             get :show, params: { namespace_id: public_project.namespace, id: public_project }
@@ -407,6 +412,37 @@ describe ProjectsController do
 
       it_behaves_like 'updating a project'
     end
+
+    context 'as maintainer' do
+      before do
+        project.add_maintainer(user)
+        sign_in(user)
+      end
+
+      it_behaves_like 'unauthorized when external service denies access' do
+        subject do
+          put :update,
+              params: {
+                namespace_id: project.namespace,
+                id: project,
+                project: { description: 'Hello world' }
+              }
+          project.reload
+        end
+
+        it 'updates when the service allows access' do
+          external_service_allow_access(user, project)
+
+          expect { subject }.to change(project, :description)
+        end
+
+        it 'does not update when the service rejects access' do
+          external_service_deny_access(user, project)
+
+          expect { subject }.not_to change(project, :description)
+        end
+      end
+    end
   end
 
   describe '#transfer' do
@@ -701,6 +737,16 @@ describe ProjectsController do
       post :preview_markdown, params: { namespace_id: public_project.namespace, id: public_project, text: '*Markdown* text' }
 
       expect(JSON.parse(response.body).keys).to match_array(%w(body references))
+    end
+
+    context 'when not authorized' do
+      let(:private_project) { create(:project, :private) }
+
+      it 'returns 404' do
+        post :preview_markdown, params: { namespace_id: private_project.namespace, id: private_project, text: '*Markdown* text' }
+
+        expect(response).to have_gitlab_http_status(404)
+      end
     end
 
     context 'state filter on references' do

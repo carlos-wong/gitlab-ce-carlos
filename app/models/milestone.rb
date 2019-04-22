@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Milestone < ActiveRecord::Base
+class Milestone < ApplicationRecord
   # Represents a "No Milestone" state used for filtering Issues and Merge
   # Requests that have no milestone assigned.
   MilestoneStruct = Struct.new(:title, :name, :id)
@@ -37,6 +37,7 @@ class Milestone < ActiveRecord::Base
   scope :active, -> { with_state(:active) }
   scope :closed, -> { with_state(:closed) }
   scope :for_projects, -> { where(group: nil).includes(:project) }
+  scope :started, -> { active.where('milestones.start_date <= CURRENT_DATE') }
 
   scope :for_projects_and_groups, -> (projects, groups) do
     projects = projects.compact if projects.is_a? Array

@@ -7,12 +7,15 @@
     cursor: pointer;
 
     @media (min-width: map-get($grid-breakpoints, md)) {
-      $mr-file-header-top: $mr-version-controls-height + $header-height + $mr-tabs-height;
+      // The `-1` below is to prevent two borders from clashing up against eachother -
+      // the bottom of the compare-versions header and the top of the file header
+      $mr-file-header-top: $mr-version-controls-height + $header-height + $mr-tabs-height - 1;
 
       position: -webkit-sticky;
       position: sticky;
       top: $mr-file-header-top;
       z-index: 102;
+      height: $mr-version-controls-height;
 
       &::before {
         content: '';
@@ -54,7 +57,8 @@
       background-color: $gray-normal;
     }
 
-    a {
+    a,
+    button {
       color: $gray-700;
     }
 
@@ -86,138 +90,6 @@
       .show-suppressed-diff {
         font-size: 110%;
         font-weight: $gl-font-weight-bold;
-      }
-    }
-
-    .note-text {
-      table {
-        font-family: $font-family-sans-serif;
-      }
-    }
-
-    table {
-      width: 100%;
-      font-family: $monospace-font;
-      border: 0;
-      border-collapse: separate;
-      margin: 0;
-      padding: 0;
-      table-layout: fixed;
-      border-radius: 0 0 $border-radius-default $border-radius-default;
-
-      .diff-line-num {
-        width: 50px;
-        position: relative;
-
-        a {
-          transition: none;
-        }
-      }
-
-      .line_holder td {
-        line-height: $code-line-height;
-        font-size: $code-font-size;
-        vertical-align: top;
-
-        &.noteable_line {
-          position: relative;
-        }
-
-        span {
-          white-space: pre-wrap;
-
-          &.context-cell {
-            display: inline-block;
-            width: 100%;
-            height: 100%;
-          }
-        }
-
-        .line {
-          word-wrap: break-word;
-        }
-      }
-
-      &.left-side-selected {
-        td.line_content.parallel.right-side {
-          user-select: none;
-        }
-      }
-
-      &.right-side-selected {
-        td.line_content.parallel.left-side {
-          user-select: none;
-        }
-      }
-    }
-
-    tr.line_holder.parallel {
-      td.line_content.parallel {
-        width: 46%;
-      }
-
-      .add-diff-note {
-        margin-left: -55px;
-      }
-    }
-
-    .old_line,
-    .new_line {
-      user-select: none;
-      margin: 0;
-      border: 0;
-      padding: 0 5px;
-      border-right: 1px solid;
-      text-align: right;
-      min-width: 35px;
-      max-width: 50px;
-      width: 35px;
-
-      a {
-        float: left;
-        width: 35px;
-        font-weight: $gl-font-weight-normal;
-
-        &[disabled] {
-          cursor: default;
-
-          &:hover,
-          &:active {
-            text-decoration: none;
-          }
-        }
-      }
-    }
-
-    .line_content {
-      display: block;
-      margin: 0;
-      padding: 0 1.5em;
-      border: 0;
-      position: relative;
-
-      &.parallel {
-        display: table-cell;
-
-        span {
-          word-break: break-all;
-        }
-      }
-
-      &.old {
-        &::before {
-          content: '-';
-          position: absolute;
-          left: 0.5em;
-        }
-      }
-
-      &.new {
-        &::before {
-          content: '+';
-          position: absolute;
-          left: 0.5em;
-        }
       }
     }
 
@@ -286,11 +158,34 @@
 
       .swipe-wrap {
         overflow: hidden;
-        border-left: 1px solid $gl-gray-400;
+        border-right: 1px solid $gl-gray-400;
         position: absolute;
         display: block;
         top: 13px;
         right: 7px;
+
+        &.left-oriented {
+          /* only for commit view (different swipe viewer) */
+          border-right: 0;
+          border-left: 1px solid $gl-gray-400;
+        }
+      }
+
+      .frame {
+        top: 0;
+        right: 0;
+
+        &.old-diff {
+          /* only for commit / compare view */
+          position: absolute;
+        }
+
+        &.deleted {
+          margin: 0;
+          display: block;
+          top: 13px;
+          right: 7px;
+        }
       }
 
       .swipe-bar {
@@ -443,10 +338,6 @@
     }
   }
 
-  .line_content {
-    white-space: pre-wrap;
-  }
-
   .diff-file-container {
     .frame.deleted {
       border: 1px solid $deleted;
@@ -505,6 +396,114 @@
   .discussion-notes .discussion-notes {
     margin-left: 0;
     border-left: 0;
+  }
+}
+
+table.code {
+  width: 100%;
+  font-family: $monospace-font;
+  border: 0;
+  border-collapse: separate;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  border-radius: 0 0 $border-radius-default $border-radius-default;
+
+  tr.line_holder td {
+    line-height: $code-line-height;
+    font-size: $code-font-size;
+    vertical-align: top;
+
+    span {
+      white-space: pre-wrap;
+
+      &.context-cell {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+      }
+
+      &.line {
+        word-wrap: break-word;
+      }
+    }
+
+    &.diff-line-num {
+      user-select: none;
+      margin: 0;
+      border: 0;
+      padding: 0 10px 0 5px;
+      border-right: 1px solid;
+      text-align: right;
+      width: 50px;
+      position: relative;
+
+      a {
+        transition: none;
+        float: left;
+        width: 100%;
+        font-weight: $gl-font-weight-normal;
+
+        &[disabled] {
+          cursor: default;
+
+          &:hover,
+          &:active {
+            text-decoration: none;
+          }
+        }
+      }
+
+      &:not(.js-unfold-bottom) a::before {
+        content: attr(data-linenumber);
+      }
+    }
+
+    &.line_content {
+      display: block;
+      margin: 0;
+      padding: 0 1.5em;
+      border: 0;
+      position: relative;
+      white-space: pre-wrap;
+
+      &.parallel {
+        display: table-cell;
+        width: 46%;
+
+        span {
+          word-break: break-all;
+        }
+      }
+
+      &.old {
+        &::before {
+          content: '-';
+          position: absolute;
+          left: 0.5em;
+        }
+      }
+
+      &.new {
+        &::before {
+          content: '+';
+          position: absolute;
+          left: 0.5em;
+        }
+      }
+    }
+  }
+
+  &.left-side-selected {
+    td.line_content.parallel.right-side {
+      user-select: none;
+    }
+  }
+
+  &.right-side-selected {
+    td.line_content.parallel.left-side {
+      user-select: none;
+    }
   }
 }
 
@@ -605,16 +604,6 @@
 .files {
   .diff-file:last-child {
     margin-bottom: 0;
-  }
-}
-
-.file-holder {
-  .diff-line-num:not(.js-unfold-bottom) {
-    a {
-      &::before {
-        content: attr(data-linenumber);
-      }
-    }
   }
 }
 
@@ -1097,7 +1086,10 @@
     flex-direction: column;
 
     .diff-tree-list {
-      width: 100%;
+      position: relative;
+      top: 0;
+      // !important is required to override inline styles of resizable sidebar
+      width: 100% !important;
     }
 
     .tree-list-holder {

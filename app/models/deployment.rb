@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Deployment < ActiveRecord::Base
+class Deployment < ApplicationRecord
   include AtomicInternalId
   include IidRoutes
   include AfterCommitQueue
@@ -76,6 +76,10 @@ class Deployment < ActiveRecord::Base
 
   def short_sha
     Commit.truncate_sha(sha)
+  end
+
+  def cluster
+    project.deployment_platform(environment: environment.name)&.cluster
   end
 
   def last?

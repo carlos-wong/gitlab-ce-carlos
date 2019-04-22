@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MergeRequest < ActiveRecord::Base
+class MergeRequest < ApplicationRecord
   include AtomicInternalId
   include IidRoutes
   include Issuable
@@ -66,7 +66,10 @@ class MergeRequest < ActiveRecord::Base
 
   has_many :cached_closes_issues, through: :merge_requests_closing_issues, source: :issue
   has_many :merge_request_pipelines, foreign_key: 'merge_request_id', class_name: 'Ci::Pipeline'
+  has_many :suggestions, through: :notes
 
+  has_many :merge_request_assignees
+  # Will be deprecated at https://gitlab.com/gitlab-org/gitlab-ce/issues/59457
   belongs_to :assignee, class_name: "User"
 
   serialize :merge_params, Hash # rubocop:disable Cop/ActiveRecordSerialize
@@ -75,6 +78,10 @@ class MergeRequest < ActiveRecord::Base
   after_update :clear_memoized_shas
   after_update :reload_diff_if_branch_changed
   after_save :ensure_metrics
+
+  # Required until the codebase starts using this relation for single or multiple assignees.
+  # TODO: Remove at gitlab-ee#2004 implementation.
+  after_save :refresh_merge_request_assignees, if: :assignee_id_changed?
 
   # When this attribute is true some MR validation is ignored
   # It allows us to close or modify broken merge requests
@@ -203,6 +210,26 @@ class MergeRequest < ActiveRecord::Base
     '!'
   end
 
+  def self.available_states
+    @available_states ||= super.merge(merged: 3, locked: 4)
+  end
+
+  # Returns the top 100 target branches
+  #
+  # The returned value is a Array containing branch names
+  # sort by updated_at of merge request:
+  #
+  #     ['master', 'develop', 'production']
+  #
+  # limit - The maximum number of target branch to return.
+  def self.recent_target_branches(limit: 100)
+    group(:target_branch)
+      .select(:target_branch)
+      .reorder('MAX(merge_requests.updated_at) DESC')
+      .limit(limit)
+      .pluck(:target_branch)
+  end
+
   def rebase_in_progress?
     strong_memoize(:rebase_in_progress) do
       # The source project can be deleted
@@ -216,7 +243,7 @@ class MergeRequest < ActiveRecord::Base
   # branch head commit, for example checking if a merge request can be merged.
   # For more information check: https://gitlab.com/gitlab-org/gitlab-ce/issues/40004
   def actual_head_pipeline
-    head_pipeline&.sha == diff_head_sha ? head_pipeline : nil
+    head_pipeline&.matches_sha_or_source_sha?(diff_head_sha) ? head_pipeline : nil
   end
 
   def merge_pipeline
@@ -296,12 +323,8 @@ class MergeRequest < ActiveRecord::Base
     work_in_progress?(title) ? title : "WIP: #{title}"
   end
 
-  def commit_authors
-    @commit_authors ||= commits.authors
-  end
-
-  def authors
-    User.from_union([commit_authors, User.where(id: self.author_id)])
+  def committers
+    @committers ||= commits.committers
   end
 
   # Verifies if title has changed not taking into account WIP prefix
@@ -659,6 +682,15 @@ class MergeRequest < ActiveRecord::Base
     merge_request_diff || create_merge_request_diff
   end
 
+  def refresh_merge_request_assignees
+    transaction do
+      # Using it instead relation.delete_all in order to avoid adding a
+      # dependent: :delete_all (we already have foreign key cascade deletion).
+      MergeRequestAssignee.where(merge_request_id: self).delete_all
+      merge_request_assignees.create(user_id: assignee_id) if assignee_id
+    end
+  end
+
   def create_merge_request_diff
     fetch_ref!
 
@@ -775,8 +807,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def mergeable_to_ref?
-    return false if merged?
-    return false if broken?
+    return false unless mergeable_state?(skip_ci_check: true, skip_discussions_check: true)
 
     # Given the `merge_ref_path` will have the same
     # state the `target_branch` would have. Ideally
@@ -827,15 +858,6 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def related_notes
-    # Fetch comments only from last 100 commits
-    commits_for_notes_limit = 100
-    commit_ids = commit_shas.take(commits_for_notes_limit)
-
-    commit_notes = Note
-      .except(:order)
-      .where(project_id: [source_project_id, target_project_id])
-      .for_commit_id(commit_ids)
-
     # We're using a UNION ALL here since this results in better performance
     # compared to using OR statements. We're using UNION ALL since the queries
     # used won't produce any duplicates (e.g. a note for a commit can't also be
@@ -846,6 +868,16 @@ class MergeRequest < ActiveRecord::Base
   end
 
   alias_method :discussion_notes, :related_notes
+
+  def commit_notes
+    # Fetch comments only from last 100 commits
+    commit_ids = commit_shas.take(100)
+
+    Note
+      .user
+      .where(project_id: [source_project_id, target_project_id])
+      .for_commit_id(commit_ids)
+  end
 
   def mergeable_discussions_state?
     return true unless project.only_allow_merge_if_all_discussions_are_resolved?
@@ -1097,6 +1129,10 @@ class MergeRequest < ActiveRecord::Base
     "refs/#{Repository::REF_MERGE_REQUEST}/#{iid}/merge"
   end
 
+  def self.merge_request_ref?(ref)
+    ref.start_with?("refs/#{Repository::REF_MERGE_REQUEST}/")
+  end
+
   def in_locked_state
     begin
       lock_mr
@@ -1133,12 +1169,18 @@ class MergeRequest < ActiveRecord::Base
     diverged_commits_count > 0
   end
 
-  def all_pipelines(shas: all_commit_shas)
+  def all_pipelines
     return Ci::Pipeline.none unless source_project
 
-    @all_pipelines ||=
-      source_project.ci_pipelines
-                    .for_merge_request(self, source_branch, all_commit_shas)
+    shas = all_commit_shas
+
+    strong_memoize(:all_pipelines) do
+      Ci::Pipeline.from_union(
+        [source_project.ci_pipelines.merge_request_pipelines(self, shas),
+         source_project.ci_pipelines.detached_merge_request_pipelines(self, shas),
+         source_project.ci_pipelines.triggered_for_branch(source_branch).for_sha(shas)],
+         remove_duplicates: false).sort_by_merge_request_pipelines
+    end
   end
 
   def update_head_pipeline
@@ -1153,7 +1195,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def has_test_reports?
-    actual_head_pipeline&.has_test_reports?
+    actual_head_pipeline&.has_reports?(Ci::JobArtifact.test_reports)
   end
 
   def predefined_variables
@@ -1373,8 +1415,7 @@ class MergeRequest < ActiveRecord::Base
   private
 
   def find_actual_head_pipeline
-    source_project&.ci_pipelines
-                  &.latest_for_merge_request(self, source_branch, diff_head_sha)
+    all_pipelines.for_sha_or_source_sha(diff_head_sha).first
   end
 
   def source_project_variables

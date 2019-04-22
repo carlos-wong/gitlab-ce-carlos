@@ -104,6 +104,12 @@ class MergeRequestPresenter < Gitlab::View::Presenter::Delegated
     end
   end
 
+  def source_branch_commits_path
+    if source_branch_exists?
+      project_commits_path(source_project, source_branch)
+    end
+  end
+
   def source_branch_path
     if source_branch_exists?
       project_branch_path(source_project, source_branch)
@@ -201,6 +207,10 @@ class MergeRequestPresenter < Gitlab::View::Presenter::Delegated
 
   def conflicts_docs_path
     help_page_path('user/project/merge_requests/resolve_conflicts.md')
+  end
+
+  def merge_request_pipelines_docs_path
+    help_page_path('ci/merge_request_pipelines/index.md')
   end
 
   private

@@ -28,6 +28,8 @@ describe Projects::PipelinesController do
       end
 
       it 'returns serialized pipelines', :request_store do
+        expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
+
         queries = ActiveRecord::QueryRecorder.new do
           get_pipelines_index_json
         end
@@ -94,6 +96,8 @@ describe Projects::PipelinesController do
         RequestStore.end!
         RequestStore.clear!
         RequestStore.begin!
+
+        expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
 
         expect { get_pipelines_index_json }
           .to change { Gitlab::GitalyClient.get_request_count }.by(2)

@@ -75,6 +75,10 @@ FactoryBot.define do
       status 'created'
     end
 
+    trait :preparing do
+      status 'preparing'
+    end
+
     trait :scheduled do
       schedulable
       status 'scheduled'
@@ -330,6 +334,11 @@ FactoryBot.define do
     trait :api_failure do
       failed
       failure_reason 2
+    end
+
+    trait :prerequisite_failure do
+      failed
+      failure_reason 10
     end
 
     trait :with_runner_session do

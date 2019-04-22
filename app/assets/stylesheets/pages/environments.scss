@@ -204,7 +204,7 @@
 }
 
 .prometheus-graphs {
-  .environments {
+  .dropdowns {
     .dropdown-menu-toggle {
       svg {
         position: absolute;
@@ -346,7 +346,9 @@
     }
 
     > .popover-title,
-    > .popover-content {
+    > .popover-content,
+    > .popover-header,
+    > .popover-body {
       padding: 8px;
       font-size: 12px;
       white-space: nowrap;

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::Runner do
@@ -70,7 +72,7 @@ describe Ci::Runner do
         expect(instance_runner.errors.full_messages).to include('Runner cannot have projects assigned')
       end
 
-      it 'should fail to save a group assigned to a project runner even if the runner is already saved' do
+      it 'fails to save a group assigned to a project runner even if the runner is already saved' do
         group_runner
 
         expect { create(:group, runners: [project_runner]) }

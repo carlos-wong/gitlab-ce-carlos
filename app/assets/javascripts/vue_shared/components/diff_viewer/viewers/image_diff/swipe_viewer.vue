@@ -46,6 +46,8 @@ export default {
     window.removeEventListener('resize', this.resizeThrottled, false);
     document.body.removeEventListener('mouseup', this.stopDrag);
     document.body.removeEventListener('mousemove', this.dragMove);
+    document.body.removeEventListener('touchend', this.stopDrag);
+    document.body.removeEventListener('touchmove', this.dragMove);
   },
   mounted() {
     window.addEventListener('resize', this.resize, false);
@@ -54,7 +56,8 @@ export default {
     dragMove(e) {
       if (!this.dragging) return;
 
-      let leftValue = e.pageX - this.$refs.swipeFrame.getBoundingClientRect().left;
+      const moveX = e.pageX || e.touches[0].pageX;
+      let leftValue = moveX - this.$refs.swipeFrame.getBoundingClientRect().left;
       const spaceLeft = 20;
       const { clientWidth } = this.$refs.swipeFrame;
       if (leftValue <= 0) {
@@ -68,13 +71,13 @@ export default {
     },
     startDrag() {
       this.dragging = true;
-      document.body.style.userSelect = 'none';
       document.body.addEventListener('mousemove', this.dragMove);
+      document.body.addEventListener('touchmove', this.dragMove);
     },
     stopDrag() {
       this.dragging = false;
-      document.body.style.userSelect = '';
       document.body.removeEventListener('mousemove', this.dragMove);
+      document.body.removeEventListener('touchmove', this.dragMove);
     },
     prepareSwipe() {
       if (this.swipeOldImgInfo && this.swipeNewImgInfo) {
@@ -85,6 +88,7 @@ export default {
           Math.max(this.swipeOldImgInfo.renderedHeight, this.swipeNewImgInfo.renderedHeight) + 2;
 
         document.body.addEventListener('mouseup', this.stopDrag);
+        document.body.addEventListener('touchend', this.stopDrag);
       }
     },
     swipeNewImgLoaded(imgInfo) {
@@ -104,7 +108,13 @@ export default {
 
 <template>
   <div class="swipe view">
-    <div ref="swipeFrame" class="swipe-frame">
+    <div
+      ref="swipeFrame"
+      :style="{
+        'user-select': dragging ? 'none' : null,
+      }"
+      class="swipe-frame"
+    >
       <image-viewer
         key="swipeOldImg"
         ref="swipeOldImg"
@@ -139,6 +149,8 @@ export default {
         class="swipe-bar"
         @mousedown="startDrag"
         @mouseup="stopDrag"
+        @touchstart="startDrag"
+        @touchend="stopDrag"
       >
         <span class="top-handle"></span> <span class="bottom-handle"></span>
       </span>

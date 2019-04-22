@@ -8,6 +8,7 @@ require:
   - rubocop-rspec
 
 AllCops:
+  TargetRubyVersion: 2.5
   TargetRailsVersion: 5.0
   Exclude:
     - 'vendor/**/*'
@@ -145,6 +146,20 @@ Naming/FileName:
     - XSS
     - GRPC
 
+Rails/ApplicationRecord:
+  Enabled: true
+  Exclude:
+    # Models in database migrations should not subclass from ApplicationRecord
+    # as they need to be as decoupled from application code as possible
+    - db/**/*.rb
+    - lib/gitlab/background_migration/**/*.rb
+    - lib/gitlab/database/**/*.rb
+    - spec/**/*.rb
+    - ee/db/**/*.rb
+    - ee/lib/gitlab/background_migration/**/*.rb
+    - ee/lib/ee/gitlab/background_migration/**/*.rb
+    - ee/spec/**/*.rb
+
 # GitLab ###################################################################
 
 Gitlab/ModuleWithInstanceVariables:
@@ -184,3 +199,8 @@ Cop/InjectEnterpriseEditionModule:
 
 Style/ReturnNil:
   Enabled: true
+
+# It isn't always safe to replace `=~` with `.match?`, especially when there are
+# nil values on the left hand side
+Performance/RegexpMatch:
+  Enabled: false

@@ -11,7 +11,7 @@ module Gitlab
           :trigger_request, :schedule, :merge_request,
           :ignore_skip_ci, :save_incompleted,
           :seeds_block, :variables_attributes, :push_options,
-          :chat_data
+          :chat_data, :allow_mirror_update
         ) do
           include Gitlab::Utils::StrongMemoize
 
@@ -30,6 +30,13 @@ module Gitlab
           def tag_exists?
             strong_memoize(:is_tag) do
               project.repository.tag_exists?(ref)
+            end
+          end
+
+          def merge_request_ref_exists?
+            strong_memoize(:merge_request_ref_exists) do
+              MergeRequest.merge_request_ref?(origin_ref) &&
+                project.repository.ref_exists?(origin_ref)
             end
           end
 

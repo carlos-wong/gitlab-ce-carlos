@@ -5,11 +5,33 @@ import MarkdownField from '~/vue_shared/components/markdown/field.vue';
 import { noteableDataMock, notesDataMock } from '../mock_data';
 
 describe('issue_note_form component', () => {
+  const dummyAutosaveKey = 'some-autosave-key';
+  const dummyDraft = 'dummy draft content';
+
   let store;
   let wrapper;
   let props;
 
+  const createComponentWrapper = () => {
+    const localVue = createLocalVue();
+    return shallowMount(NoteForm, {
+      store,
+      propsData: props,
+      // see https://gitlab.com/gitlab-org/gitlab-ce/issues/56317 for the following
+      localVue,
+      sync: false,
+    });
+  };
+
   beforeEach(() => {
+    spyOnDependency(NoteForm, 'getDraft').and.callFake(key => {
+      if (key === dummyAutosaveKey) {
+        return dummyDraft;
+      }
+
+      return null;
+    });
+
     store = createStore();
     store.dispatch('setNoteableData', noteableDataMock);
     store.dispatch('setNotesData', notesDataMock);
@@ -19,15 +41,6 @@ describe('issue_note_form component', () => {
       noteBody: 'Magni suscipit eius consectetur enim et ex et commodi.',
       noteId: '545',
     };
-
-    const localVue = createLocalVue();
-    wrapper = shallowMount(NoteForm, {
-      store,
-      propsData: props,
-      // see https://gitlab.com/gitlab-org/gitlab-ce/issues/56317 for the following
-      localVue,
-      sync: false,
-    });
   });
 
   afterEach(() => {
@@ -35,6 +48,10 @@ describe('issue_note_form component', () => {
   });
 
   describe('noteHash', () => {
+    beforeEach(() => {
+      wrapper = createComponentWrapper();
+    });
+
     it('returns note hash string based on `noteId`', () => {
       expect(wrapper.vm.noteHash).toBe(`#note_${props.noteId}`);
     });
@@ -56,6 +73,10 @@ describe('issue_note_form component', () => {
   });
 
   describe('conflicts editing', () => {
+    beforeEach(() => {
+      wrapper = createComponentWrapper();
+    });
+
     it('should show conflict message if note changes outside the component', done => {
       wrapper.setProps({
         ...props,
@@ -85,6 +106,10 @@ describe('issue_note_form component', () => {
   });
 
   describe('form', () => {
+    beforeEach(() => {
+      wrapper = createComponentWrapper();
+    });
+
     it('should render text area with placeholder', () => {
       const textarea = wrapper.find('textarea');
 
@@ -179,6 +204,65 @@ describe('issue_note_form component', () => {
           .then(done)
           .catch(done.fail);
       });
+    });
+  });
+
+  describe('with autosaveKey', () => {
+    describe('with draft', () => {
+      beforeEach(done => {
+        Object.assign(props, {
+          noteBody: '',
+          autosaveKey: dummyAutosaveKey,
+        });
+        wrapper = createComponentWrapper();
+
+        wrapper.vm
+          .$nextTick()
+          .then(done)
+          .catch(done.fail);
+      });
+
+      it('displays the draft in textarea', () => {
+        const textarea = wrapper.find('textarea');
+
+        expect(textarea.element.value).toBe(dummyDraft);
+      });
+    });
+
+    describe('without draft', () => {
+      beforeEach(done => {
+        Object.assign(props, {
+          noteBody: '',
+          autosaveKey: 'some key without draft',
+        });
+        wrapper = createComponentWrapper();
+
+        wrapper.vm
+          .$nextTick()
+          .then(done)
+          .catch(done.fail);
+      });
+
+      it('leaves the textarea empty', () => {
+        const textarea = wrapper.find('textarea');
+
+        expect(textarea.element.value).toBe('');
+      });
+    });
+
+    it('updates the draft if textarea content changes', () => {
+      const updateDraftSpy = spyOnDependency(NoteForm, 'updateDraft').and.stub();
+      Object.assign(props, {
+        noteBody: '',
+        autosaveKey: dummyAutosaveKey,
+      });
+      wrapper = createComponentWrapper();
+      const textarea = wrapper.find('textarea');
+      const dummyContent = 'some new content';
+
+      textarea.setValue(dummyContent);
+
+      expect(updateDraftSpy).toHaveBeenCalledWith(dummyAutosaveKey, dummyContent);
     });
   });
 });

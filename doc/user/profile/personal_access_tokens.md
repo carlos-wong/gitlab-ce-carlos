@@ -5,12 +5,9 @@
 Personal access tokens are the preferred way for third party applications and scripts to
 authenticate with the [GitLab API][api], if using [OAuth2](../../api/oauth2.md) is not practical.
 
-You can also use them to authenticate against Git over HTTP. They are the only
-accepted method of authentication when you have
-[Two-Factor Authentication (2FA)][2fa] enabled.
+You can also use personal access tokens to authenticate against Git over HTTP or SSH. They must be used when you have [Two-Factor Authentication (2FA)][2fa] enabled. Authenticate with a token in place of your password.
 
-Once you have your token, [pass it to the API][usage] using either the
-`private_token` parameter or the `Private-Token` header.
+To make [authenticated requests to the API][usage], use either the `private_token` parameter or the `Private-Token` header.
 
 The expiration of personal access tokens happens on the date you define,
 at midnight UTC.
@@ -20,21 +17,19 @@ at midnight UTC.
 You can create as many personal access tokens as you like from your GitLab
 profile.
 
-1. Log in to your GitLab account.
-1. Go to your **Profile settings**.
-1. Go to **Access tokens**.
-1. Choose a name and optionally an expiry date for the token.
+1. Log in to GitLab.
+1. In the upper-right corner, click your avatar and select **Settings**.
+1. On the  **User Settings** menu, select **Access Tokens**.
+1. Choose a name and optional expiry date for the token.
 1. Choose the [desired scopes](#limiting-scopes-of-a-personal-access-token).
-1. Click on **Create personal access token**.
+1. Click the **Create personal access token** button.
 1. Save the personal access token somewhere safe. Once you leave or refresh
    the page, you won't be able to access it again.
 
-![Personal access tokens page](img/personal_access_tokens.png)
+### Revoking a personal access token
 
-## Revoking a personal access token
-
-At any time, you can revoke any personal access token by just clicking the
-respective **Revoke** button under the 'Active personal access tokens' area.
+At any time, you can revoke any personal access token by clicking the
+respective **Revoke** button under the **Active Personal Access Token** area.
 
 ## Limiting scopes of a personal access token
 

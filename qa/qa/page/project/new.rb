@@ -24,15 +24,18 @@ module QA
         end
 
         def choose_test_namespace
+          choose_namespace(Runtime::Namespace.path)
+        end
+
+        def choose_namespace(namespace)
           retry_on_exception do
             click_body
             click_element :project_namespace_select
-
-            search_and_select(Runtime::Namespace.path)
+            search_and_select(namespace)
           end
         end
 
-        def go_to_import_project
+        def click_import_project
           click_on 'Import project'
         end
 
@@ -48,7 +51,7 @@ module QA
           click_on 'Create project'
         end
 
-        def go_to_create_from_template
+        def click_create_from_template_tab
           click_element(:project_create_from_template_tab)
         end
 
@@ -56,7 +59,7 @@ module QA
           choose visibility
         end
 
-        def go_to_github_import
+        def click_github_link
           click_link 'GitHub'
         end
       end

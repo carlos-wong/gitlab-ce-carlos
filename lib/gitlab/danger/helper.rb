@@ -7,6 +7,7 @@ require_relative 'teammate'
 module Gitlab
   module Danger
     module Helper
+      RELEASE_TOOLS_BOT = 'gitlab-release-tools-bot'
       ROULETTE_DATA_URL = URI.parse('https://about.gitlab.com/roulette.json').freeze
 
       # Returns a list of all files that have been added, modified or renamed.
@@ -38,6 +39,10 @@ module Gitlab
 
       def ee?
         ENV['CI_PROJECT_NAME'] == 'gitlab-ee' || File.exist?('../../CHANGELOG-EE.md')
+      end
+
+      def release_automation?
+        gitlab.mr_author == RELEASE_TOOLS_BOT
       end
 
       def project_name
@@ -108,7 +113,23 @@ module Gitlab
         %r{\A(ee/)?public/} => :frontend,
         %r{\A(ee/)?spec/(javascripts|frontend)/} => :frontend,
         %r{\A(ee/)?vendor/assets/} => :frontend,
-        %r{\A(jest\.config\.js|package\.json|yarn\.lock)\z} => :frontend,
+        %r{\Ascripts/frontend/} => :frontend,
+        %r{(\A|/)(
+          \.babelrc |
+          \.eslintignore |
+          \.eslintrc(\.yml)? |
+          \.nvmrc |
+          \.prettierignore |
+          \.prettierrc |
+          \.scss-lint.yml |
+          \.stylelintrc |
+          babel\.config\.js |
+          jest\.config\.js |
+          karma\.config\.js |
+          webpack\.config\.js |
+          package\.json |
+          yarn\.lock
+        )\z}x => :frontend,
 
         %r{\A(ee/)?app/(?!assets|views)[^/]+} => :backend,
         %r{\A(ee/)?(bin|config|danger|generator_templates|lib|rubocop|scripts)/} => :backend,

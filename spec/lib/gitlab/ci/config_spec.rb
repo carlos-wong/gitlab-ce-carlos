@@ -123,6 +123,63 @@ describe Gitlab::Ci::Config do
         )
       end
     end
+
+    context 'when ports have been set' do
+      context 'in the main image' do
+        let(:yml) do
+          <<-EOS
+            image:
+              name: ruby:2.2
+              ports:
+                - 80
+          EOS
+        end
+
+        it 'raises an error' do
+          expect(config.errors).to include("image config contains disallowed keys: ports")
+        end
+      end
+
+      context 'in the job image' do
+        let(:yml) do
+          <<-EOS
+            image: ruby:2.2
+
+            test:
+              script: rspec
+              image:
+                name: ruby:2.2
+                ports:
+                  - 80
+          EOS
+        end
+
+        it 'raises an error' do
+          expect(config.errors).to include("jobs:test:image config contains disallowed keys: ports")
+        end
+      end
+
+      context 'in the services' do
+        let(:yml) do
+          <<-EOS
+            image: ruby:2.2
+
+            test:
+              script: rspec
+              image: ruby:2.2
+              services:
+                - name: test
+                  alias: test
+                  ports:
+                    - 80
+          EOS
+        end
+
+        it 'raises an error' do
+          expect(config.errors).to include("jobs:test:services:service config contains disallowed keys: ports")
+        end
+      end
+    end
   end
 
   context "when using 'include' directive" do
@@ -168,7 +225,7 @@ describe Gitlab::Ci::Config do
     end
 
     context "when gitlab_ci_yml has valid 'include' defined" do
-      it 'should return a composed hash' do
+      it 'returns a composed hash' do
         before_script_values = [
           "apt-get update -qq && apt-get install -y -qq sqlite3 libsqlite3-dev nodejs", "ruby -v",
           "which ruby",
@@ -259,7 +316,7 @@ describe Gitlab::Ci::Config do
         HEREDOC
       end
 
-      it 'should take precedence' do
+      it 'takes precedence' do
         expect(config.to_hash).to eq({ image: 'ruby:2.2' })
       end
     end
@@ -284,7 +341,7 @@ describe Gitlab::Ci::Config do
         HEREDOC
       end
 
-      it 'should merge the variables dictionaries' do
+      it 'merges the variables dictionaries' do
         expect(config.to_hash).to eq({ variables: { A: 'alpha', B: 'beta', C: 'gamma', D: 'delta' } })
       end
     end

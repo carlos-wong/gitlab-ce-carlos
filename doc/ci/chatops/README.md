@@ -2,9 +2,9 @@
 
 > **Notes:**
 >
-> * [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/4466) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.6. [Moved](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24780) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.9.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/4466) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.6. [Moved](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24780) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.9.
 >
-> * ChatOps is currently in alpha, with some important features missing like access control.
+> - ChatOps is currently in alpha, with some important features missing like access control.
 
 GitLab ChatOps provides a method to interact with CI/CD jobs through chat services like Slack. Many organizations' discussion, collaboration, and troubleshooting is taking place in chat services these days, and having a method to run CI/CD jobs with output posted back to the channel can significantly augment a team's workflow.
 
@@ -12,7 +12,7 @@ GitLab ChatOps provides a method to interact with CI/CD jobs through chat servic
 
 GitLab ChatOps is built upon two existing features, [GitLab CI/CD](../README.md) and [Slack Slash Commmands](../../user/project/integrations/slack_slash_commands.md).
 
-A new `run` action has been added to the [slash commands](../../integration/slash_commands.md), which takes two arguments: a `<job name>` to execute and the `<job arguments>`. When executed, ChatOps will look up the specified job name and attempt to match it to a corresponding job in [.gitlab-ci.yml](../yaml/README.md). If a matching job is found on `master`, a pipeline containing just that job is scheduled. Two additional [CI/CD variables](../variables/README.html#predefined-variables-environment-variables) are passed to the job: `CHAT_INPUT` contains any additional arguments, and `CHAT_CHANNEL` is set to the name of channel the action was triggered in.
+A new `run` action has been added to the [slash commands](../../integration/slash_commands.md), which takes two arguments: a `<job name>` to execute and the `<job arguments>`. When executed, ChatOps will look up the specified job name and attempt to match it to a corresponding job in [.gitlab-ci.yml](../yaml/README.md). If a matching job is found on `master`, a pipeline containing just that job is scheduled. Two additional [CI/CD variables](../variables/README.md#predefined-environment-variables) are passed to the job: `CHAT_INPUT` contains any additional arguments, and `CHAT_CHANNEL` is set to the name of channel the action was triggered in.
 
 After the job has finished, its output is sent back to Slack provided it has completed within 30 minutes. If a job takes more than 30 minutes to run it must use the Slack API to manually send data back to a channel.
 

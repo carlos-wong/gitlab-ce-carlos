@@ -230,8 +230,25 @@ can enable/disable Auto DevOps at either the project-level or instance-level.
 1. Click **Save changes** for the changes to take effect.
 
 NOTE: **Note:**
-Even when disabled at the instance level, project maintainers are still able to enable
-Auto DevOps at the project level.
+Even when disabled at the instance level, group owners and project maintainers are still able to enable
+Auto DevOps at group-level and project-level, respectively.
+
+### Enabling/disabling Auto DevOps at the group-level
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/52447) in GitLab 11.10.
+
+To enable or disable Auto DevOps at the group-level:
+
+1. Go to group's **Settings > CI/CD > Auto DevOps** page.
+1. Toggle the **Default to Auto DevOps pipeline** checkbox (checked to enable, unchecked to disable).
+1. Click **Save changes** button for the changes to take effect.
+
+When enabling or disabling Auto DevOps at group-level, group configuration will be implicitly used for
+the subgroups and projects inside that group, unless Auto DevOps is specifically enabled or disabled on
+the subgroup or project.
+
+NOTE: **Note**
+Only administrators and group owners are allowed to enable or disable Auto DevOps at group-level.
 
 ### Enabling/disabling Auto DevOps at the project-level
 
@@ -427,13 +444,6 @@ This is an optional step, since many projects do not have a Kubernetes cluster
 available. If the [requirements](#requirements) are not met, the job will
 silently be skipped.
 
-CAUTION: **Caution:**
-Your apps should *not* be manipulated outside of Helm (using Kubernetes directly.)
-This can cause confusion with Helm not detecting the change, and subsequent
-deploys with Auto DevOps can undo your changes. Also, if you change something
-and want to undo it by deploying again, Helm may not detect that anything changed
-in the first place, and thus not realize that it needs to re-apply the old config.
-
 [Review Apps][review-app] are temporary application environments based on the
 branch's code so developers, designers, QA, product managers, and other
 reviewers can actually see and interact with code changes as part of the review
@@ -442,12 +452,30 @@ process. Auto Review Apps create a Review App for each branch.
 Auto Review Apps will deploy your app to your Kubernetes cluster only. When no cluster
 is available, no deployment will occur.
 
-The Review App will have a unique URL based on the project name, the branch
+The Review App will have a unique URL based on the project ID, the branch or tag
 name, and a unique number, combined with the Auto DevOps base domain. For
-example, `user-project-branch-1234.example.com`. A link to the Review App shows
-up in the merge request widget for easy discovery. When the branch is deleted,
+example, `13083-review-project-branch-123456.example.com`. A link to the Review App shows
+up in the merge request widget for easy discovery. When the branch or tag is deleted,
 for example after the merge request is merged, the Review App will automatically
 be deleted.
+
+Review apps are deployed using the
+[auto-deploy-app](https://gitlab.com/charts/auto-deploy-app) chart with
+Helm. The app will be deployed into the [Kubernetes
+namespace](../../user/project/clusters/index.md#deployment-variables)
+for the environment.
+
+Since GitLab 11.4, a [local
+Tiller](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22036) is
+used. Previous versions of GitLab had a Tiller installed in the project
+namespace.
+
+CAUTION: **Caution:**
+Your apps should *not* be manipulated outside of Helm (using Kubernetes directly).
+This can cause confusion with Helm not detecting the change and subsequent
+deploys with Auto DevOps can undo your changes. Also, if you change something
+and want to undo it by deploying again, Helm may not detect that anything changed
+in the first place, and thus not realize that it needs to re-apply the old config.
 
 ### Auto DAST **[ULTIMATE]**
 
@@ -487,13 +515,6 @@ This is an optional step, since many projects do not have a Kubernetes cluster
 available. If the [requirements](#requirements) are not met, the job will
 silently be skipped.
 
-CAUTION: **Caution:**
-Your apps should *not* be manipulated outside of Helm (using Kubernetes directly.)
-This can cause confusion with Helm not detecting the change, and subsequent
-deploys with Auto DevOps can undo your changes. Also, if you change something
-and want to undo it by deploying again, Helm may not detect that anything changed
-in the first place, and thus not realize that it needs to re-apply the old config.
-
 After a branch or merge request is merged into the project's default branch (usually
 `master`), Auto Deploy deploys the application to a `production` environment in
 the Kubernetes cluster, with a namespace based on the project name and unique
@@ -506,17 +527,40 @@ enable them.
 You can make use of [environment variables](#environment-variables) to automatically
 scale your pod replicas.
 
-It's important to note that when a project is deployed to a Kubernetes cluster,
-it relies on a Docker image that has been pushed to the
-[GitLab Container Registry](../../user/project/container_registry.md). Kubernetes
-fetches this image and uses it to run the application. If the project is public,
-the image can be accessed by Kubernetes without any authentication, allowing us
-to have deployments more usable. If the project is private/internal, the
-Registry requires credentials to pull the image. Currently, this is addressed
-by providing `CI_JOB_TOKEN` as the password that can be used, but this token will
-no longer be valid as soon as the deployment job finishes. This means that
-Kubernetes can run the application, but in case it should be restarted or
-executed somewhere else, it cannot be accessed again.
+Apps are deployed using the
+[auto-deploy-app](https://gitlab.com/charts/auto-deploy-app) chart with
+Helm. The app will be deployed into the [Kubernetes
+namespace](../../user/project/clusters/index.md#deployment-variables)
+for the environment.
+
+Since GitLab 11.4, a [local
+Tiller](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22036) is
+used. Previous versions of GitLab had a Tiller installed in the project
+namespace.
+
+CAUTION: **Caution:**
+Your apps should *not* be manipulated outside of Helm (using Kubernetes directly).
+This can cause confusion with Helm not detecting the change and subsequent
+deploys with Auto DevOps can undo your changes. Also, if you change something
+and want to undo it by deploying again, Helm may not detect that anything changed
+in the first place, and thus not realize that it needs to re-apply the old config.
+
+> [Introduced][ce-19507] in GitLab 11.0.
+
+For internal and private projects a [GitLab Deploy Token](../../user/project/deploy_tokens/index.md#gitlab-deploy-token)
+will be automatically created, when Auto DevOps is enabled and the Auto DevOps settings are saved. This Deploy Token
+can be used for permanent access to the registry.
+
+If the GitLab Deploy Token cannot be found, `CI_REGISTRY_PASSWORD` is
+used. Note that `CI_REGISTRY_PASSWORD` is only valid during deployment.
+This means that Kubernetes will be able to successfully pull the
+container image during deployment but in cases where the image needs to
+be pulled again, e.g. after pod eviction, Kubernetes will fail to do so
+as it will be attempting to fetch the image using
+`CI_REGISTRY_PASSWORD`.
+
+NOTE: **Note:**
+When the GitLab Deploy Token has been manually revoked, it won't be automatically created.
 
 #### Migrations
 
@@ -550,15 +594,6 @@ NOTE: **Note:**
 The `/app` path is the directory of your project inside the docker image
 as [configured by
 Herokuish](https://github.com/gliderlabs/herokuish#paths)
-
-> [Introduced][ce-19507] in GitLab 11.0.
-
-For internal and private projects a [GitLab Deploy Token](../../user/project/deploy_tokens/index.md#gitlab-deploy-token)
-will be automatically created, when Auto DevOps is enabled and the Auto DevOps settings are saved. This Deploy Token
-can be used for permanent access to the registry.
-
-Note: **Note**
-When the GitLab Deploy Token has been manually revoked, it won't be automatically created.
 
 ### Auto Monitoring
 
@@ -639,7 +674,7 @@ repo or by specifying a project variable:
 
 ### Custom Helm chart per environment **[PREMIUM]**
 
-You can specify the use of a custom Helm chart per environment by scoping the environment variable 
+You can specify the use of a custom Helm chart per environment by scoping the environment variable
 to the desired environment. See [Limiting environment scopes of variables](https://docs.gitlab.com/ee/ci/variables/#limiting-environment-scopes-of-variables-premium).
 
 ### Customizing `.gitlab-ci.yml`
@@ -663,6 +698,21 @@ instead of directly to a production one, you can enable the `staging` job by
 renaming `.staging` to `staging`. Then make sure to uncomment the `when` key of
 the `production` job to turn it into a manual action instead of deploying
 automatically.
+
+### Using components of Auto-DevOps
+
+If you only require a subset of the features offered by Auto-DevOps, you can include
+individual Auto-DevOps jobs into your own `.gitlab-ci.yml`.
+
+For example, to make use of [Auto Build](#auto-build), you can add the following to
+your `.gitlab-ci.yml`:
+
+```yaml
+include:
+  - template: Jobs/Build.gitlab-ci.yml
+```
+
+Consult the [Auto DevOps template] for information on available jobs.
 
 ### PostgreSQL database support
 
@@ -708,6 +758,7 @@ also be customized, and you can easily use a [custom buildpack](#custom-buildpac
 | `INCREMENTAL_ROLLOUT_MODE`| From GitLab 11.4, this variable, if present, can be used to enable an [incremental rollout](#incremental-rollout-to-production-premium) of your application for the production environment.<br/>Set to: <ul><li>`manual`, for manual deployment jobs.</li><li>`timed`, for automatic rollout deployments with a 5 minute delay each one.</li></ul> |
 | `TEST_DISABLED`              | From GitLab 11.0, this variable can be used to disable the `test` job. If the variable is present, the job will not be created. |
 | `CODE_QUALITY_DISABLED`       | From GitLab 11.0, this variable can be used to disable the `codequality` job. If the variable is present, the job will not be created. |
+| `LICENSE_MANAGEMENT_DISABLED` | From GitLab 11.0, this variable can be used to disable the `license_management` job. If the variable is present, the job will not be created. |
 | `SAST_DISABLED`              | From GitLab 11.0, this variable can be used to disable the `sast` job. If the variable is present, the job will not be created. |
 | `DEPENDENCY_SCANNING_DISABLED` | From GitLab 11.0, this variable can be used to disable the `dependency_scanning` job. If the variable is present, the job will not be created. |
 | `CONTAINER_SCANNING_DISABLED` | From GitLab 11.0, this variable can be used to disable the `sast:container` job. If the variable is present, the job will not be created. |
@@ -887,7 +938,7 @@ increasing the rollout up to 100%.
 
 If `INCREMENTAL_ROLLOUT_MODE` is set to `manual` in your project, then instead
 of the standard `production` job, 4 different
-[manual jobs](../../ci/pipelines.md#manual-actions-from-the-pipeline-graph)
+[manual jobs](../../ci/pipelines.md#manual-actions-from-pipeline-graphs)
 will be created:
 
 1. `rollout 10%`
@@ -904,7 +955,7 @@ required to go from `10%` to `100%`, you can jump to whatever job you want.
 You can also scale down by running a lower percentage job, just before hitting
 `100%`. Once you get to `100%`, you cannot scale down, and you'd have to roll
 back by redeploying the old version using the
-[rollback button](../../ci/environments.md#rolling-back-changes) in the
+[rollback button](../../ci/environments.md#retrying-and-rolling-back) in the
 environment page.
 
 Below, you can see how the pipeline will look if the rollout or staging
@@ -1008,6 +1059,9 @@ planned for a subsequent release.
   buildpack](#custom-buildpacks).
 - Auto Test may fail because of a mismatch between testing frameworks. In this
   case, you may need to customize your `.gitlab-ci.yml` with your test commands.
+- Auto Deploy will fail if GitLab can not create a Kubernetes namespace and
+  service account for your project. For help debugging this issue, see
+  [Troubleshooting failed deployment jobs](../../user/project/clusters/index.md#troubleshooting-failed-deployment-jobs).
 
 ### Disable the banner instance wide
 

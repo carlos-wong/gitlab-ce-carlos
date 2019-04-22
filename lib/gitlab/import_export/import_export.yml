@@ -33,6 +33,7 @@ project_tree:
     - :user
   - merge_requests:
     - :metrics
+    - :suggestions
     - notes:
       - :author
       - events:
@@ -118,6 +119,7 @@ excluded_attributes:
     - :repository_languages
     - :bfg_object_map
     - :detected_repository_languages
+    - :tag_list
   namespaces:
     - :runners_token
     - :runners_token_encrypted

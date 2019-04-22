@@ -127,7 +127,7 @@ displayed by GitLab:
 ![pipeline status](img/pipeline_status.png)
 
 At the end, if anything goes wrong, you can easily
-[roll back](../environments.md#rolling-back-changes) all the changes:
+[roll back](../environments.md#retrying-and-rolling-back) all the changes:
 
 ![rollback button](img/rollback.png)
 
@@ -144,7 +144,6 @@ so, GitLab CI/CD:
 
 - Runs automated scripts (sequential or parallel) to:
   - Build and test your app.
-  - Deploy to a staging environment.
   - Preview the changes per merge request with Review Apps, as you
   would see in your `localhost`.
 
@@ -154,6 +153,8 @@ Once you're happy with your implementation:
 - Merge the feature branch into the default branch.
   - GitLab CI/CD deploys your changes automatically to a production environment.
 -  And finally, you and your team can easily roll it back if something goes wrong.
+
+<img src="img/gitlab_workflow_example_11_9.png" alt="GitLab workflow example" class="image-noshadow">
 
 GitLab CI/CD is capable of a doing a lot more, but this workflow
 exemplifies GitLab's ability to track the entire process,

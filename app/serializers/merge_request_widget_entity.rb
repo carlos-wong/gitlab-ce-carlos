@@ -20,6 +20,7 @@ class MergeRequestWidgetEntity < IssuableEntity
   end
   expose :squash
   expose :target_branch
+  expose :target_branch_sha
   expose :target_project_id
   expose :target_project_full_path do |merge_request|
     merge_request.project&.full_path
@@ -234,7 +235,7 @@ class MergeRequestWidgetEntity < IssuableEntity
   end
 
   expose :preview_note_path do |merge_request|
-    preview_markdown_path(merge_request.project, quick_actions_target_type: 'MergeRequest', quick_actions_target_id: merge_request.iid)
+    preview_markdown_path(merge_request.project, target_type: 'MergeRequest', target_id: merge_request.iid)
   end
 
   expose :merge_commit_path do |merge_request|
@@ -253,6 +254,10 @@ class MergeRequestWidgetEntity < IssuableEntity
 
   expose :conflicts_docs_path do |merge_request|
     presenter(merge_request).conflicts_docs_path
+  end
+
+  expose :merge_request_pipelines_docs_path do |merge_request|
+    presenter(merge_request).merge_request_pipelines_docs_path
   end
 
   private

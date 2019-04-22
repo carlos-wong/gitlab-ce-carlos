@@ -60,6 +60,8 @@ describe Projects::MergeRequestsController do
       end
 
       it "renders merge request page" do
+        expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
+
         go(format: :html)
 
         expect(response).to be_success
@@ -86,6 +88,10 @@ describe Projects::MergeRequestsController do
     end
 
     describe 'as json' do
+      before do
+        expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
+      end
+
       context 'with basic serializer param' do
         it 'renders basic MR entity as json' do
           go(serializer: 'basic', format: :json)

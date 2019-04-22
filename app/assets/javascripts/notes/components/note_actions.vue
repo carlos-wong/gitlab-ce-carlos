@@ -86,9 +86,6 @@ export default {
   },
   computed: {
     ...mapGetters(['getUserDataByProp']),
-    showReplyButton() {
-      return gon.features && gon.features.replyToIndividualNotes && this.showReply;
-    },
     shouldShowActionsDropdown() {
       return this.currentUserId && (this.canEdit || this.canReportAsAbuse);
     },
@@ -113,10 +110,8 @@ export default {
   },
   methods: {
     onEdit() {
-      this.$emit('handleEdit');
     },
     onDelete() {
-      this.$emit('handleDelete');
     },
     onResolve() {
       this.$emit('handleResolve');
@@ -158,7 +153,6 @@ export default {
         href="#"
         title="Add reaction"
       >
-        <gl-loading-icon inline />
         <icon
           css-classes="link-highlight award-control-icon-neutral"
           name="emoji_slightly_smiling_face"
@@ -167,6 +161,12 @@ export default {
         <icon css-classes="link-highlight award-control-icon-super-positive" name="emoji_smiley" />
       </a>
     </div>
+    <reply-button
+      v-if="showReply"
+      ref="replyButton"
+      class="js-reply-button"
+      @startReplying="$emit('startReplying')"
+    />
     <div v-else-if="shouldShowActionsDropdown" class="dropdown more-actions note-actions-item">
       <button
         v-gl-tooltip

@@ -100,6 +100,13 @@ the gitlab task runner pod via `kubectl`. Refer to [backing up a GitLab installa
 kubectl exec -it <gitlab task-runner pod> backup-utility
 ```
 
+Similarly to the Kubernetes case, if you have scaled out your GitLab
+cluster to use multiple application servers, you should pick a
+designated node (that won't be auto-scaled away) for running the
+backup rake task. Because the backup rake task is tightly coupled to
+the main Rails application, this is typically a node on which you're
+also running Unicorn/Puma and/or Sidekiq.
+
 Example output:
 
 ```
@@ -402,6 +409,8 @@ an access key from the Google console first:
 1. Select "Interoperability" and create an access key
 1. Make note of the "Access Key" and "Secret" and replace them in the
    configurations below
+1. In the buckets advanced settings ensure the Access Control option "Set object-level 
+   and bucket-level permissions" is selected
 1. Make sure you already have a bucket created
 
 For Omnibus GitLab packages:

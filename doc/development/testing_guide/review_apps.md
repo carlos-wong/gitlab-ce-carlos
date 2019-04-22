@@ -90,8 +90,8 @@ subgraph GCP `gitlab-review-apps` project
 ## QA runs
 
 On every [pipeline][gitlab-pipeline] during the `test` stage, the
-`review-qa-smoke` job is automatically started: it runs the smoke QA suite.
-You can also manually start the `review-qa-all`: it runs the full QA suite.
+`review-qa-smoke` job is automatically started: it runs the QA smoke suite.
+You can also manually start the `review-qa-all`: it runs the QA full suite.
 
 Note that both jobs first wait for the `review-deploy` job to be finished.
 
@@ -130,9 +130,9 @@ secure note named **gitlab-{ce,ee} Review App's root password**.
 1. Find and open the `task-runner` Deployment, e.g. `review-29951-issu-id2qax-task-runner`.
 1. Click on the Pod in the "Managed pods" section, e.g. `review-29951-issu-id2qax-task-runner-d5455cc8-2lsvz`.
 1. Click on the `KUBECTL` dropdown, then `Exec` -> `task-runner`.
-1. Replace `-c task-runner -- ls` with `-- /srv/gitlab/bin/rails c` from the
+1. Replace `-c task-runner -- ls` with `-it -- gitlab-rails console` from the
   default command or
-  - Run `kubectl exec --namespace review-apps-ce -it review-29951-issu-id2qax-task-runner-d5455cc8-2lsvz -- /srv/gitlab/bin/rails c`
+  - Run `kubectl exec --namespace review-apps-ce review-29951-issu-id2qax-task-runner-d5455cc8-2lsvz -it -- gitlab-rails console`
     and
   - Replace `review-apps-ce` with `review-apps-ee` if the Review App
     is running EE, and

@@ -55,7 +55,7 @@ describe OmniauthCallbacksController, type: :controller do
         allow(@routes).to receive(:generate_extras) { [path, []] }
       end
 
-      it 'it calls through to the failure handler' do
+      it 'calls through to the failure handler' do
         request.env['omniauth.error'] = OneLogin::RubySaml::ValidationError.new("Fingerprint mismatch")
         request.env['omniauth.error.strategy'] = OmniAuth::Strategies::SAML.new(nil)
         stub_route_as('/users/auth/saml/callback')
@@ -111,6 +111,33 @@ describe OmniauthCallbacksController, type: :controller do
           post provider
 
           expect(request.env['warden']).to be_authenticated
+        end
+
+        context 'when user has no linked provider' do
+          let(:user) { create(:user) }
+
+          before do
+            sign_in user
+          end
+
+          it 'links identity' do
+            expect do
+              post provider
+              user.reload
+            end.to change { user.identities.count }.by(1)
+          end
+
+          context 'and is not allowed to link the provider' do
+            before do
+              allow_any_instance_of(IdentityProviderPolicy).to receive(:can?).with(:link).and_return(false)
+            end
+
+            it 'returns 403' do
+              post provider
+
+              expect(response).to have_gitlab_http_status(403)
+            end
+          end
         end
 
         shared_context 'sign_up' do

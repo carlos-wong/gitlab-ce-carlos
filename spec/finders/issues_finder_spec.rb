@@ -1,45 +1,10 @@
 require 'spec_helper'
 
 describe IssuesFinder do
-  set(:user) { create(:user) }
-  set(:user2) { create(:user) }
-  set(:group) { create(:group) }
-  set(:subgroup) { create(:group, parent: group) }
-  set(:project1) { create(:project, group: group) }
-  set(:project2) { create(:project) }
-  set(:project3) { create(:project, group: subgroup) }
-  set(:milestone) { create(:milestone, project: project1) }
-  set(:label) { create(:label, project: project2) }
-  set(:issue1) { create(:issue, author: user, assignees: [user], project: project1, milestone: milestone, title: 'gitlab', created_at: 1.week.ago, updated_at: 1.week.ago) }
-  set(:issue2) { create(:issue, author: user, assignees: [user], project: project2, description: 'gitlab', created_at: 1.week.from_now, updated_at: 1.week.from_now) }
-  set(:issue3) { create(:issue, author: user2, assignees: [user2], project: project2, title: 'tanuki', description: 'tanuki', created_at: 2.weeks.from_now, updated_at: 2.weeks.from_now) }
-  set(:issue4) { create(:issue, project: project3) }
-  set(:award_emoji1) { create(:award_emoji, name: 'thumbsup', user: user, awardable: issue1) }
-  set(:award_emoji2) { create(:award_emoji, name: 'thumbsup', user: user2, awardable: issue2) }
-  set(:award_emoji3) { create(:award_emoji, name: 'thumbsdown', user: user, awardable: issue3) }
+  include_context 'IssuesFinder context'
 
   describe '#execute' do
-    let!(:closed_issue) { create(:issue, author: user2, assignees: [user2], project: project2, state: 'closed') }
-    let!(:label_link) { create(:label_link, label: label, target: issue2) }
-    let(:search_user) { user }
-    let(:params) { {} }
-    let(:issues) { described_class.new(search_user, params.reverse_merge(scope: scope, state: 'opened')).execute }
-
-    before(:context) do
-      project1.add_maintainer(user)
-      project2.add_developer(user)
-      project2.add_developer(user2)
-      project3.add_developer(user)
-
-      issue1
-      issue2
-      issue3
-      issue4
-
-      award_emoji1
-      award_emoji2
-      award_emoji3
-    end
+    include_context 'IssuesFinder#execute context'
 
     context 'scope: all' do
       let(:scope) { 'all' }
@@ -53,6 +18,21 @@ describe IssuesFinder do
 
         it 'returns issues assigned to that user' do
           expect(issues).to contain_exactly(issue1, issue2)
+        end
+      end
+
+      context 'filtering by assignee usernames' do
+        set(:user3) { create(:user) }
+        let(:params) { { assignee_username: [user2.username, user3.username] } }
+
+        before do
+          project2.add_developer(user3)
+
+          issue3.assignees = [user2, user3]
+        end
+
+        it 'returns issues assigned to those users' do
+          expect(issues).to contain_exactly(issue3)
         end
       end
 
@@ -220,6 +200,7 @@ describe IssuesFinder do
         let(:yesterday) { Date.today - 1.day }
         let(:tomorrow) { Date.today + 1.day }
         let(:two_days_ago) { Date.today - 2.days }
+        let(:three_days_ago) { Date.today - 3.days }
 
         let(:milestones) do
           [
@@ -227,6 +208,8 @@ describe IssuesFinder do
             create(:milestone, project: project_started_1_and_2, title: '1.0', start_date: two_days_ago),
             create(:milestone, project: project_started_1_and_2, title: '2.0', start_date: yesterday),
             create(:milestone, project: project_started_1_and_2, title: '3.0', start_date: tomorrow),
+            create(:milestone, :closed, project: project_started_1_and_2, title: '4.0', start_date: three_days_ago),
+            create(:milestone, :closed, project: project_started_8, title: '6.0', start_date: three_days_ago),
             create(:milestone, project: project_started_8, title: '7.0'),
             create(:milestone, project: project_started_8, title: '8.0', start_date: yesterday),
             create(:milestone, project: project_started_8, title: '9.0', start_date: tomorrow)
@@ -576,6 +559,13 @@ describe IssuesFinder do
         expect(issues.count).to eq 0
       end
     end
+
+    context 'external authorization' do
+      it_behaves_like 'a finder with external authorization service' do
+        let!(:subject) { create(:issue, project: project) }
+        let(:project_params) { { project_id: project.id } }
+      end
+    end
   end
 
   describe '#row_count', :request_store do
@@ -635,6 +625,16 @@ describe IssuesFinder do
 
       context 'for a project member with access to view confidential issues' do
         subject { described_class.new(authorized_user, params).with_confidentiality_access_check }
+
+        it 'returns all issues' do
+          expect(subject).to include(public_issue, confidential_issue)
+        end
+      end
+
+      context 'for an admin' do
+        let(:admin_user) { create(:user, :admin) }
+
+        subject { described_class.new(admin_user, params).with_confidentiality_access_check }
 
         it 'returns all issues' do
           expect(subject).to include(public_issue, confidential_issue)
@@ -707,10 +707,26 @@ describe IssuesFinder do
           subject
         end
       end
+
+      context 'for an admin' do
+        let(:admin_user) { create(:user, :admin) }
+
+        subject { described_class.new(admin_user, params).with_confidentiality_access_check }
+
+        it 'returns all issues' do
+          expect(subject).to include(public_issue, confidential_issue)
+        end
+
+        it 'does not filter by confidentiality' do
+          expect(Issue).not_to receive(:where).with(a_string_matching('confidential'), anything)
+
+          subject
+        end
+      end
     end
   end
 
-  describe '#use_subquery_for_search?' do
+  describe '#use_cte_for_search?' do
     let(:finder) { described_class.new(nil, params) }
 
     before do
@@ -722,7 +738,7 @@ describe IssuesFinder do
       let(:params) { { attempt_group_search_optimizations: true } }
 
       it 'returns false' do
-        expect(finder.use_subquery_for_search?).to be_falsey
+        expect(finder.use_cte_for_search?).to be_falsey
       end
     end
 
@@ -734,72 +750,7 @@ describe IssuesFinder do
       end
 
       it 'returns false' do
-        expect(finder.use_subquery_for_search?).to be_falsey
-      end
-    end
-
-    context 'when the attempt_group_search_optimizations param is falsey' do
-      let(:params) { { search: 'foo' } }
-
-      it 'returns false' do
-        expect(finder.use_subquery_for_search?).to be_falsey
-      end
-    end
-
-    context 'when the attempt_group_search_optimizations flag is disabled' do
-      let(:params) { { search: 'foo', attempt_group_search_optimizations: true } }
-
-      before do
-        stub_feature_flags(attempt_group_search_optimizations: false)
-      end
-
-      it 'returns false' do
-        expect(finder.use_subquery_for_search?).to be_falsey
-      end
-    end
-
-    context 'when force_cte? is true' do
-      let(:params) { { search: 'foo', attempt_group_search_optimizations: true, force_cte: true } }
-
-      it 'returns false' do
-        expect(finder.use_subquery_for_search?).to be_falsey
-      end
-    end
-
-    context 'when all conditions are met' do
-      let(:params) { { search: 'foo', attempt_group_search_optimizations: true } }
-
-      it 'returns true' do
-        expect(finder.use_subquery_for_search?).to be_truthy
-      end
-    end
-  end
-
-  describe '#use_cte_for_count?' do
-    let(:finder) { described_class.new(nil, params) }
-
-    before do
-      allow(Gitlab::Database).to receive(:postgresql?).and_return(true)
-      stub_feature_flags(attempt_group_search_optimizations: true)
-    end
-
-    context 'when there is no search param' do
-      let(:params) { { attempt_group_search_optimizations: true, force_cte: true } }
-
-      it 'returns false' do
-        expect(finder.use_cte_for_count?).to be_falsey
-      end
-    end
-
-    context 'when the database is not Postgres' do
-      let(:params) { { search: 'foo', force_cte: true, attempt_group_search_optimizations: true } }
-
-      before do
-        allow(Gitlab::Database).to receive(:postgresql?).and_return(false)
-      end
-
-      it 'returns false' do
-        expect(finder.use_cte_for_count?).to be_falsey
+        expect(finder.use_cte_for_search?).to be_falsey
       end
     end
 
@@ -807,27 +758,51 @@ describe IssuesFinder do
       let(:params) { { search: 'foo' } }
 
       it 'returns false' do
-        expect(finder.use_cte_for_count?).to be_falsey
+        expect(finder.use_cte_for_search?).to be_falsey
       end
     end
 
     context 'when the attempt_group_search_optimizations flag is disabled' do
-      let(:params) { { search: 'foo', force_cte: true, attempt_group_search_optimizations: true } }
+      let(:params) { { search: 'foo', attempt_group_search_optimizations: true } }
 
       before do
         stub_feature_flags(attempt_group_search_optimizations: false)
       end
 
       it 'returns false' do
-        expect(finder.use_cte_for_count?).to be_falsey
+        expect(finder.use_cte_for_search?).to be_falsey
+      end
+    end
+
+    context 'when attempt_group_search_optimizations is unset and attempt_project_search_optimizations is set' do
+      let(:params) { { search: 'foo', attempt_project_search_optimizations: true } }
+
+      context 'and the corresponding feature flag is disabled' do
+        before do
+          stub_feature_flags(attempt_project_search_optimizations: false)
+        end
+
+        it 'returns false' do
+          expect(finder.use_cte_for_search?).to be_falsey
+        end
+      end
+
+      context 'and the corresponding feature flag is enabled' do
+        before do
+          stub_feature_flags(attempt_project_search_optimizations: true)
+        end
+
+        it 'returns true' do
+          expect(finder.use_cte_for_search?).to be_truthy
+        end
       end
     end
 
     context 'when all conditions are met' do
-      let(:params) { { search: 'foo', force_cte: true, attempt_group_search_optimizations: true } }
+      let(:params) { { search: 'foo', attempt_group_search_optimizations: true } }
 
       it 'returns true' do
-        expect(finder.use_cte_for_count?).to be_truthy
+        expect(finder.use_cte_for_search?).to be_truthy
       end
     end
   end

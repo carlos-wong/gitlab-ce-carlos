@@ -269,7 +269,7 @@ describe Clusters::Cluster do
       context 'when cluster is not a valid hostname' do
         let(:cluster) { build(:cluster, domain: 'http://not.a.valid.hostname') }
 
-        it 'should add an error on domain' do
+        it 'adds an error on domain' do
           expect(subject).not_to be_valid
           expect(subject.errors[:domain].first).to eq('contains invalid characters (valid characters: [a-z0-9\\-])')
         end
@@ -599,7 +599,7 @@ describe Clusters::Cluster do
         stub_application_setting(auto_devops_domain: 'global_domain.com')
       end
 
-      it 'should include KUBE_INGRESS_BASE_DOMAIN' do
+      it 'includes KUBE_INGRESS_BASE_DOMAIN' do
         expect(subject.to_hash).to include(KUBE_INGRESS_BASE_DOMAIN: 'global_domain.com')
       end
     end
@@ -607,7 +607,7 @@ describe Clusters::Cluster do
     context 'with a cluster domain' do
       let(:cluster) { create(:cluster, :provided_by_gcp, domain: 'example.com') }
 
-      it 'should include KUBE_INGRESS_BASE_DOMAIN' do
+      it 'includes KUBE_INGRESS_BASE_DOMAIN' do
         expect(subject.to_hash).to include(KUBE_INGRESS_BASE_DOMAIN: 'example.com')
       end
     end
@@ -615,9 +615,25 @@ describe Clusters::Cluster do
     context 'with no domain' do
       let(:cluster) { create(:cluster, :provided_by_gcp, :project) }
 
-      it 'should return an empty array' do
+      it 'returns an empty array' do
         expect(subject.to_hash).to be_empty
       end
+    end
+  end
+
+  describe '#provided_by_user?' do
+    subject { cluster.provided_by_user? }
+
+    context 'with a GCP provider' do
+      let(:cluster) { create(:cluster, :provided_by_gcp) }
+
+      it { is_expected.to be_falsy }
+    end
+
+    context 'with an user provider' do
+      let(:cluster) { create(:cluster, :provided_by_user) }
+
+      it { is_expected.to be_truthy }
     end
   end
 end

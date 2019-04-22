@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe User do
@@ -96,6 +98,11 @@ describe User do
   end
 
   describe 'validations' do
+    describe 'name' do
+      it { is_expected.to validate_presence_of(:name) }
+      it { is_expected.to validate_length_of(:name).is_at_most(128) }
+    end
+
     describe 'username' do
       it 'validates presence' do
         expect(subject).to validate_presence_of(:username)
@@ -657,6 +664,68 @@ describe User do
         expect(user).to receive(:update_invalid_gpg_signatures).at_most(:twice)
         user.update!(email: 'shawnee.ritchie@denesik.com')
       end
+    end
+  end
+
+  describe '#highest_role' do
+    let(:user) { create(:user) }
+
+    let(:group) { create(:group) }
+
+    it 'returns NO_ACCESS if none has been set' do
+      expect(user.highest_role).to eq(Gitlab::Access::NO_ACCESS)
+    end
+
+    it 'returns MAINTAINER if user is maintainer of a project' do
+      create(:project, group: group) do |project|
+        project.add_maintainer(user)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns the highest role if user is member of multiple projects' do
+      create(:project, group: group) do |project|
+        project.add_maintainer(user)
+      end
+
+      create(:project, group: group) do |project|
+        project.add_developer(user)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns MAINTAINER if user is maintainer of a group' do
+      create(:group) do |group|
+        group.add_user(user, GroupMember::MAINTAINER)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns the highest role if user is member of multiple groups' do
+      create(:group) do |group|
+        group.add_user(user, GroupMember::MAINTAINER)
+      end
+
+      create(:group) do |group|
+        group.add_user(user, GroupMember::DEVELOPER)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns the highest role if user is member of multiple groups and projects' do
+      create(:group) do |group|
+        group.add_user(user, GroupMember::DEVELOPER)
+      end
+
+      create(:project, group: group) do |project|
+        project.add_maintainer(user)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
     end
   end
 

@@ -15,7 +15,7 @@ information on general testing practices at GitLab.
 
 ## Jest
 
-GitLab has started to migrate tests to the (Jest)[https://jestjs.io]
+GitLab has started to migrate tests to the [Jest](https://jestjs.io)
 testing framework. You can read a [detailed evaluation](https://gitlab.com/gitlab-org/gitlab-ce/issues/49171)
 of Jest compared to our use of Karma and Jasmine. In summary, it will allow us
 to improve the performance and consistency of our frontend tests.
@@ -26,6 +26,10 @@ It is not yet a requirement to use Jest. You can view the
 [epic](https://gitlab.com/groups/gitlab-org/-/epics/873) of issues
 we need to solve before being able to use Jest for all our needs.
 
+### Debugging Jest tests
+
+Running `yarn jest-debug` will run Jest in debug mode, allowing you to debug/inspect as described in the [Jest docs](https://jestjs.io/docs/en/troubleshooting#tests-are-failing-and-you-don-t-know-why).
+
 ### Timeout error
 
 The default timeout for Jest is set in
@@ -35,15 +39,16 @@ If your test exceeds that time, it will fail.
 
 If you cannot improve the performance of the tests, you can increase the timeout
 for a specific test using
-[`jest.setTimeout`](https://jestjs.io/docs/en/jest-object#jestsettimeouttimeout).
+[`setTestTimeout`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/spec/frontend/helpers/timeout.js).
 
 ```javascript
-beforeAll(() => {
-  jest.setTimeout(500);
-});
+import { setTestTimeout } from 'helpers/timeout';
 
 describe('Component', () => {
-  // ...
+  it('does something amazing', () => {
+    setTestTimeout(500);
+    // ...
+  });
 });
 ```
 
@@ -52,12 +57,9 @@ Remember that the performance of each test depends on the environment.
 ## Karma test suite
 
 GitLab uses the [Karma][karma] test runner with [Jasmine] as its test
-framework for our JavaScript unit and integration tests. For integration tests,
-we generate HTML files using RSpec (see `spec/javascripts/fixtures/*.rb` for examples).
-Some fixtures are still HAML templates that are translated to HTML files using the same mechanism (see `static_fixtures.rb`).
-Adding these static fixtures should be avoided as they are harder to keep up to date with real views.
-The existing static fixtures will be migrated over time.
-Please see [gitlab-org/gitlab-ce#24753](https://gitlab.com/gitlab-org/gitlab-ce/issues/24753) to track our progress.
+framework for our JavaScript unit and integration tests.
+We generate HTML and JSON fixtures from backend views and controllers
+using RSpec (see `spec/javascripts/fixtures/*.rb` for examples).
 Fixtures are served during testing by the [jasmine-jquery][jasmine-jquery] plugin.
 
 JavaScript tests live in `spec/javascripts/`, matching the folder structure
@@ -227,14 +229,12 @@ See this [section][vue-test].
 
 ### Running frontend tests
 
-`rake karma` runs the frontend-only (JavaScript) tests.
-It consists of two subtasks:
+For running the frontend tests, you need the following commands:
 
-- `rake karma:fixtures` (re-)generates fixtures
-- `rake karma:tests` actually executes the tests
+- `rake karma:fixtures` (re-)generates fixtures.
+- `yarn test` executes the tests.
 
-As long as the fixtures don't change, `rake karma:tests` (or `yarn karma`)
-is sufficient (and saves you some time).
+As long as the fixtures don't change, `yarn test` is sufficient (and saves you some time).
 
 ### Live testing and focused testing
 
@@ -280,25 +280,6 @@ Information on setting up and running RSpec integration tests with
 [Capybara] can be found in the [Testing Best Practices](best_practices.md).
 
 ## Gotchas
-
-### Errors due to use of unsupported JavaScript features
-
-Similar errors will be thrown if you're using JavaScript features not yet
-supported by the PhantomJS test runner which is used for both Karma and RSpec
-tests. We polyfill some JavaScript objects for older browsers, but some
-features are still unavailable:
-
-- Array.from
-- Array.first
-- Async functions
-- Generators
-- Array destructuring
-- For..Of
-- Symbol/Symbol.iterator
-- Spread
-
-Until these are polyfilled appropriately, they should not be used. Please
-update this list with additional unsupported features.
 
 ### RSpec errors due to JavaScript
 

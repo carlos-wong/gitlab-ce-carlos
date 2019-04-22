@@ -1,4 +1,4 @@
-/* eslint-disable filenames/match-regex */
+const IS_EE = require('./config/helpers/is_ee_env');
 
 const reporters = ['default'];
 
@@ -16,10 +16,13 @@ module.exports = {
   testMatch: ['<rootDir>/spec/frontend/**/*_spec.js', '<rootDir>/ee/spec/frontend/**/*_spec.js'],
   moduleFileExtensions: ['js', 'json', 'vue'],
   moduleNameMapper: {
-    '^~(.*)$': '<rootDir>/app/assets/javascripts$1',
-    '^ee(.*)$': '<rootDir>/ee/app/assets/javascripts$1',
-    '^helpers(.*)$': '<rootDir>/spec/frontend/helpers$1',
-    '^vendor(.*)$': '<rootDir>/vendor/assets/javascripts$1',
+    '^~(/.*)$': '<rootDir>/app/assets/javascripts$1',
+    '^ee(/.*)$': '<rootDir>/ee/app/assets/javascripts$1',
+    '^ee_else_ce(/.*)$': IS_EE
+      ? '<rootDir>/ee/app/assets/javascripts$1'
+      : '<rootDir>/app/assets/javascripts$1',
+    '^helpers(/.*)$': '<rootDir>/spec/frontend/helpers$1',
+    '^vendor(/.*)$': '<rootDir>/vendor/assets/javascripts$1',
     '\\.(jpg|jpeg|png|svg)$': '<rootDir>/spec/frontend/__mocks__/file_mock.js',
   },
   collectCoverageFrom: ['<rootDir>/app/assets/javascripts/**/*.{js,vue}'],
@@ -36,4 +39,9 @@ module.exports = {
     '^.+\\.vue$': 'vue-jest',
   },
   transformIgnorePatterns: ['node_modules/(?!(@gitlab/ui)/)'],
+  timers: 'fake',
+  testEnvironment: '<rootDir>/spec/frontend/environment.js',
+  testEnvironmentOptions: {
+    IS_EE,
+  },
 };

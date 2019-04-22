@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::Build do
@@ -24,6 +26,8 @@ describe Ci::Build do
   it { is_expected.to respond_to(:has_trace?) }
   it { is_expected.to respond_to(:trace) }
   it { is_expected.to delegate_method(:merge_request_event?).to(:pipeline) }
+  it { is_expected.to delegate_method(:merge_request_ref?).to(:pipeline) }
+  it { is_expected.to delegate_method(:legacy_detached_merge_request_pipeline?).to(:pipeline) }
 
   it { is_expected.to be_a(ArtifactMigratable) }
 
@@ -113,6 +117,16 @@ describe Ci::Build do
       it 'returns the job' do
         is_expected.to include(job)
       end
+
+      context 'when ci_enable_legacy_artifacts feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_enable_legacy_artifacts: false)
+        end
+
+        it 'does not return the job' do
+          is_expected.not_to include(job)
+        end
+      end
     end
 
     context 'when job has a job artifact archive' do
@@ -152,8 +166,8 @@ describe Ci::Build do
     end
   end
 
-  describe '.with_test_reports' do
-    subject { described_class.with_test_reports }
+  describe '.with_reports' do
+    subject { described_class.with_reports(Ci::JobArtifact.test_reports) }
 
     context 'when build has a test report' do
       let!(:build) { create(:ci_build, :success, :test_reports) }
@@ -182,6 +196,37 @@ describe Ci::Build do
         end
 
         expect(recorded.count).to eq(2)
+      end
+    end
+  end
+
+  describe '#enqueue' do
+    let(:build) { create(:ci_build, :created) }
+
+    subject { build.enqueue }
+
+    before do
+      allow(build).to receive(:any_unmet_prerequisites?).and_return(has_prerequisites)
+      allow(Ci::PrepareBuildService).to receive(:perform_async)
+    end
+
+    context 'build has unmet prerequisites' do
+      let(:has_prerequisites) { true }
+
+      it 'transitions to preparing' do
+        subject
+
+        expect(build).to be_preparing
+      end
+    end
+
+    context 'build has no prerequisites' do
+      let(:has_prerequisites) { false }
+
+      it 'transitions to pending' do
+        subject
+
+        expect(build).to be_pending
       end
     end
   end
@@ -344,6 +389,18 @@ describe Ci::Build do
 
         expect(build).to be_pending
       end
+
+      context 'build has unmet prerequisites' do
+        before do
+          allow(build).to receive(:prerequisites).and_return([double])
+        end
+
+        it 'transits to preparing' do
+          subject
+
+          expect(build).to be_preparing
+        end
+      end
     end
   end
 
@@ -424,6 +481,14 @@ describe Ci::Build do
         let(:build) { create(:ci_build, :legacy_artifacts) }
 
         it { is_expected.to be_truthy }
+
+        context 'when ci_enable_legacy_artifacts feature flag is disabled' do
+          before do
+            stub_feature_flags(ci_enable_legacy_artifacts: false)
+          end
+
+          it { is_expected.to be_falsy }
+        end
       end
     end
   end
@@ -2661,13 +2726,13 @@ describe Ci::Build do
           project.deploy_tokens << deploy_token
         end
 
-        it 'should include deploy token variables' do
+        it 'includes deploy token variables' do
           is_expected.to include(*deploy_token_variables)
         end
       end
 
       context 'when gitlab-deploy-token does not exist' do
-        it 'should not include deploy token variables' do
+        it 'does not include deploy token variables' do
           expect(subject.find { |v| v[:key] == 'CI_DEPLOY_USER'}).to be_nil
           expect(subject.find { |v| v[:key] == 'CI_DEPLOY_PASSWORD'}).to be_nil
         end
@@ -2772,7 +2837,7 @@ describe Ci::Build do
     end
 
     context 'when ref is merge request' do
-      let(:merge_request) { create(:merge_request, :with_merge_request_pipeline) }
+      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
       let(:pipeline) { merge_request.merge_request_pipelines.first }
       let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
 
@@ -2830,7 +2895,7 @@ describe Ci::Build do
     end
 
     context 'when ref is merge request' do
-      let(:merge_request) { create(:merge_request, :with_merge_request_pipeline) }
+      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
       let(:pipeline) { merge_request.merge_request_pipelines.first }
       let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
 
@@ -2873,6 +2938,36 @@ describe Ci::Build do
         expect(build.scoped_variables_hash).to include('MY_VAR': 'pipeline value')
         expect(build.scoped_variables_hash).not_to include('MY_VAR': 'myvar')
       end
+    end
+  end
+
+  describe '#any_unmet_prerequisites?' do
+    let(:build) { create(:ci_build, :created) }
+
+    subject { build.any_unmet_prerequisites? }
+
+    context 'build has prerequisites' do
+      before do
+        allow(build).to receive(:prerequisites).and_return([double])
+      end
+
+      it { is_expected.to be_truthy }
+
+      context 'and the ci_preparing_state feature is disabled' do
+        before do
+          stub_feature_flags(ci_preparing_state: false)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'build does not have prerequisites' do
+      before do
+        allow(build).to receive(:prerequisites).and_return([])
+      end
+
+      it { is_expected.to be_falsey }
     end
   end
 
@@ -2925,6 +3020,20 @@ describe Ci::Build do
       it 'does not persist data in build metadata' do
         expect(build.metadata.read_attribute(:config_variables)).to be_nil
       end
+    end
+  end
+
+  describe 'state transition: any => [:preparing]' do
+    let(:build) { create(:ci_build, :created) }
+
+    before do
+      allow(build).to receive(:prerequisites).and_return([double])
+    end
+
+    it 'queues BuildPrepareWorker' do
+      expect(Ci::BuildPrepareWorker).to receive(:perform_async).with(build.id)
+
+      build.enqueue
     end
   end
 
@@ -3107,7 +3216,7 @@ describe Ci::Build do
       it 'does not try to create a todo' do
         project.add_developer(user)
 
-        expect(service).not_to receive(:commit_status_merge_requests)
+        expect(service).not_to receive(:pipeline_merge_requests)
 
         subject.drop!
       end
@@ -3143,7 +3252,23 @@ describe Ci::Build do
     end
 
     context 'when build is not configured to be retried' do
-      subject { create(:ci_build, :running, project: project, user: user) }
+      subject { create(:ci_build, :running, project: project, user: user, pipeline: pipeline) }
+
+      let(:pipeline) do
+        create(:ci_pipeline,
+          project: project,
+          ref: 'feature',
+          sha: merge_request.diff_head_sha,
+          merge_requests_as_head_pipeline: [merge_request])
+      end
+
+      let(:merge_request) do
+        create(:merge_request, :opened,
+          source_branch: 'feature',
+          source_project: project,
+          target_branch: 'master',
+          target_project: project)
+      end
 
       it 'does not retry build' do
         expect(described_class).not_to receive(:retry)
@@ -3162,7 +3287,10 @@ describe Ci::Build do
       it 'creates a todo' do
         project.add_developer(user)
 
-        expect(service).to receive(:commit_status_merge_requests)
+        expect_next_instance_of(TodoService) do |todo_service|
+          expect(todo_service)
+            .to receive(:merge_request_build_failed).with(merge_request)
+        end
 
         subject.drop!
       end
@@ -3535,6 +3663,24 @@ describe Ci::Build do
         let(:runner_features) do
           {}
         end
+
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'when refspecs feature is required by build' do
+      before do
+        allow(build).to receive(:merge_request_ref?) { true }
+      end
+
+      context 'when runner provides given feature' do
+        let(:runner_features) { { refspecs: true } }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when runner does not provide given feature' do
+        let(:runner_features) { {} }
 
         it { is_expected.to be_falsey }
       end

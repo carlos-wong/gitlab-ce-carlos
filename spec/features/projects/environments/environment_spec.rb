@@ -159,7 +159,7 @@ describe 'Environment' do
               context 'for project maintainer' do
                 let(:role) { :maintainer }
 
-                it 'it shows the terminal button' do
+                it 'shows the terminal button' do
                   expect(page).to have_terminal_button
                 end
 
@@ -319,7 +319,7 @@ describe 'Environment' do
 
       yield
 
-      GitPushService.new(project, user, params).execute
+      Git::BranchPushService.new(project, user, params).execute
     end
   end
 

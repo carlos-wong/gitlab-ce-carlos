@@ -139,6 +139,7 @@
   @include btn-white;
 
   color: $gl-text-color;
+  white-space: nowrap;
 
   &:focus:active {
     outline: 0;
@@ -443,7 +444,8 @@
     border-color: transparent;
   }
 
-  &.btn-secondary-hover-link {
+  &.btn-secondary-hover-link,
+  &.btn-default-hover-link {
     color: $gl-text-color-secondary;
 
     &:hover,

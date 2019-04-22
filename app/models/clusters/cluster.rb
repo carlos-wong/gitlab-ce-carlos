@@ -1,22 +1,24 @@
 # frozen_string_literal: true
 
 module Clusters
-  class Cluster < ActiveRecord::Base
+  class Cluster < ApplicationRecord
     include Presentable
     include Gitlab::Utils::StrongMemoize
     include FromUnion
 
     self.table_name = 'clusters'
 
+    PROJECT_ONLY_APPLICATIONS = {
+      Applications::Jupyter.application_name => Applications::Jupyter,
+      Applications::Knative.application_name => Applications::Knative,
+      Applications::Prometheus.application_name => Applications::Prometheus
+    }.freeze
     APPLICATIONS = {
       Applications::Helm.application_name => Applications::Helm,
       Applications::Ingress.application_name => Applications::Ingress,
       Applications::CertManager.application_name => Applications::CertManager,
-      Applications::Prometheus.application_name => Applications::Prometheus,
-      Applications::Runner.application_name => Applications::Runner,
-      Applications::Jupyter.application_name => Applications::Jupyter,
-      Applications::Knative.application_name => Applications::Knative
-    }.freeze
+      Applications::Runner.application_name => Applications::Runner
+    }.merge(PROJECT_ONLY_APPLICATIONS).freeze
     DEFAULT_ENVIRONMENT = '*'.freeze
     KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'.freeze
 
@@ -70,6 +72,7 @@ module Clusters
     delegate :external_hostname, to: :application_ingress, prefix: true, allow_nil: true
 
     alias_attribute :base_domain, :domain
+    alias_attribute :provided_by_user?, :user?
 
     enum cluster_type: {
       instance_type: 1,
@@ -147,10 +150,6 @@ module Clusters
 
     def platform
       return platform_kubernetes if kubernetes?
-    end
-
-    def managed?
-      !user?
     end
 
     def all_projects

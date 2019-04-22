@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import Dashboard from '~/monitoring/components/dashboard.vue';
+import { timeWindows } from '~/monitoring/constants';
 import axios from '~/lib/utils/axios_utils';
 import { metricsGroupsAPIResponse, mockApiEndpoint, environmentData } from './mock_data';
 
@@ -33,6 +34,11 @@ describe('Dashboard', () => {
       <div class="layout-page"></div>
     `);
 
+    window.gon = {
+      ...window.gon,
+      ee: false,
+    };
+
     mock = new MockAdapter(axios);
     DashboardComponent = Vue.extend(Dashboard);
   });
@@ -45,7 +51,7 @@ describe('Dashboard', () => {
     it('shows a getting started empty state when no metrics are present', () => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData,
+        propsData: { ...propsData, showTimeWindowDropdown: false },
       });
 
       expect(component.$el.querySelector('.prometheus-graphs')).toBe(null);
@@ -61,7 +67,7 @@ describe('Dashboard', () => {
     it('shows up a loading state', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true },
+        propsData: { ...propsData, hasMetrics: true, showTimeWindowDropdown: false },
       });
 
       Vue.nextTick(() => {
@@ -73,7 +79,12 @@ describe('Dashboard', () => {
     it('hides the legend when showLegend is false', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showLegend: false },
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showLegend: false,
+          showTimeWindowDropdown: false,
+        },
       });
 
       setTimeout(() => {
@@ -87,7 +98,12 @@ describe('Dashboard', () => {
     it('hides the group panels when showPanels is false', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showPanels: false },
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+        },
       });
 
       setTimeout(() => {
@@ -98,55 +114,137 @@ describe('Dashboard', () => {
       });
     });
 
-    it('renders the dropdown with a number of environments', done => {
+    it('renders the environments dropdown with a number of environments', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showPanels: false },
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+        },
       });
 
       component.store.storeEnvironmentsData(environmentData);
 
       setTimeout(() => {
-        const dropdownMenuEnvironments = component.$el.querySelectorAll('.dropdown-menu ul li a');
+        const dropdownMenuEnvironments = component.$el.querySelectorAll(
+          '.js-environments-dropdown .dropdown-item',
+        );
 
         expect(dropdownMenuEnvironments.length).toEqual(component.store.environmentsData.length);
         done();
       });
     });
 
-    it('hides the dropdown list when there is no environments', done => {
+    it('hides the environments dropdown list when there is no environments', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showPanels: false },
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+        },
       });
 
       component.store.storeEnvironmentsData([]);
 
       setTimeout(() => {
-        const dropdownMenuEnvironments = component.$el.querySelectorAll('.dropdown-menu ul');
+        const dropdownMenuEnvironments = component.$el.querySelectorAll(
+          '.js-environments-dropdown .dropdown-item',
+        );
 
         expect(dropdownMenuEnvironments.length).toEqual(0);
         done();
       });
     });
 
-    it('renders the dropdown with a single is-active element', done => {
+    it('renders the environments dropdown with a single is-active element', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showPanels: false },
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+        },
       });
 
       component.store.storeEnvironmentsData(environmentData);
 
       setTimeout(() => {
-        const dropdownIsActiveElement = component.$el.querySelectorAll(
-          '.dropdown-menu ul li a.is-active',
+        const dropdownItems = component.$el.querySelectorAll(
+          '.js-environments-dropdown .dropdown-item[active="true"]',
         );
 
-        expect(dropdownIsActiveElement.length).toEqual(1);
-        expect(dropdownIsActiveElement[0].textContent.trim()).toEqual(
-          component.currentEnvironmentName,
+        expect(dropdownItems.length).toEqual(1);
+        expect(dropdownItems[0].textContent.trim()).toEqual(component.currentEnvironmentName);
+        done();
+      });
+    });
+
+    it('hides the dropdown', done => {
+      const component = new DashboardComponent({
+        el: document.querySelector('.prometheus-graphs'),
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          environmentsEndpoint: '',
+          showTimeWindowDropdown: false,
+        },
+      });
+
+      Vue.nextTick(() => {
+        const dropdownIsActiveElement = component.$el.querySelectorAll('.environments');
+
+        expect(dropdownIsActiveElement.length).toEqual(0);
+        done();
+      });
+    });
+
+    it('does not show the time window dropdown when the feature flag is not set', done => {
+      const component = new DashboardComponent({
+        el: document.querySelector('.prometheus-graphs'),
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+        },
+      });
+
+      setTimeout(() => {
+        const timeWindowDropdown = component.$el.querySelector('.js-time-window-dropdown');
+
+        expect(timeWindowDropdown).toBeNull();
+
+        done();
+      });
+    });
+
+    it('renders the time window dropdown with a set of options', done => {
+      const component = new DashboardComponent({
+        el: document.querySelector('.prometheus-graphs'),
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: true,
+        },
+      });
+      const numberOfTimeWindows = Object.keys(timeWindows).length;
+
+      setTimeout(() => {
+        const timeWindowDropdown = component.$el.querySelector('.js-time-window-dropdown');
+        const timeWindowDropdownEls = component.$el.querySelectorAll(
+          '.js-time-window-dropdown .dropdown-item',
         );
+
+        expect(timeWindowDropdown).not.toBeNull();
+        expect(timeWindowDropdownEls.length).toEqual(numberOfTimeWindows);
+
         done();
       });
     });
@@ -165,7 +263,12 @@ describe('Dashboard', () => {
     it('sets elWidth to page width when the sidebar is resized', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showPanels: false },
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+        },
       });
 
       expect(component.elWidth).toEqual(0);

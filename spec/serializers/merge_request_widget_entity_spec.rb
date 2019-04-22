@@ -13,6 +13,10 @@ describe MergeRequestWidgetEntity do
     described_class.new(resource, request: request).as_json
   end
 
+  it 'has the latest sha of the target branch' do
+    is_expected.to include(:target_branch_sha)
+  end
+
   describe 'source_project_full_path' do
     it 'includes the full path of the source project' do
       expect(subject[:source_project_full_path]).to be_present
@@ -279,13 +283,18 @@ describe MergeRequestWidgetEntity do
   end
 
   describe 'commits_without_merge_commits' do
-    it 'should not include merge commits' do
-      # Mock all but the first 5 commits to be merge commits
-      resource.commits.each_with_index do |commit, i|
-        expect(commit).to receive(:merge_commit?).at_least(:once).and_return(i > 4)
-      end
+    def find_matching_commit(short_id)
+      resource.commits.find { |c| c.short_id == short_id }
+    end
 
-      expect(subject[:commits_without_merge_commits].size).to eq(5)
+    it 'does not include merge commits' do
+      commits_in_widget = subject[:commits_without_merge_commits]
+
+      expect(commits_in_widget.length).to be < resource.commits.length
+      expect(commits_in_widget.length).to eq(resource.commits.without_merge_commits.length)
+      commits_in_widget.each do |c|
+        expect(find_matching_commit(c[:short_id]).merge_commit?).to eq(false)
+      end
     end
   end
 end

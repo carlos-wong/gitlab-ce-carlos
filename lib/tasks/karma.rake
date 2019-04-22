@@ -1,7 +1,10 @@
 unless Rails.env.production?
   namespace :karma do
     desc 'GitLab | Karma | Generate fixtures for JavaScript tests'
-    RSpec::Core::RakeTask.new(:fixtures, [:pattern]) do |t, args|
+    task fixtures: ['karma:rspec_fixtures']
+
+    desc 'GitLab | Karma | Generate fixtures using RSpec'
+    RSpec::Core::RakeTask.new(:rspec_fixtures, [:pattern]) do |t, args|
       args.with_defaults(pattern: '{spec,ee/spec}/javascripts/fixtures/*.rb')
       ENV['NO_KNAPSACK'] = 'true'
       t.pattern = args[:pattern]

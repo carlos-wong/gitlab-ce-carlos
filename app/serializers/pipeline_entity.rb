@@ -28,7 +28,8 @@ class PipelineEntity < Grape::Entity
     expose :can_retry?, as: :retryable
     expose :can_cancel?, as: :cancelable
     expose :failure_reason?, as: :failure_reason
-    expose :detached_merge_request_pipeline?, as: :detached
+    expose :detached_merge_request_pipeline?, as: :detached_merge_request_pipeline
+    expose :merge_request_pipeline?, as: :merge_request_pipeline
   end
 
   expose :details do
@@ -58,6 +59,8 @@ class PipelineEntity < Grape::Entity
   end
 
   expose :commit, using: CommitEntity
+  expose :source_sha, if: -> (pipeline, _) { pipeline.merge_request_pipeline? }
+  expose :target_sha, if: -> (pipeline, _) { pipeline.merge_request_pipeline? }
   expose :yaml_errors, if: -> (pipeline, _) { pipeline.has_yaml_errors? }
 
   expose :failure_reason, if: -> (pipeline, _) { pipeline.failure_reason? } do |pipeline|

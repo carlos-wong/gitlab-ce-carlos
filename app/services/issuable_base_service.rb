@@ -80,13 +80,11 @@ class IssuableBaseService < BaseService
     end
   end
 
-  # rubocop: disable CodeReuse/ActiveRecord
   def filter_labels_in_param(key)
     return if params[key].to_a.empty?
 
-    params[key] = available_labels.where(id: params[key]).pluck(:id)
+    params[key] = available_labels.id_in(params[key]).pluck_primary_key
   end
-  # rubocop: enable CodeReuse/ActiveRecord
 
   def find_or_create_label_ids
     labels = params.delete(:labels)
@@ -109,12 +107,13 @@ class IssuableBaseService < BaseService
     @labels_service ||= ::Labels::AvailableLabelsService.new(current_user, parent, params)
   end
 
-  def process_label_ids(attributes, existing_label_ids: nil)
+  def process_label_ids(attributes, existing_label_ids: nil, extra_label_ids: [])
     label_ids = attributes.delete(:label_ids)
     add_label_ids = attributes.delete(:add_label_ids)
     remove_label_ids = attributes.delete(:remove_label_ids)
 
     new_label_ids = existing_label_ids || label_ids || []
+    new_label_ids |= extra_label_ids
 
     if add_label_ids.blank? && remove_label_ids.blank?
       new_label_ids = label_ids if label_ids
@@ -123,7 +122,7 @@ class IssuableBaseService < BaseService
       new_label_ids -= remove_label_ids if remove_label_ids
     end
 
-    new_label_ids
+    new_label_ids.uniq
   end
 
   def handle_quick_actions_on_create(issuable)
@@ -149,7 +148,7 @@ class IssuableBaseService < BaseService
 
     params.delete(:state_event)
     params[:author] ||= current_user
-    params[:label_ids] = issuable.label_ids.to_a + process_label_ids(params)
+    params[:label_ids] = process_label_ids(params, extra_label_ids: issuable.label_ids.to_a)
 
     issuable.assign_attributes(params)
 

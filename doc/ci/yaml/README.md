@@ -270,7 +270,7 @@ There are also two edge cases worth mentioning:
 
 `stage` is defined per-job and relies on [`stages`](#stages) which is defined
 globally. It allows to group jobs into different stages, and jobs of the same
-`stage` are executed in `parallel`. For example:
+`stage` are executed in parallel (subject to [certain conditions](#using-your-own-runners)). For example:
 
 ```yaml
 stages:
@@ -294,6 +294,17 @@ job 4:
   stage: deploy
   script: make deploy
 ```
+
+#### Using your own Runners
+
+When using your own Runners, GitLab Runner runs only one job at a time by default (see the
+`concurrent` flag in [Runner global settings](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-global-section)
+for more information).
+
+Jobs will run on your own Runners in parallel only if:
+
+- Run on different Runners.
+- The Runner's `concurrent` setting has been changed.
 
 ### `only`/`except` (basic)
 
@@ -374,10 +385,16 @@ job:
     - branches@gitlab-org/gitlab-ce
   except:
     - master@gitlab-org/gitlab-ce
+    - release/.*@gitlab-org/gitlab-ce
 ```
 
 The above example will run `job` for all branches on `gitlab-org/gitlab-ce`,
-except master.
+except `master` and those with names prefixed with `release/`.
+
+NOTE: **Note:**
+Because `@` is used to denote the beginning of a ref's repository path,
+matching a ref name containing the `@` character in a regular expression
+requires the use of the hex character code match `\x40`.
 
 If a job does not have an `only` rule, `only: ['branches', 'tags']` is set by
 default. If it doesn't have an `except` rule, it is empty.
@@ -445,7 +462,7 @@ If you use multiple keys under `only` or `except`, they act as an AND. The logic
 #### `only:refs`/`except:refs`
 
 The `refs` strategy can take the same values as the
-[simplified only/except configuration](#only-and-except-simplified).
+[simplified only/except configuration](#onlyexcept-basic).
 
 In the example below, the `deploy` job is going to be created only when the
 pipeline has been [scheduled][schedules] or runs for the `master` branch:
@@ -505,7 +522,7 @@ Learn more about [variables expressions](../variables/README.md#variables-expres
 
 #### `only:changes`/`except:changes`
 
-Using the `changes` keyword with `only` or `except`, makes it possible to define if
+Using the `changes` keyword with `only` or `except` makes it possible to define if
 a job should be created based on files modified by a git push event.
 
 For example:
@@ -521,14 +538,38 @@ docker build:
       - more_scripts/*.{rb,py,sh}
 ```
 
-In the scenario above, if you are pushing multiple commits to GitLab to an
-existing branch, GitLab creates and triggers the `docker build` job, provided that
-one of the commits contains changes to either:
+In the scenario above, when pushing multiple commits to GitLab to an existing
+branch, GitLab creates and triggers the `docker build` job, provided that one of the
+commits contains changes to any of the following:
 
 - The `Dockerfile` file.
 - Any of the files inside `docker/scripts/` directory.
 - Any of the files and subdirectories inside the `dockerfiles` directory.
 - Any of the files with `rb`, `py`, `sh` extensions inside the `more_scripts` directory.
+
+You can also use glob patterns to match multiple files in either the root directory of the repo, or in _any_ directory within the repo. For example:
+
+```yaml
+test:
+  script: npm run test
+  only:
+    changes:
+      - "*.json"
+      - "**/*.sql"
+```
+
+NOTE: **Note:**
+In the example above, the expressions are wrapped double quotes because they are glob patterns. GitLab will fail to parse `.gitlab-ci.yml` files with unwrapped glob patterns.
+
+The following example will skip the CI job if a change is detected in any file in the root directory of the repo with a `.md` extension:
+
+```yaml
+build:
+  script: npm run build
+  except:
+    changes:
+      - "*.md"
+```
 
 CAUTION: **Warning:**
 There are some caveats when using this feature with new branches and tags. See
@@ -536,21 +577,20 @@ the section below.
 
 ##### Using `changes` with new branches and tags
 
-If you are pushing a **new** branch or a **new** tag to GitLab, the policy
-always evaluates to true and GitLab will create a job. This feature is not
-connected with merge requests yet, and because GitLab is creating pipelines
-before an user can create a merge request we don't know a target branch at
-this point.
+When pushing a **new** branch or a **new** tag to GitLab, the policy always
+evaluates to true and GitLab will create a job. This feature is not connected
+with merge requests yet and, because GitLab is creating pipelines before a user
+can create a merge request, it is unknown what the target branch is at this point.
 
 ##### Using `changes` with `merge_requests`
 
 With [pipelines for merge requests](../merge_request_pipelines/index.md),
-make it possible to define if a job should be created base on files modified
+it is possible to define a job to be created based on files modified
 in a merge request.
 
 For example:
 
-```
+```yaml
 docker build service one:
   script: docker build -t my-service-one-image:$CI_COMMIT_REF_SLUG .
   only:
@@ -561,9 +601,9 @@ docker build service one:
       - service-one/**/*
 ```
 
-In the scenario above, if you create or update a merge request that changes
-either files in `service-one` folder or `Dockerfile`, GitLab creates and triggers
-the `docker build service one` job.
+In the scenario above, if a merge request is created or updated that changes
+either files in `service-one` directory or the `Dockerfile`, GitLab creates
+and triggers the `docker build service one` job.
 
 ### `tags`
 
@@ -716,7 +756,7 @@ Manual actions are a special type of job that are not executed automatically,
 they need to be explicitly started by a user. An example usage of manual actions
 would be a deployment to a production environment. Manual actions can be started
 from the pipeline, job, environment, and deployment views. Read more at the
-[environments documentation](../environments.md#manually-deploying-to-environments).
+[environments documentation](../environments.md#configuring-manual-deployments).
 
 Manual actions can be either optional or blocking. Blocking manual actions will
 block the execution of the pipeline at the stage this action is defined in. It's
@@ -1262,8 +1302,7 @@ job:
 to the paths defined in `artifacts:paths`).
 
 NOTE: **Note:**
-To exclude the folders/files which should not be a part of `untracked` just
-add them to `.gitignore`.
+`artifacts:untracked` ignores configuration in the repository's `.gitignore` file.
 
 Send all Git untracked files:
 
@@ -1730,6 +1769,11 @@ of using YAML anchors, you can use the [`extends` keyword](#extends).
 
 See [usage examples](#include-examples).
 
+NOTE: **Note:**
+`.gitlab-ci.yml` configuration included by all methods is evaluated at pipeline creation.
+The configuration is a snapshot in time and persisted in the database. Any changes to
+referenced `.gitlab-ci.yml` configuration will not be reflected in GitLab until the next pipeline is created.
+
 #### `include:local`
 
 `include:local` includes a file from the same repository as `.gitlab-ci.yml`.
@@ -1784,7 +1828,7 @@ include:
 ```
 
 All [nested includes](#nested-includes) will be executed in the scope of the target project,
-so it is possible to used local (relative to target project), project, remote
+so it is possible to use local (relative to target project), project, remote
 or template includes.
 
 #### `include:template`
@@ -1822,7 +1866,7 @@ or public project, or template is allowed.
 
 #### Nested includes
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53903) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/56836) in GitLab 11.9.
 
 Nested includes allow you to compose a set of includes.
 A total of 50 includes is allowed.
@@ -2318,8 +2362,35 @@ variables:
   GIT_STRATEGY: clone
   GIT_CHECKOUT: "false"
 script:
-  - git checkout master
-  - git merge $CI_BUILD_REF_NAME
+  - git checkout -B master origin/master
+  - git merge $CI_COMMIT_SHA
+```
+
+#### Git clean flags
+
+> Introduced in GitLab Runner 11.10
+
+The `GIT_CLEAN_FLAGS` variable is used to control the default behavior of
+`git clean` after checking out the sources. You can set it globally or per-job in the
+[`variables`](#variables) section.
+
+`GIT_CLEAN_FLAGS` accepts all possible options of the [git clean](https://git-scm.com/docs/git-clean)
+command.
+
+`git clean` is disabled if `GIT_CHECKOUT: "false"` is specified.
+
+If `GIT_CLEAN_FLAGS` is:
+
+- Not specified, `git clean` flags default to `-ffdx`.
+- Given the value `none`, `git clean` is not executed.
+
+For example:
+
+```yaml
+variables:
+  GIT_CLEAN_FLAGS: -ffdx -e cache/
+script:
+  - ls -al cache/
 ```
 
 #### Job stages attempts
@@ -2394,6 +2465,72 @@ Use [`stages`](#stages) instead.
 CAUTION: **Deprecated:**
 `type` is deprecated, and could be removed in one of the future releases.
 Use [`stage`](#stage) instead.
+
+## Custom build directories
+
+> [Introduced][https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1267] in Gitlab Runner 11.10
+
+NOTE: **Note:**
+This can only be used when `custom_build_dir` is enabled in the [Runner's
+configuration](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnerscustom_build_dir-section).
+This is the default configuration for `docker` and `kubernetes` executor.
+
+By default, GitLab Runner clones the repository in a unique subpath of the `$CI_BUILDS_DIR` directory.
+However, sometimes your project might require the code in a specific directory,
+but sometimes your project might require to have the code in a specific directory,
+like Go projects, for example. In that case, you can specify the `GIT_CLONE_PATH` variable
+to tell the Runner in which directory to clone the repository:
+
+```yml
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/project-name
+
+test:
+  script:
+    - pwd
+```
+
+The `GIT_CLONE_PATH` has to always be within `$CI_BUILDS_DIR`. The directory set in `$CI_BUILDS_DIR`
+is dependent on executor and configuration of [runners.builds_dir](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section)
+setting.
+
+### Handling concurrency
+
+An executor using a concurrency greater than `1` might lead
+to failures because multiple jobs might be working on the same directory if the `builds_dir`
+is shared between jobs.
+GitLab Runner does not try to prevent this situation. It is up to the administrator
+and developers to comply with the requirements of Runner configuration.
+
+To avoid this scenario, you can use a unique path within `$CI_BUILDS_DIR`, because Runner
+exposes two additional variables that provide a unique `ID` of concurrency:
+
+- `$CI_CONCURRENT_ID`: Unique ID for all jobs running within the given executor.
+- `$CI_CONCURRENT_PROJECT_ID`: Unique ID for all jobs running within the given executor and project.
+
+The most stable configuration that should work well in any scenario and on any executor
+is to use `$CI_CONCURRENT_ID` in the `GIT_CLONE_PATH`. For example:
+
+```yml
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/project-name
+
+test:
+  script:
+    - pwd
+```
+
+The `$CI_CONCURRENT_PROJECT_ID` should be used in conjunction with `$CI_PROJECT_PATH`
+as the `$CI_PROJECT_PATH` provides a path of a repository. That is, `group/subgroup/project`. For example:
+
+```yml
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
+
+test:
+  script:
+    - pwd
+```
 
 ## Special YAML features
 
@@ -2560,6 +2697,15 @@ Not to be confused with [`trigger`](#trigger-premium).
 
 [Read more in the triggers documentation.](../triggers/README.md)
 
+## Processing Git pushes
+
+GitLab will create at most 4 branch and tags pipelines when
+doing pushing multiple changes in single `git push` invocation.
+
+This limitation does not affect any of the updated Merge Request pipelines,
+all updated Merge Requests will have a pipeline created when using
+[pipelines for merge requests](../merge_request_pipelines/index.md).
+
 ## Skipping jobs
 
 If your commit message contains `[ci skip]` or `[skip ci]`, using any
@@ -2580,4 +2726,4 @@ git push -o ci.skip
 [environment]: ../environments.md "CI/CD environments"
 [schedules]: ../../user/project/pipelines/schedules.md "Pipelines schedules"
 [variables]: ../variables/README.md "CI/CD variables"
-[push-option]: https://git-scm.com/docs/git-push#git-push--oltoptiongt
+[push-option]: https://git-scm.com/docs/git-push#Documentation/git-push.txt--oltoptiongt

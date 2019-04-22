@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Environment < ActiveRecord::Base
+class Environment < ApplicationRecord
   include Gitlab::Utils::StrongMemoize
   # Used to generate random suffixes for the slug
   LETTERS = 'a'..'z'
@@ -170,8 +170,10 @@ class Environment < ActiveRecord::Base
     prometheus_adapter.query(:environment, self) if has_metrics?
   end
 
-  def additional_metrics
-    prometheus_adapter.query(:additional_metrics_environment, self) if has_metrics?
+  def additional_metrics(*args)
+    return unless has_metrics?
+
+    prometheus_adapter.query(:additional_metrics_environment, self, *args.map(&:to_f))
   end
 
   # rubocop: disable CodeReuse/ServiceClass
