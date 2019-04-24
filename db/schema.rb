@@ -37,13 +37,13 @@ ActiveRecord::Schema.define(version: 20190326164045) do
     t.integer "cached_markdown_version"
     t.text "new_project_guidelines"
     t.text "new_project_guidelines_html"
+    t.string "favicon"
     t.text "header_message"
     t.text "header_message_html"
     t.text "footer_message"
     t.text "footer_message_html"
     t.text "message_background_color"
     t.text "message_font_color"
-    t.string "favicon"
     t.boolean "email_header_and_footer_enabled", default: false, null: false
   end
 
@@ -173,11 +173,10 @@ ActiveRecord::Schema.define(version: 20190326164045) do
     t.integer "diff_max_patch_bytes", default: 102400, null: false
     t.integer "archive_builds_in_seconds"
     t.string "commit_email_hostname"
-    t.boolean "protected_ci_variables", default: false, null: false
     t.string "runners_registration_token_encrypted"
-    t.integer "local_markdown_version", default: 0, null: false
+    t.boolean "protected_ci_variables", default: false, null: false
     t.integer "first_day_of_week", default: 0, null: false
-    t.integer "default_project_creation", default: 2, null: false
+    t.integer "local_markdown_version", default: 0, null: false
     t.boolean "external_authorization_service_enabled", default: false, null: false
     t.string "external_authorization_service_url"
     t.string "external_authorization_service_default_label"
@@ -187,6 +186,7 @@ ActiveRecord::Schema.define(version: 20190326164045) do
     t.string "encrypted_external_auth_client_key_iv"
     t.string "encrypted_external_auth_client_key_pass"
     t.string "encrypted_external_auth_client_key_pass_iv"
+    t.integer "default_project_creation", default: 2, null: false
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id", using: :btree
   end
 
@@ -1401,8 +1401,8 @@ ActiveRecord::Schema.define(version: 20190326164045) do
     t.integer "cached_markdown_version"
     t.string "runners_token"
     t.string "runners_token_encrypted"
-    t.integer "project_creation_level"
     t.boolean "auto_devops_enabled"
+    t.integer "project_creation_level"
     t.index ["created_at"], name: "index_namespaces_on_created_at", using: :btree
     t.index ["name", "parent_id"], name: "index_namespaces_on_name_and_parent_id", unique: true, using: :btree
     t.index ["name"], name: "index_namespaces_on_name_trigram", using: :gin, opclasses: {"name"=>"gin_trgm_ops"}
@@ -1871,6 +1871,7 @@ ActiveRecord::Schema.define(version: 20190326164045) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true, using: :btree
+    t.index ["path"], name: "index_redirect_routes_on_path_text_pattern_ops", using: :btree, opclasses: {"path"=>"varchar_pattern_ops"}
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id", using: :btree
   end
 
