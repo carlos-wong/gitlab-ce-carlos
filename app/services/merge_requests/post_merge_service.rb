@@ -24,7 +24,7 @@ module MergeRequests
     private
 
     def close_issues(merge_request)
-      return unless merge_request.target_branch == project.default_branch
+      return unless merge_request.target_branch == project.default_branch || merge_request.target_branch == "dev" || merge_request.target_branch == "Dev"
 
       closed_issues = merge_request.visible_closing_issues_for(current_user)
 

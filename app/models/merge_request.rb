@@ -880,7 +880,7 @@ class MergeRequest < ApplicationRecord
 
   # Return the set of issues that will be closed if this merge request is accepted.
   def closes_issues(current_user = self.author)
-    if target_branch == project.default_branch
+    if target_branch == project.default_branch || target_branch == "dev" || target_branch == "Dev"
       messages = [title, description]
       messages.concat(commits.map(&:safe_message)) if merge_request_diff
 
@@ -892,11 +892,9 @@ class MergeRequest < ApplicationRecord
   end
 
   def issues_mentioned_but_not_closing(current_user)
-    return [] unless target_branch == project.default_branch
-
+    return [] unless target_branch == project.default_branch || target_branch == "dev" || target_branch == "Dev"
     ext = Gitlab::ReferenceExtractor.new(project, current_user)
     ext.analyze("#{title}\n#{description}")
-
     ext.issues - visible_closing_issues_for(current_user)
   end
 
