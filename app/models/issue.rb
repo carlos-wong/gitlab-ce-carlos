@@ -49,10 +49,6 @@ class Issue < ApplicationRecord
 
   scope :in_projects, ->(project_ids) { where(project_id: project_ids) }
 
-  scope :assigned, -> { where('EXISTS (SELECT TRUE FROM issue_assignees WHERE issue_id = issues.id)') }
-  scope :unassigned, -> { where('NOT EXISTS (SELECT TRUE FROM issue_assignees WHERE issue_id = issues.id)') }
-  scope :assigned_to, ->(u) { where('EXISTS (SELECT TRUE FROM issue_assignees WHERE user_id = ? AND issue_id = issues.id)', u.id)}
-
   scope :with_due_date, -> { where.not(due_date: nil) }
   scope :without_due_date, -> { where(due_date: nil) }
   scope :due_before, ->(date) { where('issues.due_date < ?', date) }
@@ -75,8 +71,6 @@ class Issue < ApplicationRecord
   attr_spammable :title, spam_title: true
   attr_spammable :description, spam_description: true
 
-  participant :assignees
-
   state_machine :state, initial: :opened do
     event :close do
       transition [:opened] => :closed
@@ -90,7 +84,7 @@ class Issue < ApplicationRecord
     state :closed
 
     before_transition any => :closed do |issue|
-      issue.closed_at = Time.zone.now
+      issue.closed_at = issue.system_note_timestamp
     end
 
     before_transition closed: :opened do |issue|
@@ -153,22 +147,6 @@ class Issue < ApplicationRecord
 
   def hook_attrs
     Gitlab::HookData::IssueBuilder.new(self).build
-  end
-
-  # Returns a Hash of attributes to be used for Twitter card metadata
-  def card_attributes
-    {
-      'Author'   => author.try(:name),
-      'Assignee' => assignee_list
-    }
-  end
-
-  def assignee_or_author?(user)
-    author_id == user.id || assignees.exists?(user.id)
-  end
-
-  def assignee_list
-    assignees.map(&:name).to_sentence
   end
 
   # `from` argument can be a Namespace or Project.

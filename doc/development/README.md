@@ -38,16 +38,19 @@ description: 'Learn how to contribute to GitLab.'
 - [Sidekiq guidelines](sidekiq_style_guide.md) for working with Sidekiq workers
 - [Working with Gitaly](gitaly.md)
 - [Manage feature flags](feature_flags.md)
+- [Licensed feature availability](licensed_feature_availability.md)
 - [View sent emails or preview mailers](emails.md)
 - [Shell commands](shell_commands.md) in the GitLab codebase
 - [`Gemfile` guidelines](gemfile.md)
 - [Pry debugging](pry_debugging.md)
 - [Sidekiq debugging](sidekiq_debugging.md)
+- [Accessing session data](session.md)
 - [Gotchas](gotchas.md) to avoid
 - [Avoid modules with instance variables](module_with_instance_variables.md) if possible
 - [How to dump production data to staging](db_dump.md)
 - [Working with the GitHub importer](github_importer.md)
 - [Import/Export development documentation](import_export.md)
+- [Elasticsearch integration docs](elasticsearch.md)
 - [Working with Merge Request diffs](diffs.md)
 - [Kubernetes integration guidelines](kubernetes.md)
 - [Permissions](permissions.md)
@@ -55,6 +58,7 @@ description: 'Learn how to contribute to GitLab.'
 - [Guidelines for reusing abstractions](reusing_abstractions.md)
 - [DeclarativePolicy framework](policies.md)
 - [How Git object deduplication works in GitLab](git_object_deduplication.md)
+- [Geo development](geo.md)
 
 ## Performance guides
 
@@ -100,6 +104,10 @@ description: 'Learn how to contribute to GitLab.'
 - [Database Debugging and Troubleshooting](database_debugging.md)
 - [Query Count Limits](query_count_limits.md)
 - [Database helper modules](database_helpers.md)
+
+## Integration guides
+
+- [Jira Connect app](integrations/jira_connect.md)
 
 ## Testing guides
 

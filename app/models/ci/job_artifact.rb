@@ -4,6 +4,7 @@ module Ci
   class JobArtifact < ApplicationRecord
     include AfterCommitQueue
     include ObjectStorage::BackgroundMove
+    include UpdateProjectStatistics
     extend Gitlab::Ci::Model
 
     NotSupportedAdapterError = Class.new(StandardError)
@@ -52,10 +53,10 @@ module Ci
     validates :file_format, presence: true, unless: :trace?, on: :create
     validate :valid_file_format?, unless: :trace?, on: :create
     before_save :set_size, if: :file_changed?
-    after_save :update_project_statistics_after_save, if: :size_changed?
-    after_destroy :update_project_statistics_after_destroy, unless: :project_destroyed?
 
-    after_save :update_file_store, if: :file_changed?
+    update_project_statistics stat: :build_artifacts_size
+
+    after_save :update_file_store, if: :saved_change_to_file?
 
     scope :with_files_stored_locally, -> { where(file_store: [nil, ::JobArtifactUploader::Store::LOCAL]) }
 
@@ -174,18 +175,6 @@ module Ci
 
     def set_size
       self.size = file.size
-    end
-
-    def update_project_statistics_after_save
-      update_project_statistics(size.to_i - size_was.to_i)
-    end
-
-    def update_project_statistics_after_destroy
-      update_project_statistics(-self.size.to_i)
-    end
-
-    def update_project_statistics(difference)
-      ProjectStatistics.increment_statistic(project_id, :build_artifacts_size, difference)
     end
 
     def project_destroyed?

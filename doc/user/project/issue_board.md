@@ -42,7 +42,7 @@ below.
 ## How it works
 
 The Issue Board builds on GitLab's existing
-[issue tracking functionality](issues/index.md#issue-tracker) and
+[issue tracking functionality](issues/index.md#issues-list) and
 leverages the power of [labels](labels.md) by utilizing them as lists of the scrum board.
 
 With the Issue Board you can have a different view of your issues while
@@ -151,7 +151,7 @@ Create lists for each of your team members and quickly drag-and-drop issues onto
 
 ## Permissions
 
-[Developers and up](../permissions.md) can use all the functionality of the
+[Reporters and up](../permissions.md) can use all the functionality of the
 Issue Board, that is, create or delete lists and drag issues from one list to another.
 
 ## GitLab Enterprise features for Issue Boards

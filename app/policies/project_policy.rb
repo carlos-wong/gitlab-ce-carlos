@@ -186,6 +186,7 @@ class ProjectPolicy < BasePolicy
     enable :read_cycle_analytics
     enable :award_emoji
     enable :read_pages_content
+    enable :read_release
   end
 
   # These abilities are not allowed to admins that are not members of the project,
@@ -212,7 +213,6 @@ class ProjectPolicy < BasePolicy
     enable :read_deployment
     enable :read_merge_request
     enable :read_sentry_issue
-    enable :read_release
     enable :read_prometheus
   end
 
@@ -488,6 +488,10 @@ class ProjectPolicy < BasePolicy
   def team_access_level
     return -1 if @user.nil?
 
+    lookup_access_level!
+  end
+
+  def lookup_access_level!
     # NOTE: max_member_access has its own cache
     project.team.max_member_access(@user.id)
   end

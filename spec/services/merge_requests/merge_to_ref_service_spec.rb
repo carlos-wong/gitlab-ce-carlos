@@ -104,7 +104,7 @@ describe MergeRequests::MergeToRefService do
         it_behaves_like 'MergeService for target ref'
       end
 
-      context 'when merge commit with squash' do
+      context 'when merge commit with squash', :quarantine do
         before do
           merge_request.update!(squash: true, source_branch: 'master', target_branch: 'feature')
         end
@@ -149,7 +149,7 @@ describe MergeRequests::MergeToRefService do
     end
 
     context 'does not close related todos' do
-      let(:merge_request) { create(:merge_request, assignee: user, author: user) }
+      let(:merge_request) { create(:merge_request, assignees: [user], author: user) }
       let(:project) { merge_request.project }
       let!(:todo) do
         create(:todo, :assigned,

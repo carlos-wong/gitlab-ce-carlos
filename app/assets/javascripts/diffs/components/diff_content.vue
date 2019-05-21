@@ -1,5 +1,8 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
+import { GlLoadingIcon } from '@gitlab/ui';
+import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
+import draftCommentsMixin from 'ee_else_ce/diffs/mixins/draft_comments';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
 import NotDiffableViewer from '~/vue_shared/components/diff_viewer/viewers/not_diffable.vue';
 import NoPreviewViewer from '~/vue_shared/components/diff_viewer/viewers/no_preview.vue';
@@ -14,6 +17,7 @@ import { diffViewerModes } from '~/ide/constants';
 
 export default {
   components: {
+    GlLoadingIcon,
     InlineDiffView,
     ParallelDiffView,
     DiffViewer,
@@ -22,7 +26,9 @@ export default {
     ImageDiffOverlay,
     NotDiffableViewer,
     NoPreviewViewer,
+    DiffFileDrafts: () => import('ee_component/batch_comments/components/diff_file_drafts.vue'),
   },
+  mixins: [diffLineNoteFormMixin, draftCommentsMixin],
   props: {
     diffFile: {
       type: Object,
@@ -58,10 +64,13 @@ export default {
       return this.diffViewerMode === diffViewerModes.not_diffable;
     },
     diffFileCommentForm() {
-      return this.getCommentFormForDiffFile(this.diffFile.file_hash);
+      return this.getCommentFormForDiffFile(this.diffFileHash);
     },
     showNotesContainer() {
-      return this.diffFile.discussions.length || this.diffFileCommentForm;
+      return this.imageDiscussions.length || this.diffFileCommentForm;
+    },
+    diffFileHash() {
+      return this.diffFile.file_hash;
     },
   },
   methods: {
@@ -101,6 +110,7 @@ export default {
           :diff-lines="diffFile.parallel_diff_lines || []"
           :help-page-path="helpPagePath"
         />
+        <gl-loading-icon v-if="diffFile.renderingLines" size="md" class="mt-3" />
       </template>
       <not-diffable-viewer v-else-if="notDiffable" />
       <no-preview-viewer v-else-if="noPreview" />
@@ -112,15 +122,15 @@ export default {
         :new-sha="diffFile.diff_refs.head_sha"
         :old-path="diffFile.old_path"
         :old-sha="diffFile.diff_refs.base_sha"
-        :file-hash="diffFile.file_hash"
+        :file-hash="diffFileHash"
         :project-path="projectPath"
         :a-mode="diffFile.a_mode"
         :b-mode="diffFile.b_mode"
       >
         <image-diff-overlay
           slot="image-overlay"
-          :discussions="diffFile.discussions"
-          :file-hash="diffFile.file_hash"
+          :discussions="imageDiscussions"
+          :file-hash="diffFileHash"
           :can-comment="getNoteableData.current_user.can_create_note"
         />
         <div v-if="showNotesContainer" class="note-container">
@@ -131,14 +141,16 @@ export default {
             :should-collapse-discussions="true"
             :render-avatar-badge="true"
           />
+          <diff-file-drafts :file-hash="diffFileHash" class="diff-file-discussions" />
           <note-form
             v-if="diffFileCommentForm"
             ref="noteForm"
             :is-editing="false"
             :save-button-title="__('Comment')"
             class="diff-comment-form new-note discussion-form discussion-form-container"
+            @handleFormUpdateAddToReview="addToReview"
             @handleFormUpdate="handleSaveNote"
-            @cancelForm="closeDiffFileCommentForm(diffFile.file_hash)"
+            @cancelForm="closeDiffFileCommentForm(diffFileHash)"
           />
         </div>
       </diff-viewer>

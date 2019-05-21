@@ -21,9 +21,9 @@ module Projects
       # This method accepts two parameters:
       # - oids: hash of oids to query. The structure is { lfs_file_oid => lfs_file_size }
       #
-      # Returns a hash with the structure { lfs_file_oids => download_link }
+      # Returns an array of LfsDownloadObject
       def execute(oids)
-        return {} unless project&.lfs_enabled? && remote_uri && oids.present?
+        return [] unless project&.lfs_enabled? && remote_uri && oids.present?
 
         get_download_links(oids)
       end
@@ -37,7 +37,17 @@ module Projects
 
         raise DownloadLinksError, response.message unless response.success?
 
-        parse_response_links(response['objects'])
+        # Since the LFS Batch API may return a Content-Ttpe of
+        # application/vnd.git-lfs+json
+        # (https://github.com/git-lfs/git-lfs/blob/master/docs/api/batch.md#requests),
+        # HTTParty does not know this is actually JSON.
+        data = JSON.parse(response.body)
+
+        raise DownloadLinksError, "LFS Batch API did return any objects" unless data.is_a?(Hash) && data.key?('objects')
+
+        parse_response_links(data['objects'])
+      rescue JSON::ParserError
+        raise DownloadLinksError, "LFS Batch API response is not JSON"
       end
 
       def parse_response_links(objects_response)

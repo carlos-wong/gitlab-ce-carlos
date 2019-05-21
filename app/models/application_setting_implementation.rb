@@ -8,7 +8,7 @@ module ApplicationSettingImplementation
                             \s              # any whitespace character
                             |               # or
                             [\r\n]          # any number of newline characters
-                          }x
+                          }x.freeze
 
   # Setting a key restriction to `-1` means that all keys of this type are
   # forbidden.
@@ -181,6 +181,22 @@ module ApplicationSettingImplementation
   def strip_sentry_values
     sentry_dsn.strip! if sentry_dsn.present?
     clientside_sentry_dsn.strip! if clientside_sentry_dsn.present?
+  end
+
+  def sentry_enabled
+    Gitlab.config.sentry.enabled || read_attribute(:sentry_enabled)
+  end
+
+  def sentry_dsn
+    Gitlab.config.sentry.dsn || read_attribute(:sentry_dsn)
+  end
+
+  def clientside_sentry_enabled
+    Gitlab.config.sentry.enabled || read_attribute(:clientside_sentry_enabled)
+  end
+
+  def clientside_sentry_dsn
+    Gitlab.config.sentry.clientside_dsn || read_attribute(:clientside_sentry_dsn)
   end
 
   def performance_bar_allowed_group

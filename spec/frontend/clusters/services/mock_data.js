@@ -11,6 +11,7 @@ const CLUSTERS_MOCK_DATA = {
             name: 'helm',
             status: APPLICATION_STATUS.INSTALLABLE,
             status_reason: null,
+            can_uninstall: false,
           },
           {
             name: 'ingress',
@@ -18,32 +19,38 @@ const CLUSTERS_MOCK_DATA = {
             status_reason: 'Cannot connect',
             external_ip: null,
             external_hostname: null,
+            can_uninstall: false,
           },
           {
             name: 'runner',
             status: APPLICATION_STATUS.INSTALLING,
             status_reason: null,
+            can_uninstall: false,
           },
           {
             name: 'prometheus',
             status: APPLICATION_STATUS.ERROR,
             status_reason: 'Cannot connect',
+            can_uninstall: false,
           },
           {
             name: 'jupyter',
             status: APPLICATION_STATUS.INSTALLING,
             status_reason: 'Cannot connect',
+            can_uninstall: false,
           },
           {
             name: 'knative',
             status: APPLICATION_STATUS.INSTALLING,
             status_reason: 'Cannot connect',
+            can_uninstall: false,
           },
           {
             name: 'cert_manager',
             status: APPLICATION_STATUS.ERROR,
             status_reason: 'Cannot connect',
             email: 'test@example.com',
+            can_uninstall: false,
           },
         ],
       },
@@ -113,7 +120,6 @@ const DEFAULT_APPLICATION_STATE = {
   description: 'Some description about this interesting application!',
   status: null,
   statusReason: null,
-  requestStatus: null,
   requestReason: null,
 };
 

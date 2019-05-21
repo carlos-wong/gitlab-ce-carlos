@@ -20,6 +20,7 @@ module API
     def self.update_params_at_least_one_of
       %i[
         assignee_id
+        assignee_ids
         description
         labels
         milestone_id
@@ -184,6 +185,7 @@ module API
         params :optional_params do
           optional :description, type: String, desc: 'The description of the merge request'
           optional :assignee_id, type: Integer, desc: 'The ID of a user to assign the merge request'
+          optional :assignee_ids, type: Array[Integer], desc: 'The array of user IDs to assign issue'
           optional :milestone_id, type: Integer, desc: 'The ID of a milestone to assign the merge request'
           optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
           optional :remove_source_branch, type: Boolean, desc: 'Remove source branch when merging'
@@ -231,6 +233,7 @@ module API
 
         mr_params = declared_params(include_missing: false)
         mr_params[:force_remove_source_branch] = mr_params.delete(:remove_source_branch)
+        mr_params = convert_parameters_from_legacy_format(mr_params)
 
         merge_request = ::MergeRequests::CreateService.new(user_project, current_user, mr_params).execute
 
@@ -333,8 +336,8 @@ module API
         merge_request = find_merge_request_with_access(params.delete(:merge_request_iid), :update_merge_request)
 
         mr_params = declared_params(include_missing: false)
-
         mr_params[:force_remove_source_branch] = mr_params.delete(:remove_source_branch) if mr_params.has_key?(:remove_source_branch)
+        mr_params = convert_parameters_from_legacy_format(mr_params)
 
         merge_request = ::MergeRequests::UpdateService.new(user_project, current_user, mr_params).execute(merge_request)
 
@@ -363,6 +366,10 @@ module API
 
         merge_request = find_project_merge_request(params[:merge_request_iid])
         merge_when_pipeline_succeeds = to_boolean(params[:merge_when_pipeline_succeeds])
+
+        if merge_when_pipeline_succeeds || merge_request.merge_when_pipeline_succeeds
+          render_api_error!('Not allowed: pipeline does not exist', 405) unless merge_request.head_pipeline
+        end
 
         # Merge request can not be merged
         # because user dont have permissions to push into target branch

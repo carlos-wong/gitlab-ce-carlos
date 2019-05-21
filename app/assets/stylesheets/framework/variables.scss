@@ -11,6 +11,14 @@ $default-transition-duration: 0.15s;
 $contextual-sidebar-width: 220px;
 $contextual-sidebar-collapsed-width: 50px;
 $toggle-sidebar-height: 48px;
+$spacing-scale: (
+  0: 0,
+  1: #{0.5 * $grid-size},
+  2: $grid-size,
+  3: #{2 * $grid-size},
+  4: #{3 * $grid-size},
+  5: #{4 * $grid-size}
+);
 
 /*
  * Color schema
@@ -282,7 +290,6 @@ $well-light-text-color: #5b6169;
 $gl-font-size: 14px;
 $gl-font-size-xs: 11px;
 $gl-font-size-small: 12px;
-$gl-font-size-medium: 20px;
 $gl-font-size-large: 16px;
 $gl-font-weight-normal: 400;
 $gl-font-weight-bold: 600;

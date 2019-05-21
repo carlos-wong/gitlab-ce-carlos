@@ -26,10 +26,14 @@ module Gitlab
       end
     end
 
-    PEM_REGEX = /\-+BEGIN CERTIFICATE\-+.+?\-+END CERTIFICATE\-+/m
+    PEM_REGEX = /\-+BEGIN CERTIFICATE\-+.+?\-+END CERTIFICATE\-+/m.freeze
     SERVER_VERSION_FILE = 'GITALY_SERVER_VERSION'
     MAXIMUM_GITALY_CALLS = 30
     CLIENT_NAME = (Sidekiq.server? ? 'gitlab-sidekiq' : 'gitlab-web').freeze
+
+    SERVER_FEATURE_CATFILE_CACHE = 'catfile-cache'.freeze
+    # Server feature flags should use '_' to separate words.
+    SERVER_FEATURE_FLAGS = [SERVER_FEATURE_CATFILE_CACHE, 'delta_islands'].freeze
 
     MUTEX = Mutex.new
 
@@ -52,9 +56,9 @@ module Gitlab
     end
 
     def self.interceptors
-      return [] unless Gitlab::Tracing.enabled?
+      return [] unless Labkit::Tracing.enabled?
 
-      [Gitlab::Tracing::GRPCInterceptor.instance]
+      [Labkit::Tracing::GRPCInterceptor.instance]
     end
     private_class_method :interceptors
 
@@ -165,7 +169,10 @@ module Gitlab
         current_transaction_labels.merge(gitaly_service: service.to_s, rpc: rpc.to_s),
         duration)
 
-      add_call_details(feature: "#{service}##{rpc}", duration: duration, request: request_hash, rpc: rpc)
+      if peek_enabled?
+        add_call_details(feature: "#{service}##{rpc}", duration: duration, request: request_hash, rpc: rpc,
+                         backtrace: Gitlab::Profiler.clean_backtrace(caller))
+      end
     end
 
     def self.query_time
@@ -215,7 +222,8 @@ module Gitlab
       feature = feature_stack && feature_stack[0]
       metadata['call_site'] = feature.to_s if feature
       metadata['gitaly-servers'] = address_metadata(remote_storage) if remote_storage
-      metadata['x-gitlab-correlation-id'] = Gitlab::CorrelationId.current_id if Gitlab::CorrelationId.current_id
+      metadata['x-gitlab-correlation-id'] = Labkit::Correlation::CorrelationId.current_id if Labkit::Correlation::CorrelationId.current_id
+      metadata['gitaly-session-id'] = session_id if feature_enabled?(SERVER_FEATURE_CATFILE_CACHE)
 
       metadata.merge!(server_feature_flags)
 
@@ -232,7 +240,9 @@ module Gitlab
       result
     end
 
-    SERVER_FEATURE_FLAGS = %w[].freeze
+    def self.session_id
+      Gitlab::SafeRequestStore[:gitaly_session_id] ||= SecureRandom.uuid
+    end
 
     def self.server_feature_flags
       SERVER_FEATURE_FLAGS.map do |f|
@@ -350,15 +360,17 @@ module Gitlab
       Gitlab::SafeRequestStore["gitaly_call_permitted"] = 0
     end
 
-    def self.add_call_details(details)
-      return unless Gitlab::SafeRequestStore[:peek_enabled]
+    def self.peek_enabled?
+      Gitlab::SafeRequestStore[:peek_enabled]
+    end
 
+    def self.add_call_details(details)
       Gitlab::SafeRequestStore['gitaly_call_details'] ||= []
       Gitlab::SafeRequestStore['gitaly_call_details'] << details
     end
 
     def self.list_call_details
-      return [] unless Gitlab::SafeRequestStore[:peek_enabled]
+      return [] unless peek_enabled?
 
       Gitlab::SafeRequestStore['gitaly_call_details'] || []
     end

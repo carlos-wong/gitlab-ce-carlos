@@ -70,6 +70,7 @@ new Kubernetes cluster to your project:
    - **Machine type** - The [machine type](https://cloud.google.com/compute/docs/machine-types)
      of the Virtual Machine instance that the cluster will be based on.
    - **RBAC-enabled cluster** - Leave this checked if using default GKE creation options, see the [RBAC section](#role-based-access-control-rbac) for more information.
+   - **GitLab-managed cluster** - Leave this checked if you want GitLab to manage namespaces and service accounts for this cluster. See the [Managed clusters section](#gitlab-managed-clusters) for more information.
 1. Finally, click the **Create Kubernetes cluster** button.
 
 After a couple of minutes, your cluster will be ready to go. You can now proceed
@@ -124,26 +125,26 @@ To add an existing Kubernetes cluster to your project:
 
       1. Create a file called `gitlab-admin-service-account.yaml` with contents:
 
-          ```yaml
-          apiVersion: v1
-          kind: ServiceAccount
-          metadata:
-            name: gitlab-admin
-            namespace: kube-system
-          ---
-          apiVersion: rbac.authorization.k8s.io/v1beta1
-          kind: ClusterRoleBinding
-          metadata:
-            name: gitlab-admin
-          roleRef:
-            apiGroup: rbac.authorization.k8s.io
-            kind: ClusterRole
-            name: cluster-admin
-          subjects:
-          - kind: ServiceAccount
-            name: gitlab-admin
-            namespace: kube-system
-          ```
+         ```yaml
+         apiVersion: v1
+         kind: ServiceAccount
+         metadata:
+           name: gitlab-admin
+           namespace: kube-system
+         ---
+         apiVersion: rbac.authorization.k8s.io/v1beta1
+         kind: ClusterRoleBinding
+         metadata:
+           name: gitlab-admin
+         roleRef:
+           apiGroup: rbac.authorization.k8s.io
+           kind: ClusterRole
+           name: cluster-admin
+         subjects:
+         - kind: ServiceAccount
+           name: gitlab-admin
+           namespace: kube-system
+         ```
 
       1. Apply the service account and cluster role binding to your cluster:
 
@@ -188,6 +189,9 @@ To add an existing Kubernetes cluster to your project:
       role binding. You can follow the [Google Cloud
       documentation](https://cloud.google.com/iam/docs/granting-changing-revoking-access)
       to grant access.
+
+    - **GitLab-managed cluster** - Leave this checked if you want GitLab to manage namespaces and service accounts for this cluster. See the [Managed clusters section](#gitlab-managed-clusters) for more information.
+
     - **Project namespace** (optional) - You don't have to fill it in; by leaving
       it blank, GitLab will create one for you. Also:
        - Each project should have a unique namespace.
@@ -213,6 +217,29 @@ The default cluster configuration grants access to a wide set of
 functionalities needed to successfully build and deploy a containerized
 application. Bear in mind that the same credentials are used for all the
 applications running on the cluster.
+
+## Gitlab-managed clusters
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22011) in GitLab 11.5.
+> Became [optional](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/26565) in GitLab 11.11.
+
+NOTE: **Note:**
+Only available when creating clusters. Existing clusters not managed by GitLab
+cannot become GitLab-managed later.
+
+You can choose to allow GitLab to manage your cluster for you. If your cluster is
+managed by GitLab, resources for your projects will be automatically created. See the
+[Access controls](#access-controls) section for details on which resources will
+be created.
+
+If you choose to manage your own cluster, project-specific resources will not be created
+automatically. If you are using [Auto DevOps](../../../topics/autodevops/index.md), you will
+need to explicitly provide the `KUBE_NAMESPACE` [deployment variable](#deployment-variables)
+that will be used by your deployment jobs, otherwise a namespace will be created for you.
+
+NOTE: **Note:**
+If you [install applications](#installing-applications) on your cluster, GitLab will create
+the resources required to run these even if you have chosen to manage your own cluster.
 
 ## Base domain
 
@@ -257,11 +284,11 @@ GitLab will create the necessary service accounts and privileges in order to ins
   NOTE: **Note:**
   Restricted service account for deployment was [introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/51716) in GitLab 11.5.
 
-- When you install Helm Tiller into your cluster, the `tiller` service account
+- When you install Helm into your cluster, the `tiller` service account
   will be created with `cluster-admin` privileges in the `gitlab-managed-apps`
   namespace. This service account will be added to the installed Helm Tiller and will
   be used by Helm to install and run [GitLab managed applications](#installing-applications).
-  Helm Tiller will also create additional service accounts and other resources for each
+  Helm will also create additional service accounts and other resources for each
   installed application. Consult the documentation of the Helm charts for each application
   for details.
 
@@ -278,8 +305,8 @@ The following sections summarize which resources will be created on ABAC/RBAC cl
 | `gitlab-token`    | `Secret`             | Token for `gitlab` ServiceAccount | Creating a new GKE Cluster        |
 | `tiller`          | `ServiceAccount`     | `gitlab-managed-apps` namespace   | Installing Helm Tiller            |
 | `tiller-admin`    | `ClusterRoleBinding` | `cluster-admin` roleRef           | Installing Helm Tiller            |
-| Project namespace | `ServiceAccount`     | Uses namespace of Project         | Creating/Adding a new GKE Cluster |
-| Project namespace | `Secret`             | Token for project ServiceAccount  | Creating/Adding a new GKE Cluster |
+| Project namespace | `ServiceAccount`     | Uses namespace of Project         | Deploying to a cluster |
+| Project namespace | `Secret`             | Token for project ServiceAccount  | Deploying to a cluster |
 
 ### Role-based access control (RBAC)
 
@@ -290,9 +317,12 @@ The following sections summarize which resources will be created on ABAC/RBAC cl
 | `gitlab-token`      | `Secret`             | Token for `gitlab` ServiceAccount | Creating a new GKE Cluster        |
 | `tiller`            | `ServiceAccount`     | `gitlab-managed-apps` namespace   | Installing Helm Tiller            |
 | `tiller-admin`      | `ClusterRoleBinding` | `cluster-admin` roleRef           | Installing Helm Tiller            |
-| Project namespace   | `ServiceAccount`     | Uses namespace of Project         | Creating/Adding a new GKE Cluster |
-| Project namespace   | `Secret`             | Token for project ServiceAccount  | Creating/Adding a new GKE Cluster |
-| Project namespace   | `RoleBinding`        | [`edit`](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles) roleRef                  | Creating/Adding a new GKE Cluster |
+| Project namespace   | `ServiceAccount`     | Uses namespace of Project         | Deploying to a cluster |
+| Project namespace   | `Secret`             | Token for project ServiceAccount  | Deploying to a cluster |
+| Project namespace   | `RoleBinding`        | [`edit`](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles) roleRef                  | Deploying to a cluster |
+
+NOTE: **Note:**
+Project-specific resources are only created if your cluster is [managed by GitLab](#gitlab-managed-clusters).
 
 ### Security of GitLab Runners
 
@@ -314,26 +344,30 @@ install it manually.
 
 ## Installing applications
 
-GitLab provides a one-click install for various applications which can
-be added directly to your configured cluster. Those applications are
+GitLab provides **GitLab Managed Apps**, a one-click install for various applications which can
+be added directly to your configured cluster. These applications are
 needed for [Review Apps](../../../ci/review_apps/index.md) and
-[deployments](../../../ci/environments.md). You can install them after you
+[deployments](../../../ci/environments.md) when using [Auto DevOps](../../../topics/autodevops/index.md).
+You can install them after you
 [create a cluster](#adding-and-creating-a-new-gke-cluster-via-gitlab).
+
+Applications managed by GitLab will be installed onto the `gitlab-managed-apps` namespace. This differrent
+from the namespace used for project deployments. It is only created once and its name is not configurable.
 
 To see a list of available applications to install:
 
 1. Navigate to your project's **Operations > Kubernetes**.
 1. Select your cluster.
 
-Install Helm Tiller first because it's used to install other applications.
+Install Helm first as it's used to install other applications.
 
 NOTE: **Note:**
-As of GitLab 11.6, Helm Tiller will be upgraded to the latest version supported
+As of GitLab 11.6, Helm will be upgraded to the latest version supported
 by GitLab before installing any of the applications.
 
 | Application | GitLab version | Description | Helm Chart |
 | ----------- | :------------: | ----------- | --------------- |
-| [Helm Tiller](https://docs.helm.sh/) | 10.2+ | Helm is a package manager for Kubernetes and is required to install all the other applications. It is installed in its own pod inside the cluster which can run the `helm` CLI in a safe environment. | n/a |
+| [Helm](https://docs.helm.sh/) | 10.2+ | Helm is a package manager for Kubernetes and is required to install all the other applications. It is installed in its own pod inside the cluster which can run the `helm` CLI in a safe environment. | n/a |
 | [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) | 10.2+ | Ingress can provide load balancing, SSL termination, and name-based virtual hosting. It acts as a web proxy for your applications and is useful if you want to use [Auto DevOps] or deploy your own web apps. | [stable/nginx-ingress](https://github.com/helm/charts/tree/master/stable/nginx-ingress) |
 | [Cert-Manager](https://docs.cert-manager.io/en/latest/) | 11.6+ | Cert-Manager is a native Kubernetes certificate management controller that helps with issuing certificates. Installing Cert-Manager on your cluster will issue a certificate by [Let's Encrypt](https://letsencrypt.org/) and ensure that certificates are valid and up-to-date. | [stable/cert-manager](https://github.com/helm/charts/tree/master/stable/cert-manager) |
 | [Prometheus](https://prometheus.io/docs/introduction/overview/) | 10.4+ | Prometheus is an open-source monitoring and alerting system useful to supervise your deployed applications. | [stable/prometheus](https://github.com/helm/charts/tree/master/stable/prometheus) |
@@ -345,9 +379,9 @@ With the exception of Knative, the applications will be installed in a dedicated
 namespace called `gitlab-managed-apps`.
 
 CAUTION: **Caution:**
-If you have an existing Kubernetes cluster with Tiller already installed,
+If you have an existing Kubernetes cluster with Helm already installed,
 you should be careful as GitLab cannot detect it. In this case, installing
-Tiller via the applications will result in the cluster having it twice, which
+Helm via the applications will result in the cluster having it twice, which
 can lead to confusion during deployments.
 
 ### Upgrading applications
@@ -372,6 +406,27 @@ Upgrades will reset values back to the values built into the `runner`
 chart plus the values set by
 [`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/runner/values.yaml)
 
+### Uninstalling applications
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/60665) in
+> GitLab 11.11.
+
+The applications below can be uninstalled.
+
+| Application | GitLab version | Notes |
+| ----------- | -------------- | ----- |
+| Prometheus  | 11.11+         | All data will be deleted and cannot be restored. |
+
+To uninstall an application:
+
+1. Navigate to your project's **Operations > Kubernetes**.
+1. Select your cluster.
+1. Click the **Uninstall** button for the application.
+
+Support for uninstalling all applications will be progressively
+introduced (see [related
+epic](https://gitlab.com/groups/gitlab-org/-/epics/1201)).
+
 ### Troubleshooting applications
 
 Applications can fail with the following error:
@@ -384,7 +439,7 @@ To avoid installation errors:
 
 - Before starting the installation of applications, make sure that time is synchronized
   between your GitLab server and your Kubernetes cluster.
-- Ensure certificates are not out of sync.  When installing applications, GitLab expects a new cluster with no previous installation of Tiller.
+- Ensure certificates are not out of sync.  When installing applications, GitLab expects a new cluster with no previous installation of Helm.
 
   You can confirm that the certificates match via `kubectl`:
 
@@ -493,7 +548,7 @@ differentiate the new cluster with the rest.
 
 When adding more than one Kubernetes cluster to your project, you need to differentiate
 them with an environment scope. The environment scope associates clusters with [environments](../../../ci/environments.md) similar to how the
-[environment-specific variables](https://docs.gitlab.com/ee/ci/variables/README.html#limiting-environment-scopes-of-variables-premium) work.
+[environment-specific variables](https://docs.gitlab.com/ee/ci/variables/index.html#limiting-environment-scopes-of-environment-variables-premium) work.
 
 The default environment scope is `*`, which means all jobs, regardless of their
 environment, will use that cluster. Each scope can only be used by a single
@@ -545,7 +600,7 @@ The result will then be:
 ## Deployment variables
 
 The Kubernetes cluster integration exposes the following
-[deployment variables](../../../ci/variables/README.md#deployment-variables) in the
+[deployment variables](../../../ci/variables/README.md#deployment-environment-variables) in the
 GitLab CI/CD build environment.
 
 | Variable | Description |
@@ -575,7 +630,7 @@ However, sometimes GitLab can not create them. In such instances, your job will 
 This job failed because the necessary resources were not successfully created.
 ```
 
-To find the cause of this error when creating a namespace and service account, check the [logs](../../../administration/logs.md#sidekiqlog).
+To find the cause of this error when creating a namespace and service account, check the [logs](../../../administration/logs.md#kuberneteslog).
 
 Common reasons for failure include:
 
@@ -591,7 +646,7 @@ Common reasons for failure include:
 
 When [Prometheus is deployed](#installing-applications), GitLab will automatically monitor the cluster's health. At the top of the cluster settings page, CPU and Memory utilization is displayed, along with the total amount available. Keeping an eye on cluster resources can be important, if the cluster runs out of memory pods may be shutdown or fail to start.
 
-![Cluster Monitoring](https://docs.gitlab.com/ee/user/project/clusters/img/k8s_cluster_monitoring.png)
+![Cluster Monitoring](img/k8s_cluster_monitoring.png)
 
 ## Enabling or disabling the Kubernetes cluster integration
 
@@ -622,7 +677,7 @@ and add a Kubernetes cluster again.
 ## View Kubernetes pod logs from GitLab **[ULTIMATE]**
 
 Learn how to easily
-[view the logs of running pods in connected Kubernetes clusters](https://docs.gitlab.com/ee/user/project/clusters/kubernetes_pod_logs.html).
+[view the logs of running pods in connected Kubernetes clusters](kubernetes_pod_logs.md).
 
 ## What you can get with the Kubernetes integration
 

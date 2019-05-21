@@ -16,13 +16,13 @@ module ErrorTracking
           (?<project>[^/]+)/*
         )?
       \z
-    }x
+    }x.freeze
 
     self.reactive_cache_key = ->(setting) { [setting.class.model_name.singular, setting.project_id] }
 
     belongs_to :project
 
-    validates :api_url, length: { maximum: 255 }, public_url: true, url: { enforce_sanitization: true, ascii_only: true }, allow_nil: true
+    validates :api_url, length: { maximum: 255 }, public_url: { enforce_sanitization: true, ascii_only: true }, allow_nil: true
 
     validates :api_url, presence: { message: 'is a required field' }, if: :enabled
 

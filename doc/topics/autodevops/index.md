@@ -141,7 +141,7 @@ in any of the following places:
 
 NOTE: **Note**
 The Auto DevOps base domain variable (`KUBE_INGRESS_BASE_DOMAIN`) follows the same order of precedence
-as other environment [variables](../../ci/variables/README.md#priority-of-variables).
+as other environment [variables](../../ci/variables/README.md#priority-of-environment-variables).
 
 A wildcard DNS A record matching the base domain(s) is required, for example,
 given a base domain of `example.com`, you'd need a DNS entry like:
@@ -179,7 +179,7 @@ Those environments are tied to jobs that use [Auto Deploy](#auto-deploy), so
 except for the environment scope, they would also need to have a different
 domain they would be deployed to. This is why you need to define a separate
 `KUBE_INGRESS_BASE_DOMAIN` variable for all the above
-[based on the environment](https://docs.gitlab.com/ee/ci/variables/index.html#limiting-environment-scopes-of-variables-premium).
+[based on the environment](https://docs.gitlab.com/ee/ci/variables/#limiting-environment-scopes-of-environment-variables-premium).
 
 The following table is an example of how the three different clusters would
 be configured.
@@ -377,8 +377,8 @@ analysis on the current code and checks for potential security issues. Once the
 report is created, it's uploaded as an artifact which you can later download and
 check out.
 
-Any security warnings are also
-[shown in the merge request widget](https://docs.gitlab.com/ee//user/project/merge_requests/sast.html).
+Any security warnings are also shown in the merge request widget. Read more how
+[SAST works](https://docs.gitlab.com/ee/user/application_security/sast/index.html).
 
 NOTE: **Note:**
 The Auto SAST stage will be skipped on licenses other than Ultimate.
@@ -396,8 +396,8 @@ to run analysis on the project dependencies and checks for potential security is
 report is created, it's uploaded as an artifact which you can later download and
 check out.
 
-Any security warnings are also
-[shown in the merge request widget](https://docs.gitlab.com/ee//user/project/merge_requests/dependency_scanning.html).
+Any security warnings are also shown in the merge request widget. Read more about
+[Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/index.html).
 
 NOTE: **Note:**
 The Auto Dependency Scanning stage will be skipped on licenses other than Ultimate.
@@ -415,8 +415,8 @@ to search the project dependencies for their license. Once the
 report is created, it's uploaded as an artifact which you can later download and
 check out.
 
-Any licenses are also
-[shown in the merge request widget](https://docs.gitlab.com/ee//user/project/merge_requests/license_management.html).
+Any licenses are also shown in the merge request widget. Read more how
+[License Management works](https://docs.gitlab.com/ee/user/application_security/license_management/index.html).
 
 NOTE: **Note:**
 The Auto License Management stage will be skipped on licenses other than Ultimate.
@@ -431,8 +431,8 @@ Docker image and checks for potential security issues. Once the report is
 created, it's uploaded as an artifact which you can later download and
 check out.
 
-Any security warnings are also
-[shown in the merge request widget](https://docs.gitlab.com/ee//user/project/merge_requests/container_scanning.html).
+Any security warnings are also shown in the merge request widget. Read more how
+[Container Scanning works](https://docs.gitlab.com/ee/user/application_security/container_scanning/index.html).
 
 NOTE: **Note:**
 The Auto Container Scanning stage will be skipped on licenses other than Ultimate.
@@ -460,7 +460,7 @@ for example after the merge request is merged, the Review App will automatically
 be deleted.
 
 Review apps are deployed using the
-[auto-deploy-app](https://gitlab.com/charts/auto-deploy-app) chart with
+[auto-deploy-app](https://gitlab.com/gitlab-org/charts/auto-deploy-app) chart with
 Helm. The app will be deployed into the [Kubernetes
 namespace](../../user/project/clusters/index.md#deployment-variables)
 for the environment.
@@ -487,8 +487,8 @@ to perform an analysis on the current code and checks for potential security
 issues. Once the report is created, it's uploaded as an artifact which you can
 later download and check out.
 
-Any security warnings are also
-[shown in the merge request widget](https://docs.gitlab.com/ee//user/project/merge_requests/dast.html).
+Any security warnings are also shown in the merge request widget. Read how
+[DAST works](https://docs.gitlab.com/ee/user/application_security/dast/index.html).
 
 NOTE: **Note:**
 The Auto DAST stage will be skipped on licenses other than Ultimate.
@@ -528,7 +528,7 @@ You can make use of [environment variables](#environment-variables) to automatic
 scale your pod replicas.
 
 Apps are deployed using the
-[auto-deploy-app](https://gitlab.com/charts/auto-deploy-app) chart with
+[auto-deploy-app](https://gitlab.com/gitlab-org/charts/auto-deploy-app) chart with
 Helm. The app will be deployed into the [Kubernetes
 namespace](../../user/project/clusters/index.md#deployment-variables)
 for the environment.
@@ -667,9 +667,9 @@ repo or by specifying a project variable:
 
 - **Bundled chart** - If your project has a `./chart` directory with a `Chart.yaml`
   file in it, Auto DevOps will detect the chart and use it instead of the [default
-  one](https://gitlab.com/charts/auto-deploy-app).
+  one](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
   This can be a great way to control exactly how your application is deployed.
-- **Project variable** - Create a [project variable](../../ci/variables/README.md#variables)
+- **Project variable** - Create a [project variable](../../ci/variables/README.md#gitlab-cicd-environment-variables)
   `AUTO_DEVOPS_CHART` with the URL of a custom chart to use or create two project variables `AUTO_DEVOPS_CHART_REPOSITORY` with the URL of a custom chart repository and `AUTO_DEVOPS_CHART` with the path to the chart.
 
 ### Custom Helm chart per environment **[PREMIUM]**
@@ -735,8 +735,11 @@ also be customized, and you can easily use a [custom buildpack](#custom-buildpac
 | **Variable**                 | **Description**                                                                                                                                                                                                               |
 | ------------                 | ---------------                                                                                                                                                                                                               |
 | `AUTO_DEVOPS_DOMAIN`         | The [Auto DevOps domain](#auto-devops-base-domain). By default, set automatically by the [Auto DevOps setting](#enablingdisabling-auto-devops). This variable is deprecated and [is scheduled to be removed](https://gitlab.com/gitlab-org/gitlab-ce/issues/56959). Use `KUBE_INGRESS_BASE_DOMAIN` instead. |
-| `AUTO_DEVOPS_CHART`          | The Helm Chart used to deploy your apps; defaults to the one [provided by GitLab](https://gitlab.com/charts/auto-deploy-app).                                                             |
+| `AUTO_DEVOPS_CHART`          | The Helm Chart used to deploy your apps; defaults to the one [provided by GitLab](https://gitlab.com/gitlab-org/charts/auto-deploy-app).                                                             |
 | `AUTO_DEVOPS_CHART_REPOSITORY` | The Helm Chart repository used to search for charts; defaults to `https://charts.gitlab.io`. |
+| `AUTO_DEVOPS_CHART_REPOSITORY_NAME` | From Gitlab 11.11, this variable can be used to set the name of the helm repository; defaults to "gitlab" |
+| `AUTO_DEVOPS_CHART_REPOSITORY_USERNAME` | From Gitlab 11.11, this variable can be used to set a username to connect to the helm repository. Defaults to no credentials. (Also set AUTO_DEVOPS_CHART_REPOSITORY_PASSWORD) |
+| `AUTO_DEVOPS_CHART_REPOSITORY_PASSWORD` | From Gitlab 11.11, this variable can be used to set a password to connect to the helm repository. Defaults to no credentials. (Also set AUTO_DEVOPS_CHART_REPOSITORY_USERNAME) |
 | `REPLICAS`                   | The number of replicas to deploy; defaults to 1.                                                                                                                                                                              |
 | `PRODUCTION_REPLICAS`        | The number of replicas to deploy in the production environment. This takes precedence over `REPLICAS`; defaults to 1.                                                                                                         |
 | `CANARY_REPLICAS`            | The number of canary replicas to deploy for [Canary Deployments](https://docs.gitlab.com/ee/user/project/canary_deployments.html); defaults to 1                                                                              |
@@ -767,10 +770,12 @@ also be customized, and you can easily use a [custom buildpack](#custom-buildpac
 | `PERFORMANCE_DISABLED`       | From GitLab 11.0, this variable can be used to disable the `performance` job. If the variable is present, the job will not be created. |
 | `K8S_SECRET_*`               | From GitLab 11.7, any variable prefixed with [`K8S_SECRET_`](#application-secret-variables) will be made available by Auto DevOps as environment variables to the deployed application. |
 | `KUBE_INGRESS_BASE_DOMAIN`   | From GitLab 11.8, this variable can be used to set a domain per cluster. See [cluster domains](../../user/project/clusters/index.md#base-domain) for more information. |
+| `ROLLOUT_RESOURCE_TYPE`     | From GitLab 11.9, this variable allows specification of the resource type being deployed when using a custom helm chart. Default value is `deployment`. |
+| `HELM_UPGRADE_EXTRA_ARGS`   | From GitLab 11.11, this variable allows extra arguments in `helm` commands when deploying the application. Note that using quotes will not prevent word splitting. |
 
 TIP: **Tip:**
 Set up the replica variables using a
-[project variable](../../ci/variables/README.md#variables)
+[project variable](../../ci/variables/README.md#gitlab-cicd-environment-variables)
 and scale your application by just redeploying it!
 
 CAUTION: **Caution:**

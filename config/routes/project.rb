@@ -201,6 +201,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :failures
           get :status
         end
+
+        member do
+          resources :stages, only: [], param: :name do
+            post :play_manual
+          end
+        end
       end
 
       resources :pipeline_schedules, except: [:show] do
@@ -218,6 +224,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :terminal
           get :metrics
           get :additional_metrics
+          get :metrics_dashboard
           get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', constraints: { format: nil }
 
           get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy'
@@ -360,7 +367,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           post :toggle_subscription
           post :mark_as_spam
           post :move
-          get :referenced_merge_requests
           get :related_branches
           get :can_create_branch
           get :realtime_changes

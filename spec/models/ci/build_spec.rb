@@ -32,6 +32,10 @@ describe Ci::Build do
 
   it { is_expected.to be_a(ArtifactMigratable) }
 
+  it_behaves_like 'UpdateProjectStatistics' do
+    subject { FactoryBot.build(:ci_build, pipeline: pipeline, artifacts_size: 23) }
+  end
+
   describe 'associations' do
     it 'has a bidirectional relationship with projects' do
       expect(described_class.reflect_on_association(:project).has_inverse?).to eq(:builds)
@@ -853,6 +857,10 @@ describe Ci::Build do
     let(:deployment) { build.deployment }
     let(:environment) { deployment.environment }
 
+    before do
+      allow(Deployments::FinishedWorker).to receive(:perform_async)
+    end
+
     it 'has deployments record with created status' do
       expect(deployment).to be_created
       expect(environment.name).to eq('review/master')
@@ -1426,7 +1434,7 @@ describe Ci::Build do
             build.cancel!
           end
 
-          it { is_expected.to be_retryable }
+          it { is_expected.not_to be_retryable }
         end
       end
 
@@ -1956,7 +1964,7 @@ describe Ci::Build do
       context 'when build has been canceled' do
         subject { build_stubbed(:ci_build, :manual, status: :canceled) }
 
-        it { is_expected.to be_playable }
+        it { is_expected.not_to be_playable }
       end
 
       context 'when build is successful' do
@@ -2120,54 +2128,6 @@ describe Ci::Build do
     end
   end
 
-  context 'when updating the build' do
-    let(:build) { create(:ci_build, artifacts_size: 23) }
-
-    it 'updates project statistics' do
-      build.artifacts_size = 42
-
-      expect(build).to receive(:update_project_statistics_after_save).and_call_original
-
-      expect { build.save! }
-        .to change { build.project.statistics.reload.build_artifacts_size }
-        .by(19)
-    end
-
-    context 'when the artifact size stays the same' do
-      it 'does not update project statistics' do
-        build.name = 'changed'
-
-        expect(build).not_to receive(:update_project_statistics_after_save)
-
-        build.save!
-      end
-    end
-  end
-
-  context 'when destroying the build' do
-    let!(:build) { create(:ci_build, artifacts_size: 23) }
-
-    it 'updates project statistics' do
-      expect(ProjectStatistics)
-        .to receive(:increment_statistic)
-        .and_call_original
-
-      expect { build.destroy! }
-        .to change { build.project.statistics.reload.build_artifacts_size }
-        .by(-23)
-    end
-
-    context 'when the build is destroyed due to the project being destroyed' do
-      it 'does not update the project statistics' do
-        expect(ProjectStatistics)
-          .not_to receive(:increment_statistic)
-
-        build.project.update(pending_delete: true)
-        build.project.destroy!
-      end
-    end
-  end
-
   describe '#variables' do
     let(:container_registry_enabled) { false }
 
@@ -2228,7 +2188,8 @@ describe Ci::Build do
           { key: 'CI_PIPELINE_SOURCE', value: pipeline.source, public: true, masked: false },
           { key: 'CI_COMMIT_MESSAGE', value: pipeline.git_commit_message, public: true, masked: false },
           { key: 'CI_COMMIT_TITLE', value: pipeline.git_commit_title, public: true, masked: false },
-          { key: 'CI_COMMIT_DESCRIPTION', value: pipeline.git_commit_description, public: true, masked: false }
+          { key: 'CI_COMMIT_DESCRIPTION', value: pipeline.git_commit_description, public: true, masked: false },
+          { key: 'CI_COMMIT_REF_PROTECTED', value: (!!pipeline.protected_ref?).to_s, public: true, masked: false }
         ]
       end
 
@@ -2856,7 +2817,7 @@ describe Ci::Build do
 
     context 'when ref is merge request' do
       let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
-      let(:pipeline) { merge_request.merge_request_pipelines.first }
+      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
       let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
 
       context 'when ref is protected' do
@@ -2914,7 +2875,7 @@ describe Ci::Build do
 
     context 'when ref is merge request' do
       let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
-      let(:pipeline) { merge_request.merge_request_pipelines.first }
+      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
       let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
 
       context 'when ref is protected' do

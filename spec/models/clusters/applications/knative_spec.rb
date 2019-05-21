@@ -39,6 +39,12 @@ describe Clusters::Applications::Knative do
     end
   end
 
+  describe '#can_uninstall?' do
+    subject { knative.can_uninstall? }
+
+    it { is_expected.to be_falsey }
+  end
+
   describe '#schedule_status_update with external_ip' do
     let(:application) { create(:clusters_applications_knative, :installed) }
 
@@ -109,7 +115,7 @@ describe Clusters::Applications::Knative do
     subject { knative.install_command }
 
     it 'is initialized with latest version' do
-      expect(subject.version).to eq('0.3.0')
+      expect(subject.version).to eq('0.5.0')
     end
 
     it_behaves_like 'a command'

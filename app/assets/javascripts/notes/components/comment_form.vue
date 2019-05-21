@@ -11,6 +11,7 @@ import {
   capitalizeFirstCharacter,
   convertToCamelCase,
   splitCamelCase,
+  slugifyWithUnderscore,
 } from '../../lib/utils/text_utility';
 import * as constants from '../constants';
 import eventHub from '../event_hub';
@@ -115,8 +116,11 @@ export default {
     author() {
       return this.getUserData;
     },
-    canUpdateIssue() {
-      return this.getNoteableData.current_user.can_update;
+    canToggleIssueState() {
+      return (
+        this.getNoteableData.current_user.can_update &&
+        this.getNoteableData.state !== constants.MERGED
+      );
     },
     endpoint() {
       return this.getNoteableData.create_note_path;
@@ -125,6 +129,9 @@ export default {
       return this.noteableType === constants.MERGE_REQUEST_NOTEABLE_TYPE
         ? 'merge request'
         : 'issue';
+    },
+    trackingLabel() {
+      return slugifyWithUnderscore(`${this.commentButtonTitle} button`);
     },
   },
   watch: {
@@ -344,6 +351,7 @@ Please check your network connection and try again.`;
                 ref="textarea"
                 slot="textarea"
                 v-model="note"
+                dir="auto"
                 :disabled="isSubmitting"
                 name="note[note]"
                 class="note-textarea js-vue-comment-form js-note-text
@@ -367,6 +375,8 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                   class="btn btn-success js-comment-button js-comment-submit-button
                     qa-comment-button"
                   type="submit"
+                  :data-track-label="trackingLabel"
+                  data-track-event="click_button"
                   @click.prevent="handleSave()"
                 >
                   {{ __(commentButtonTitle) }}
@@ -415,7 +425,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
               </div>
 
               <loading-button
-                v-if="canUpdateIssue"
+                v-if="canToggleIssueState"
                 :loading="isToggleStateButtonLoading"
                 :container-class="[
                   actionButtonClassNames,

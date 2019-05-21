@@ -1,7 +1,7 @@
 /* eslint no-param-reassign: "off" */
 
 import $ from 'jquery';
-import GfmAutoComplete from '~/gfm_auto_complete';
+import GfmAutoComplete from 'ee_else_ce/gfm_auto_complete';
 
 import 'jquery.caret';
 import 'at.js';
@@ -94,7 +94,7 @@ describe('GfmAutoComplete', () => {
     });
 
     it('should quote if value contains any non-alphanumeric characters', () => {
-      expect(beforeInsert(atwhoInstance, '~label-20')).toBe('~"label\\-20"');
+      expect(beforeInsert(atwhoInstance, '~label-20')).toBe('~"label-20"');
       expect(beforeInsert(atwhoInstance, '~label 20')).toBe('~"label 20"');
     });
 
@@ -102,12 +102,21 @@ describe('GfmAutoComplete', () => {
       expect(beforeInsert(atwhoInstance, '~1234')).toBe('~"1234"');
     });
 
-    it('should escape Markdown emphasis characters, except in the first character', () => {
-      expect(beforeInsert(atwhoInstance, '@_group')).toEqual('@\\_group');
-      expect(beforeInsert(atwhoInstance, '~_bug')).toEqual('~\\_bug');
+    it('escapes Markdown strikethroughs when needed', () => {
+      expect(beforeInsert(atwhoInstance, '~a~bug')).toEqual('~"a~bug"');
+      expect(beforeInsert(atwhoInstance, '~a~~bug~~')).toEqual('~"a\\~~bug\\~~"');
+    });
+
+    it('escapes Markdown emphasis when needed', () => {
+      expect(beforeInsert(atwhoInstance, '~a_bug_')).toEqual('~a_bug\\_');
+      expect(beforeInsert(atwhoInstance, '~a _bug_')).toEqual('~"a \\_bug\\_"');
+      expect(beforeInsert(atwhoInstance, '~a*bug*')).toEqual('~"a\\*bug\\*"');
+      expect(beforeInsert(atwhoInstance, '~a *bug*')).toEqual('~"a \\*bug\\*"');
+    });
+
+    it('escapes Markdown code spans when needed', () => {
+      expect(beforeInsert(atwhoInstance, '~a`bug`')).toEqual('~"a\\`bug\\`"');
       expect(beforeInsert(atwhoInstance, '~a `bug`')).toEqual('~"a \\`bug\\`"');
-      expect(beforeInsert(atwhoInstance, '~a ~bug')).toEqual('~"a \\~bug"');
-      expect(beforeInsert(atwhoInstance, '~a **bug')).toEqual('~"a \\*\\*bug"');
     });
   });
 
@@ -197,6 +206,38 @@ describe('GfmAutoComplete', () => {
           });
         });
       });
+    });
+  });
+
+  describe('DefaultOptions.highlighter', () => {
+    beforeEach(() => {
+      atwhoInstance = { setting: {} };
+    });
+
+    it('should return li if no query is given', () => {
+      const liTag = '<li></li>';
+
+      const highlightedTag = gfmAutoCompleteCallbacks.highlighter.call(atwhoInstance, liTag);
+
+      expect(highlightedTag).toEqual(liTag);
+    });
+
+    it('should highlight search query in li element', () => {
+      const liTag = '<li><img src="" />string</li>';
+      const query = 's';
+
+      const highlightedTag = gfmAutoCompleteCallbacks.highlighter.call(atwhoInstance, liTag, query);
+
+      expect(highlightedTag).toEqual('<li><img src="" /> <strong>s</strong>tring </li>');
+    });
+
+    it('should highlight search query with special char in li element', () => {
+      const liTag = '<li><img src="" />te.st</li>';
+      const query = '.';
+
+      const highlightedTag = gfmAutoCompleteCallbacks.highlighter.call(atwhoInstance, liTag, query);
+
+      expect(highlightedTag).toEqual('<li><img src="" /> te<strong>.</strong>st </li>');
     });
   });
 

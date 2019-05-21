@@ -155,25 +155,6 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
     it_behaves_like "checks permissions on noteable"
   end
 
-  context "when everything is fine" do
-    before do
-      noteable.update_attribute(:discussion_locked, true)
-    end
-
-    it_behaves_like "checks permissions on noteable"
-  end
-
-  context "when issue is confidential" do
-    let(:issue) { create(:issue, project: project) }
-    let(:note) { create(:note, noteable: issue, project: project) }
-
-    before do
-      issue.update_attribute(:confidential, true)
-    end
-
-    it_behaves_like "checks permissions on noteable"
-  end
-
   shared_examples 'a reply to existing comment' do
     it "creates a comment" do
       expect { receiver.execute }.to change { noteable.notes.count }.by(1)

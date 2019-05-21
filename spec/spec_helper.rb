@@ -53,6 +53,7 @@ RSpec.configure do |config|
   config.display_try_failure_messages = true
 
   config.infer_spec_type_from_file_location!
+  config.full_backtrace = !!ENV['CI']
 
   config.define_derived_metadata(file_path: %r{/spec/}) do |metadata|
     location = metadata[:location]
@@ -83,6 +84,7 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :feature
   config.include LoginHelpers, type: :feature
   config.include SearchHelpers, type: :feature
+  config.include WaitHelpers, type: :feature
   config.include EmailHelpers, :mailer, type: :mailer
   config.include Warden::Test::Helpers, type: :request
   config.include Gitlab::Routing, type: :routing

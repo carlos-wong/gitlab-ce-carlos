@@ -13,7 +13,7 @@ describe MergeRequest do
     it { is_expected.to belong_to(:target_project).class_name('Project') }
     it { is_expected.to belong_to(:source_project).class_name('Project') }
     it { is_expected.to belong_to(:merge_user).class_name("User") }
-    it { is_expected.to belong_to(:assignee) }
+    it { is_expected.to have_many(:assignees).through(:merge_request_assignees) }
     it { is_expected.to have_many(:merge_request_diffs) }
 
     context 'for forks' do
@@ -27,6 +27,29 @@ describe MergeRequest do
 
       it 'finds the associated merge request' do
         expect(project.merge_requests.find(merge_request.id)).to eq(merge_request)
+      end
+    end
+  end
+
+  describe 'locking' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:lock_version) do
+      [
+        [0],
+        ["0"]
+      ]
+    end
+
+    with_them do
+      it 'works when a merge request has a NULL lock_version' do
+        merge_request = create(:merge_request)
+
+        described_class.where(id: merge_request.id).update_all('lock_version = NULL')
+
+        merge_request.update!(lock_version: lock_version, title: 'locking test')
+
+        expect(merge_request.reload.title).to eq('locking test')
       end
     end
   end
@@ -181,31 +204,6 @@ describe MergeRequest do
         expect(MergeRequest::Metrics.count).to eq(1)
       end
     end
-
-    describe '#refresh_merge_request_assignees' do
-      set(:user) { create(:user) }
-
-      it 'creates merge request assignees relation upon MR creation' do
-        merge_request = create(:merge_request, assignee: nil)
-
-        expect(merge_request.merge_request_assignees).to be_empty
-
-        expect { merge_request.update!(assignee: user) }
-          .to change { merge_request.reload.merge_request_assignees.count }
-          .from(0).to(1)
-      end
-
-      it 'updates merge request assignees relation upon MR assignee change' do
-        another_user = create(:user)
-        merge_request = create(:merge_request, assignee: user)
-
-        expect { merge_request.update!(assignee: another_user) }
-          .to change { merge_request.reload.merge_request_assignees.first.assignee }
-          .from(user).to(another_user)
-
-        expect(merge_request.merge_request_assignees.count).to eq(1)
-      end
-    end
   end
 
   describe 'respond to' do
@@ -337,34 +335,18 @@ describe MergeRequest do
   describe '#card_attributes' do
     it 'includes the author name' do
       allow(subject).to receive(:author).and_return(double(name: 'Robert'))
-      allow(subject).to receive(:assignee).and_return(nil)
+      allow(subject).to receive(:assignees).and_return([])
 
       expect(subject.card_attributes)
-        .to eq({ 'Author' => 'Robert', 'Assignee' => nil })
+        .to eq({ 'Author' => 'Robert', 'Assignee' => "" })
     end
 
-    it 'includes the assignee name' do
+    it 'includes the assignees name' do
       allow(subject).to receive(:author).and_return(double(name: 'Robert'))
-      allow(subject).to receive(:assignee).and_return(double(name: 'Douwe'))
+      allow(subject).to receive(:assignees).and_return([double(name: 'Douwe'), double(name: 'Robert')])
 
       expect(subject.card_attributes)
-        .to eq({ 'Author' => 'Robert', 'Assignee' => 'Douwe' })
-    end
-  end
-
-  describe '#assignee_ids' do
-    it 'returns an array of the assigned user id' do
-      subject.assignee_id = 123
-
-      expect(subject.assignee_ids).to eq([123])
-    end
-  end
-
-  describe '#assignee_ids=' do
-    it 'sets assignee_id to the last id in the array' do
-      subject.assignee_ids = [123, 456]
-
-      expect(subject.assignee_id).to eq(456)
+        .to eq({ 'Author' => 'Robert', 'Assignee' => 'Douwe and Robert' })
     end
   end
 
@@ -372,7 +354,7 @@ describe MergeRequest do
     let(:user) { create(:user) }
 
     it 'returns true for a user that is assigned to a merge request' do
-      subject.assignee = user
+      subject.assignees = [user]
 
       expect(subject.assignee_or_author?(user)).to eq(true)
     end
@@ -1949,15 +1931,14 @@ describe MergeRequest do
     it 'updates when assignees change' do
       user1 = create(:user)
       user2 = create(:user)
-      mr = create(:merge_request, assignee: user1)
+      mr = create(:merge_request, assignees: [user1])
       mr.project.add_developer(user1)
       mr.project.add_developer(user2)
 
       expect(user1.assigned_open_merge_requests_count).to eq(1)
       expect(user2.assigned_open_merge_requests_count).to eq(0)
 
-      mr.assignee = user2
-      mr.save
+      mr.assignees = [user2]
 
       expect(user1.assigned_open_merge_requests_count).to eq(0)
       expect(user2.assigned_open_merge_requests_count).to eq(1)
@@ -2165,7 +2146,7 @@ describe MergeRequest do
     end
 
     context 'when merges are not restricted to green builds' do
-      subject { build(:merge_request, target_project: build(:project, only_allow_merge_if_pipeline_succeeds: false)) }
+      subject { build(:merge_request, target_project: create(:project, only_allow_merge_if_pipeline_succeeds: false)) }
 
       context 'and a failed pipeline is associated' do
         before do

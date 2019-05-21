@@ -15,12 +15,14 @@ module API
         optional :info, type: Hash, desc: %q(Runner's metadata)
         optional :active, type: Boolean, desc: 'Should Runner be active'
         optional :locked, type: Boolean, desc: 'Should Runner be locked for current project'
+        optional :access_level, type: String, values: Ci::Runner.access_levels.keys,
+                                desc: 'The access_level of the runner'
         optional :run_untagged, type: Boolean, desc: 'Should Runner handle untagged jobs'
         optional :tag_list, type: Array[String], desc: %q(List of Runner's tags)
         optional :maximum_timeout, type: Integer, desc: 'Maximum timeout set when this Runner will handle the job'
       end
       post '/' do
-        attributes = attributes_for_keys([:description, :active, :locked, :run_untagged, :tag_list, :maximum_timeout])
+        attributes = attributes_for_keys([:description, :active, :locked, :run_untagged, :tag_list, :access_level, :maximum_timeout])
           .merge(get_runner_details_from_request)
 
         attributes =
@@ -144,6 +146,7 @@ module API
       end
       put '/:id' do
         job = authenticate_job!
+        job_forbidden!(job, 'Job is not running') unless job.running?
 
         job.trace.set(params[:trace]) if params[:trace]
 
@@ -171,6 +174,7 @@ module API
       end
       patch '/:id/trace' do
         job = authenticate_job!
+        job_forbidden!(job, 'Job is not running') unless job.running?
 
         error!('400 Missing header Content-Range', 400) unless request.headers.key?('Content-Range')
         content_range = request.headers['Content-Range']
@@ -213,7 +217,8 @@ module API
         require_gitlab_workhorse!
         Gitlab::Workhorse.verify_api_request!(headers)
 
-        authenticate_job!
+        job = authenticate_job!
+        forbidden!('Job is not running') unless job.running?
 
         if params[:filesize]
           file_size = params[:filesize].to_i
@@ -256,6 +261,7 @@ module API
         require_gitlab_workhorse!
 
         job = authenticate_job!
+        forbidden!('Job is not running!') unless job.running?
 
         artifacts = UploadedFile.from_params(params, :file, JobArtifactUploader.workhorse_local_upload_path)
         metadata = UploadedFile.from_params(params, :metadata, JobArtifactUploader.workhorse_local_upload_path)
@@ -302,7 +308,7 @@ module API
         optional :direct_download, default: false, type: Boolean, desc: %q(Perform direct download from remote storage instead of proxying artifacts)
       end
       get '/:id/artifacts' do
-        job = authenticate_pipeline_job!
+        job = authenticate_job!
 
         present_carrierwave_file!(job.artifacts_file, supports_direct_download: params[:direct_download])
       end

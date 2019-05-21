@@ -25,6 +25,12 @@ shared_examples_for "chat service" do |service_name|
     end
   end
 
+  describe '.supported_events' do
+    it 'does not support deployment_events' do
+      expect(described_class.supported_events).not_to include('deployment')
+    end
+  end
+
   describe "#execute" do
     let(:user) { create(:user) }
     let(:project) { create(:project, :repository) }
@@ -64,7 +70,7 @@ shared_examples_for "chat service" do |service_name|
 
       context "with not default branch" do
         let(:sample_data) do
-          Gitlab::DataBuilder::Push.build(project, user, nil, nil, "not-the-default-branch")
+          Gitlab::DataBuilder::Push.build(project: project, user: user, ref: "not-the-default-branch")
         end
 
         context "when notify_only_default_branch enabled" do

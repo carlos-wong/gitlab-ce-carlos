@@ -99,9 +99,10 @@ merge_requests:
 - timelogs
 - head_pipeline
 - latest_merge_request_diff
-- merge_request_pipelines
+- pipelines_for_merge_request
 - merge_request_assignees
 - suggestions
+- assignees
 merge_request_diff:
 - merge_request
 - merge_request_diff_commits
@@ -321,6 +322,7 @@ project:
 - pool_repository
 - kubernetes_namespaces
 - error_tracking_setting
+- metrics_setting
 award_emoji:
 - awardable
 - user
@@ -336,6 +338,9 @@ push_event_payload:
 - event
 issue_assignees:
 - issue
+- assignee
+merge_request_assignees:
+- merge_request
 - assignee
 lfs_file_locks:
 - user
@@ -356,3 +361,5 @@ error_tracking_setting:
 - project
 suggestions:
 - note
+metrics_setting:
+- project

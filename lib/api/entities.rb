@@ -664,7 +664,11 @@ module API
       expose(:user_notes_count) { |merge_request, options| issuable_metadata(merge_request, options, :user_notes_count) }
       expose(:upvotes)          { |merge_request, options| issuable_metadata(merge_request, options, :upvotes) }
       expose(:downvotes)        { |merge_request, options| issuable_metadata(merge_request, options, :downvotes) }
-      expose :author, :assignee, using: Entities::UserBasic
+      expose :assignee, using: ::API::Entities::UserBasic do |merge_request|
+        merge_request.assignee
+      end
+      expose :author, :assignees, using: Entities::UserBasic
+
       expose :source_project_id, :target_project_id
       expose :labels do |merge_request|
         # Avoids an N+1 query since labels are preloaded
@@ -918,7 +922,15 @@ module API
     end
 
     class NamespaceBasic < Grape::Entity
-      expose :id, :name, :path, :kind, :full_path, :parent_id
+      expose :id, :name, :path, :kind, :full_path, :parent_id, :avatar_url
+
+      expose :web_url do |namespace|
+        if namespace.user?
+          Gitlab::Routing.url_helpers.user_url(namespace.owner)
+        else
+          namespace.web_url
+        end
+      end
     end
 
     class Namespace < NamespaceBasic
@@ -1144,21 +1156,32 @@ module API
       end
     end
 
-    class Release < TagRelease
+    class Release < Grape::Entity
       expose :name
+      expose :tag, as: :tag_name, if: lambda { |_, _| can_download_code? }
+      expose :description
       expose :description_html do |entity|
         MarkupHelper.markdown_field(entity, :description)
       end
       expose :created_at
       expose :author, using: Entities::UserBasic, if: -> (release, _) { release.author.present? }
-      expose :commit, using: Entities::Commit
+      expose :commit, using: Entities::Commit, if: lambda { |_, _| can_download_code? }
 
       expose :assets do
-        expose :assets_count, as: :count
-        expose :sources, using: Entities::Releases::Source
+        expose :assets_count, as: :count do |release, _|
+          assets_to_exclude = can_download_code? ? [] : [:sources]
+          release.assets_count(except: assets_to_exclude)
+        end
+        expose :sources, using: Entities::Releases::Source, if: lambda { |_, _| can_download_code? }
         expose :links, using: Entities::Releases::Link do |release, options|
           release.links.sorted
         end
+      end
+
+      private
+
+      def can_download_code?
+        Ability.allowed?(options[:current_user], :download_code, object.project)
       end
     end
 
@@ -1265,7 +1288,7 @@ module API
     end
 
     class Variable < Grape::Entity
-      expose :key, :value
+      expose :variable_type, :key, :value
       expose :protected?, as: :protected, if: -> (entity, _) { entity.respond_to?(:protected?) }
     end
 
@@ -1297,15 +1320,16 @@ module API
       expose :id, :name, :slug, :external_url
     end
 
-    class Environment < EnvironmentBasic
-      expose :project, using: Entities::BasicProjectDetails
-    end
-
     class Deployment < Grape::Entity
       expose :id, :iid, :ref, :sha, :created_at
       expose :user,        using: Entities::UserBasic
       expose :environment, using: Entities::EnvironmentBasic
       expose :deployable,  using: Entities::Job
+    end
+
+    class Environment < EnvironmentBasic
+      expose :project, using: Entities::BasicProjectDetails
+      expose :last_deployment, using: Entities::Deployment, if: { last_deployment: true }
     end
 
     class LicenseBasic < Grape::Entity
@@ -1433,17 +1457,7 @@ module API
       end
 
       class Dependency < Grape::Entity
-        expose :id, :name
-        expose :token do |dependency, options|
-          # overrides the job's dependency authorization token
-          # with the token of the job that is being run
-          # this way we use the parent job auth token
-          #
-          # ideally we would change the runner implementation to
-          # use different token, but this would require upgrade of
-          # all runners which is impossible
-          options[:auth_token]
-        end
+        expose :id, :name, :token
         expose :artifacts_file, using: JobArtifactFile, if: ->(job, _) { job.artifacts? }
       end
 
@@ -1471,10 +1485,7 @@ module API
         expose :artifacts, using: Artifacts
         expose :cache, using: Cache
         expose :credentials, using: Credentials
-        expose :dependencies do |model|
-          Dependency.represent(model.dependencies,
-            options.merge(auth_token: model.token))
-        end
+        expose :dependencies, using: Dependency
         expose :features
       end
     end

@@ -3,6 +3,7 @@ require "spec_helper"
 
 describe Gitlab::Git::Repository, :seed_helper do
   include Gitlab::EncodingHelper
+  include RepoHelpers
   using RSpec::Parameterized::TableSyntax
 
   shared_examples 'wrapping gRPC errors' do |gitaly_client_class, gitaly_client_method|
@@ -95,6 +96,12 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
+  describe '#create_repository' do
+    it_behaves_like 'wrapping gRPC errors', Gitlab::GitalyClient::RepositoryService, :create_repository do
+      subject { repository.create_repository }
+    end
+  end
+
   describe '#branch_names' do
     subject { repository.branch_names }
 
@@ -152,13 +159,14 @@ describe Gitlab::Git::Repository, :seed_helper do
     let(:append_sha) { true }
     let(:ref) { 'master' }
     let(:format) { nil }
+    let(:path) { nil }
 
     let(:expected_extension) { 'tar.gz' }
     let(:expected_filename) { "#{expected_prefix}.#{expected_extension}" }
     let(:expected_path) { File.join(storage_path, cache_key, expected_filename) }
     let(:expected_prefix) { "gitlab-git-test-#{ref}-#{SeedRepo::LastCommit::ID}" }
 
-    subject(:metadata) { repository.archive_metadata(ref, storage_path, 'gitlab-git-test', format, append_sha: append_sha) }
+    subject(:metadata) { repository.archive_metadata(ref, storage_path, 'gitlab-git-test', format, append_sha: append_sha, path: path) }
 
     it 'sets CommitId to the commit SHA' do
       expect(metadata['CommitId']).to eq(SeedRepo::LastCommit::ID)
@@ -174,6 +182,14 @@ describe Gitlab::Git::Repository, :seed_helper do
       expect(expected_path).to include(File.join(repository.gl_repository, SeedRepo::LastCommit::ID))
 
       expect(metadata['ArchivePath']).to eq(expected_path)
+    end
+
+    context 'path is set' do
+      let(:path) { 'foo/bar' }
+
+      it 'appends the path to the prefix' do
+        expect(metadata['ArchivePrefix']).to eq("#{expected_prefix}-foo-bar")
+      end
     end
 
     context 'append_sha varies archive path and filename' do
@@ -1957,6 +1973,70 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
+  describe '#compare_source_branch' do
+    let(:repository) { Gitlab::Git::Repository.new('default', TEST_GITATTRIBUTES_REPO_PATH, '', 'group/project') }
+
+    context 'within same repository' do
+      it 'does not create a temp ref' do
+        expect(repository).not_to receive(:fetch_source_branch!)
+        expect(repository).not_to receive(:delete_refs)
+
+        compare = repository.compare_source_branch('master', repository, 'feature', straight: false)
+        expect(compare).to be_a(Gitlab::Git::Compare)
+        expect(compare.commits.count).to be > 0
+      end
+
+      it 'returns empty commits when source ref does not exist' do
+        compare = repository.compare_source_branch('master', repository, 'non-existent-branch', straight: false)
+
+        expect(compare.commits).to be_empty
+      end
+    end
+
+    context 'with different repositories' do
+      context 'when ref is known by source repo, but not by target' do
+        before do
+          mutable_repository.write_ref('another-branch', 'feature')
+        end
+
+        it 'creates temp ref' do
+          expect(repository).not_to receive(:fetch_source_branch!)
+          expect(repository).not_to receive(:delete_refs)
+
+          compare = repository.compare_source_branch('master', mutable_repository, 'another-branch', straight: false)
+          expect(compare).to be_a(Gitlab::Git::Compare)
+          expect(compare.commits.count).to be > 0
+        end
+      end
+
+      context 'when ref is known by source and target repos' do
+        before do
+          mutable_repository.write_ref('another-branch', 'feature')
+          repository.write_ref('another-branch', 'feature')
+        end
+
+        it 'does not create a temp ref' do
+          expect(repository).not_to receive(:fetch_source_branch!)
+          expect(repository).not_to receive(:delete_refs)
+
+          compare = repository.compare_source_branch('master', mutable_repository, 'another-branch', straight: false)
+          expect(compare).to be_a(Gitlab::Git::Compare)
+          expect(compare.commits.count).to be > 0
+        end
+      end
+
+      context 'when ref is unknown by source repo' do
+        it 'returns nil when source ref does not exist' do
+          expect(repository).to receive(:fetch_source_branch!).and_call_original
+          expect(repository).to receive(:delete_refs).and_call_original
+
+          compare = repository.compare_source_branch('master', mutable_repository, 'non-existent-branch', straight: false)
+          expect(compare).to be_nil
+        end
+      end
+    end
+  end
+
   describe '#checksum' do
     it 'calculates the checksum for non-empty repo' do
       expect(repository.checksum).to eq '51d0a9662681f93e1fee547a6b7ba2bcaf716059'
@@ -2130,86 +2210,48 @@ describe Gitlab::Git::Repository, :seed_helper do
     repository_rugged.references.create("refs/remotes/#{remote_name}/#{branch_name}", source_branch.dereferenced_target.sha)
   end
 
-  # Build the options hash that's passed to Rugged::Commit#create
-  def commit_options(repo, index, target, ref, message)
-    options = {}
-    options[:tree] = index.write_tree(repo)
-    options[:author] = {
-      email: "test@example.com",
-      name: "Test Author",
-      time: Time.gm(2014, "mar", 3, 20, 15, 1)
-    }
-    options[:committer] = {
-      email: "test@example.com",
-      name: "Test Author",
-      time: Time.gm(2014, "mar", 3, 20, 15, 1)
-    }
-    options[:message] ||= message
-    options[:parents] = repo.empty? ? [] : [target].compact
-    options[:update_ref] = ref
-
-    options
-  end
-
-  # Writes a new commit to the repo and returns a Rugged::Commit.  Replaces the
-  # contents of CHANGELOG with a single new line of text.
-  def new_commit_edit_old_file(repo)
-    oid = repo.write("I replaced the changelog with this text", :blob)
-    index = repo.index
-    index.read_tree(repo.head.target.tree)
-    index.add(path: "CHANGELOG", oid: oid, mode: 0100644)
-
-    options = commit_options(
-      repo,
-      index,
-      repo.head.target,
-      "HEAD",
-      "Edit CHANGELOG in its original location"
-    )
-
-    sha = Rugged::Commit.create(repo, options)
-    repo.lookup(sha)
-  end
-
-  # Writes a new commit to the repo and returns a Rugged::Commit.  Replaces the
-  # contents of the specified file_path with new text.
-  def new_commit_edit_new_file(repo, file_path, commit_message, text, branch = repo.head)
-    oid = repo.write(text, :blob)
-    index = repo.index
-    index.read_tree(branch.target.tree)
-    index.add(path: file_path, oid: oid, mode: 0100644)
-    options = commit_options(repo, index, branch.target, branch.canonical_name, commit_message)
-    sha = Rugged::Commit.create(repo, options)
-    repo.lookup(sha)
-  end
-
-  # Writes a new commit to the repo and returns a Rugged::Commit.  Replaces the
-  # contents of encoding/CHANGELOG with new text.
-  def new_commit_edit_new_file_on_branch(repo, file_path, branch_name, commit_message, text)
-    branch = repo.branches[branch_name]
-    new_commit_edit_new_file(repo, file_path, commit_message, text, branch)
-  end
-
-  # Writes a new commit to the repo and returns a Rugged::Commit.  Moves the
-  # CHANGELOG file to the encoding/ directory.
-  def new_commit_move_file(repo)
-    blob_oid = repo.head.target.tree.detect { |i| i[:name] == "CHANGELOG" }[:oid]
-    file_content = repo.lookup(blob_oid).content
-    oid = repo.write(file_content, :blob)
-    index = repo.index
-    index.read_tree(repo.head.target.tree)
-    index.add(path: "encoding/CHANGELOG", oid: oid, mode: 0100644)
-    index.remove("CHANGELOG")
-
-    options = commit_options(repo, index, repo.head.target, "HEAD", "Move CHANGELOG to encoding/")
-
-    sha = Rugged::Commit.create(repo, options)
-    repo.lookup(sha)
-  end
-
   def refs(dir)
     IO.popen(%W[git -C #{dir} for-each-ref], &:read).split("\n").map do |line|
       line.split("\t").last
+    end
+  end
+
+  describe '#disconnect_alternates' do
+    let(:project) { create(:project, :repository) }
+    let(:pool_repository) { create(:pool_repository) }
+    let(:repository) { project.repository }
+    let(:repository_path) { File.join(TestEnv.repos_path, repository.relative_path) }
+    let(:object_pool) { pool_repository.object_pool }
+    let(:object_pool_path) { File.join(TestEnv.repos_path, object_pool.repository.relative_path) }
+    let(:object_pool_rugged) { Rugged::Repository.new(object_pool_path) }
+
+    before do
+      object_pool.create
+    end
+
+    it 'does not raise an error when disconnecting a non-linked repository' do
+      expect { repository.disconnect_alternates }.not_to raise_error
+    end
+
+    it 'removes the alternates file' do
+      object_pool.link(repository)
+
+      alternates_file = File.join(repository_path, "objects", "info", "alternates")
+      expect(File.exist?(alternates_file)).to be_truthy
+
+      repository.disconnect_alternates
+
+      expect(File.exist?(alternates_file)).to be_falsey
+    end
+
+    it 'can still access objects in the object pool' do
+      object_pool.link(repository)
+      new_commit = new_commit_edit_old_file(object_pool_rugged)
+      expect(repository.commit(new_commit.oid).id).to eq(new_commit.oid)
+
+      repository.disconnect_alternates
+
+      expect(repository.commit(new_commit.oid).id).to eq(new_commit.oid)
     end
   end
 end

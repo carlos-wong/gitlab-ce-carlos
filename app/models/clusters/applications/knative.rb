@@ -3,7 +3,7 @@
 module Clusters
   module Applications
     class Knative < ApplicationRecord
-      VERSION = '0.3.0'.freeze
+      VERSION = '0.5.0'.freeze
       REPOSITORY = 'https://storage.googleapis.com/triggermesh-charts'.freeze
       METRICS_CONFIG = 'https://storage.googleapis.com/triggermesh-charts/istio-metrics.yaml'.freeze
       FETCH_IP_ADDRESS_DELAY = 30.seconds
@@ -49,6 +49,12 @@ module Clusters
 
       def values
         { "domain" => hostname }.to_yaml
+      end
+
+      # Handled in a new issue:
+      # https://gitlab.com/gitlab-org/gitlab-ce/issues/59369
+      def allowed_to_uninstall?
+        false
       end
 
       def install_command

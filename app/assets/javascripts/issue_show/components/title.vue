@@ -72,7 +72,20 @@ export default {
         'issue-realtime-trigger-pulse': pulseAnimation,
       }"
       class="title"
+      dir="auto"
       v-html="titleHtml"
     ></h2>
+    <button
+      v-if="showInlineEditButton && canUpdate"
+      v-tooltip
+      type="button"
+      class="btn btn-default btn-edit btn-svg js-issuable-edit
+      qa-edit-button"
+      title="Edit title and description"
+      data-placement="bottom"
+      data-container="body"
+      @click="edit"
+      v-html="pencilIcon"
+    ></button>
   </div>
 </template>

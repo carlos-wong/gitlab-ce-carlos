@@ -36,10 +36,10 @@ class ProjectsController < Projects::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def new
-    namespace = Namespace.find_by(id: params[:namespace_id]) if params[:namespace_id]
-    return access_denied! if namespace && !can?(current_user, :create_projects, namespace)
+    @namespace = Namespace.find_by(id: params[:namespace_id]) if params[:namespace_id]
+    return access_denied! if @namespace && !can?(current_user, :create_projects, @namespace)
 
-    @project = Project.new(namespace_id: namespace&.id)
+    @project = Project.new(namespace_id: @namespace&.id)
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -237,7 +237,7 @@ class ProjectsController < Projects::ApplicationController
 
   def toggle_star
     current_user.toggle_star(@project)
-    @project.reload
+    @project.reset
 
     render json: {
       star_count: @project.star_count

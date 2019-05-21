@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../qa'
 require 'rspec/retry'
 
@@ -34,7 +36,7 @@ RSpec.configure do |config|
   config.display_try_failure_messages = true
 
   config.around do |example|
-    retry_times = example.metadata.keys.include?(:quarantine) ? 1 : 3
+    retry_times = example.metadata.keys.include?(:quarantine) ? 1 : 2
     example.run_with_retry retry: retry_times
   end
 end

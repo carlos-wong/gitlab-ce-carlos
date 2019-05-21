@@ -190,7 +190,7 @@ module Gitlab
 
       def fsck
         request = Gitaly::FsckRequest.new(repository: @gitaly_repo)
-        response = GitalyClient.call(@storage, :repository_service, :fsck, request)
+        response = GitalyClient.call(@storage, :repository_service, :fsck, request, timeout: GitalyClient.no_timeout)
 
         if response.error.empty?
           return "", 0
@@ -329,6 +329,14 @@ module Gitlab
         response = GitalyClient.call(@storage, :repository_service, :search_files_by_content, request)
 
         search_results_from_response(response)
+      end
+
+      def disconnect_alternates
+        request = Gitaly::DisconnectGitAlternatesRequest.new(
+          repository: @gitaly_repo
+        )
+
+        GitalyClient.call(@storage, :object_pool_service, :disconnect_git_alternates, request)
       end
 
       private

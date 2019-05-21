@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe SnippetsController do
@@ -146,13 +148,6 @@ describe SnippetsController do
 
         it 'responds with status 200 when embeddable content is requested' do
           get :show, params: { id: personal_snippet.to_param }, format: :js
-
-          expect(assigns(:snippet)).to eq(personal_snippet)
-          expect(response).to have_gitlab_http_status(200)
-        end
-
-        it 'responds with status 200 when embeddable content is requested' do
-          get :show, id: personal_snippet.to_param, format: :js
 
           expect(assigns(:snippet)).to eq(personal_snippet)
           expect(response).to have_gitlab_http_status(200)

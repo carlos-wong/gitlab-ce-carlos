@@ -2,6 +2,10 @@ const IS_EE = require('./config/helpers/is_ee_env');
 
 const reporters = ['default'];
 
+// To have consistent date time parsing both in local and CI environments we set
+// the timezone of the Node process. https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27738
+process.env.TZ = 'GMT';
+
 if (process.env.CI) {
   reporters.push([
     'jest-junit',
@@ -24,6 +28,7 @@ module.exports = {
     '^helpers(/.*)$': '<rootDir>/spec/frontend/helpers$1',
     '^vendor(/.*)$': '<rootDir>/vendor/assets/javascripts$1',
     '\\.(jpg|jpeg|png|svg)$': '<rootDir>/spec/frontend/__mocks__/file_mock.js',
+    'emojis(/.*).json': '<rootDir>/fixtures/emojis$1.json',
   },
   collectCoverageFrom: ['<rootDir>/app/assets/javascripts/**/*.{js,vue}'],
   coverageDirectory: '<rootDir>/coverage-frontend/',

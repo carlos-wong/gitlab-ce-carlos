@@ -61,6 +61,12 @@ describe('User Popover Component', () => {
       expect(vm.$el.textContent).toContain(DEFAULT_PROPS.user.username);
       expect(vm.$el.textContent).toContain(DEFAULT_PROPS.user.location);
     });
+
+    it('shows icon for location', () => {
+      const iconEl = vm.$el.querySelector('.js-location svg');
+
+      expect(iconEl.querySelector('use').getAttribute('xlink:href')).toContain('location');
+    });
   });
 
   describe('job data', () => {
@@ -118,17 +124,16 @@ describe('User Popover Component', () => {
       );
     });
 
-    it('should not encode special characters when we have bio and organization', () => {
-      const testProps = Object.assign({}, DEFAULT_PROPS);
-      testProps.user.bio = 'Manager & Team Lead';
-      testProps.user.organization = 'GitLab';
+    it('shows icon for bio', () => {
+      const iconEl = vm.$el.querySelector('.js-bio svg');
 
-      vm = mountComponent(UserPopover, {
-        ...DEFAULT_PROPS,
-        target: document.querySelector('.js-user-link'),
-      });
+      expect(iconEl.querySelector('use').getAttribute('xlink:href')).toContain('profile');
+    });
 
-      expect(vm.$el.textContent).toContain('Manager & Team Lead at GitLab');
+    it('shows icon for organization', () => {
+      const iconEl = vm.$el.querySelector('.js-organization svg');
+
+      expect(iconEl.querySelector('use').getAttribute('xlink:href')).toContain('work');
     });
   });
 

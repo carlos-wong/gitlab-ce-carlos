@@ -3,6 +3,8 @@ env:
   jest/globals: true
 plugins:
   - jest
+extends:
+  - 'plugin:jest/recommended'
 settings:
   import/resolver:
     jest:

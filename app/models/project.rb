@@ -56,6 +56,7 @@ class Project < ApplicationRecord
   VALID_MIRROR_PROTOCOLS = %w(http https ssh git).freeze
 
   ignore_column :import_status, :import_jid, :import_error
+  ignore_column :ci_id
 
   cache_markdown_field :description, pipeline: :description
 
@@ -90,7 +91,7 @@ class Project < ApplicationRecord
 
   before_save :ensure_runners_token
 
-  after_save :update_project_statistics, if: :namespace_id_changed?
+  after_save :update_project_statistics, if: :saved_change_to_namespace_id?
 
   after_save :create_import_state, if: ->(project) { project.import? && project.import_state.nil? }
 
@@ -116,7 +117,7 @@ class Project < ApplicationRecord
   after_initialize :use_hashed_storage
   after_create :check_repository_absence!
   after_create :ensure_storage_path_exists
-  after_save :ensure_storage_path_exists, if: :namespace_id_changed?
+  after_save :ensure_storage_path_exists, if: :saved_change_to_namespace_id?
 
   acts_as_ordered_taggable
 
@@ -188,6 +189,7 @@ class Project < ApplicationRecord
   has_one :import_export_upload, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :project_repository, inverse_of: :project
   has_one :error_tracking_setting, inverse_of: :project, class_name: 'ErrorTracking::ProjectErrorTrackingSetting'
+  has_one :metrics_setting, inverse_of: :project, class_name: 'ProjectMetricsSetting'
 
   # Merge Requests for target project should be removed with it
   has_many :merge_requests, foreign_key: 'target_project_id', inverse_of: :target_project
@@ -297,6 +299,7 @@ class Project < ApplicationRecord
                                 reject_if: ->(attrs) { attrs[:id].blank? && attrs[:url].blank? }
 
   accepts_nested_attributes_for :error_tracking_setting, update_only: true
+  accepts_nested_attributes_for :metrics_setting, update_only: true, allow_destroy: true
 
   delegate :name, to: :owner, allow_nil: true, prefix: true
   delegate :members, to: :team, prefix: true
@@ -313,7 +316,7 @@ class Project < ApplicationRecord
   validates :description, length: { maximum: 2000 }, allow_blank: true
   validates :ci_config_path,
     format: { without: %r{(\.{2}|\A/)},
-              message: 'cannot include leading slash or directory traversal.' },
+              message: _('cannot include leading slash or directory traversal.') },
     length: { maximum: 255 },
     allow_blank: true
   validates :name,
@@ -328,14 +331,14 @@ class Project < ApplicationRecord
 
   validates :namespace, presence: true
   validates :name, uniqueness: { scope: :namespace_id }
-  validates :import_url, public_url: { protocols: ->(project) { project.persisted? ? VALID_MIRROR_PROTOCOLS : VALID_IMPORT_PROTOCOLS },
+  validates :import_url, public_url: { schemes: ->(project) { project.persisted? ? VALID_MIRROR_PROTOCOLS : VALID_IMPORT_PROTOCOLS },
                                        ports: ->(project) { project.persisted? ? VALID_MIRROR_PORTS : VALID_IMPORT_PORTS },
                                        enforce_user: true }, if: [:external_import?, :import_url_changed?]
   validates :star_count, numericality: { greater_than_or_equal_to: 0 }
   validate :check_personal_projects_limit, on: :create
   validate :check_repository_path_availability, on: :update, if: ->(project) { project.renamed? }
-  validate :visibility_level_allowed_by_group, if: -> { changes.has_key?(:visibility_level) }
-  validate :visibility_level_allowed_as_fork, if: -> { changes.has_key?(:visibility_level) }
+  validate :visibility_level_allowed_by_group, if: :should_validate_visibility_level?
+  validate :visibility_level_allowed_as_fork, if: :should_validate_visibility_level?
   validate :check_wiki_path_conflict
   validate :validate_pages_https_only, if: -> { changes.has_key?(:pages_https_only) }
   validates :repository_storage,
@@ -354,7 +357,8 @@ class Project < ApplicationRecord
 
   # last_activity_at is throttled every minute, but last_repository_updated_at is updated with every push
   scope :sorted_by_activity, -> { reorder("GREATEST(COALESCE(last_activity_at, '1970-01-01'), COALESCE(last_repository_updated_at, '1970-01-01')) DESC") }
-  scope :sorted_by_stars, -> { reorder(star_count: :desc) }
+  scope :sorted_by_stars_desc, -> { reorder(star_count: :desc) }
+  scope :sorted_by_stars_asc, -> { reorder(star_count: :asc) }
 
   scope :in_namespace, ->(namespace_ids) { where(namespace_id: namespace_ids) }
   scope :personal, ->(user) { where(namespace_id: user.namespace_id) }
@@ -420,13 +424,13 @@ class Project < ApplicationRecord
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
   chronic_duration_attr :build_timeout_human_readable, :build_timeout,
-    default: 3600, error_message: 'Maximum job timeout has a value which could not be accepted'
+    default: 3600, error_message: _('Maximum job timeout has a value which could not be accepted')
 
   validates :build_timeout, allow_nil: true,
                             numericality: { greater_than_or_equal_to: 10.minutes,
                                             less_than: 1.month,
                                             only_integer: true,
-                                            message: 'needs to be beetween 10 minutes and 1 month' }
+                                            message: _('needs to be beetween 10 minutes and 1 month') }
 
   # Used by Projects::CleanupService to hold a map of rewritten object IDs
   mount_uploader :bfg_object_map, AttachmentUploader
@@ -460,10 +464,12 @@ class Project < ApplicationRecord
 
   # Returns a collection of projects that is either public or visible to the
   # logged in user.
-  def self.public_or_visible_to_user(user = nil)
+  def self.public_or_visible_to_user(user = nil, min_access_level = nil)
+    min_access_level = nil if user&.admin?
+
     if user
       where('EXISTS (?) OR projects.visibility_level IN (?)',
-            user.authorizations_for_projects,
+            user.authorizations_for_projects(min_access_level: min_access_level),
             Gitlab::VisibilityLevel.levels_for_user(user))
     else
       public_to_user
@@ -473,30 +479,32 @@ class Project < ApplicationRecord
   # project features may be "disabled", "internal", "enabled" or "public". If "internal",
   # they are only available to team members. This scope returns projects where
   # the feature is either public, enabled, or internal with permission for the user.
+  # Note: this scope doesn't enforce that the user has access to the projects, it just checks
+  # that the user has access to the feature. It's important to use this scope with others
+  # that checks project authorizations first.
   #
   # This method uses an optimised version of `with_feature_access_level` for
   # logged in users to more efficiently get private projects with the given
   # feature.
   def self.with_feature_available_for_user(feature, user)
     visible = [ProjectFeature::ENABLED, ProjectFeature::PUBLIC]
-    min_access_level = ProjectFeature.required_minimum_access_level(feature)
 
     if user&.admin?
       with_feature_enabled(feature)
     elsif user
+      min_access_level = ProjectFeature.required_minimum_access_level(feature)
       column = ProjectFeature.quoted_access_level_column(feature)
 
       with_project_feature
-        .where(
-          "(projects.visibility_level > :private AND (#{column} IS NULL OR #{column} >= (:public_visible) OR (#{column} = :private_visible AND EXISTS(:authorizations))))"\
-          " OR (projects.visibility_level = :private AND (#{column} IS NULL OR #{column} >= :private_visible) AND EXISTS(:authorizations))",
-          {
-            private: Gitlab::VisibilityLevel::PRIVATE,
-            public_visible: ProjectFeature::ENABLED,
-            private_visible: ProjectFeature::PRIVATE,
-            authorizations: user.authorizations_for_projects(min_access_level: min_access_level)
-          })
+      .where("#{column} IS NULL OR #{column} IN (:public_visible) OR (#{column} = :private_visible AND EXISTS (:authorizations))",
+            {
+              public_visible: visible,
+              private_visible: ProjectFeature::PRIVATE,
+              authorizations: user.authorizations_for_projects(min_access_level: min_access_level)
+            })
     else
+      # This has to be added to include features whose value is nil in the db
+      visible << nil
       with_feature_access_level(feature, visible)
     end
   end
@@ -541,7 +549,9 @@ class Project < ApplicationRecord
       when 'latest_activity_asc'
         reorder(last_activity_at: :asc)
       when 'stars_desc'
-        sorted_by_stars
+        sorted_by_stars_desc
+      when 'stars_asc'
+        sorted_by_stars_asc
       else
         order_by(method)
       end
@@ -646,6 +656,10 @@ class Project < ApplicationRecord
     return namespace.first_auto_devops_config if auto_devops&.enabled.nil?
 
     { scope: :project, status: auto_devops&.enabled || Feature.enabled?(:force_autodevops_on_by_default, self) }
+  end
+
+  def multiple_mr_assignees_enabled?
+    Feature.enabled?(:multiple_merge_request_assignees, self)
   end
 
   def daily_statistics_enabled?
@@ -846,7 +860,7 @@ class Project < ApplicationRecord
   def mark_stuck_remote_mirrors_as_failed!
     remote_mirrors.stuck.update_all(
       update_status: :failed,
-      last_error: 'The remote mirror took to long to complete.',
+      last_error: _('The remote mirror took to long to complete.'),
       last_update_at: Time.now
     )
   end
@@ -878,19 +892,23 @@ class Project < ApplicationRecord
     self.errors.add(:limit_reached, error % { limit: limit })
   end
 
+  def should_validate_visibility_level?
+    new_record? || changes.has_key?(:visibility_level)
+  end
+
   def visibility_level_allowed_by_group
     return if visibility_level_allowed_by_group?
 
     level_name = Gitlab::VisibilityLevel.level_name(self.visibility_level).downcase
     group_level_name = Gitlab::VisibilityLevel.level_name(self.group.visibility_level).downcase
-    self.errors.add(:visibility_level, "#{level_name} is not allowed in a #{group_level_name} group.")
+    self.errors.add(:visibility_level, _("%{level_name} is not allowed in a %{group_level_name} group.") % { level_name: level_name, group_level_name: group_level_name })
   end
 
   def visibility_level_allowed_as_fork
     return if visibility_level_allowed_as_fork?
 
     level_name = Gitlab::VisibilityLevel.level_name(self.visibility_level).downcase
-    self.errors.add(:visibility_level, "#{level_name} is not allowed since the fork source project has lower visibility.")
+    self.errors.add(:visibility_level, _("%{level_name} is not allowed since the fork source project has lower visibility.") % { level_name: level_name })
   end
 
   def check_wiki_path_conflict
@@ -899,7 +917,7 @@ class Project < ApplicationRecord
     path_to_check = path.ends_with?('.wiki') ? path.chomp('.wiki') : "#{path}.wiki"
 
     if Project.where(namespace_id: namespace_id, path: path_to_check).exists?
-      errors.add(:name, 'has already been taken')
+      errors.add(:name, _('has already been taken'))
     end
   end
 
@@ -919,7 +937,7 @@ class Project < ApplicationRecord
     return unless pages_https_only?
 
     unless pages_domains.all?(&:https?)
-      errors.add(:pages_https_only, "cannot be enabled unless all domains have TLS certificates")
+      errors.add(:pages_https_only, _("cannot be enabled unless all domains have TLS certificates"))
     end
   end
 
@@ -1199,7 +1217,7 @@ class Project < ApplicationRecord
   def valid_repo?
     repository.exists?
   rescue
-    errors.add(:path, 'Invalid repository path')
+    errors.add(:path, _('Invalid repository path'))
     false
   end
 
@@ -1290,7 +1308,7 @@ class Project < ApplicationRecord
     # Check if repository with same path already exists on disk we can
     # skip this for the hashed storage because the path does not change
     if legacy_storage? && repository_with_same_path_already_exists?
-      errors.add(:base, 'There is already a repository with that name on disk')
+      errors.add(:base, _('There is already a repository with that name on disk'))
       return false
     end
 
@@ -1312,7 +1330,7 @@ class Project < ApplicationRecord
       repository.after_create
       true
     else
-      errors.add(:base, 'Failed to create repository via gitlab-shell')
+      errors.add(:base, _('Failed to create repository via gitlab-shell'))
       false
     end
   end
@@ -1388,7 +1406,7 @@ class Project < ApplicationRecord
       ProjectCacheWorker.perform_async(self.id, [], [:commit_count])
       reload_default_branch
     else
-      errors.add(:base, "Could not change HEAD: branch '#{branch}' does not exist")
+      errors.add(:base, _("Could not change HEAD: branch '%{branch}' does not exist") % { branch: branch })
       false
     end
   end
@@ -1426,7 +1444,7 @@ class Project < ApplicationRecord
 
   # update visibility_level of forks
   def update_forks_visibility_level
-    return unless visibility_level < visibility_level_was
+    return unless visibility_level < visibility_level_before_last_save
 
     forks.each do |forked_project|
       if forked_project.visibility_level > visibility_level
@@ -1440,7 +1458,7 @@ class Project < ApplicationRecord
     ProjectWiki.new(self, self.owner).wiki
     true
   rescue ProjectWiki::CouldNotCreateWikiError
-    errors.add(:base, 'Failed create wiki')
+    errors.add(:base, _('Failed create wiki'))
     false
   end
 
@@ -1906,8 +1924,8 @@ class Project < ApplicationRecord
     false
   end
 
-  def full_path_was
-    File.join(namespace.full_path, previous_changes['path'].first)
+  def full_path_before_last_save
+    File.join(namespace.full_path, path_before_last_save)
   end
 
   alias_method :name_with_namespace, :full_name
@@ -1929,7 +1947,7 @@ class Project < ApplicationRecord
   #
   # @param [Symbol] feature that needs to be rolled out for the project (:repository, :attachments)
   def hashed_storage?(feature)
-    raise ArgumentError, "Invalid feature" unless HASHED_STORAGE_FEATURES.include?(feature)
+    raise ArgumentError, _("Invalid feature") unless HASHED_STORAGE_FEATURES.include?(feature)
 
     self.storage_version && self.storage_version >= HASHED_STORAGE_FEATURES[feature]
   end
@@ -2127,13 +2145,11 @@ class Project < ApplicationRecord
   end
 
   def create_new_pool_repository
-    pool = begin
-             create_pool_repository!(shard: Shard.by_name(repository_storage), source_project: self)
-           rescue ActiveRecord::RecordNotUnique
-             pool_repository(true)
-           end
+    pool = PoolRepository.safe_find_or_create_by!(shard: Shard.by_name(repository_storage), source_project: self)
+    update!(pool_repository: pool)
 
     pool.schedule unless pool.scheduled?
+
     pool
   end
 
@@ -2161,7 +2177,7 @@ class Project < ApplicationRecord
     return if skip_disk_validation
 
     if repository_storage.blank? || repository_with_same_path_already_exists?
-      errors.add(:base, 'There is already a repository with that name on disk')
+      errors.add(:base, _('There is already a repository with that name on disk'))
       throw :abort
     end
   end
@@ -2207,7 +2223,7 @@ class Project < ApplicationRecord
       errors.delete(error)
     end
 
-    errors.add(:base, "The project is still being deleted. Please try again later.")
+    errors.add(:base, _("The project is still being deleted. Please try again later."))
   end
 
   def pending_delete_twin

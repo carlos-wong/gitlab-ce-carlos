@@ -54,9 +54,9 @@ module MergeRequests
       MergeRequestMetricsService.new(merge_request.metrics)
     end
 
-    def create_assignee_note(merge_request)
-      SystemNoteService.change_assignee(
-        merge_request, merge_request.project, current_user, merge_request.assignee)
+    def create_assignee_note(merge_request, old_assignees)
+      SystemNoteService.change_issuable_assignees(
+        merge_request, merge_request.project, current_user, old_assignees)
     end
 
     def create_pipeline_for(merge_request, user)
@@ -81,7 +81,7 @@ module MergeRequests
       ##
       # UpdateMergeRequestsWorker could be retried by an exception.
       # pipelines for merge request should not be recreated in such case.
-      return false if merge_request.merge_request_pipeline_exists?
+      return false if merge_request.find_actual_head_pipeline&.triggered_by_merge_request?
       return false if merge_request.has_no_commits?
 
       true

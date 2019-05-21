@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe MergeRequests::PostMergeService do
   let(:user) { create(:user) }
-  let(:merge_request) { create(:merge_request, assignee: user) }
+  let(:merge_request) { create(:merge_request, assignees: [user]) }
   let(:project) { merge_request.project }
 
   before do

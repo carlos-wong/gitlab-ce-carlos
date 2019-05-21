@@ -2,7 +2,7 @@
 import $ from 'jquery';
 import createFlash from '~/flash';
 import Icon from '~/vue_shared/components/icon.vue';
-import GfmAutoComplete from '~/gfm_auto_complete';
+import GfmAutoComplete from 'ee_else_ce/gfm_auto_complete';
 import { __, s__ } from '~/locale';
 import Api from '~/api';
 import { GlModal, GlTooltipDirective } from '@gitlab/ui';
@@ -178,7 +178,7 @@ export default {
       />
       <div ref="userStatusForm" class="form-group position-relative m-0">
         <div class="input-group">
-          <span class="input-group-btn">
+          <span class="input-group-prepend">
             <button
               ref="toggleEmojiMenuButton"
               v-gl-tooltip.bottom
@@ -211,7 +211,7 @@ export default {
             @keyup.enter.prevent
             @click="hideEmojiMenu"
           />
-          <span v-show="isDirty" class="input-group-btn">
+          <span v-show="isDirty" class="input-group-append">
             <button
               v-gl-tooltip.bottom
               :title="s__('SetStatusModal|Clear status')"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Projects::AfterImportService do
@@ -13,7 +15,7 @@ describe Projects::AfterImportService do
   describe '#execute' do
     before do
       allow(Projects::HousekeepingService)
-        .to receive(:new).with(project, :gc).and_return(housekeeping_service)
+        .to receive(:new).with(project).and_return(housekeeping_service)
 
       allow(housekeeping_service)
         .to receive(:execute).and_yield

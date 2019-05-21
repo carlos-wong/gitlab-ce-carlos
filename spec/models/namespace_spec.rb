@@ -63,6 +63,11 @@ describe Namespace do
     end
   end
 
+  describe 'delegate' do
+    it { is_expected.to delegate_method(:name).to(:owner).with_prefix.with_arguments(allow_nil: true) }
+    it { is_expected.to delegate_method(:avatar_url).to(:owner).with_arguments(allow_nil: true) }
+  end
+
   describe "Respond to" do
     it { is_expected.to respond_to(:human_name) }
     it { is_expected.to respond_to(:to_param) }
@@ -141,20 +146,20 @@ describe Namespace do
       create(:project,
              namespace: namespace,
              statistics: build(:project_statistics,
-                               storage_size:         606,
                                repository_size:      101,
                                lfs_objects_size:     202,
-                               build_artifacts_size: 303))
+                               build_artifacts_size: 303,
+                               packages_size:        404))
     end
 
     let(:project2) do
       create(:project,
              namespace: namespace,
              statistics: build(:project_statistics,
-                               storage_size:         60,
                                repository_size:      10,
                                lfs_objects_size:     20,
-                               build_artifacts_size: 30))
+                               build_artifacts_size: 30,
+                               packages_size:        40))
     end
 
     it "sums all project storage counters in the namespace" do
@@ -162,10 +167,11 @@ describe Namespace do
       project2
       statistics = described_class.with_statistics.find(namespace.id)
 
-      expect(statistics.storage_size).to eq 666
+      expect(statistics.storage_size).to eq 1110
       expect(statistics.repository_size).to eq 111
       expect(statistics.lfs_objects_size).to eq 222
       expect(statistics.build_artifacts_size).to eq 333
+      expect(statistics.packages_size).to eq 444
     end
 
     it "correctly handles namespaces without projects" do
@@ -175,6 +181,7 @@ describe Namespace do
       expect(statistics.repository_size).to eq 0
       expect(statistics.lfs_objects_size).to eq 0
       expect(statistics.build_artifacts_size).to eq 0
+      expect(statistics.packages_size).to eq 0
     end
   end
 
@@ -738,22 +745,25 @@ describe Namespace do
     end
   end
 
-  describe '#full_path_was' do
+  describe '#full_path_before_last_save' do
     context 'when the group has no parent' do
-      it 'returns the path was' do
-        group = create(:group, parent: nil)
-        expect(group.full_path_was).to eq(group.path_was)
+      it 'returns the path before last save' do
+        group = create(:group)
+
+        group.update(parent: nil)
+
+        expect(group.full_path_before_last_save).to eq(group.path_before_last_save)
       end
     end
 
     context 'when a parent is assigned to a group with no previous parent' do
-      it 'returns the path was' do
+      it 'returns the path before last save' do
         group = create(:group, parent: nil)
-
         parent = create(:group)
-        group.parent = parent
 
-        expect(group.full_path_was).to eq("#{group.path_was}")
+        group.update(parent: parent)
+
+        expect(group.full_path_before_last_save).to eq("#{group.path_before_last_save}")
       end
     end
 
@@ -761,9 +771,10 @@ describe Namespace do
       it 'returns the parent full path' do
         parent = create(:group)
         group = create(:group, parent: parent)
-        group.parent = nil
 
-        expect(group.full_path_was).to eq("#{parent.full_path}/#{group.path}")
+        group.update(parent: nil)
+
+        expect(group.full_path_before_last_save).to eq("#{parent.full_path}/#{group.path}")
       end
     end
 
@@ -772,8 +783,10 @@ describe Namespace do
         parent = create(:group)
         group = create(:group, parent: parent)
         new_parent = create(:group)
-        group.parent = new_parent
-        expect(group.full_path_was).to eq("#{parent.full_path}/#{group.path}")
+
+        group.update(parent: new_parent)
+
+        expect(group.full_path_before_last_save).to eq("#{parent.full_path}/#{group.path}")
       end
     end
   end
@@ -799,6 +812,23 @@ describe Namespace do
 
         it { is_expected.to eq(false) }
       end
+    end
+  end
+
+  describe '#user?' do
+    subject { namespace.user? }
+
+    context 'when type is a user' do
+      let(:user) { create(:user) }
+      let(:namespace) { user.namespace }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when type is a group' do
+      let(:namespace) { create(:group) }
+
+      it { is_expected.to be_falsy }
     end
   end
 end

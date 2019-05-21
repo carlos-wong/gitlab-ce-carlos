@@ -466,7 +466,7 @@ describe Ci::Pipeline, :mailer do
           target_branch: 'master')
       end
 
-      let(:pipeline) { merge_request.merge_request_pipelines.first }
+      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
 
       it 'does not return the pipeline' do
         is_expected.to be_empty
@@ -738,7 +738,8 @@ describe Ci::Pipeline, :mailer do
                             CI_PIPELINE_SOURCE
                             CI_COMMIT_MESSAGE
                             CI_COMMIT_TITLE
-                            CI_COMMIT_DESCRIPTION]
+                            CI_COMMIT_DESCRIPTION
+                            CI_COMMIT_REF_PROTECTED]
     end
 
     context 'when source is merge request' do
@@ -752,12 +753,12 @@ describe Ci::Pipeline, :mailer do
                source_branch: 'feature',
                target_project: project,
                target_branch: 'master',
-               assignee: assignee,
+               assignees: assignees,
                milestone: milestone,
                labels: labels)
       end
 
-      let(:assignee) { create(:user) }
+      let(:assignees) { create_list(:user, 2) }
       let(:milestone) { create(:milestone, project: project) }
       let(:labels) { create_list(:label, 2) }
 
@@ -778,7 +779,7 @@ describe Ci::Pipeline, :mailer do
             'CI_MERGE_REQUEST_SOURCE_BRANCH_NAME' => merge_request.source_branch.to_s,
             'CI_MERGE_REQUEST_SOURCE_BRANCH_SHA' => pipeline.source_sha.to_s,
             'CI_MERGE_REQUEST_TITLE' => merge_request.title,
-            'CI_MERGE_REQUEST_ASSIGNEES' => assignee.username,
+            'CI_MERGE_REQUEST_ASSIGNEES' => merge_request.assignee_username_list,
             'CI_MERGE_REQUEST_MILESTONE' => milestone.title,
             'CI_MERGE_REQUEST_LABELS' => labels.map(&:title).join(','))
       end
@@ -798,7 +799,7 @@ describe Ci::Pipeline, :mailer do
       end
 
       context 'without assignee' do
-        let(:assignee) { nil }
+        let(:assignees) { [] }
 
         it 'does not expose assignee variable' do
           expect(subject.to_hash.keys).not_to include('CI_MERGE_REQUEST_ASSIGNEES')
@@ -2773,18 +2774,19 @@ describe Ci::Pipeline, :mailer do
   end
 
   describe '#latest_builds_with_artifacts' do
-    let!(:pipeline) { create(:ci_pipeline, :success) }
-
-    let!(:build) do
-      create(:ci_build, :success, :artifacts, pipeline: pipeline)
-    end
+    let!(:fresh_build) { create(:ci_build, :success, :artifacts, pipeline: pipeline) }
+    let!(:stale_build) { create(:ci_build, :success, :expired, :artifacts, pipeline: pipeline) }
 
     it 'returns an Array' do
       expect(pipeline.latest_builds_with_artifacts).to be_an_instance_of(Array)
     end
 
-    it 'returns the latest builds' do
-      expect(pipeline.latest_builds_with_artifacts).to eq([build])
+    it 'returns the latest builds with non-expired artifacts' do
+      expect(pipeline.latest_builds_with_artifacts).to contain_exactly(fresh_build)
+    end
+
+    it 'does not return builds with expired artifacts' do
+      expect(pipeline.latest_builds_with_artifacts).not_to include(stale_build)
     end
 
     it 'memoizes the returned relation' do
@@ -2937,6 +2939,38 @@ describe Ci::Pipeline, :mailer do
 
       it "returns false" do
         expect(subject).to be_falsey
+      end
+    end
+  end
+
+  describe '#find_stage_by_name' do
+    let(:pipeline) { create(:ci_pipeline) }
+    let(:stage_name) { 'test' }
+
+    let(:stage) do
+      create(:ci_stage_entity,
+             pipeline: pipeline,
+             project: pipeline.project,
+             name: 'test')
+    end
+
+    before do
+      create_list(:ci_build, 2, pipeline: pipeline, stage: stage.name)
+    end
+
+    subject { pipeline.find_stage_by_name!(stage_name) }
+
+    context 'when stage exists' do
+      it { is_expected.to eq(stage) }
+    end
+
+    context 'when stage does not exist' do
+      let(:stage_name) { 'build' }
+
+      it 'raises an ActiveRecord exception' do
+        expect do
+          subject
+        end.to raise_exception(ActiveRecord::RecordNotFound)
       end
     end
   end

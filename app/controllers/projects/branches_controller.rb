@@ -25,7 +25,7 @@ class Projects::BranchesController < Projects::ApplicationController
         @refs_pipelines = @project.ci_pipelines.latest_successful_for_refs(@branches.map(&:name))
         @merged_branch_names = repository.merged_branch_names(@branches.map(&:name))
 
-        # n+1: https://gitlab.com/gitlab-org/gitaly/issues/992
+        # n+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/48097
         Gitlab::GitalyClient.allow_n_plus_1_calls do
           @max_commits = @branches.reduce(0) do |memo, branch|
             diverging_commit_counts = repository.diverging_commit_counts(branch)
@@ -53,7 +53,7 @@ class Projects::BranchesController < Projects::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def create
-    branch_name = sanitize(strip_tags(params[:branch_name]))
+    branch_name = strip_tags(sanitize(params[:branch_name]))
     branch_name = Addressable::URI.unescape(branch_name)
 
     redirect_to_autodeploy = project.empty_repo? && project.deployment_platform.present?
@@ -100,14 +100,14 @@ class Projects::BranchesController < Projects::ApplicationController
 
     respond_to do |format|
       format.html do
-        flash_type = result[:status] == :error ? :alert : :notice
-        flash[flash_type] = result[:message]
+        flash_type = result.error? ? :alert : :notice
+        flash[flash_type] = result.message
 
         redirect_to project_branches_path(@project), status: :see_other
       end
 
-      format.js { head result[:return_code] }
-      format.json { render json: { message: result[:message] }, status: result[:return_code] }
+      format.js { head result.http_status }
+      format.json { render json: { message: result.message }, status: result.http_status }
     end
   end
 
@@ -122,7 +122,7 @@ class Projects::BranchesController < Projects::ApplicationController
 
   def ref
     if params[:ref]
-      ref_escaped = sanitize(strip_tags(params[:ref]))
+      ref_escaped = strip_tags(sanitize(params[:ref]))
       Addressable::URI.unescape(ref_escaped)
     else
       @project.default_branch || 'master'

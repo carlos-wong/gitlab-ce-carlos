@@ -1,5 +1,5 @@
 import ClustersStore from '~/clusters/stores/clusters_store';
-import { APPLICATION_STATUS } from '~/clusters/constants';
+import { APPLICATION_INSTALLED_STATUSES, APPLICATION_STATUS, RUNNER } from '~/clusters/constants';
 import { CLUSTERS_MOCK_DATA } from '../services/mock_data';
 
 describe('Clusters Store', () => {
@@ -32,15 +32,6 @@ describe('Clusters Store', () => {
   });
 
   describe('updateAppProperty', () => {
-    it('should store new request status', () => {
-      expect(store.state.applications.helm.requestStatus).toEqual(null);
-
-      const newStatus = APPLICATION_STATUS.INSTALLING;
-      store.updateAppProperty('helm', 'requestStatus', newStatus);
-
-      expect(store.state.applications.helm.requestStatus).toEqual(newStatus);
-    });
-
     it('should store new request reason', () => {
       expect(store.state.applications.helm.requestReason).toEqual(null);
 
@@ -68,63 +59,108 @@ describe('Clusters Store', () => {
             title: 'Helm Tiller',
             status: mockResponseData.applications[0].status,
             statusReason: mockResponseData.applications[0].status_reason,
-            requestStatus: null,
             requestReason: null,
+            installed: false,
+            installFailed: false,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
           ingress: {
             title: 'Ingress',
-            status: mockResponseData.applications[1].status,
+            status: APPLICATION_STATUS.INSTALLABLE,
             statusReason: mockResponseData.applications[1].status_reason,
-            requestStatus: null,
             requestReason: null,
             externalIp: null,
             externalHostname: null,
+            installed: false,
+            installFailed: true,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
           runner: {
             title: 'GitLab Runner',
             status: mockResponseData.applications[2].status,
             statusReason: mockResponseData.applications[2].status_reason,
-            requestStatus: null,
             requestReason: null,
             version: mockResponseData.applications[2].version,
             upgradeAvailable: mockResponseData.applications[2].update_available,
             chartRepo: 'https://gitlab.com/charts/gitlab-runner',
+            installed: false,
+            installFailed: false,
+            updateAcknowledged: true,
+            updateFailed: false,
+            updateSuccessful: false,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
           prometheus: {
             title: 'Prometheus',
-            status: mockResponseData.applications[3].status,
+            status: APPLICATION_STATUS.INSTALLABLE,
             statusReason: mockResponseData.applications[3].status_reason,
-            requestStatus: null,
             requestReason: null,
+            installed: false,
+            installFailed: true,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
           jupyter: {
             title: 'JupyterHub',
             status: mockResponseData.applications[4].status,
             statusReason: mockResponseData.applications[4].status_reason,
-            requestStatus: null,
             requestReason: null,
             hostname: '',
+            installed: false,
+            installFailed: false,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
           knative: {
             title: 'Knative',
             status: mockResponseData.applications[5].status,
             statusReason: mockResponseData.applications[5].status_reason,
-            requestStatus: null,
             requestReason: null,
             hostname: null,
             isEditingHostName: false,
             externalIp: null,
             externalHostname: null,
+            installed: false,
+            installFailed: false,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
           cert_manager: {
             title: 'Cert-Manager',
-            status: mockResponseData.applications[6].status,
+            status: APPLICATION_STATUS.INSTALLABLE,
+            installFailed: true,
             statusReason: mockResponseData.applications[6].status_reason,
-            requestStatus: null,
             requestReason: null,
             email: mockResponseData.applications[6].email,
+            installed: false,
+            uninstallable: false,
+            uninstallSuccessful: false,
+            uninstallFailed: false,
           },
         },
+      });
+    });
+
+    describe.each(APPLICATION_INSTALLED_STATUSES)('given the current app status is %s', status => {
+      it('marks application as installed', () => {
+        const mockResponseData =
+          CLUSTERS_MOCK_DATA.GET['/gitlab-org/gitlab-shell/clusters/2/status.json'].data;
+        const runnerAppIndex = 2;
+
+        mockResponseData.applications[runnerAppIndex].status = status;
+
+        store.updateStateFromServer(mockResponseData);
+
+        expect(store.state.applications[RUNNER].installed).toBe(true);
       });
     });
 

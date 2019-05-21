@@ -48,17 +48,17 @@ class ApplicationSetting < ApplicationRecord
 
   validates :home_page_url,
             allow_blank: true,
-            url: true,
+            addressable_url: true,
             if: :home_page_url_column_exists?
 
   validates :help_page_support_url,
             allow_blank: true,
-            url: true,
+            addressable_url: true,
             if: :help_page_support_url_column_exists?
 
   validates :after_sign_out_path,
             allow_blank: true,
-            url: true
+            addressable_url: true
 
   validates :admin_notification_email,
             devise_email: true,
@@ -198,7 +198,7 @@ class ApplicationSetting < ApplicationRecord
   validates_each :restricted_visibility_levels do |record, attr, value|
     value&.each do |level|
       unless Gitlab::VisibilityLevel.options.value?(level)
-        record.errors.add(attr, "'#{level}' is not a valid visibility level")
+        record.errors.add(attr, _("'%{level}' is not a valid visibility level") % { level: level })
       end
     end
   end
@@ -206,7 +206,7 @@ class ApplicationSetting < ApplicationRecord
   validates_each :import_sources do |record, attr, value|
     value&.each do |source|
       unless Gitlab::ImportSources.options.value?(source)
-        record.errors.add(attr, "'#{source}' is not a import source")
+        record.errors.add(attr, _("'%{source}' is not a import source") % { source: source })
       end
     end
   end
@@ -218,7 +218,7 @@ class ApplicationSetting < ApplicationRecord
             if: :external_authorization_service_enabled
 
   validates :external_authorization_service_url,
-            url: true, allow_blank: true,
+            addressable_url: true, allow_blank: true,
             if: :external_authorization_service_enabled
 
   validates :external_authorization_service_timeout,
@@ -228,6 +228,16 @@ class ApplicationSetting < ApplicationRecord
   validates :external_auth_client_key,
             presence: true,
             if: -> (setting) { setting.external_auth_client_cert.present? }
+
+  validates :lets_encrypt_notification_email,
+            devise_email: true,
+            format: { without: /@example\.(com|org|net)\z/,
+                      message: N_("Let's Encrypt does not accept emails on example.com") },
+            allow_blank: true
+
+  validates :lets_encrypt_notification_email,
+            presence: true,
+            if: :lets_encrypt_terms_of_service_accepted?
 
   validates_with X509CertificateCredentialsValidator,
                  certificate: :external_auth_client_cert,
@@ -259,7 +269,9 @@ class ApplicationSetting < ApplicationRecord
   after_commit :expire_performance_bar_allowed_user_ids_cache, if: -> { previous_changes.key?('performance_bar_allowed_group_id') }
 
   def self.create_from_defaults
-    super
+    transaction(requires_new: true) do
+      super
+    end
   rescue ActiveRecord::RecordNotUnique
     # We already have an ApplicationSetting record, so just return it.
     current_without_cache

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe QA::Git::Repository do
   include Helpers::StubENV
 
@@ -113,6 +115,15 @@ describe QA::Git::Repository do
 
         expect(File.read(File.join(tmp_netrc_dir, '.netrc')))
           .to eq("machine foo login user password foo\n")
+      end
+
+      it 'adds credentials with special characters' do
+        password = %q[!"#$%&')(*+,-./:;<=>?]
+        repository.username = 'user'
+        repository.password = password
+
+        expect(File.read(File.join(tmp_netrc_dir, '.netrc')))
+          .to eq("machine foo login user password #{password}\n")
       end
     end
   end

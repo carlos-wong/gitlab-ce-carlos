@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Projects::MirrorsController do
@@ -79,7 +81,7 @@ describe Projects::MirrorsController do
         do_put(project, remote_mirrors_attributes: remote_mirror_attributes)
 
         expect(response).to redirect_to(project_settings_repository_path(project, anchor: 'js-push-remote-settings'))
-        expect(flash[:alert]).to match(/Only allowed protocols are/)
+        expect(flash[:alert]).to match(/Only allowed schemes are/)
       end
 
       it 'does not create a RemoteMirror object' do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe UpdateDeploymentService do
@@ -20,6 +22,7 @@ describe UpdateDeploymentService do
   subject(:service) { described_class.new(deployment) }
 
   before do
+    allow(Deployments::FinishedWorker).to receive(:perform_async)
     job.success! # Create/Succeed deployment
   end
 

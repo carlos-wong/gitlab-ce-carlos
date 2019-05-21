@@ -384,11 +384,12 @@ CAUTION: **Warning:** GitLab will not backup Docker images that are not stored o
 filesystem. Remember to enable backups with your object storage provider if
 desired.
 
----
+NOTE: **Note:**
+`regionendpoint` is only required when configuring an S3 compatible service such as Minio. It takes a URL such as `http://127.0.0.1:9000`.
 
 **Omnibus GitLab installations**
 
-To configure the storage driver in Omnibus:
+To configure the `s3` storage driver in Omnibus:
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
@@ -398,29 +399,29 @@ To configure the storage driver in Omnibus:
         'accesskey' => 's3-access-key',
         'secretkey' => 's3-secret-key-for-access-key',
         'bucket' => 'your-s3-bucket',
-        'region' => 'your-s3-region'
+        'region' => 'your-s3-region',
+        'regionendpoint' => 'your-s3-regionendpoint'
       }
     }
     ```
 
 1. Save the file and [reconfigure GitLab][] for the changes to take effect.
 
----
-
 **Installations from source**
 
 Configuring the storage driver is done in your registry config YML file created
 when you [deployed your docker registry][registry-deploy].
 
-Example:
+`s3` storage driver example:
 
-```
+```yml
 storage:
   s3:
     accesskey: 'AKIAKIAKI'
     secretkey: 'secret123'
     bucket: 'gitlab-registry-bucket-AKIAKIAKI'
     region: 'your-s3-region'
+    regionendpoint: 'your-s3-regionendpoint'
   cache:
     blobdescriptor: inmemory
   delete:
@@ -657,6 +658,37 @@ Start with a value between `25000000` (25MB) and `50000000` (50MB).
     ```
 
 1. Save the file and [restart GitLab][] for the changes to take effect.
+
+### Supporting older Docker clients
+
+As of GitLab 11.9, we began shipping version 2.7.1 of the Docker container registry, which disables the schema1 manifest by default. If you are still using older Docker clients (1.9 or older), you may experience an error pushing images. See [omnibus-4145](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/4145) for more details.
+
+You can add a configuration option for backwards compatibility.
+
+**For Omnibus installations**
+
+1. Edit `/etc/gitlab/gitlab.rb`:
+
+    ```ruby
+    registry['compatibility_schema1_enabled'] = true
+    ```
+
+1. Save the file and [reconfigure GitLab][] for the changes to take effect.
+
+---
+
+**For installations from source**
+
+1. Edit the YML configuration file you created when you [deployed the registry][registry-deploy]. Add the following snippet:
+
+    ```yaml
+    compatibility:
+        schema1:
+            enabled: true
+    ```
+
+1. Restart the registry for the changes to take affect.
+
 
 [ce-18239]: https://gitlab.com/gitlab-org/gitlab-ce/issues/18239
 [docker-insecure-self-signed]: https://docs.docker.com/registry/insecure/#use-self-signed-certificates

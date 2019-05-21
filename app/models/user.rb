@@ -194,7 +194,7 @@ class User < ApplicationRecord
   before_validation :ensure_namespace_correct
   before_save :ensure_namespace_correct # in case validation is skipped
   after_validation :set_username_errors
-  after_update :username_changed_hook, if: :username_changed?
+  after_update :username_changed_hook, if: :saved_change_to_username?
   after_destroy :post_destroy_hook
   after_destroy :remove_key_cache
   after_commit(on: :update) do
@@ -230,6 +230,9 @@ class User < ApplicationRecord
   delegate :notes_filter_for, to: :user_preference
   delegate :set_notes_filter, to: :user_preference
   delegate :first_day_of_week, :first_day_of_week=, to: :user_preference
+  delegate :timezone, :timezone=, to: :user_preference
+  delegate :time_display_relative, :time_display_relative=, to: :user_preference
+  delegate :time_format_in_24h, :time_format_in_24h=, to: :user_preference
 
   accepts_nested_attributes_for :user_preference, update_only: true
 
@@ -517,7 +520,7 @@ class User < ApplicationRecord
     def ghost
       email = 'ghost%s@example.com'
       unique_internal(where(ghost: true), 'ghost', email) do |u|
-        u.bio = 'This is a "Ghost User", created to hold all issues authored by users that have since been deleted. This user cannot be removed.'
+        u.bio = _('This is a "Ghost User", created to hold all issues authored by users that have since been deleted. This user cannot be removed.')
         u.name = 'Ghost User'
       end
     end
@@ -537,20 +540,16 @@ class User < ApplicationRecord
     username
   end
 
-  def self.internal_attributes
-    [:ghost]
-  end
-
   def internal?
-    self.class.internal_attributes.any? { |a| self[a] }
+    ghost?
   end
 
   def self.internal
-    where(Hash[internal_attributes.zip([true] * internal_attributes.size)])
+    where(ghost: true)
   end
 
   def self.non_internal
-    where(internal_attributes.map { |attr| "#{attr} IS NOT TRUE" }.join(" AND "))
+    where('ghost IS NOT TRUE')
   end
 
   #
@@ -626,32 +625,32 @@ class User < ApplicationRecord
 
   def namespace_move_dir_allowed
     if namespace&.any_project_has_container_registry_tags?
-      errors.add(:username, 'cannot be changed if a personal project has container registry tags.')
+      errors.add(:username, _('cannot be changed if a personal project has container registry tags.'))
     end
   end
 
   def unique_email
     if !emails.exists?(email: email) && Email.exists?(email: email)
-      errors.add(:email, 'has already been taken')
+      errors.add(:email, _('has already been taken'))
     end
   end
 
   def owns_notification_email
     return if temp_oauth_email?
 
-    errors.add(:notification_email, "is not an email you own") unless all_emails.include?(notification_email)
+    errors.add(:notification_email, _("is not an email you own")) unless all_emails.include?(notification_email)
   end
 
   def owns_public_email
     return if public_email.blank?
 
-    errors.add(:public_email, "is not an email you own") unless all_emails.include?(public_email)
+    errors.add(:public_email, _("is not an email you own")) unless all_emails.include?(public_email)
   end
 
   def owns_commit_email
     return if read_attribute(:commit_email).blank?
 
-    errors.add(:commit_email, "is not an email you own") unless verified_emails.include?(commit_email)
+    errors.add(:commit_email, _("is not an email you own")) unless verified_emails.include?(commit_email)
   end
 
   # Define commit_email-related attribute methods explicitly instead of relying
@@ -761,11 +760,15 @@ class User < ApplicationRecord
 
   # Typically used in conjunction with projects table to get projects
   # a user has been given access to.
+  # The param `related_project_column` is the column to compare to the
+  # project_authorizations. By default is projects.id
   #
   # Example use:
   # `Project.where('EXISTS(?)', user.authorizations_for_projects)`
-  def authorizations_for_projects(min_access_level: nil)
-    authorizations = project_authorizations.select(1).where('project_authorizations.project_id = projects.id')
+  def authorizations_for_projects(min_access_level: nil, related_project_column: 'projects.id')
+    authorizations = project_authorizations
+                      .select(1)
+                      .where("project_authorizations.project_id = #{related_project_column}")
 
     return authorizations unless min_access_level.present?
 

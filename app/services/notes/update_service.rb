@@ -3,7 +3,6 @@
 module Notes
   class UpdateService < BaseService
     def execute(note)
-      return note
       return note unless note.editable?
 
       old_mentioned_users = note.mentioned_users.to_a
@@ -23,7 +22,7 @@ module Notes
 
         # We need to refresh the previous suggestions call cache
         # in order to get the new records.
-        note.reload
+        note.reset
       end
 
       note

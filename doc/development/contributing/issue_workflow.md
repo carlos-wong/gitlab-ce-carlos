@@ -62,10 +62,12 @@ The current team labels are:
 
 - ~Configure
 - ~Create
+- ~Defend
 - ~Distribution
 - ~Documentation
 - ~Geo
 - ~Gitaly
+- ~Growth
 - ~Manage
 - ~Monitor
 - ~Plan
@@ -99,6 +101,8 @@ The current stage labels are:
 - ~"devops:configure"
 - ~"devops:monitor"
 - ~"devops:secure"
+- ~"devops:defend"
+- ~"devops:enablement"
 
 These labels should be mutually exclusive. If an issue belongs to multiple
 stages, the most relevant should be used.
@@ -336,13 +340,14 @@ addressed.
 
 In order to track things that can be improved in GitLab's codebase,
 we use the ~"technical debt" label in [GitLab's issue tracker][ce-tracker].
-For user experience improvements, we use the ~"UX debt" label.
+For missed user experience requirements, we use the ~"UX debt" label.
 
 These labels should be added to issues that describe things that can be improved,
 shortcuts that have been taken, features that need additional attention, and all
 other things that have been left behind due to high velocity of development.
 For example, code that needs refactoring should use the ~"technical debt" label,
-user experience refinements should use the ~"UX debt" label.
+something that didn't ship according to our Design System guidelines should
+use the ~"UX debt" label.
 
 Everyone can create an issue, though you may need to ask for adding a specific
 label, if you do not have permissions to do it by yourself. Additional labels

@@ -55,6 +55,10 @@ module Ci
         end
       end
 
+      # If pipeline is not persisted, try to recover IID
+      pipeline.reset_project_iid unless pipeline.persisted? ||
+          Feature.disabled?(:ci_pipeline_rewind_iid, project, default_enabled: true)
+
       pipeline
     end
 
@@ -100,16 +104,10 @@ module Ci
     end
 
     def schedule_head_pipeline_update
-      related_merge_requests.each do |merge_request|
+      pipeline.all_merge_requests.opened.each do |merge_request|
         UpdateHeadPipelineForMergeRequestWorker.perform_async(merge_request.id)
       end
     end
-
-    # rubocop: disable CodeReuse/ActiveRecord
-    def related_merge_requests
-      pipeline.project.source_of_merge_requests.opened.where(source_branch: pipeline.ref)
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def extra_options(options = {})
       # In Ruby 2.4, even when options is empty, f(**options) doesn't work when f

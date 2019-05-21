@@ -75,6 +75,7 @@ Naming/FileName:
     - 'qa/spec/**/*'
     - 'qa/qa/specs/**/*'
     - 'qa/bin/*'
+    - 'ee/bin/*'
     - 'config/**/*'
     - 'ee/config/**/*'
     - 'lib/generators/**/*'
@@ -204,3 +205,9 @@ Style/ReturnNil:
 # nil values on the left hand side
 Performance/RegexpMatch:
   Enabled: false
+
+ActiveRecordAssociationReload:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'ee/spec/**/*'

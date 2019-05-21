@@ -5,6 +5,10 @@ module Projects
     class OperationsController < Projects::ApplicationController
       before_action :authorize_update_environment!
 
+      before_action do
+        push_frontend_feature_flag(:grafana_dashboard_link)
+      end
+
       helper_method :error_tracking_setting
 
       def show
@@ -56,6 +60,8 @@ module Projects
       # overridden in EE
       def permitted_project_params
         {
+          metrics_setting_attributes: [:external_dashboard_url],
+
           error_tracking_setting_attributes: [
             :enabled,
             :api_host,

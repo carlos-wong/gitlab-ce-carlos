@@ -145,9 +145,11 @@ export default {
     ></div>
     <textarea
       v-if="descriptionText"
+      ref="textarea"
       v-model="descriptionText"
       :data-update-url="updateUrl"
       class="hidden js-task-list-field"
+      dir="auto"
     >
     </textarea>
 

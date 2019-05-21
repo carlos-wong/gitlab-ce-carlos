@@ -47,6 +47,12 @@ class Deployment < ApplicationRecord
         Deployments::SuccessWorker.perform_async(id)
       end
     end
+
+    after_transition any => [:success, :failed, :canceled] do |deployment|
+      deployment.run_after_commit do
+        Deployments::FinishedWorker.perform_async(id)
+      end
+    end
   end
 
   enum status: {
@@ -84,6 +90,11 @@ class Deployment < ApplicationRecord
     if platform.present? && platform.respond_to?(:cluster)
       platform.cluster
     end
+  end
+
+  def execute_hooks
+    deployment_data = Gitlab::DataBuilder::Deployment.build(self)
+    project.execute_services(deployment_data, :deployment_hooks)
   end
 
   def last?

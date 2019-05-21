@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe MergeRequests::RefreshService do
@@ -164,8 +166,8 @@ describe MergeRequests::RefreshService do
 
         it 'create detached merge request pipeline with commits' do
           expect { subject }
-            .to change { @merge_request.merge_request_pipelines.count }.by(1)
-            .and change { @another_merge_request.merge_request_pipelines.count }.by(0)
+            .to change { @merge_request.pipelines_for_merge_request.count }.by(1)
+            .and change { @another_merge_request.pipelines_for_merge_request.count }.by(0)
 
           expect(@merge_request.has_commits?).to be_truthy
           expect(@another_merge_request.has_commits?).to be_falsy
@@ -173,13 +175,13 @@ describe MergeRequests::RefreshService do
 
         it 'does not create detached merge request pipeline for forked project' do
           expect { subject }
-            .not_to change { @fork_merge_request.merge_request_pipelines.count }
+            .not_to change { @fork_merge_request.pipelines_for_merge_request.count }
         end
 
         it 'create detached merge request pipeline for non-fork merge request' do
           subject
 
-          expect(@merge_request.merge_request_pipelines.first)
+          expect(@merge_request.pipelines_for_merge_request.first)
             .to be_detached_merge_request_pipeline
         end
 
@@ -188,7 +190,7 @@ describe MergeRequests::RefreshService do
 
           it 'does not create detached merge request pipeline' do
             expect { subject }
-              .not_to change { @merge_request.merge_request_pipelines.count }
+              .not_to change { @merge_request.pipelines_for_merge_request.count }
           end
         end
 
@@ -197,9 +199,9 @@ describe MergeRequests::RefreshService do
 
           it 'creates legacy detached merge request pipeline for fork merge request' do
             expect { subject }
-              .to change { @fork_merge_request.merge_request_pipelines.count }.by(1)
+              .to change { @fork_merge_request.pipelines_for_merge_request.count }.by(1)
 
-            expect(@fork_merge_request.merge_request_pipelines.first)
+            expect(@fork_merge_request.pipelines_for_merge_request.first)
               .to be_legacy_detached_merge_request_pipeline
           end
         end
@@ -212,7 +214,7 @@ describe MergeRequests::RefreshService do
           it 'create legacy detached merge request pipeline for non-fork merge request' do
             subject
 
-            expect(@merge_request.merge_request_pipelines.first)
+            expect(@merge_request.pipelines_for_merge_request.first)
               .to be_legacy_detached_merge_request_pipeline
           end
         end
@@ -243,11 +245,11 @@ describe MergeRequests::RefreshService do
           it 'does not re-create a duplicate detached merge request pipeline' do
             expect do
               service.new(@project, @user).execute(@oldrev, @newrev, 'refs/heads/master')
-            end.to change { @merge_request.merge_request_pipelines.count }.by(1)
+            end.to change { @merge_request.pipelines_for_merge_request.count }.by(1)
 
             expect do
               service.new(@project, @user).execute(@oldrev, @newrev, 'refs/heads/master')
-            end.not_to change { @merge_request.merge_request_pipelines.count }
+            end.not_to change { @merge_request.pipelines_for_merge_request.count }
           end
         end
       end
@@ -264,18 +266,16 @@ describe MergeRequests::RefreshService do
 
         it 'does not create a detached merge request pipeline' do
           expect { subject }
-            .not_to change { @merge_request.merge_request_pipelines.count }
+            .not_to change { @merge_request.pipelines_for_merge_request.count }
         end
       end
     end
 
-    context 'push to origin repo source branch when an MR was reopened' do
+    context 'push to origin repo source branch' do
       let(:refresh_service) { service.new(@project, @user) }
       let(:notification_service) { spy('notification_service') }
 
       before do
-        @merge_request.update(state: :reopened)
-
         allow(refresh_service).to receive(:execute_hooks)
         allow(NotificationService).to receive(:new) { notification_service }
         refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')

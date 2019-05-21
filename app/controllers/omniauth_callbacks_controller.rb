@@ -86,7 +86,8 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       log_audit_event(current_user, with: oauth['provider'])
 
       identity_linker ||= auth_module::IdentityLinker.new(current_user, oauth)
-      identity_linker.link
+
+      link_identity(identity_linker)
 
       if identity_linker.changed?
         redirect_identity_linked
@@ -100,16 +101,20 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
   end
 
+  def link_identity(identity_linker)
+    identity_linker.link
+  end
+
   def redirect_identity_exists
     redirect_to after_sign_in_path_for(current_user)
   end
 
   def redirect_identity_link_failed(error_message)
-    redirect_to profile_account_path, notice: "Authentication failed: #{error_message}"
+    redirect_to profile_account_path, notice: _("Authentication failed: %{error_message}") % { error_message: error_message }
   end
 
   def redirect_identity_linked
-    redirect_to profile_account_path, notice: 'Authentication method updated'
+    redirect_to profile_account_path, notice: _('Authentication method updated')
   end
 
   def handle_service_ticket(provider, ticket)
@@ -147,10 +152,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def handle_signup_error
     label = Gitlab::Auth::OAuth::Provider.label_for(oauth['provider'])
-    message = ["Signing in using your #{label} account without a pre-existing GitLab account is not allowed."]
+    message = [_("Signing in using your %{label} account without a pre-existing GitLab account is not allowed.") % { label: label }]
 
     if Gitlab::CurrentSettings.allow_signup?
-      message << "Create a GitLab account first, and then connect it to your #{label} account."
+      message << _("Create a GitLab account first, and then connect it to your %{label} account.") % { label: label }
     end
 
     flash[:notice] = message.join(' ')
@@ -168,14 +173,14 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def fail_auth0_login
-    flash[:alert] = 'Wrong extern UID provided. Make sure Auth0 is configured correctly.'
+    flash[:alert] = _('Wrong extern UID provided. Make sure Auth0 is configured correctly.')
 
     redirect_to new_user_session_path
   end
 
   def handle_disabled_provider
     label = Gitlab::Auth::OAuth::Provider.label_for(oauth['provider'])
-    flash[:alert] = "Signing in using #{label} has been disabled"
+    flash[:alert] = _("Signing in using %{label} has been disabled") % { label: label }
 
     redirect_to new_user_session_path
   end

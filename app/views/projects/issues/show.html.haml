@@ -1,11 +1,11 @@
 - @content_class = "limit-container-width" unless fluid_layout
-- add_to_breadcrumbs "Issues", project_issues_path(@project)
+- add_to_breadcrumbs _("Issues"), project_issues_path(@project)
 - breadcrumb_title @issue.to_reference
-- page_title           "#{@issue.title} (#{@issue.to_reference})", "Issues"
+- page_title           "#{@issue.title} (#{@issue.to_reference})", _("Issues")
 - page_description     @issue.description
 - page_card_attributes @issue.card_attributes
 
-- can_update_issue = can?(current_user, :push_to_delete_protected_branch, @issue)
+- can_update_issue = can?(current_user, :update_issue, @issue)
 - can_reopen_issue = can?(current_user, :reopen_issue, @issue)
 - can_report_spam = @issue.submittable_as_spam_by?(current_user)
 - can_create_issue = show_new_issue_link?(@project)
@@ -77,11 +77,13 @@
 
       = edited_time_ago_with_tooltip(@issue, placement: 'bottom', html_class: 'issue-edited-ago js-issue-edited-ago')
 
-    #js-related-merge-requests{ data: { endpoint: expose_url(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid)), project_namespace: @project.namespace.path, project_path: @project.path } }
+    = render_if_exists 'projects/issues/related_issues'
+
+    #js-related-merge-requests{ data: { endpoint: expose_path(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid)), project_namespace: @project.namespace.path, project_path: @project.path } }
 
     - if can?(current_user, :download_code, @project)
       #related-branches{ data: { url: related_branches_project_issue_path(@project, @issue) } }
-        // This element is filled in using JavaScript.
+        -# This element is filled in using JavaScript.
 
   .content-block.emoji-block.emoji-block-sticky
     .row

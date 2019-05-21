@@ -19,7 +19,7 @@ We have complete examples of configuring pipelines:
 - To see a large `.gitlab-ci.yml` file used in an enterprise, see the [`.gitlab-ci.yml` file for `gitlab-ce`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.gitlab-ci.yml).
 
 NOTE: **Note:**
-If you have a [mirrored repository where GitLab pulls from](https://docs.gitlab.com/ee/workflow/repository_mirroring.html#pulling-from-a-remote-repository-starter),
+If you have a [mirrored repository where GitLab pulls from](../../workflow/repository_mirroring.md#pulling-from-a-remote-repository-starter),
 you may need to enable pipeline triggering in your project's
 **Settings > Repository > Pull from a remote repository > Trigger pipelines for mirror updates**.
 
@@ -56,7 +56,7 @@ independently from each other.
 
 Each instance of GitLab CI has an embedded debug tool called Lint, which validates the
 content of your `.gitlab-ci.yml` files. You can find the Lint under the page `ci/lint` of your
-project namespace. For example, `http://gitlab.example.com/gitlab-org/project-123/-/ci/lint`.
+project namespace. For example, `https://gitlab.example.com/gitlab-org/project-123/-/ci/lint`.
 
 ### Unavailable names for jobs
 
@@ -101,7 +101,7 @@ The following table lists available parameters for jobs:
 | [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, and `environment:action`.                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, and `cache:policy`.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, and `artifacts:reports:junit`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_management`, and `artifacts:reports:performance`. |
+| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, and `artifacts:reports:junit`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_management`, `artifacts:reports:performance` and `artifacts:reports:metrics`. |
 | [`dependencies`](#dependencies)                    | Other jobs that a job depends on so that you can pass artifacts between them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | [`coverage`](#coverage)                            | Code coverage settings for a given job.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -319,7 +319,7 @@ There are a few rules that apply to the usage of job policy:
 
 - `only` and `except` are inclusive. If both `only` and `except` are defined
    in a job specification, the ref is filtered by `only` and `except`.
-- `only` and `except` allow the use of regular expressions (using [Ruby regexp syntax](https://ruby-doc.org/core/Regexp.html)).
+- `only` and `except` allow the use of regular expressions ([supported regexp syntax](#supported-onlyexcept-regexp-syntax)).
 - `only` and `except` allow to specify a repository path to filter jobs for
    forks.
 
@@ -437,10 +437,6 @@ Feature.enable(:allow_unsafe_ruby_regexp)
 
 ### `only`/`except` (advanced)
 
-> - `refs` and `kubernetes` policies introduced in GitLab 10.0.
-> - `variables` policy introduced in GitLab 10.7.
-> - `changes` policy [introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/19232) in GitLab 11.4.
-
 CAUTION: **Warning:**
 This an _alpha_ feature, and it is subject to change at any time without
 prior notice!
@@ -461,6 +457,8 @@ If you use multiple keys under `only` or `except`, they act as an AND. The logic
 
 #### `only:refs`/`except:refs`
 
+> `refs` policy introduced in GitLab 10.0.
+
 The `refs` strategy can take the same values as the
 [simplified only/except configuration](#onlyexcept-basic).
 
@@ -477,6 +475,8 @@ deploy:
 
 #### `only:kubernetes`/`except:kubernetes`
 
+> `kubernetes` policy introduced in GitLab 10.0.
+
 The `kubernetes` strategy accepts only the `active` keyword.
 
 In the example below, the `deploy` job is going to be created only when the
@@ -489,6 +489,8 @@ deploy:
 ```
 
 #### `only:variables`/`except:variables`
+
+> `variables` policy introduced in GitLab 10.7.
 
 The `variables` keyword is used to define variables expressions. In other words,
 you can use predefined variables / project / group or
@@ -518,9 +520,11 @@ end-to-end:
       - $CI_COMMIT_MESSAGE =~ /skip-end-to-end-tests/
 ```
 
-Learn more about [variables expressions](../variables/README.md#variables-expressions).
+Learn more about [variables expressions](../variables/README.md#environment-variables-expressions).
 
 #### `only:changes`/`except:changes`
+
+> `changes` policy [introduced][ce-19232] in GitLab 11.4.
 
 Using the `changes` keyword with `only` or `except` makes it possible to define if
 a job should be created based on files modified by a git push event.
@@ -1453,7 +1457,7 @@ dashboards.
 
 > Introduced in GitLab 11.5. Requires GitLab Runner 11.5 and above.
 
-The `dependency_scanning` report collects [Dependency Scanning vulnerabilities](https://docs.gitlab.com/ee/user/project/merge_requests/dependency_scanning.html)
+The `dependency_scanning` report collects [Dependency Scanning vulnerabilities](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/index.html)
 as artifacts.
 
 The collected Dependency Scanning report will be uploaded to GitLab as an artifact and will
@@ -1464,7 +1468,7 @@ dashboards.
 
 > Introduced in GitLab 11.5. Requires GitLab Runner 11.5 and above.
 
-The `container_scanning` report collects [Container Scanning vulnerabilities](https://docs.gitlab.com/ee/user/project/merge_requests/container_scanning.html)
+The `container_scanning` report collects [Container Scanning vulnerabilities](https://docs.gitlab.com/ee/user/application_security/container_scanning/index.html)
 as artifacts.
 
 The collected Container Scanning report will be uploaded to GitLab as an artifact and will
@@ -1475,7 +1479,7 @@ dashboards.
 
 > Introduced in GitLab 11.5. Requires GitLab Runner 11.5 and above.
 
-The `dast` report collects [DAST vulnerabilities](https://docs.gitlab.com/ee/user/project/merge_requests/dast.html)
+The `dast` report collects [DAST vulnerabilities](https://docs.gitlab.com/ee/user/application_security/dast/index.html)
 as artifacts.
 
 The collected DAST report will be uploaded to GitLab as an artifact and will
@@ -1501,6 +1505,14 @@ The `performance` report collects [Performance metrics](https://docs.gitlab.com/
 as artifacts.
 
 The collected Performance report will be uploaded to GitLab as an artifact and will
+be automatically shown in merge requests.
+
+##### `artifacts:reports:metrics` **[PREMIUM]**
+
+The `metrics` report collects [Metrics](../../ci/metrics_reports.md)
+as artifacts.
+
+The collected Metrics report will be uploaded to GitLab as an artifact and will
 be automatically shown in merge requests.
 
 ### `dependencies`
@@ -1698,7 +1710,7 @@ test:
 from `trigger` definition is started by GitLab, a downstream pipeline gets
 created.
 
-Learn more about [multi-project pipelines](https://docs.gitlab.com/ee/ci/multi_project_pipelines.html#creating-cross-project-pipelines-from-gitlab-ci-yml).
+Learn more about [multi-project pipelines](../multi_project_pipelines.md#creating-multi-project-pipelines-from-gitlab-ciyml).
 
 #### Simple `trigger` syntax
 
@@ -2057,27 +2069,27 @@ from another project:
 ```yaml
 include:
   - template: Bash.gitlab-ci.yml
-  - project: /group/my-project
+  - project: group/my-project
     file: /templates/docker-workflow.yml
 ```
 
-The `/templates/docker-workflow.yml` present in `/group/my-project` includes two local files
-of the `/group/my-project`:
+The `/templates/docker-workflow.yml` present in `group/my-project` includes two local files
+of the `group/my-project`:
 
 ```yaml
 include:
-  - local: : /templates/docker-build.yml
-  - local: : /templates/docker-testing.yml
+  - local: /templates/docker-build.yml
+  - local: /templates/docker-testing.yml
 ```
 
-Our `/templates/docker-build.yml` present in `/group/my-project` adds a `docker-build` job:
+Our `/templates/docker-build.yml` present in `group/my-project` adds a `docker-build` job:
 
 ```yaml
 docker-build:
   script: docker build -t my-image .
 ```
 
-Our second `/templates/docker-test.yml` present in `/group/my-project` adds a `docker-test` job:
+Our second `/templates/docker-test.yml` present in `group/my-project` adds a `docker-test` job:
 
 ```yaml
 docker-test:
@@ -2249,7 +2261,7 @@ Runner itself](../variables/README.md#predefined-environment-variables).
 One example would be `CI_COMMIT_REF_NAME` which has the value of
 the branch or tag name for which project is built. Apart from the variables
 you can set in `.gitlab-ci.yml`, there are also the so called
-[Variables](../variables/README.md#variables)
+[Variables](../variables/README.md#gitlab-cicd-environment-variables)
 which can be set in GitLab's UI.
 
 Learn more about [variables and their priority][variables].
@@ -2468,18 +2480,18 @@ Use [`stage`](#stage) instead.
 
 ## Custom build directories
 
-> [Introduced][https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1267] in Gitlab Runner 11.10
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1267) in Gitlab Runner 11.10
 
 NOTE: **Note:**
 This can only be used when `custom_build_dir` is enabled in the [Runner's
 configuration](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnerscustom_build_dir-section).
 This is the default configuration for `docker` and `kubernetes` executor.
 
-By default, GitLab Runner clones the repository in a unique subpath of the `$CI_BUILDS_DIR` directory.
-However, sometimes your project might require the code in a specific directory,
-but sometimes your project might require to have the code in a specific directory,
-like Go projects, for example. In that case, you can specify the `GIT_CLONE_PATH` variable
-to tell the Runner in which directory to clone the repository:
+By default, GitLab Runner clones the repository in a unique subpath of the
+`$CI_BUILDS_DIR` directory. However, your project might require the code in a
+specific directory (Go projects, for example). In that case, you can specify
+the `GIT_CLONE_PATH` variable to tell the Runner in which directory to clone the
+repository:
 
 ```yml
 variables:
@@ -2723,6 +2735,7 @@ git push -o ci.skip
 [ce-7983]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7983
 [ce-7447]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7447
 [ce-12909]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/12909
+[ce-19232]: https://gitlab.com/gitlab-org/gitlab-ce/issues/19232
 [environment]: ../environments.md "CI/CD environments"
 [schedules]: ../../user/project/pipelines/schedules.md "Pipelines schedules"
 [variables]: ../variables/README.md "CI/CD variables"

@@ -293,6 +293,44 @@ entry.
 - Removes EE differences for environment_item.vue.
 
 
+## 11.9.10 (2019-04-26)
+
+### Security (5 changes)
+
+- Loosen regex for exception sanitization. !3077
+- Resolve: moving an issue to private repo leaks namespace and project name.
+- Escape path in new merge request mail.
+- Stop sending emails to users who can't read commit.
+- Upgrade Rails to 5.0.7.2.
+
+
+## 11.9.9 (2019-04-23)
+
+### Performance (1 change)
+
+- Bring back Rugged implementation of ListCommitsByOid. !27441
+
+
+## 11.9.8 (2019-04-11)
+
+### Deprecated (1 change)
+
+- Allow to use untrusted Regexp via feature flag. !26905
+
+### Performance (2 changes)
+
+- Improve performance of PR import. !27121
+- Disable method instrumentation for diffs. !27235
+
+### Other (1 change)
+
+- Restore HipChat project service. !27172
+
+
+## 11.9.7 (2019-04-09)
+
+- No changes.
+
 ## 11.9.6 (2019-04-04)
 
 ### Fixed (3 changes)
@@ -624,6 +662,35 @@ entry.
 - Removes EE differences for jobs/getters.js.
 
 
+## 11.8.10 (2019-04-30)
+
+### Security (1 change)
+
+- Allow to see project events only with api scope token.
+
+
+## 11.8.8 (2019-04-23)
+
+### Fixed (5 changes)
+
+- Bring back Rugged implementation of find_commit. !25477
+- Fix bug in BitBucket imports with SHA shorter than 40 chars. !26050
+- Fix health checks not working behind load balancers. !26055
+- Fix error creating a merge request when diff includes a null byte. !26190
+- Avoid excessive recursive calls with Rugged TreeEntries. !26813
+
+### Performance (1 change)
+
+- Bring back Rugged implementation of ListCommitsByOid. !27441
+
+### Other (4 changes)
+
+- Bring back Rugged implementation of GetTreeEntries. !25674
+- Bring back Rugged implementation of CommitIsAncestor. !25702
+- Bring back Rugged implementation of TreeEntry. !25706
+- Bring back Rugged implementation of commit_tree_entry. !25896
+
+
 ## 11.8.3 (2019-03-19)
 
 ### Security (1 change)
@@ -892,6 +959,29 @@ entry.
 - Upgraded Codesandbox smooshpack package.
 - Creates mixin to reduce code duplication between CE and EE in graph component.
 
+
+## 11.7.12 (2019-04-23)
+
+### Fixed (2 changes)
+
+- Bring back Rugged implementation of find_commit. !25477
+- Avoid excessive recursive calls with Rugged TreeEntries. !26813
+
+### Performance (1 change)
+
+- Bring back Rugged implementation of ListCommitsByOid. !27441
+
+### Other (4 changes)
+
+- Bring back Rugged implementation of GetTreeEntries. !25674
+- Bring back Rugged implementation of CommitIsAncestor. !25702
+- Bring back Rugged implementation of TreeEntry. !25706
+- Bring back Rugged implementation of commit_tree_entry. !25896
+
+
+## 11.7.11 (2019-04-09)
+
+- No changes.
 
 ## 11.7.10 (2019-03-28)
 
@@ -1162,6 +1252,30 @@ entry.
 - Fix deprecation: returning false in Active Record and Active Model callbacks will not implicitly halt a callback chain. !24134 (Jasper Maes)
 - ActiveRecord::Migration -> ActiveRecord::Migration[5.0] for AddIndexesToCiBuildsAndPipelines. !24167 (Jasper Maes)
 - Update url placeholder for the sentry configuration page. !24338
+
+
+## 11.6.11 (2019-04-23)
+
+### Security (2 changes)
+
+- Fixed ability to see private groups by users not belonging to given group.
+- Fix XSS in resolve conflicts form.
+
+### Fixed (2 changes)
+
+- Bring back Rugged implementation of find_commit. !25477
+- Avoid excessive recursive calls with Rugged TreeEntries. !26813
+
+### Performance (1 change)
+
+- Bring back Rugged implementation of ListCommitsByOid. !27441
+
+### Other (4 changes)
+
+- Bring back Rugged implementation of GetTreeEntries. !25674
+- Bring back Rugged implementation of CommitIsAncestor. !25702
+- Bring back Rugged implementation of TreeEntry. !25706
+- Bring back Rugged implementation of commit_tree_entry. !25896
 
 
 ## 11.6.10 (2019-02-28)
@@ -1533,6 +1647,25 @@ entry.
 - Replaces tooltip directive with the new gl-tooltip directive for consistency in some ci/cd code.
 - Bump gpgme gem version from 2.0.13 to 2.0.18. (asaparov)
 - Enable Rubocop on lib/gitlab. (gfyoung)
+
+
+## 11.5.11 (2019-04-23)
+
+### Fixed (2 changes)
+
+- Bring back Rugged implementation of find_commit. !25477
+- Avoid excessive recursive calls with Rugged TreeEntries. !26813
+
+### Performance (1 change)
+
+- Bring back Rugged implementation of ListCommitsByOid. !27441
+
+### Other (4 changes)
+
+- Bring back Rugged implementation of GetTreeEntries. !25674
+- Bring back Rugged implementation of CommitIsAncestor. !25702
+- Bring back Rugged implementation of TreeEntry. !25706
+- Bring back Rugged implementation of commit_tree_entry. !25896
 
 
 ## 11.5.8 (2019-01-28)
