@@ -13,7 +13,7 @@ class IssuablePolicy < BasePolicy
 
   rule { can?(:guest_access) & assignee_or_author }.policy do
     enable :read_issue
-    enable :update_issue
+    # enable :update_issue
     enable :reopen_issue
     enable :read_merge_request
     enable :update_merge_request

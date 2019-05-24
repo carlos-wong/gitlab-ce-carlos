@@ -23,7 +23,7 @@ class NotePolicy < BasePolicy
 
   rule { is_author }.policy do
     enable :read_note
-    enable :admin_note
+    #enable :admin_note
     enable :resolve_note
   end
 
