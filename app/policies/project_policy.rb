@@ -206,7 +206,7 @@ class ProjectPolicy < BasePolicy
   rule { reporter }.enable :reporter_access
   rule { developer }.enable :developer_access
   rule { maintainer }.enable :maintainer_access
-  rule { owner | admin }.enable :owner_access
+  rule { admin }.enable :owner_access
 
   rule { can?(:owner_access) }.policy do
     enable :guest_access
@@ -220,8 +220,7 @@ class ProjectPolicy < BasePolicy
     enable :remove_project
     enable :archive_project
     enable :remove_fork_project
-    enable :destroy_merge_request
-    enable :destroy_issue
+    #enable :destroy_merge_request
 
     enable :set_issue_iid
     enable :set_issue_created_at
@@ -274,10 +273,8 @@ class ProjectPolicy < BasePolicy
     enable :read_statistics
     enable :daily_statistics
     enable :download_wiki_code
-    enable :create_snippet
     enable :update_issue
     enable :reopen_issue
-    enable :admin_issue
     enable :admin_label
     enable :admin_issue_board_list
     enable :admin_issue_link
@@ -419,8 +416,16 @@ class ProjectPolicy < BasePolicy
     enable :push_to_delete_protected_branch
     enable :update_snippet
     enable :admin_snippet
+
+    enable :update_issue
+    enable :admin_issue
+
+    enable :update_project_snippet
+    enable :update_environment
+    enable :update_deployment
+    enable :admin_project_snippet
     enable :admin_project_member
-    enable :admin_note
+    #enable :admin_note
     enable :admin_wiki
     enable :admin_project
     enable :admin_commit_status
