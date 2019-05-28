@@ -5,7 +5,7 @@ module Gitlab
     module Pattern
       extend ActiveSupport::Concern
 
-      MIN_CHARS_FOR_PARTIAL_MATCHING = 3
+      MIN_CHARS_FOR_PARTIAL_MATCHING = 2
       REGEX_QUOTED_WORD = /(?<=\A| )"[^"]+"(?= |\z)/.freeze
 
       class_methods do
