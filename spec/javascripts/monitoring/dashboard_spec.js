@@ -2,8 +2,15 @@ import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import Dashboard from '~/monitoring/components/dashboard.vue';
 import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
+import * as types from '~/monitoring/stores/mutation_types';
+import { createStore } from '~/monitoring/stores';
 import axios from '~/lib/utils/axios_utils';
-import { metricsGroupsAPIResponse, mockApiEndpoint, environmentData } from './mock_data';
+import {
+  metricsGroupsAPIResponse,
+  mockApiEndpoint,
+  environmentData,
+  singleGroupResponse,
+} from './mock_data';
 
 const propsData = {
   hasMetrics: false,
@@ -13,7 +20,7 @@ const propsData = {
   tagsPath: '/path/to/tags',
   projectPath: '/path/to/project',
   metricsEndpoint: mockApiEndpoint,
-  deploymentEndpoint: null,
+  deploymentsEndpoint: null,
   emptyGettingStartedSvgPath: '/path/to/getting-started.svg',
   emptyLoadingSvgPath: '/path/to/loading.svg',
   emptyNoDataSvgPath: '/path/to/no-data.svg',
@@ -30,6 +37,8 @@ export default propsData;
 describe('Dashboard', () => {
   let DashboardComponent;
   let mock;
+  let store;
+  let component;
 
   beforeEach(() => {
     setFixtures(`
@@ -40,28 +49,28 @@ describe('Dashboard', () => {
     window.gon = {
       ...window.gon,
       ee: false,
-      features: {
-        grafanaDashboardLink: true,
-      },
     };
 
+    store = createStore();
     mock = new MockAdapter(axios);
     DashboardComponent = Vue.extend(Dashboard);
   });
 
   afterEach(() => {
+    component.$destroy();
     mock.restore();
   });
 
   describe('no metrics are available yet', () => {
     it('shows a getting started empty state when no metrics are present', () => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, showTimeWindowDropdown: false },
+        propsData: { ...propsData },
+        store,
       });
 
       expect(component.$el.querySelector('.prometheus-graphs')).toBe(null);
-      expect(component.state).toEqual('gettingStarted');
+      expect(component.emptyState).toEqual('gettingStarted');
     });
   });
 
@@ -71,26 +80,27 @@ describe('Dashboard', () => {
     });
 
     it('shows up a loading state', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showTimeWindowDropdown: false },
+        propsData: { ...propsData, hasMetrics: true },
+        store,
       });
 
       Vue.nextTick(() => {
-        expect(component.state).toEqual('loading');
+        expect(component.emptyState).toEqual('loading');
         done();
       });
     });
 
     it('hides the legend when showLegend is false', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showLegend: false,
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
       setTimeout(() => {
@@ -102,14 +112,14 @@ describe('Dashboard', () => {
     });
 
     it('hides the group panels when showPanels is false', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
       setTimeout(() => {
@@ -121,85 +131,106 @@ describe('Dashboard', () => {
     });
 
     it('renders the environments dropdown with a number of environments', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
-      component.store.storeEnvironmentsData(environmentData);
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
+        environmentData,
+      );
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        singleGroupResponse,
+      );
 
       setTimeout(() => {
         const dropdownMenuEnvironments = component.$el.querySelectorAll(
           '.js-environments-dropdown .dropdown-item',
         );
 
-        expect(dropdownMenuEnvironments.length).toEqual(component.store.environmentsData.length);
+        expect(dropdownMenuEnvironments.length).toEqual(component.environments.length);
         done();
       });
     });
 
     it('hides the environments dropdown list when there is no environments', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
-      component.store.storeEnvironmentsData([]);
+      component.$store.commit(`monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`, []);
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        singleGroupResponse,
+      );
 
-      setTimeout(() => {
-        const dropdownMenuEnvironments = component.$el.querySelectorAll(
-          '.js-environments-dropdown .dropdown-item',
-        );
+      Vue.nextTick()
+        .then(() => {
+          const dropdownMenuEnvironments = component.$el.querySelectorAll(
+            '.js-environments-dropdown .dropdown-item',
+          );
 
-        expect(dropdownMenuEnvironments.length).toEqual(0);
-        done();
-      });
+          expect(dropdownMenuEnvironments.length).toEqual(0);
+          done();
+        })
+        .catch(done.fail);
     });
 
     it('renders the environments dropdown with a single active element', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
-      component.store.storeEnvironmentsData(environmentData);
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
+        environmentData,
+      );
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        singleGroupResponse,
+      );
 
-      setTimeout(() => {
-        const dropdownItems = component.$el.querySelectorAll(
-          '.js-environments-dropdown .dropdown-item[active="true"]',
-        );
+      Vue.nextTick()
+        .then(() => {
+          const dropdownItems = component.$el.querySelectorAll(
+            '.js-environments-dropdown .dropdown-item[active="true"]',
+          );
 
-        expect(dropdownItems.length).toEqual(1);
-        expect(dropdownItems[0].textContent.trim()).toEqual(component.currentEnvironmentName);
-        done();
-      });
+          expect(dropdownItems.length).toEqual(1);
+          done();
+        })
+        .catch(done.fail);
     });
 
     it('hides the dropdown', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
           environmentsEndpoint: '',
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
       Vue.nextTick(() => {
@@ -210,35 +241,15 @@ describe('Dashboard', () => {
       });
     });
 
-    it('does not show the time window dropdown when the feature flag is not set', done => {
-      const component = new DashboardComponent({
-        el: document.querySelector('.prometheus-graphs'),
-        propsData: {
-          ...propsData,
-          hasMetrics: true,
-          showPanels: false,
-          showTimeWindowDropdown: false,
-        },
-      });
-
-      setTimeout(() => {
-        const timeWindowDropdown = component.$el.querySelector('.js-time-window-dropdown');
-
-        expect(timeWindowDropdown).toBeNull();
-
-        done();
-      });
-    });
-
     it('renders the time window dropdown with a set of options', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showTimeWindowDropdown: true,
         },
+        store,
       });
       const numberOfTimeWindows = Object.keys(timeWindows).length;
 
@@ -255,18 +266,52 @@ describe('Dashboard', () => {
       });
     });
 
+    it('fetches the metrics data with proper time window', done => {
+      component = new DashboardComponent({
+        el: document.querySelector('.prometheus-graphs'),
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+        },
+        store,
+      });
+
+      spyOn(component.$store, 'dispatch').and.stub();
+      const getTimeDiffSpy = spyOnDependency(Dashboard, 'getTimeDiff');
+
+      component.$store.commit(
+        `monitoringDashboard/${types.SET_ENVIRONMENTS_ENDPOINT}`,
+        '/environments',
+      );
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
+        environmentData,
+      );
+
+      component.$mount();
+
+      Vue.nextTick()
+        .then(() => {
+          expect(component.$store.dispatch).toHaveBeenCalled();
+          expect(getTimeDiffSpy).toHaveBeenCalledWith(component.selectedTimeWindow);
+
+          done();
+        })
+        .catch(done.fail);
+    });
+
     it('shows a specific time window selected from the url params', done => {
       spyOnDependency(Dashboard, 'getParameterValues').and.returnValue(['thirtyMinutes']);
 
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showTimeWindowDropdown: true },
+        propsData: { ...propsData, hasMetrics: true },
+        store,
       });
 
       setTimeout(() => {
-        const selectedTimeWindow = component.$el.querySelector(
-          '.js-time-window-dropdown [active="true"]',
-        );
+        const selectedTimeWindow = component.$el.querySelector('.js-time-window-dropdown .active');
 
         expect(selectedTimeWindow.textContent.trim()).toEqual('30 minutes');
         done();
@@ -278,9 +323,10 @@ describe('Dashboard', () => {
         '<script>alert("XSS")</script>',
       ]);
 
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
-        propsData: { ...propsData, hasMetrics: true, showTimeWindowDropdown: true },
+        propsData: { ...propsData, hasMetrics: true },
+        store,
       });
 
       Vue.nextTick(() => {
@@ -302,14 +348,14 @@ describe('Dashboard', () => {
     });
 
     it('sets elWidth to page width when the sidebar is resized', done => {
-      const component = new DashboardComponent({
+      component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showTimeWindowDropdown: false,
         },
+        store,
       });
 
       expect(component.elWidth).toEqual(0);
@@ -331,60 +377,28 @@ describe('Dashboard', () => {
   });
 
   describe('external dashboard link', () => {
-    let component;
-
     beforeEach(() => {
       mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
-    });
 
-    afterEach(() => {
-      component.$destroy();
-    });
-
-    describe('with feature flag enabled', () => {
-      beforeEach(() => {
-        component = new DashboardComponent({
-          el: document.querySelector('.prometheus-graphs'),
-          propsData: {
-            ...propsData,
-            hasMetrics: true,
-            showPanels: false,
-            showTimeWindowDropdown: false,
-            externalDashboardPath: '/mockPath',
-          },
-        });
-      });
-
-      it('shows the link', done => {
-        setTimeout(() => {
-          expect(component.$el.querySelector('.js-external-dashboard-link').innerText).toContain(
-            'View full dashboard',
-          );
-          done();
-        });
+      component = new DashboardComponent({
+        el: document.querySelector('.prometheus-graphs'),
+        propsData: {
+          ...propsData,
+          hasMetrics: true,
+          showPanels: false,
+          showTimeWindowDropdown: false,
+          externalDashboardUrl: '/mockUrl',
+        },
+        store,
       });
     });
 
-    describe('without feature flage enabled', () => {
-      beforeEach(() => {
-        window.gon.features.grafanaDashboardLink = false;
-        component = new DashboardComponent({
-          el: document.querySelector('.prometheus-graphs'),
-          propsData: {
-            ...propsData,
-            hasMetrics: true,
-            showPanels: false,
-            showTimeWindowDropdown: false,
-            externalDashboardPath: '',
-          },
-        });
-      });
-
-      it('does not show the link', done => {
-        setTimeout(() => {
-          expect(component.$el.querySelector('.js-external-dashboard-link')).toBe(null);
-          done();
-        });
+    it('shows the link', done => {
+      setTimeout(() => {
+        expect(component.$el.querySelector('.js-external-dashboard-link').innerText).toContain(
+          'View full dashboard',
+        );
+        done();
       });
     });
   });

@@ -17,6 +17,7 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
     context 'when service is active' do
       before do
         subject.active = true
+        subject.skip_deprecation_validation = true
       end
 
       it { is_expected.not_to validate_presence_of(:namespace) }
@@ -67,6 +68,7 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
 
       before do
         kubernetes_service.update_attribute(:active, false)
+        kubernetes_service.skip_deprecation_validation = false
         kubernetes_service.properties['namespace'] = "foo"
       end
 
@@ -80,19 +82,11 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
       end
     end
 
-    context 'with a non-deprecated service' do
-      let(:kubernetes_service) { create(:kubernetes_service) }
-
-      it 'updates attributes' do
-        kubernetes_service.properties['namespace'] = 'foo'
-        expect(kubernetes_service.save).to be_truthy
-      end
-    end
-
     context 'with an active and deprecated service' do
       let(:kubernetes_service) { create(:kubernetes_service) }
 
       before do
+        kubernetes_service.skip_deprecation_validation = false
         kubernetes_service.active = false
         kubernetes_service.properties['namespace'] = 'foo'
         kubernetes_service.save
@@ -108,19 +102,6 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
 
       it 'updates attributes' do
         expect(kubernetes_service.properties['namespace']).to eq("foo")
-      end
-    end
-
-    context 'with a template service' do
-      let(:kubernetes_service) { create(:kubernetes_service, template: true, active: false) }
-
-      before do
-        kubernetes_service.properties['namespace'] = 'foo'
-      end
-
-      it 'updates attributes' do
-        expect(kubernetes_service.save).to be_truthy
-        expect(kubernetes_service.properties['namespace']).to eq('foo')
       end
     end
   end
@@ -161,8 +142,8 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
     end
   end
 
-  describe '#actual_namespace' do
-    subject { service.actual_namespace }
+  describe '#kubernetes_namespace_for' do
+    subject { service.kubernetes_namespace_for(project) }
 
     shared_examples 'a correctly formatted namespace' do
       it 'returns a valid Kubernetes namespace name' do
@@ -298,7 +279,7 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
     end
 
     context 'no namespace provided' do
-      let(:namespace) { subject.actual_namespace }
+      let(:namespace) { subject.kubernetes_namespace_for(project) }
 
       it_behaves_like 'setting variables'
 
@@ -325,7 +306,7 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
     end
 
     context 'with valid pods' do
-      let(:pod) { kube_pod(environment_slug: environment.slug, project_slug: project.full_path_slug) }
+      let(:pod) { kube_pod(environment_slug: environment.slug, namespace: service.kubernetes_namespace_for(project), project_slug: project.full_path_slug) }
       let(:pod_with_no_terminal) { kube_pod(environment_slug: environment.slug, project_slug: project.full_path_slug, status: "Pending") }
       let(:terminals) { kube_terminals(service, pod) }
 
@@ -352,6 +333,8 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
   describe '#calculate_reactive_cache' do
     subject { service.calculate_reactive_cache }
 
+    let(:namespace) { service.kubernetes_namespace_for(project) }
+
     context 'when service is inactive' do
       before do
         service.active = false
@@ -362,8 +345,8 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
 
     context 'when kubernetes responds with valid pods' do
       before do
-        stub_kubeclient_pods
-        stub_kubeclient_deployments # Used by EE
+        stub_kubeclient_pods(namespace)
+        stub_kubeclient_deployments(namespace) # Used by EE
       end
 
       it { is_expected.to include(pods: [kube_pod]) }
@@ -371,8 +354,8 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
 
     context 'when kubernetes responds with 500s' do
       before do
-        stub_kubeclient_pods(status: 500)
-        stub_kubeclient_deployments(status: 500) # Used by EE
+        stub_kubeclient_pods(namespace, status: 500)
+        stub_kubeclient_deployments(namespace, status: 500) # Used by EE
       end
 
       it { expect { subject }.to raise_error(Kubeclient::HttpError) }
@@ -380,8 +363,8 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
 
     context 'when kubernetes responds with 404s' do
       before do
-        stub_kubeclient_pods(status: 404)
-        stub_kubeclient_deployments(status: 404) # Used by EE
+        stub_kubeclient_pods(namespace, status: 404)
+        stub_kubeclient_deployments(namespace, status: 404) # Used by EE
       end
 
       it { is_expected.to include(pods: []) }
@@ -391,17 +374,8 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
   describe "#deprecated?" do
     let(:kubernetes_service) { create(:kubernetes_service) }
 
-    context 'with an active kubernetes service' do
-      it 'returns false' do
-        expect(kubernetes_service.deprecated?).to be_falsy
-      end
-    end
-
-    context 'with a inactive kubernetes service' do
-      it 'returns true' do
-        kubernetes_service.update_attribute(:active, false)
-        expect(kubernetes_service.deprecated?).to be_truthy
-      end
+    it 'returns true' do
+      expect(kubernetes_service.deprecated?).to be_truthy
     end
   end
 
@@ -410,12 +384,6 @@ describe KubernetesService, :use_clean_rails_memory_store_caching do
 
     it 'indicates the service is deprecated' do
       expect(kubernetes_service.deprecation_message).to match(/Kubernetes service integration has been deprecated/)
-    end
-
-    context 'if the services is active' do
-      it 'returns a message' do
-        expect(kubernetes_service.deprecation_message).to match(/Your Kubernetes cluster information on this page is still editable/)
-      end
     end
 
     context 'if the service is not active' do

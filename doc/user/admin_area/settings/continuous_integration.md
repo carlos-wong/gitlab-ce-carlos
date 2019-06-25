@@ -1,3 +1,7 @@
+---
+type: reference
+---
+
 # Continuous Integration and Deployment Admin settings **[CORE ONLY]**
 
 In this area, you will find settings for Auto DevOps, Runners and job artifacts.
@@ -85,10 +89,8 @@ are enabled.
 
 ![Project admin info](img/admin_project_quota_view.png)
 
-When the pipeline minutes quota for a group is set to a value different than 0,
-the **Pipelines quota** page is available to the group page settings list.
-You can see there an overview of the pipeline minutes quota of all projects of
-the group.
+You can see an overview of the pipeline minutes quota of all projects of
+a group in the **Usage Quotas** page available to the group page settings list.
 
 ![Group pipelines quota](img/group_pipelines_quota.png)
 
@@ -130,6 +132,14 @@ to a different Group.
 be deducted from your Additional Minutes quota immediately after your purchase of additional
 minutes.
 
+## What happens when my CI minutes quota run out
+
+When the CI minutes quota run out, an email is sent automatically to notifies the owner(s) of the group/namespace which
+includes a link to [purchase more minutes](https://customers.gitlab.com/plans).
+
+If you are not the owner of the group, you will need to contact them to let them know they need to
+[purchase more minutes](https://customers.gitlab.com/plans).
+
 ## Archive jobs **[CORE ONLY]**
 
 Archiving jobs is useful for reducing the CI/CD footprint on the system by
@@ -145,3 +155,15 @@ To set the duration for which the jobs will be considered as old and expired:
 Once that time passes, the jobs will be archived and no longer able to be
 retried. Make it empty to never expire jobs. It has to be no less than 1 day,
 for example: <code>15 days</code>, <code>1 month</code>, <code>2 years</code>.
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

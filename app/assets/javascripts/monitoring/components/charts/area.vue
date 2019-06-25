@@ -1,7 +1,7 @@
 <script>
 import { GlAreaChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
-import { debounceByAnimationFrame } from '~/lib/utils/common_utils';
+import { debounceByAnimationFrame, roundOffFloat } from '~/lib/utils/common_utils';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import Icon from '~/vue_shared/components/icon.vue';
 import { chartHeight, graphTypes, lineTypes } from '../../constants';
@@ -111,7 +111,7 @@ export default {
         yAxis: {
           name: this.yAxisLabel,
           axisLabel: {
-            formatter: value => value.toFixed(3),
+            formatter: num => roundOffFloat(num, 3).toString(),
           },
         },
         series: this.scatterSeries,
@@ -125,17 +125,17 @@ export default {
     },
     earliestDatapoint() {
       return this.chartData.reduce((acc, series) => {
-        if (!series.data.length) {
+        const { data } = series;
+        const { length } = data;
+        if (!length) {
           return acc;
         }
-        const [[timestamp]] = series.data.sort(([a], [b]) => {
-          if (a < b) {
-            return -1;
-          }
-          return a > b ? 1 : 0;
-        });
 
-        return timestamp < acc || acc === null ? timestamp : acc;
+        const [first] = data[0];
+        const [last] = data[length - 1];
+        const seriesEarliest = first < last ? first : last;
+
+        return seriesEarliest < acc || acc === null ? seriesEarliest : acc;
       }, null);
     },
     isMultiSeries() {
@@ -227,6 +227,7 @@ export default {
       [this.primaryColor] = chart.getOption().color;
     },
     onResize() {
+      if (!this.$refs.areaChart) return;
       const { width } = this.$refs.areaChart.$el.getBoundingClientRect();
       this.width = width;
     },

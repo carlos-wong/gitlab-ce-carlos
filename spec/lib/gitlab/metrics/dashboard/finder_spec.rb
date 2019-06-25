@@ -6,7 +6,7 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
   include MetricsDashboardHelpers
 
   set(:project) { build(:project) }
-  set(:environment) { build(:environment, project: project) }
+  set(:environment) { create(:environment, project: project) }
   let(:system_dashboard_path) { Gitlab::Metrics::Dashboard::SystemDashboardService::SYSTEM_DASHBOARD_PATH}
 
   describe '.find' do
@@ -27,6 +27,13 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
       it_behaves_like 'misconfigured dashboard service response', :unprocessable_entity
     end
 
+    context 'when the dashboard contains a metric without a query' do
+      let(:dashboard) { { 'panel_groups' => [{ 'panels' => [{ 'metrics' => [{ 'id' => 'mock' }] }] }] } }
+      let(:project) { project_with_dashboard(dashboard_path, dashboard.to_yaml) }
+
+      it_behaves_like 'misconfigured dashboard service response', :unprocessable_entity
+    end
+
     context 'when the system dashboard is specified' do
       let(:dashboard_path) { system_dashboard_path }
 
@@ -42,7 +49,7 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
 
   describe '.find_all_paths' do
     let(:all_dashboard_paths) { described_class.find_all_paths(project) }
-    let(:system_dashboard) { { path: system_dashboard_path, default: true } }
+    let(:system_dashboard) { { path: system_dashboard_path, display_name: 'Default', default: true } }
 
     it 'includes only the system dashboard by default' do
       expect(all_dashboard_paths).to eq([system_dashboard])
@@ -53,7 +60,7 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
       let(:project) { project_with_dashboard(dashboard_path) }
 
       it 'includes system and project dashboards' do
-        project_dashboard = { path: dashboard_path, default: false }
+        project_dashboard = { path: dashboard_path, display_name: 'test.yml', default: false }
 
         expect(all_dashboard_paths).to contain_exactly(system_dashboard, project_dashboard)
       end

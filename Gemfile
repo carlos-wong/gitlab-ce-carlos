@@ -23,7 +23,7 @@ gem 'grape-path-helpers', '~> 1.1'
 gem 'faraday', '~> 0.12'
 
 # Authentication libraries
-gem 'devise', '~> 4.4'
+gem 'devise', '~> 4.6'
 gem 'doorkeeper', '~> 4.3'
 gem 'doorkeeper-openid_connect', '~> 1.5'
 gem 'omniauth', '~> 1.8'
@@ -41,7 +41,7 @@ gem 'omniauth-shibboleth', '~> 1.3.0'
 gem 'omniauth-twitter', '~> 1.4'
 gem 'omniauth_crowd', '~> 2.2.0'
 gem 'omniauth-authentiq', '~> 0.3.3'
-gem 'omniauth_openid_connect', '~> 0.3.0'
+gem 'omniauth_openid_connect', '~> 0.3.1'
 gem "omniauth-ultraauth", '~> 0.0.2'
 gem 'omniauth-salesforce', '~> 1.0.5'
 gem 'rack-oauth2', '~> 1.9.3'
@@ -60,6 +60,8 @@ gem 'u2f', '~> 0.2.1'
 # GitLab Pages
 gem 'validates_hostname', '~> 1.0.6'
 gem 'rubyzip', '~> 1.2.2', require: 'zip'
+# GitLab Pages letsencrypt support
+gem 'acme-client', '~> 2.0.2'
 
 # Browser detection
 gem 'browser', '~> 2.5'
@@ -128,6 +130,7 @@ gem 'org-ruby', '~> 0.9.12'
 gem 'creole', '~> 0.5.0'
 gem 'wikicloth', '0.8.1'
 gem 'asciidoctor', '~> 1.5.8'
+gem 'asciidoctor-include-ext', '~> 0.3.1', require: false
 gem 'asciidoctor-plantuml', '0.0.8'
 gem 'rouge', '~> 3.1'
 gem 'truncato', '~> 0.7.11'
@@ -152,6 +155,7 @@ end
 group :puma do
   gem 'puma', '~> 3.12', require: false
   gem 'puma_worker_killer', require: false
+  gem 'rack-timeout', require: false
 end
 
 # State machine
@@ -167,7 +171,7 @@ gem 'redis-namespace', '~> 1.6.0'
 gem 'gitlab-sidekiq-fetcher', '~> 0.4.0', require: 'sidekiq-reliable-fetch'
 
 # Cron Parser
-gem 'fugit', '~> 1.1'
+gem 'fugit', '~> 1.2.1'
 
 # HTTP requests
 gem 'httparty', '~> 0.16.4'
@@ -272,12 +276,12 @@ gem 'virtus', '~> 1.0.1'
 gem 'base32', '~> 0.3.0'
 
 # Sentry integration
-gem 'sentry-raven', '~> 2.7'
+gem 'sentry-raven', '~> 2.9'
 
 gem 'premailer-rails', '~> 1.9.7'
 
 # LabKit: Tracing and Correlation
-gem 'gitlab-labkit', '~> 0.2.0'
+gem 'gitlab-labkit', '~> 0.3.0'
 
 # I18n
 gem 'ruby_parser', '~> 3.8', require: false
@@ -344,22 +348,22 @@ group :development, :test do
   # Generate Fake data
   gem 'ffaker', '~> 2.10'
 
-  gem 'capybara', '~> 2.18.0'
+  gem 'capybara', '~> 3.22.0'
   gem 'capybara-screenshot', '~> 1.0.22'
   gem 'selenium-webdriver', '~> 3.141'
 
   gem 'spring', '~> 2.0.0'
   gem 'spring-commands-rspec', '~> 1.0.4'
 
-  gem 'gitlab-styles', '~> 2.6', require: false
+  gem 'gitlab-styles', '~> 2.7', require: false
   # Pin these dependencies, otherwise a new rule could break the CI pipelines
-  gem 'rubocop', '~> 0.68.1'
+  gem 'rubocop', '~> 0.69.0'
   gem 'rubocop-performance', '~> 1.1.0'
   gem 'rubocop-rspec', '~> 1.22.1'
 
   gem 'scss_lint', '~> 0.56.0', require: false
-  gem 'haml_lint', '~> 0.30.0', require: false
-  gem 'simplecov', '~> 0.14.0', require: false
+  gem 'haml_lint', '~> 0.31.0', require: false
+  gem 'simplecov', '~> 0.16.1', require: false
   gem 'bundler-audit', '~> 0.5.0', require: false
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
@@ -370,6 +374,7 @@ group :development, :test do
   gem 'activerecord_sane_schema_dumper', '1.0'
 
   gem 'stackprof', '~> 0.2.10', require: false
+  gem 'derailed_benchmarks', require: false
 
   gem 'simple_po_parser', '~> 1.1.2', require: false
 
@@ -377,7 +382,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'shoulda-matchers', '~> 3.1.2', require: false
+  gem 'shoulda-matchers', '~> 4.0.1', require: false
   gem 'email_spec', '~> 2.2.0'
   gem 'json-schema', '~> 2.8.0'
   gem 'webmock', '~> 3.5.1'
@@ -397,6 +402,9 @@ gem 'html2text'
 
 gem 'ruby-prof', '~> 0.17.0'
 gem 'rbtrace', '~> 0.4', require: false
+gem 'memory_profiler', '~> 0.9', require: false
+gem 'benchmark-memory', '~> 0.1', require: false
+gem 'activerecord-explain-analyze', '~> 0.1', require: false
 
 # OAuth
 gem 'oauth2', '~> 1.4'
@@ -419,7 +427,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC client
-gem 'gitaly-proto', '~> 1.27.0', require: 'gitaly'
+gem 'gitaly-proto', '~> 1.32.0', require: 'gitaly'
 
 gem 'grpc', '~> 1.19.0'
 

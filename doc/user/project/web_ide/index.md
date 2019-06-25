@@ -8,7 +8,7 @@ projects by providing an advanced editor with commit staging.
 
 ## Open the Web IDE
 
-The Web IDE can be opened when viewing a file, from the repository file list,
+You can open the Web IDE when viewing a file, from the repository file list,
 and from merge requests.
 
 ![Open Web IDE](img/open_web_ide.png)
@@ -45,7 +45,7 @@ Single file editing is based on the [Ace Editor](https://ace.c9.io).
 
 ## Stage and commit changes
 
-After making your changes, click the Commit button in the bottom left to
+After making your changes, click the **Commit** button in the bottom left to
 review the list of changed files. Click on each file to review the changes and
 click the tick icon to stage the file.
 
@@ -67,10 +67,11 @@ shows you a preview of the merge request diff if you commit your changes.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/19279) in [GitLab Core][ce] 11.0.
 
-The Web IDE can be used to quickly fix failing tests by opening the branch or
-merge request in the Web IDE and opening the logs of the failed job. The status
-of all jobs for the most recent pipeline and job traces for the current commit
-can be accessed by clicking the **Pipelines** button in the top right.
+You can use the Web IDE to quickly fix failing tests by opening 
+the branch or merge request in the Web IDE and opening the logs of the failed 
+job. You can access the status of all jobs for the most recent pipeline and job
+traces for the current commit by clicking the **Pipelines** button in the top
+right.
 
 The pipeline status is also shown at all times in the status bar in the bottom
 left.
@@ -79,31 +80,31 @@ left.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/19318) in [GitLab Core][ce] 11.0.
 
-Switching between your authored and assigned merge requests can be done without
-leaving the Web IDE. Click the dropdown in the top of the sidebar to open a list
-of merge requests. You will need to commit or discard all your changes before
-switching to a different merge request.
+To switch between your authored and assigned merge requests, click the 
+dropdown in the top of the sidebar to open a list of merge requests. You will 
+need to commit or discard all your changes before switching to a different merge
+request.
 
 ## Switching branches
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/20850) in [GitLab Core][ce] 11.2.
 
-Switching between branches of the current project repository can be done without
-leaving the Web IDE. Click the dropdown in the top of the sidebar to open a list
-of branches. You will need to commit or discard all your changes before
-switching to a different branch.
+To switch between branches of the current project repository, click the dropdown 
+in the top of the sidebar to open a list of branches. 
+You will need to commit or discard all your changes before switching to a 
+different branch.
 
 ## Client Side Evaluation
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/19764) in [GitLab Core][ce] 11.2.
 
-The Web IDE can be used to preview JavaScript projects right in the browser.
+You can use the Web IDE to preview JavaScript projects right in the browser.
 This feature uses CodeSandbox to compile and bundle the JavaScript used to
 preview the web application.
 
 ![Web IDE Client Side Evaluation](img/clientside_evaluation.png)
 
-Additionally, for public projects an `Open in CodeSandbox` button is available
+Additionally, for public projects an **Open in CodeSandbox** button is available
 to transfer the contents of the project into a public CodeSandbox project to
 quickly share your project with others.
 
@@ -115,9 +116,9 @@ GitLab.com
 
 ![Admin Client Side Evaluation setting](img/admin_clientside_evaluation.png)
 
-Once it has been enabled in application settings, projects with a
-`package.json` file and a `main` entry point can be previewed inside of the Web
-IDE. An example `package.json` is below.
+Once you have done that, you can preview projects with a `package.json` file and
+a `main` entry point inside the Web IDE. An example `package.json` is shown 
+below.
 
 ```json
 {
@@ -229,6 +230,65 @@ to running commands in a local terminal or through SSH.
 While the terminal is running, it can be stopped by clicking **Stop Terminal**.
 This will disconnect the terminal and stop the runner's terminal job. From here,
 click **Restart Terminal** to start a new terminal session.
+
+### File Syncing to Web Terminal
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5276) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
+
+File changes in the Web IDE can be synced to a running Web Terminal.
+This enables users to test their code changes in a preconfigured terminal
+environment.
+
+NOTE: **Note:**
+Only file changes in the Web IDE are synced to the terminal.
+Changes made in the terminal are **not** synced to the Web IDE.
+
+Once you have [configured the Web Terminal for File Syncing](#configuring-file-syncing),
+then when the Web terminal is started, a **Terminal** status will be visible
+in the status bar.
+
+![Web IDE Client Side Evaluation](img/terminal_status.png)
+
+Changes made to your files via the Web IDE will sync to the running terminal
+when:
+
+- <kbd>Ctrl</kbd> + <kbd>S</kbd> (or <kbd>Cmd</kbd> + <kbd>S</kbd> on Mac) 
+  is pressed while editing a file.
+- Anything outside the file editor is clicked after editing a file.
+- A file or folder is created, deleted, or renamed.
+
+### Configuring File Syncing
+
+NOTE: **Note:**
+This feature is only available for Kubernetes runners.
+
+To enable file syncing to the Web Terminal, the `.gitlab/.gitlab-webide.yml` 
+file needs to have a `webide-file-sync` service configured. Here is an example 
+configuration for a Node JS project which uses this service:
+
+```yaml
+terminal:
+  # This can be any image that has the necessary runtime environment for your project.
+  image: 
+    name: node:10-alpine
+  services:
+    - name: registry.gitlab.com/gitlab-org/webide-file-sync:latest
+      alias: webide-file-sync
+      entrypoint: ["/bin/sh"]
+      command: ["-c", "sleep 5 && ./webide-file-sync -project-dir $CI_PROJECT_DIR"]
+      ports:
+        # The `webide-file-sync` executable defaults to port 3000.
+        - number: 3000
+```
+
+> **Notes:**
+> - For now, the `webide-file-sync` executable must start **after** the project
+>  directory is available. This is why we need to add `sleep 5` to the `command`.
+>  See [this issue](https://gitlab.com/gitlab-org/webide-file-sync/issues/7) for 
+>  more info.
+> - `$CI_PROJECT_DIR` is a 
+>  [predefined environment variable](../../../ci/variables/predefined_variables.md) 
+>  for GitLab Runners. This is where your project's repository will be.
 
 ### Limitations
 

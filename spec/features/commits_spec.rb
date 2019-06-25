@@ -10,8 +10,7 @@ describe 'Commits' do
       stub_ci_pipeline_to_return_yaml_file
     end
 
-    let(:creator) { create(:user) }
-
+    let(:creator) { create(:user, developer_projects: [project]) }
     let!(:pipeline) do
       create(:ci_pipeline,
              project: project,
@@ -77,19 +76,20 @@ describe 'Commits' do
 
         describe 'Commit builds', :js do
           before do
+            project.add_developer(user)
             visit pipeline_path(pipeline)
           end
 
-          it 'shows pipeline`s data' do
+          it 'shows pipeline data' do
             expect(page).to have_content pipeline.sha[0..7]
-            expect(page).to have_content pipeline.git_commit_message
+            expect(page).to have_content pipeline.git_commit_message.gsub!(/\s+/, ' ')
             expect(page).to have_content pipeline.user.name
           end
         end
 
         context 'Download artifacts' do
           before do
-            build.update(legacy_artifacts_file: artifacts_file)
+            create(:ci_job_artifact, :archive, file: artifacts_file, job: build)
           end
 
           it do
@@ -119,13 +119,13 @@ describe 'Commits' do
       context "when logged as reporter" do
         before do
           project.add_reporter(user)
-          build.update(legacy_artifacts_file: artifacts_file)
+          create(:ci_job_artifact, :archive, file: artifacts_file, job: build)
           visit pipeline_path(pipeline)
         end
 
         it 'Renders header', :js do
           expect(page).to have_content pipeline.sha[0..7]
-          expect(page).to have_content pipeline.git_commit_message
+          expect(page).to have_content pipeline.git_commit_message.gsub!(/\s+/, ' ')
           expect(page).to have_content pipeline.user.name
           expect(page).not_to have_link('Cancel running')
           expect(page).not_to have_link('Retry')
@@ -141,13 +141,13 @@ describe 'Commits' do
           project.update(
             visibility_level: Gitlab::VisibilityLevel::INTERNAL,
             public_builds: false)
-          build.update(legacy_artifacts_file: artifacts_file)
+          create(:ci_job_artifact, :archive, file: artifacts_file, job: build)
           visit pipeline_path(pipeline)
         end
 
         it do
           expect(page).to have_content pipeline.sha[0..7]
-          expect(page).to have_content pipeline.git_commit_message
+          expect(page).to have_content pipeline.git_commit_message.gsub!(/\s+/, ' ')
           expect(page).to have_content pipeline.user.name
 
           expect(page).not_to have_link('Cancel running')

@@ -314,7 +314,8 @@ describe 'Merge request > User sees merge widget', :js do
   context 'view merge request with MWPS enabled but automatically merge fails' do
     before do
       merge_request.update(
-        merge_when_pipeline_succeeds: true,
+        auto_merge_enabled: true,
+        auto_merge_strategy: AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS,
         merge_user: merge_request.author,
         merge_error: 'Something went wrong'
       )
@@ -326,8 +327,8 @@ describe 'Merge request > User sees merge widget', :js do
       # Wait for the `ci_status` and `merge_check` requests
       wait_for_requests
 
-      page.within('.mr-widget-body') do
-        expect(page).to have_content('Something went wrong')
+      page.within('.mr-section-container') do
+        expect(page).to have_content('Merge failed: Something went wrong')
       end
     end
   end
@@ -347,8 +348,8 @@ describe 'Merge request > User sees merge widget', :js do
       # Wait for the `ci_status` and `merge_check` requests
       wait_for_requests
 
-      page.within('.mr-widget-body') do
-        expect(page).to have_content('Something went wrong')
+      page.within('.mr-section-container') do
+        expect(page).to have_content('Merge failed: Something went wrong')
       end
     end
   end
@@ -564,7 +565,7 @@ describe 'Merge request > User sees merge widget', :js do
                 click_button 'subtractTest'
 
                 expect(page).to have_content('6.66')
-                expect(page).to have_content(sample_java_failed_message)
+                expect(page).to have_content(sample_java_failed_message.gsub!(/\s+/, ' ').strip)
               end
             end
           end
@@ -609,7 +610,7 @@ describe 'Merge request > User sees merge widget', :js do
                 click_button 'Test#sum when a is 2 and b is 2 returns summary'
 
                 expect(page).to have_content('2.22')
-                expect(page).to have_content(sample_rspec_failed_message)
+                expect(page).to have_content(sample_rspec_failed_message.gsub!(/\s+/, ' ').strip)
               end
             end
           end

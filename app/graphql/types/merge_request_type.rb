@@ -4,6 +4,8 @@ module Types
   class MergeRequestType < BaseObject
     graphql_name 'MergeRequest'
 
+    implements(Types::Notes::NoteableType)
+
     authorize :read_merge_request
 
     expose_permissions Types::PermissionTypes::MergeRequest
@@ -11,7 +13,7 @@ module Types
     present_using MergeRequestPresenter
 
     field :id, GraphQL::ID_TYPE, null: false
-    field :iid, GraphQL::ID_TYPE, null: false
+    field :iid, GraphQL::STRING_TYPE, null: false
     field :title, GraphQL::STRING_TYPE, null: false
     field :description, GraphQL::STRING_TYPE, null: true
     field :state, MergeRequestStateEnum, null: false
@@ -53,5 +55,7 @@ module Types
     field :head_pipeline, Types::Ci::PipelineType, null: true, method: :actual_head_pipeline
     field :pipelines, Types::Ci::PipelineType.connection_type,
           resolver: Resolvers::MergeRequestPipelinesResolver
+
+    field :task_completion_status, Types::TaskCompletionStatus, null: false
   end
 end

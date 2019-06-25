@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import '~/behaviors/markdown/render_gfm';
 import { SYSTEM_NOTE } from '~/notes/constants';
 import DiscussionNotes from '~/notes/components/discussion_notes.vue';
@@ -24,7 +24,7 @@ describe('DiscussionNotes', () => {
     store.dispatch('setNoteableData', noteableDataMock);
     store.dispatch('setNotesData', notesDataMock);
 
-    wrapper = mount(DiscussionNotes, {
+    wrapper = shallowMount(DiscussionNotes, {
       localVue,
       store,
       propsData: {

@@ -27,7 +27,7 @@ Read through the current performance problems using the Import/Export below.
 
 ### OOM errors
 
-Out of memory (OOM) errors are normally caused by the [Sidekiq Memory Killer](https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html):
+Out of memory (OOM) errors are normally caused by the [Sidekiq Memory Killer](../administration/operations/sidekiq_memory_killer.md):
 
 ```bash
 SIDEKIQ_MEMORY_KILLER_MAX_RSS = 2GB in GitLab.com
@@ -147,7 +147,6 @@ The `ModelConfigurationSpec` checks and confirms the addition of new models:
   If you think this model should be included in the export, please add it to `#{Gitlab::ImportExport.config_file}`.
 
   Definitely add it to `#{File.expand_path(ce_models_yml)}`
-  #{"or `#{File.expand_path(ee_models_yml)}` if the model/associations are EE-specific\n" if ee_models_hash.any?}
   to signal that you've handled this error and to prevent it from showing up in the future.
 MSG
 ```
@@ -253,7 +252,7 @@ Model relationships to be included in the project import/export:
 ```yaml
 project_tree:
   - labels:
-      :priorities
+    - :priorities
   - milestones:
     - events:
       - :push_event_payload

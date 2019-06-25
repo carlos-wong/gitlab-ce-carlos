@@ -77,6 +77,11 @@ export default {
       required: false,
       default: '',
     },
+    showSuggestPopover: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     let updatedNoteBody = this.noteBody;
@@ -234,6 +239,8 @@ export default {
         v-if="hasWarning(getNoteableData)"
         :is-locked="isLocked(getNoteableData)"
         :is-confidential="isConfidential(getNoteableData)"
+        :locked-issue-docs-path="lockedIssueDocsPath"
+        :confidential-issue-docs-path="confidentialIssueDocsPath"
       />
 
       <markdown-field
@@ -245,6 +252,8 @@ export default {
         :can-suggest="canSuggest"
         :add-spacing-classes="false"
         :help-page-path="helpPagePath"
+        :show-suggest-popover="showSuggestPopover"
+        @handleSuggestDismissed="() => $emit('handleSuggestDismissed')"
       >
         <textarea
           id="note_note"
@@ -301,7 +310,7 @@ export default {
               {{ __('Add comment now') }}
             </button>
             <button
-              class="btn btn-cancel note-edit-cancel js-close-discussion-note-form"
+              class="btn note-edit-cancel js-close-discussion-note-form"
               type="button"
               @click="cancelHandler()"
             >

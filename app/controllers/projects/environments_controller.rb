@@ -11,10 +11,9 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   before_action :verify_api_request!, only: :terminal_websocket_authorize
   before_action :expire_etag_cache, only: [:index]
   before_action only: [:metrics, :additional_metrics, :metrics_dashboard] do
-    push_frontend_feature_flag(:metrics_time_window)
     push_frontend_feature_flag(:environment_metrics_use_prometheus_endpoint)
     push_frontend_feature_flag(:environment_metrics_show_multiple_dashboards)
-    push_frontend_feature_flag(:grafana_dashboard_link)
+    push_frontend_feature_flag(:prometheus_computed_alerts)
   end
 
   def index
@@ -165,7 +164,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
     if Feature.enabled?(:environment_metrics_show_multiple_dashboards, project)
       result = dashboard_finder.find(project, current_user, environment, params[:dashboard])
 
-      result[:all_dashboards] = project.repository.metrics_dashboard_paths
+      result[:all_dashboards] = dashboard_finder.find_all_paths(project)
     else
       result = dashboard_finder.find(project, current_user, environment)
     end
@@ -220,9 +219,6 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   end
 
   def metrics_params
-    return unless Feature.enabled?(:metrics_time_window, project)
-    return unless params[:start].present? || params[:end].present?
-
     params.require([:start, :end])
   end
 

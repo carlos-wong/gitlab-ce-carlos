@@ -116,11 +116,12 @@ describe Projects::ForkService do
         end
       end
 
-      context 'repository already exists' do
+      context 'repository in legacy storage already exists' do
         let(:repository_storage) { 'default' }
         let(:repository_storage_path) { Gitlab.config.repositories.storages[repository_storage].legacy_disk_path }
 
         before do
+          stub_application_setting(hashed_storage_enabled: false)
           gitlab_shell.create_repository(repository_storage, "#{@to_user.namespace.full_path}/#{@from_project.path}", "#{@to_user.namespace.full_path}/#{@from_project.path}")
         end
 
@@ -142,6 +143,30 @@ describe Projects::ForkService do
           @from_project.enable_ci
           @to_project = fork_project(@from_project, @to_user)
           expect(@to_project.builds_enabled?).to be_truthy
+        end
+      end
+
+      context "CI/CD settings" do
+        let(:to_project) { fork_project(@from_project, @to_user) }
+
+        context "when origin has git depth specified" do
+          before do
+            @from_project.update(ci_default_git_depth: 42)
+          end
+
+          it "inherits default_git_depth from the origin project" do
+            expect(to_project.ci_default_git_depth).to eq(42)
+          end
+        end
+
+        context "when origin does not define git depth" do
+          before do
+            @from_project.update!(ci_default_git_depth: nil)
+          end
+
+          it "the fork has git depth set to 0" do
+            expect(to_project.ci_default_git_depth).to eq(0)
+          end
         end
       end
 

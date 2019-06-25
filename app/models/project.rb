@@ -56,7 +56,6 @@ class Project < ApplicationRecord
   VALID_MIRROR_PROTOCOLS = %w(http https ssh git).freeze
 
   ignore_column :import_status, :import_jid, :import_error
-  ignore_column :ci_id
 
   cache_markdown_field :description, pipeline: :description
 
@@ -73,7 +72,6 @@ class Project < ApplicationRecord
   delegate :no_import?, to: :import_state, allow_nil: true
 
   default_value_for :archived, false
-  default_value_for(:visibility_level) { Gitlab::CurrentSettings.default_project_visibility }
   default_value_for :resolve_outdated_diff_discussions, false
   default_value_for :container_registry_enabled, gitlab_config_features.container_registry
   default_value_for(:repository_storage) { Gitlab::CurrentSettings.pick_repository_storage }
@@ -224,7 +222,7 @@ class Project < ApplicationRecord
   has_many :starrers, through: :users_star_projects, source: :user
   has_many :releases
   has_many :lfs_objects_projects, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
-  has_many :lfs_objects, through: :lfs_objects_projects
+  has_many :lfs_objects, -> { distinct }, through: :lfs_objects_projects
   has_many :lfs_file_locks
   has_many :project_group_links
   has_many :invited_groups, through: :project_group_links, source: :group
@@ -293,6 +291,7 @@ class Project < ApplicationRecord
   accepts_nested_attributes_for :project_feature, update_only: true
   accepts_nested_attributes_for :import_data
   accepts_nested_attributes_for :auto_devops, update_only: true
+  accepts_nested_attributes_for :ci_cd_settings, update_only: true
 
   accepts_nested_attributes_for :remote_mirrors,
                                 allow_destroy: true,
@@ -310,6 +309,8 @@ class Project < ApplicationRecord
   delegate :group_clusters_enabled?, to: :group, allow_nil: true
   delegate :root_ancestor, to: :namespace, allow_nil: true
   delegate :last_pipeline, to: :commit, allow_nil: true
+  delegate :external_dashboard_url, to: :metrics_setting, allow_nil: true, prefix: true
+  delegate :default_git_depth, :default_git_depth=, to: :ci_cd_settings, prefix: :ci
 
   # Validations
   validates :creator, presence: true, on: :create
@@ -609,6 +610,23 @@ class Project < ApplicationRecord
 
       from_union([with_issues_enabled, with_merge_requests_enabled]).select(:id)
     end
+  end
+
+  def initialize(attributes = {})
+    # We can't use default_value_for because the database has a default
+    # value of 0 for visibility_level. If someone attempts to create a
+    # private project, default_value_for will assume that the
+    # visibility_level hasn't changed and will use the application
+    # setting default, which could be internal or public. For projects
+    # inside a private group, those levels are invalid.
+    #
+    # To fix the problem, we assign the actual default in the application if
+    # no explicit visibility has been initialized.
+    unless visibility_attribute_present?(attributes)
+      attributes[:visibility_level] = Gitlab::CurrentSettings.default_project_visibility
+    end
+
+    super
   end
 
   def all_pipelines

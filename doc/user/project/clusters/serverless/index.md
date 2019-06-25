@@ -83,6 +83,25 @@ NOTE: **Note:**
 You can deploy either [functions](#deploying-functions) or [serverless applications](#deploying-serverless-applications)
 on a given project but not both. The current implementation makes use of a `serverless.yml` file to signal a FaaS project.
 
+## Using an existing installation of Knative
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/58941) in GitLab 12.0.
+
+NOTE: **Note:**
+The "invocations" monitoring feature of GitLab serverless will not work when
+adding an existing installation of Knative.
+
+It is also possible to use GitLab Serverless with an existing Kubernetes
+cluster which already has Knative installed.
+
+Simply:
+
+1. Follow the steps to
+   [add an existing Kubernetes cluster](../index.md#adding-an-existing-kubernetes-cluster).
+1. Follow the steps to deploy [functions](#deploying-functions)
+   or [serverless applications](#deploying-serverless-applications) onto your
+   cluster.
+
 ## Deploying functions
 
 > Introduced in GitLab 11.6.
@@ -216,7 +235,7 @@ The sample function can now be triggered from any HTTP client using a simple `PO
       --header "Content-Type: application/json" \
       --request POST \
       --data '{"GitLab":"FaaS"}' \
-      http://functions-echo.functions-1.functions.example.com
+      http://functions-echo.functions-1.functions.example.com/
       ```
   2. Using a web-based tool (ie. postman, restlet, etc)
 

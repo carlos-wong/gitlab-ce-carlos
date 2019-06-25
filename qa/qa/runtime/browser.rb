@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec/core'
+require 'rspec/expectations'
 require 'capybara/rspec'
 require 'capybara-screenshot/rspec'
 require 'selenium-webdriver'
@@ -27,12 +28,12 @@ module QA
       # In case of an address that is a symbol we will try to guess address
       # based on `Runtime::Scenario#something_address`.
       #
-      def visit(address, page = nil, &block)
-        Browser::Session.new(address, page).perform(&block)
+      def visit(address, page_class, &block)
+        Browser::Session.new(address, page_class).perform(&block)
       end
 
-      def self.visit(address, page = nil, &block)
-        new.visit(address, page, &block)
+      def self.visit(address, page_class, &block)
+        new.visit(address, page_class, &block)
       end
 
       def self.configure!
@@ -76,6 +77,9 @@ module QA
               # https://developers.google.com/web/updates/2017/04/headless-chrome#cli
               options.add_argument("disable-gpu")
             end
+
+            # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab-ee/issues/4252
+            options.add_argument("disable-dev-shm-usage") if QA::Runtime::Env.running_in_ci?
           end
 
           # Use the same profile on QA runs if CHROME_REUSE_PROFILE is true.
@@ -84,9 +88,6 @@ module QA
             qa_profile_dir = ::File.expand_path('../../tmp/qa-profile', __dir__)
             options.add_argument("user-data-dir=#{qa_profile_dir}")
           end
-
-          # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab-ee/issues/4252
-          options.add_argument("disable-dev-shm-usage") if QA::Runtime::Env.running_in_ci?
 
           selenium_options = {
             browser: QA::Runtime::Env.browser,
@@ -127,8 +128,11 @@ module QA
       class Session
         include Capybara::DSL
 
-        def initialize(instance, page = nil)
-          @session_address = Runtime::Address.new(instance, page)
+        attr_reader :page_class
+
+        def initialize(instance, page_class)
+          @session_address = Runtime::Address.new(instance, page_class)
+          @page_class = page_class
         end
 
         def url
@@ -137,6 +141,8 @@ module QA
 
         def perform(&block)
           visit(url)
+
+          page_class.validate_elements_present!
 
           if QA::Runtime::Env.qa_cookies
             browser = Capybara.current_session.driver.browser

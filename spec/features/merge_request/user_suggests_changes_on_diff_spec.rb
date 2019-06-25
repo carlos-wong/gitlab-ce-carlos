@@ -7,8 +7,8 @@ describe 'User comments on a diff', :js do
   include RepoHelpers
 
   def expect_suggestion_has_content(element, expected_changing_content, expected_suggested_content)
-    changing_content = element.all(:css, '.line_holder.old').map(&:text)
-    suggested_content = element.all(:css, '.line_holder.new').map(&:text)
+    changing_content = element.all(:css, '.line_holder.old').map { |el| el.text(normalize_ws: true) }
+    suggested_content = element.all(:css, '.line_holder.new').map { |el| el.text(normalize_ws: true) }
 
     expect(changing_content).to eq(expected_changing_content)
     expect(suggested_content).to eq(expected_suggested_content)
@@ -28,6 +28,18 @@ describe 'User comments on a diff', :js do
   end
 
   context 'single suggestion note' do
+    it 'hides suggestion popover' do
+      click_diff_line(find("[id='#{sample_compare.changes[1][:line_code]}']"))
+
+      expect(page).to have_selector('.diff-suggest-popover')
+
+      page.within('.diff-suggest-popover') do
+        click_button 'Got it'
+      end
+
+      expect(page).not_to have_selector('.diff-suggest-popover')
+    end
+
     it 'suggestion is presented' do
       click_diff_line(find("[id='#{sample_compare.changes[1][:line_code]}']"))
 

@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require 'spec_helper'
@@ -13,7 +14,7 @@ describe SendFileUpload do
 
       # user/:id
       def dynamic_segment
-        File.join(model.class.to_s.underscore, model.id.to_s)
+        File.join(model.class.underscore, model.id.to_s)
       end
     end
   end
@@ -114,7 +115,7 @@ describe SendFileUpload do
 
         it 'sends a file with a custom type' do
           headers = double
-          expected_headers = /response-content-disposition=attachment%3B%20filename%3D%22test.js%22%3B%20filename%2A%3DUTF-8%27%27test.js&response-content-type=application%2Fecmascript/
+          expected_headers = /response-content-disposition=attachment%3B%20filename%3D%22test.js%22%3B%20filename%2A%3DUTF-8%27%27test.js&response-content-type=application%2Fjavascript/
           expect(Gitlab::Workhorse).to receive(:send_url).with(expected_headers).and_call_original
           expect(headers).to receive(:store).with(Gitlab::Workhorse::SEND_DATA_HEADER, /^send-url:/)
 

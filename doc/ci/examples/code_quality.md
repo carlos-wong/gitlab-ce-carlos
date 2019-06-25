@@ -1,3 +1,8 @@
+---
+redirect_from: 'https://docs.gitlab.com/ee/ci/examples/code_climate.html'
+type: reference, howto
+---
+
 # Analyze your project's Code Quality
 
 CAUTION: **Caution:**
@@ -27,7 +32,7 @@ Due to implementation limitations we always take the latest Code Quality artifac
 TIP: **Tip:**
 For [GitLab Starter][ee] users, this information will be automatically
 extracted and shown right in the merge request widget.
-[Learn more on Code Quality in merge requests](https://docs.gitlab.com/ee/user/project/merge_requests/code_quality.html).
+[Learn more on Code Quality in merge requests](../../user/project/merge_requests/code_quality.md).
 
 ## Previous job definitions
 

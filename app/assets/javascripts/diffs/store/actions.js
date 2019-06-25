@@ -36,8 +36,8 @@ import {
 import { diffViewerModes } from '~/ide/constants';
 
 export const setBaseConfig = ({ commit }, options) => {
-  const { endpoint, projectPath } = options;
-  commit(types.SET_BASE_CONFIG, { endpoint, projectPath });
+  const { endpoint, projectPath, dismissEndpoint, showSuggestPopover } = options;
+  commit(types.SET_BASE_CONFIG, { endpoint, projectPath, dismissEndpoint, showSuggestPopover });
 };
 
 export const fetchDiffFiles = ({ state, commit }) => {
@@ -52,7 +52,7 @@ export const fetchDiffFiles = ({ state, commit }) => {
   });
 
   return axios
-    .get(state.endpoint, { params: { w: state.showWhitespace ? null : '1' } })
+    .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
     .then(res => {
       commit(types.SET_LOADING, false);
       commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
@@ -125,7 +125,8 @@ export const startRenderDiffsQueue = ({ state, commit }) => {
     new Promise(resolve => {
       const nextFile = state.diffFiles.find(
         file =>
-          !file.renderIt && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text),
+          !file.renderIt &&
+          (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
       );
 
       if (nextFile) {
@@ -210,11 +211,12 @@ export const scrollToLineIfNeededParallel = (_, line) => {
   }
 };
 
-export const loadCollapsedDiff = ({ commit, getters }, file) =>
+export const loadCollapsedDiff = ({ commit, getters, state }, file) =>
   axios
     .get(file.load_collapsed_diff_url, {
       params: {
         commit_id: getters.commitId,
+        w: state.showWhitespace ? '0' : '1',
       },
     })
     .then(res => {
@@ -315,8 +317,10 @@ export const setShowWhitespace = ({ commit }, { showWhitespace, pushState = fals
   localStorage.setItem(WHITESPACE_STORAGE_KEY, showWhitespace);
 
   if (pushState) {
-    historyPushState(showWhitespace ? '?w=0' : '?w=1');
+    historyPushState(mergeUrlParams({ w: showWhitespace ? '0' : '1' }, window.location.href));
   }
+
+  eventHub.$emit('refetchDiffData');
 };
 
 export const toggleFileFinder = ({ commit }, visible) => {
@@ -450,6 +454,18 @@ export const toggleFullDiff = ({ dispatch, getters, state }, filePath) => {
 
 export const setFileCollapsed = ({ commit }, { filePath, collapsed }) =>
   commit(types.SET_FILE_COLLAPSED, { filePath, collapsed });
+
+export const setSuggestPopoverDismissed = ({ commit, state }) =>
+  axios
+    .post(state.dismissEndpoint, {
+      feature_name: 'suggest_popover_dismissed',
+    })
+    .then(() => {
+      commit(types.SET_SHOW_SUGGEST_POPOVER);
+    })
+    .catch(() => {
+      createFlash(s__('MergeRequest|Error dismissing suggestion popover. Please try again.'));
+    });
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

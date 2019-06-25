@@ -1,4 +1,27 @@
+---
+type: howto
+---
+
 # Installation from source
+
+This is the official installation guide to set up a production GitLab server
+using the source files. To set up a **development installation** or for many
+other installation options, see the [main installation page](index.md).
+It was created for and tested on **Debian/Ubuntu** operating systems.
+Read [requirements.md](requirements.md) for hardware and operating system requirements.
+If you want to install on RHEL/CentOS, we recommend using the
+[Omnibus packages](https://about.gitlab.com/downloads/).
+
+This guide is long because it covers many cases and includes all commands you
+need, this is [one of the few installation scripts that actually works out of the box](https://twitter.com/robinvdvleuten/status/424163226532986880).
+The following steps have been known to work. **Use caution when you deviate**
+from this guide. Make sure you don't violate any assumptions GitLab makes about
+its environment. For example, many people run into permission problems because
+they changed the location of directories or run services as the wrong user.
+
+If you find a bug/error in this guide, **submit a merge request**
+following the
+[contributing guide](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md).
 
 ## Consider the Omnibus package installation
 
@@ -12,26 +35,42 @@ After this termination Runit will detect Sidekiq is not running and will start i
 Since installations from source don't use Runit for process supervision, Sidekiq
 can't be terminated and its memory usage will grow over time.
 
-## Select Version to Install
+## Select version to install
 
 Make sure you view [this installation guide](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/install/installation.md) from the branch (version) of GitLab you would like to install (e.g., `11-7-stable`).
 You can select the branch in the version dropdown in the top left corner of GitLab (below the menu bar).
 
 If the highest number stable branch is unclear, check the [GitLab blog](https://about.gitlab.com/blog/) for installation guide links by version.
 
-## Important Notes
+## GitLab directory structure
 
-This guide is long because it covers many cases and includes all commands you need, this is [one of the few installation scripts that actually works out of the box](https://twitter.com/robinvdvleuten/status/424163226532986880).
+This is the main directory structure you will end up with following the instructions
+of this page:
 
-This installation guide was created for and tested on **Debian/Ubuntu** operating systems. Read [requirements.md](requirements.md) for hardware and operating system requirements. If you want to install on RHEL/CentOS, we recommend using the [Omnibus packages](https://about.gitlab.com/downloads/).
+```
+|-- home
+|   |-- git
+|       |-- .ssh
+|       |-- gitlab
+|       |-- gitlab-shell
+|       |-- repositories
+```
 
-This is the official installation guide to set up a production server. To set up a **development installation** or for many other installation options, see [the installation section of the README](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/README.md#installation).
+- `/home/git/.ssh` - Contains OpenSSH settings. Specifically the `authorized_keys`
+  file managed by gitlab-shell.
+- `/home/git/gitlab` - GitLab core software.
+- `/home/git/gitlab-shell` - Core add-on component of GitLab. Maintains SSH
+  cloning and other functionality.
+- `/home/git/repositories` - Bare repositories for all projects organized by
+  namespace. This is where the git repositories which are pushed/pulled are
+  maintained for all projects. **This area contains critical data for projects.
+  [Keep a backup](../raketasks/backup_restore.md).**
 
-The following steps have been known to work. **Use caution when you deviate** from this guide. Make sure you don't violate any assumptions GitLab makes about its environment. For example, many people run into permission problems because they changed the location of directories or run services as the wrong user.
+NOTE: **Note:**
+The default locations for repositories can be configured in `config/gitlab.yml`
+of GitLab and `config.yml` of gitlab-shell.
 
-If you find a bug/error in this guide, **submit a merge request**
-following the
-[contributing guide](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md).
+For a more in-depth overview, see the [GitLab architecture doc](../development/architecture.md).
 
 ## Overview
 
@@ -99,7 +138,20 @@ sudo apt-get install -y git-core
 git --version
 ```
 
-Is the system packaged Git too old? Remove it and compile from source.
+Starting with GitLab 12.0, Git is required to be compiled with `libpcre2`.
+Find out if that's the case:
+
+```sh
+ldd /usr/local/bin/git | grep pcre2
+```
+
+The output should be similar to:
+
+```
+libpcre2-8.so.0 => /usr/lib/libpcre2-8.so.0 (0x00007f08461c3000)
+```
+
+Is the system packaged Git too old, or not compiled with pcre2? Remove it and compile from source:
 
 ```sh
 # Remove packaged Git
@@ -108,12 +160,21 @@ sudo apt-get remove git-core
 # Install dependencies
 sudo apt-get install -y libcurl4-openssl-dev libexpat1-dev gettext libz-dev libssl-dev build-essential
 
+# Download and compile pcre2 from source
+curl --silent --show-error --location https://ftp.pcre.org/pub/pcre/pcre2-10.33.tar.gz --output pcre2.tar.gz
+tar -xzf pcre2.tar.gz
+cd pcre2-10.33
+chmod +x configure
+./configure --prefix=/usr --enable-jit
+make
+make install
+
 # Download and compile from source
 cd /tmp
 curl --remote-name --location --progress https://www.kernel.org/pub/software/scm/git/git-2.21.0.tar.gz
 echo '85eca51c7404da75e353eba587f87fea9481ba41e162206a6f70ad8118147bee  git-2.21.0.tar.gz' | shasum -a256 -c - && tar -xzf git-2.21.0.tar.gz
 cd git-2.21.0/
-./configure
+./configure --with-libpcre
 make prefix=/usr/local all
 
 # Install into /usr/local/bin
@@ -163,9 +224,9 @@ Download Ruby and compile it:
 
 ```sh
 mkdir /tmp/ruby && cd /tmp/ruby
-curl --remote-name --progress https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.3.tar.gz
-echo 'f919a9fbcdb7abecd887157b49833663c5c15fda  ruby-2.5.3.tar.gz' | shasum -c - && tar xzf ruby-2.5.3.tar.gz
-cd ruby-2.5.3
+curl --remote-name --progress https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.3.tar.gz
+echo '2347ed6ca5490a104ebd5684d2b9b5eefa6cd33c  ruby-2.6.3.tar.gz' | shasum -c - && tar xzf ruby-2.6.3.tar.gz
+cd ruby-2.6.3
 
 ./configure --disable-install-rdoc
 make
@@ -189,11 +250,11 @@ page](https://golang.org/dl).
 # Remove former Go installation folder
 sudo rm -rf /usr/local/go
 
-curl --remote-name --progress https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
-echo 'fa1b0e45d3b647c252f51f5e1204aba049cde4af177ef9f2181f43004f901035  go1.10.3.linux-amd64.tar.gz' | shasum -a256 -c - && \
-  sudo tar -C /usr/local -xzf go1.10.3.linux-amd64.tar.gz
+curl --remote-name --progress https://dl.google.com/go/go1.11.10.linux-amd64.tar.gz
+echo 'aefaa228b68641e266d1f23f1d95dba33f17552ba132878b65bb798ffa37e6d0  go1.11.10.linux-amd64.tar.gz' | shasum -a256 -c - && \
+  sudo tar -C /usr/local -xzf go1.11.10.linux-amd64.tar.gz
 sudo ln -sf /usr/local/go/bin/{go,godoc,gofmt} /usr/local/bin/
-rm go1.10.3.linux-amd64.tar.gz
+rm go1.11.10.linux-amd64.tar.gz
 ```
 
 ## 4. Node
@@ -202,7 +263,7 @@ Since GitLab 8.17, GitLab requires the use of Node to compile JavaScript
 assets, and Yarn to manage JavaScript dependencies. The current minimum
 requirements for these are:
 
-- `node` >= v8.10.0.
+- `node` >= v8.10.0. (We recommend node 12.x as it is faster)
 - `yarn` >= v1.10.0.
 
 In many distros,
@@ -210,8 +271,8 @@ the versions provided by the official package repositories are out of date, so
 we'll need to install through the following commands:
 
 ```sh
-# install node v8.x
-curl --location https://deb.nodesource.com/setup_8.x | sudo bash -
+# install node v12.x
+curl --location https://deb.nodesource.com/setup_12.x | sudo bash -
 sudo apt-get install -y nodejs
 
 curl --silent --show-error https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
@@ -302,9 +363,7 @@ Redis 2.8 with:
 sudo apt-get install redis-server
 ```
 
-If you are using Debian 7 or Ubuntu 12.04, follow the special documentation
-on [an alternate Redis installation](redis.md). Once done, follow the rest of
-the guide here.
+Once done, you can configure Redis:
 
 ```sh
 # Configure redis to use sockets
@@ -434,7 +493,7 @@ sudo -u git -H editor config/resque.yml
 ```
 
 CAUTION: **Caution:**
-Make sure to edit both `gitlab.yml` and `unicorn.rb` to match your setup. 
+Make sure to edit both `gitlab.yml` and `unicorn.rb` to match your setup.
 If you want to use Puma web server, see [Using Puma](#using-puma) for the additional steps.
 
 NOTE: **Note:**
@@ -908,8 +967,50 @@ and correctly [configured Nginx](#site-configuration).
 ### google-protobuf "LoadError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.14' not found"
 
 This can happen on some platforms for some versions of the
-google-protobuf gem. The workaround is to [install a source-only
-version of this gem](google-protobuf.md).
+`google-protobuf` gem. The workaround is to install a source-only
+version of this gem.
+
+First, you must find the exact version of `google-protobuf` that your
+GitLab installation requires:
+
+```sh
+cd /home/git/gitlab
+
+# Only one of the following two commands will print something. It
+# will look like: * google-protobuf (3.2.0)
+bundle list | grep google-protobuf
+bundle check | grep google-protobuf
+```
+
+Below, `3.2.0` is used as an example. Replace it with the version number
+you found above:
+
+```sh
+cd /home/git/gitlab
+sudo -u git -H gem install google-protobuf --version 3.2.0 --platform ruby
+```
+
+Finally, you can test whether `google-protobuf` loads correctly. The
+following should print 'OK'.
+
+```sh
+sudo -u git -H bundle exec ruby -rgoogle/protobuf -e 'puts :OK'
+```
+
+If the `gem install` command fails, you may need to install the developer
+tools of your OS.
+
+On Debian/Ubuntu:
+
+```sh
+sudo apt-get install build-essential libgmp-dev
+```
+
+On RedHat/CentOS:
+
+```sh
+sudo yum groupinstall 'Development Tools'
+```
 
 [RVM]: https://rvm.io/ "RVM Homepage"
 [rbenv]: https://github.com/sstephenson/rbenv "rbenv on GitHub"

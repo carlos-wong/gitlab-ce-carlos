@@ -10,7 +10,10 @@ describe API::Services do
   end
 
   Service.available_services_names.each do |service|
-    describe "PUT /projects/:id/services/#{service.dasherize}" do
+    # TODO: Remove below `if: (service != "kubernetes")` in the next release
+    # KubernetesService was deprecated and it can't be updated. Right now it's
+    # only readable. It should be completely removed in the next iteration.
+    describe "PUT /projects/:id/services/#{service.dasherize}", if: (service != "kubernetes") do
       include_context service
 
       it "updates #{service} settings" do
@@ -19,13 +22,22 @@ describe API::Services do
         expect(response).to have_gitlab_http_status(200)
 
         current_service = project.services.first
-        event = current_service.event_names.empty? ? "foo" : current_service.event_names.first
-        state = current_service[event] || false
+        events = current_service.event_names.empty? ? ["foo"].freeze : current_service.event_names
+        query_strings = []
+        events.each do |event|
+          query_strings << "#{event}=#{!current_service[event]}"
+        end
+        query_strings = query_strings.join('&')
 
-        put api("/projects/#{project.id}/services/#{dashed_service}?#{event}=#{!state}", user), params: service_attrs
+        put api("/projects/#{project.id}/services/#{dashed_service}?#{query_strings}", user), params: service_attrs
 
         expect(response).to have_gitlab_http_status(200)
-        expect(project.services.first[event]).not_to eq(state) unless event == "foo"
+        events.each do |event|
+          next if event == "foo"
+
+          expect(project.services.first[event]).not_to eq(current_service[event]),
+            "expected #{!current_service[event]} for event #{event} for service #{current_service.title}, got #{current_service[event]}"
+        end
       end
 
       it "returns if required fields missing" do
@@ -50,7 +62,10 @@ describe API::Services do
       end
     end
 
-    describe "DELETE /projects/:id/services/#{service.dasherize}" do
+    # TODO: Remove below `if: (service != "kubernetes")` in the next release
+    # KubernetesService was deprecated and it can't be updated. Right now it's
+    # only readable. It should be completely removed in the next iteration.
+    describe "DELETE /projects/:id/services/#{service.dasherize}", if: (service != "kubernetes") do
       include_context service
 
       before do

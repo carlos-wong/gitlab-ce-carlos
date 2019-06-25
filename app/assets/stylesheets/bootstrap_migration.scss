@@ -22,7 +22,9 @@ body,
 .form-control,
 .search form {
   // Override default font size used in non-csslab UI
-  font-size: 14px;
+  // Use rem to keep default font-size at 14px on body so 1rem still
+  // fits 8px grid, but also allow users to change browser font size
+  font-size: .875rem;
 }
 
 legend {
@@ -143,11 +145,6 @@ table {
 .no-pointer-events {
   // Fix bootstrap4 bug whereby tooltips flicker when they are hovered over their borders
   pointer-events: none;
-}
-
-.popover,
-.popover-header {
-  font-size: 14px;
 }
 
 @each $breakpoint in map-keys($grid-breakpoints) {

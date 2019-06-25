@@ -1,4 +1,5 @@
 <script>
+import _ from 'underscore';
 import Deployment from './deployment.vue';
 import MrWidgetContainer from './mr_widget_container.vue';
 import MrWidgetPipeline from './mr_widget_pipeline.vue';
@@ -17,6 +18,8 @@ export default {
     Deployment,
     MrWidgetContainer,
     MrWidgetPipeline,
+    MergeTrainInfo: () =>
+      import('ee_component/vue_merge_request_widget/components/merge_train_info.vue'),
   },
   props: {
     mr: {
@@ -30,9 +33,6 @@ export default {
     },
   },
   computed: {
-    pipeline() {
-      return this.isPostMerge ? this.mr.mergePipeline : this.mr.pipeline;
-    },
     branch() {
       return this.isPostMerge ? this.mr.targetBranch : this.mr.sourceBranch;
     },
@@ -48,6 +48,23 @@ export default {
     hasDeploymentMetrics() {
       return this.isPostMerge;
     },
+    visualReviewAppMeta() {
+      return {
+        appUrl: this.mr.appUrl,
+        mergeRequestId: this.mr.iid,
+        sourceProjectId: this.mr.sourceProjectId,
+        sourceProjectPath: this.mr.sourceProjectFullPath,
+      };
+    },
+    pipeline() {
+      return this.isPostMerge ? this.mr.mergePipeline : this.mr.pipeline;
+    },
+    showVisualReviewAppLink() {
+      return Boolean(this.mr.visualReviewFF && this.mr.visualReviewAppAvailable);
+    },
+    showMergeTrainInfo() {
+      return _.isNumber(this.mr.mergeTrainIndex);
+    },
   },
 };
 </script>
@@ -61,14 +78,23 @@ export default {
       :source-branch-link="branchLink"
       :troubleshooting-docs-path="mr.troubleshootingDocsPath"
     />
-    <div v-if="deployments.length" slot="footer" class="mr-widget-extension">
-      <deployment
-        v-for="deployment in deployments"
-        :key="deployment.id"
-        :class="deploymentClass"
-        :deployment="deployment"
-        :show-metrics="hasDeploymentMetrics"
+    <template v-slot:footer>
+      <div v-if="deployments.length" class="mr-widget-extension">
+        <deployment
+          v-for="deployment in deployments"
+          :key="deployment.id"
+          :class="deploymentClass"
+          :deployment="deployment"
+          :show-metrics="hasDeploymentMetrics"
+          :show-visual-review-app="showVisualReviewAppLink"
+          :visual-review-app-meta="visualReviewAppMeta"
+        />
+      </div>
+      <merge-train-info
+        v-if="showMergeTrainInfo"
+        class="mr-widget-extension"
+        :merge-train-index="mr.mergeTrainIndex"
       />
-    </div>
+    </template>
   </mr-widget-container>
 </template>

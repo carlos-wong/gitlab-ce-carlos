@@ -18,6 +18,12 @@ describe Git::BranchHooksService do
     described_class.new(project, user, oldrev: oldrev, newrev: newrev, ref: ref)
   end
 
+  it 'update remote mirrors' do
+    expect(service).to receive(:update_remote_mirrors).and_call_original
+
+    service.execute
+  end
+
   describe "Git Push Data" do
     subject(:push_data) { service.execute }
 
@@ -281,8 +287,8 @@ describe Git::BranchHooksService do
     context 'creating the default branch' do
       let(:oldrev) { Gitlab::Git::BLANK_SHA }
 
-      it 'does not process commit messages' do
-        expect(ProcessCommitWorker).not_to receive(:perform_async)
+      it 'processes a limited number of commit messages' do
+        expect(ProcessCommitWorker).to receive(:perform_async).once
 
         service.execute
       end

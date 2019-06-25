@@ -321,8 +321,14 @@ X-Gitlab-Event: Issue Hook
     "group_id": 41
   }],
   "changes": {
-    "updated_by_id": [null, 1],
-    "updated_at": ["2017-09-15 16:50:55 UTC", "2017-09-15 16:52:00 UTC"],
+    "updated_by_id": {
+      "previous": null,
+      "current": 1
+    },
+    "updated_at": {
+      "previous": "2017-09-15 16:50:55 UTC", 
+      "current": "2017-09-15 16:52:00 UTC"
+    },
     "labels": {
       "previous": [{
         "id": 206,
@@ -647,7 +653,33 @@ X-Gitlab-Event: Note Hook
     "description": "test",
     "milestone_id": null,
     "state": "closed",
-    "iid": 17
+    "iid": 17,
+    "labels": [
+      {
+        "id": 25,
+        "title": "Afterpod",
+        "color": "#3e8068",
+        "project_id": null,
+        "created_at": "2019-06-05T14:32:20.211Z",
+        "updated_at": "2019-06-05T14:32:20.211Z",
+        "template": false,
+        "description": null,
+        "type": "GroupLabel",
+        "group_id": 4
+      },
+      {
+        "id": 86,
+        "title": "Element",
+        "color": "#231afe",
+        "project_id": 4,
+        "created_at": "2019-06-05T14:32:20.637Z",
+        "updated_at": "2019-06-05T14:32:20.637Z",
+        "template": false,
+        "description": null,
+        "type": "ProjectLabel",
+        "group_id": null
+      }
+    ],
   }
 }
 ```
@@ -851,8 +883,14 @@ X-Gitlab-Event: Merge Request Hook
     "group_id": 41
   }],
   "changes": {
-    "updated_by_id": [null, 1],
-    "updated_at": ["2017-09-15 16:50:55 UTC", "2017-09-15 16:52:00 UTC"],
+    "updated_by_id": {
+      "previous": null,
+      "current": 1
+    },
+    "updated_at": {
+      "previous": "2017-09-15 16:50:55 UTC", 
+      "current":"2017-09-15 16:52:00 UTC"
+    },
     "labels": {
       "previous": [{
         "id": 206,
@@ -1004,7 +1042,7 @@ X-Gitlab-Event: Pipeline Hook
          "email": "user@gitlab.com"
       }
    },
-   "jobs":[
+   "builds":[
       {
          "id": 380,
          "stage": "deploy",

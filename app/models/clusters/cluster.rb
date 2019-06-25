@@ -5,6 +5,7 @@ module Clusters
     include Presentable
     include Gitlab::Utils::StrongMemoize
     include FromUnion
+    include ReactiveCaching
 
     self.table_name = 'clusters'
 
@@ -45,7 +46,6 @@ module Clusters
     has_one :application_knative, class_name: 'Clusters::Applications::Knative'
 
     has_many :kubernetes_namespaces
-    has_one :kubernetes_namespace, -> { order(id: :desc) }, class_name: 'Clusters::KubernetesNamespace'
 
     accepts_nested_attributes_for :provider_gcp, update_only: true
     accepts_nested_attributes_for :platform_kubernetes, update_only: true
@@ -57,6 +57,8 @@ module Clusters
     validate :restrict_modification, on: :update
     validate :no_groups, unless: :group_type?
     validate :no_projects, unless: :project_type?
+
+    after_save :clear_reactive_cache!
 
     delegate :status, to: :provider, allow_nil: true
     delegate :status_reason, to: :provider, allow_nil: true
@@ -108,7 +110,7 @@ module Clusters
 
     scope :preload_knative, -> {
       preload(
-        :kubernetes_namespace,
+        :kubernetes_namespaces,
         :platform_kubernetes,
         :application_knative
       )
@@ -124,15 +126,19 @@ module Clusters
     end
 
     def status_name
-      if provider
-        provider.status_name
-      else
-        :created
+      provider&.status_name || connection_status.presence || :created
+    end
+
+    def connection_status
+      with_reactive_cache do |data|
+        data[:connection_status]
       end
     end
 
-    def created?
-      status_name == :created
+    def calculate_reactive_cache
+      return unless enabled?
+
+      { connection_status: retrieve_connection_status }
     end
 
     def applications
@@ -187,25 +193,44 @@ module Clusters
       platform_kubernetes.kubeclient if kubernetes?
     end
 
-    def find_or_initialize_kubernetes_namespace_for_project(project)
-      if project_type?
-        kubernetes_namespaces.find_or_initialize_by(
-          project: project,
-          cluster_project: cluster_project
-        )
-      else
-        kubernetes_namespaces.find_or_initialize_by(
-          project: project
-        )
+    ##
+    # This is subtly different to #find_or_initialize_kubernetes_namespace_for_project
+    # below because it will ignore any namespaces that have not got a service account
+    # token. This provides a guarantee that any namespace selected here can be used
+    # for cluster operations - a namespace needs to have a service account configured
+    # before it it can be used.
+    #
+    # This is used for selecting a namespace to use when querying a cluster, or
+    # generating variables to pass to CI.
+    def kubernetes_namespace_for(project)
+      find_or_initialize_kubernetes_namespace_for_project(
+        project, scope: kubernetes_namespaces.has_service_account_token
+      ).namespace
+    end
+
+    ##
+    # This is subtly different to #kubernetes_namespace_for because it will include
+    # namespaces that have yet to receive a service account token. This allows
+    # the namespace configuration process to be repeatable - if a namespace has
+    # already been created without a token we don't need to create another
+    # record entirely, just set the token on the pre-existing namespace.
+    #
+    # This is used for configuring cluster namespaces.
+    def find_or_initialize_kubernetes_namespace_for_project(project, scope: kubernetes_namespaces)
+      attributes = { project: project }
+      attributes[:cluster_project] = cluster_project if project_type?
+
+      scope.find_or_initialize_by(attributes).tap do |namespace|
+        namespace.set_defaults
       end
     end
 
     def allow_user_defined_namespace?
-      project_type?
+      project_type? || !managed?
     end
 
     def kube_ingress_domain
-      @kube_ingress_domain ||= domain.presence || instance_domain || legacy_auto_devops_domain
+      @kube_ingress_domain ||= domain.presence || instance_domain
     end
 
     def predefined_variables
@@ -216,10 +241,41 @@ module Clusters
       end
     end
 
+    def knative_services_finder(project)
+      @knative_services_finder ||= KnativeServicesFinder.new(self, project)
+    end
+
     private
 
     def instance_domain
       @instance_domain ||= Gitlab::CurrentSettings.auto_devops_domain
+    end
+
+    def retrieve_connection_status
+      kubeclient.core_client.discover
+    rescue *Gitlab::Kubernetes::Errors::CONNECTION
+      :unreachable
+    rescue *Gitlab::Kubernetes::Errors::AUTHENTICATION
+      :authentication_failure
+    rescue Kubeclient::HttpError => e
+      kubeclient_error_status(e.message)
+    rescue => e
+      Gitlab::Sentry.track_acceptable_exception(e, extra: { cluster_id: id })
+
+      :unknown_failure
+    else
+      :connected
+    end
+
+    # KubeClient uses the same error class
+    # For connection errors (eg. timeout) and
+    # for Kubernetes errors.
+    def kubeclient_error_status(message)
+      if message&.match?(/timed out|timeout/i)
+        :unreachable
+      else
+        :authentication_failure
+      end
     end
 
     # To keep backward compatibility with AUTO_DEVOPS_DOMAIN

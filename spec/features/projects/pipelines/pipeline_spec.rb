@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Pipeline', :js do
   include RoutesHelpers
   include ProjectForksHelper
+  include ::ExclusiveLeaseHelpers
 
   let(:project) { create(:project) }
   let(:user) { create(:user) }
@@ -89,7 +92,7 @@ describe 'Pipeline', :js do
 
       within '.pipeline-info' do
         expect(page).to have_content("#{pipeline.statuses.count} jobs " \
-                                      "for #{pipeline.ref} ")
+                                      "for #{pipeline.ref}")
         expect(page).to have_link(pipeline.ref,
           href: project_commits_path(pipeline.project, pipeline.ref))
       end
@@ -328,6 +331,12 @@ describe 'Pipeline', :js do
         expect(page).not_to have_link(pipeline.ref)
         expect(page).to have_content(pipeline.ref)
       end
+
+      it 'does not render render raw HTML to the pipeline ref' do
+        page.within '.pipeline-info' do
+          expect(page).not_to have_content('<span class="ref-name"')
+        end
+      end
     end
 
     context 'when pipeline is detached merge request pipeline' do
@@ -530,6 +539,44 @@ describe 'Pipeline', :js do
       it 'shows the pipeline with a bridge job' do
         expect(page).to have_selector('.pipeline-visualization')
         expect(page).to have_content('cross-build')
+      end
+
+      context 'when a scheduled pipeline is created by a blocked user' do
+        let(:project)  { create(:project, :repository) }
+
+        let(:schedule) do
+          create(:ci_pipeline_schedule,
+            project: project,
+            owner: project.owner,
+            description: 'blocked user schedule'
+          ).tap do |schedule|
+            schedule.update_column(:next_run_at, 1.minute.ago)
+          end
+        end
+
+        before do
+          schedule.owner.block!
+
+          begin
+            PipelineScheduleWorker.new.perform
+          rescue Ci::CreatePipelineService::CreateError
+            # Do nothing, assert view code after the Pipeline failed to create.
+          end
+        end
+
+        it 'displays the PipelineSchedule in an active state' do
+          visit project_pipeline_schedules_path(project)
+          page.click_link('Active')
+
+          expect(page).to have_selector('table.ci-table > tbody > tr > td', text: 'blocked user schedule')
+        end
+
+        it 'does not create a new Pipeline' do
+          visit project_pipelines_path(project)
+
+          expect(page).not_to have_selector('.ci-table')
+          expect(schedule.last_pipeline).to be_nil
+        end
       end
     end
 

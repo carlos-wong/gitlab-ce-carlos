@@ -64,7 +64,7 @@ The milestone of an issue that is currently being worked on by a community contr
 should not be set to a named GitLab milestone (e.g. 11.7, 11.8), until the associated
 merge request is very close to being merged, and we will likely know in which named
 GitLab milestone the issue will land. There are many factors that influence when
-a community contributor finishes an issue, or even at all. So we should set this 
+a community contributor finishes an issue, or even at all. So we should set this
 milestone only when we have more certainty.
 
 Note this only applies to issues currently assigned to community contributors. For
@@ -86,21 +86,10 @@ star, smile, etc.). Some good tips about code reviews can be found in our
 
 ## Feature freeze on the 7th for the release on the 22nd
 
-After 7th at 23:59 (Pacific Time Zone) of each month, stable branch and RC1 
-of the upcoming release (to be shipped on the 22nd) is created and deployed to GitLab.com. 
-The stable branch is frozen at the most recent "qualifying commit" on master.
-A "qualifying commit" is one that is pushed before the feature freeze cutoff time
-and that passes all CI jobs (green pipeline).
-
-Merge requests may still be merged into master during this
-period, but they will go into the _next_ release, unless they are manually
-cherry-picked into the stable branch.
-
-By freezing the stable branches 2 weeks prior to a release, we reduce the risk
-of a last minute merge request potentially breaking things.
-
-Any release candidate that gets created after this date can become a final
-release, hence the name release candidate.
+The feature freeze on the 7th has been discontinued. The [transition period overview](https://gitlab.com/gitlab-org/release/docs/blob/21cbd409dd5f157fe252f254f3e897f01908abe2/general/deploy/auto-deploy-transition.md#transition)
+describes the change to this process. During the transition period, the only guarantee that
+a change will be included in the release on the 22nd is if the change has been
+deployed to GitLab.com prior to this date.
 
 ### Feature flags
 
@@ -108,15 +97,15 @@ Merge requests that make changes hidden behind a feature flag, or remove an
 existing feature flag because a feature is deemed stable, may be merged (and
 picked into the stable branches) up to the 19th of the month. Such merge
 requests should have the ~"feature flag" label assigned, and don't require a
-corresponding exception request to be created. 
+corresponding exception request to be created.
 
-A level of common sense should be applied when deciding whether to have a feature 
+A level of common sense should be applied when deciding whether to have a feature
 behind a feature flag off or on by default.
 
-The following guideliness can be applied to help make this decision:
+The following guidelines can be applied to help make this decision:
 
 * If the feature is not fully ready or functioning, the feature flag should be disabled by default.
-* If the feature is ready but there are concerns about performance or impact, the feature flag should be enabled by default, but 
+* If the feature is ready but there are concerns about performance or impact, the feature flag should be enabled by default, but
 disabled via chatops before deployment on GitLab.com environments. If the performance concern is confirmed, the final release should have the feature flag disabled by default.
 * In most other cases, the feature flag can be enabled by default.
 
@@ -125,7 +114,7 @@ For more information on rolling out changes using feature flags, read [through t
 In order to build the final package and present the feature for self-hosted
 customers, the feature flag should be removed. This should happen before the
 22nd, ideally _at least_ 2 days before. That means MRs with feature
-flags being picked at the 19th would have a quite tight schedule, so picking
+flags being picked at the 19th would have quite a tight schedule, so picking
 these _earlier_ is preferable.
 
 While rare, release managers may decide to reject picking a change into a stable

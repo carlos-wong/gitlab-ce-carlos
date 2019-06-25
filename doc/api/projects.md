@@ -143,6 +143,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "forks_count": 0,
     "star_count": 0,
     "runners_token": "b8547b1dc37721d05889db52fa2f02",
+    "ci_default_git_depth": 50,
     "public_jobs": true,
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
@@ -153,6 +154,7 @@ When the user is authenticated and `simple` is not set this returns something li
       "commit_count": 37,
       "storage_size": 1038090,
       "repository_size": 1038090,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
       "job_artifacts_size": 0
     },
@@ -224,6 +226,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "forks_count": 0,
     "star_count": 0,
     "runners_token": "b8547b1dc37721d05889db52fa2f02",
+    "ci_default_git_depth": 0,
     "public_jobs": true,
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
@@ -234,6 +237,7 @@ When the user is authenticated and `simple` is not set this returns something li
       "commit_count": 12,
       "storage_size": 2066080,
       "repository_size": 2066080,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
       "job_artifacts_size": 0
     },
@@ -332,6 +336,7 @@ GET /users/:user_id/projects
     "forks_count": 0,
     "star_count": 0,
     "runners_token": "b8547b1dc37721d05889db52fa2f02",
+    "ci_default_git_depth": 50,
     "public_jobs": true,
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
@@ -342,6 +347,7 @@ GET /users/:user_id/projects
       "commit_count": 37,
       "storage_size": 1038090,
       "repository_size": 1038090,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
       "job_artifacts_size": 0
     },
@@ -413,6 +419,7 @@ GET /users/:user_id/projects
     "forks_count": 0,
     "star_count": 0,
     "runners_token": "b8547b1dc37721d05889db52fa2f02",
+    "ci_default_git_depth": 0,
     "public_jobs": true,
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
@@ -423,6 +430,7 @@ GET /users/:user_id/projects
       "commit_count": 12,
       "storage_size": 2066080,
       "repository_size": 2066080,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
       "job_artifacts_size": 0
     },
@@ -524,6 +532,7 @@ GET /projects/:id
   "forks_count": 0,
   "star_count": 0,
   "runners_token": "b8bc4a7a29eb76ea83cf79e4908c2b",
+  "ci_default_git_depth": 50,
   "public_jobs": true,
   "shared_with_groups": [
     {
@@ -548,6 +557,7 @@ GET /projects/:id
     "commit_count": 37,
     "storage_size": 1038090,
     "repository_size": 1038090,
+    "wiki_size" : 0,
     "lfs_objects_size": 0,
     "job_artifacts_size": 0
   },
@@ -758,6 +768,7 @@ PUT /projects/:id
 | `tag_list`    | array   | no       | The list of tags for a project; put array of tags, that should be finally assigned to a project |
 | `avatar`    | mixed   | no      | Image file for avatar of the project                |
 | `ci_config_path` | string | no | The path to CI config file |
+| `ci_default_git_depth` | integer | no | Default number of revisions for [shallow cloning](../user/project/pipelines/settings.md#git-shallow-clone) |
 
 ## Fork project
 
@@ -1155,6 +1166,7 @@ Example response:
   "forks_count": 0,
   "star_count": 0,
   "runners_token": "b8bc4a7a29eb76ea83cf79e4908c2b",
+  "ci_default_git_depth": 50,
   "public_jobs": true,
   "shared_with_groups": [],
   "only_allow_merge_if_pipeline_succeeds": false,
@@ -1259,6 +1271,7 @@ Example response:
   "forks_count": 0,
   "star_count": 0,
   "runners_token": "b8bc4a7a29eb76ea83cf79e4908c2b",
+  "ci_default_git_depth": 50,
   "public_jobs": true,
   "shared_with_groups": [],
   "only_allow_merge_if_pipeline_succeeds": false,

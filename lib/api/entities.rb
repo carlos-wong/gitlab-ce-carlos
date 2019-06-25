@@ -239,6 +239,7 @@ module API
         end
       end
 
+      expose :empty_repo?, as: :empty_repo
       expose :archived?, as: :archived
       expose :visibility
       expose :owner, using: Entities::UserBasic, unless: ->(project, options) { project.group }
@@ -264,6 +265,7 @@ module API
 
       expose :open_issues_count, if: lambda { |project, options| project.feature_available?(:issues, options[:current_user]) }
       expose :runners_token, if: lambda { |_project, options| options[:user_can_admin_project] }
+      expose :ci_default_git_depth
       expose :public_builds, as: :public_jobs
       expose :ci_config_path, if: -> (project, options) { Ability.allowed?(options[:current_user], :download_code, project) }
       expose :shared_with_groups do |project, options|
@@ -286,6 +288,7 @@ module API
         # N+1 is solved then by using `subject.tags.map(&:name)`
         # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/20555
         super(projects_relation).preload(:group)
+                                .preload(:ci_cd_settings)
                                 .preload(project_group_links: { group: :route },
                                          fork_network: :root_project,
                                          fork_network_member: :forked_from_project,
@@ -302,6 +305,7 @@ module API
       expose :commit_count
       expose :storage_size
       expose :repository_size
+      expose :wiki_size
       expose :lfs_objects_size
       expose :build_artifacts_size, as: :job_artifacts_size
     end
@@ -354,6 +358,7 @@ module API
         with_options format_with: -> (value) { value.to_i } do
           expose :storage_size
           expose :repository_size
+          expose :wiki_size
           expose :lfs_objects_size
           expose :build_artifacts_size, as: :job_artifacts_size
         end
@@ -542,10 +547,15 @@ module API
     class IssueBasic < ProjectEntity
       expose :closed_at
       expose :closed_by, using: Entities::UserBasic
-      expose :labels do |issue|
-        # Avoids an N+1 query since labels are preloaded
-        issue.labels.map(&:title).sort
+
+      expose :labels do |issue, options|
+        if options[:with_labels_details]
+          ::API::Entities::LabelBasic.represent(issue.labels.sort_by(&:title))
+        else
+          issue.labels.map(&:title).sort
+        end
       end
+
       expose :milestone, using: Entities::Milestone
       expose :assignees, :author, using: Entities::UserBasic
 
@@ -568,10 +578,20 @@ module API
       expose :time_stats, using: 'API::Entities::IssuableTimeStats' do |issue|
         issue
       end
+
+      expose :task_completion_status
     end
 
     class Issue < IssueBasic
       include ::API::Helpers::RelatedResourcesHelpers
+
+      expose(:has_tasks) do |issue, _|
+        !issue.task_list_items.empty?
+      end
+
+      expose :task_status, if: -> (issue, _) do
+        !issue.task_list_items.empty?
+      end
 
       expose :_links do
         expose :self do |issue|
@@ -708,6 +728,8 @@ module API
       end
 
       expose :squash
+
+      expose :task_completion_status
     end
 
     class MergeRequest < MergeRequestBasic
@@ -878,7 +900,7 @@ module API
       expose :push_event_payload,
         as: :push_data,
         using: PushEventPayload,
-        if: -> (event, _) { event.push? }
+        if: -> (event, _) { event.push_action? }
 
       expose :author_username do |event, options|
         event.author&.username
@@ -975,7 +997,7 @@ module API
 
     class ProjectService < Grape::Entity
       expose :id, :title, :created_at, :updated_at, :active
-      expose :push_events, :issues_events, :confidential_issues_events
+      expose :commit_events, :push_events, :issues_events, :confidential_issues_events
       expose :merge_requests_events, :tag_push_events, :note_events
       expose :confidential_note_events, :pipeline_events, :wiki_page_events
       expose :job_events
@@ -1253,7 +1275,7 @@ module API
     end
 
     class JobBasic < Grape::Entity
-      expose :id, :status, :stage, :name, :ref, :tag, :coverage
+      expose :id, :status, :stage, :name, :ref, :tag, :coverage, :allow_failure
       expose :created_at, :started_at, :finished_at
       expose :duration
       expose :user, with: User
@@ -1290,6 +1312,7 @@ module API
     class Variable < Grape::Entity
       expose :variable_type, :key, :value
       expose :protected?, as: :protected, if: -> (entity, _) { entity.respond_to?(:protected?) }
+      expose :masked?, as: :masked, if: -> (entity, _) { entity.respond_to?(:masked?) }
     end
 
     class Pipeline < PipelineBasic

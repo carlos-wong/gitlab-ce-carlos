@@ -962,7 +962,11 @@ describe Ci::Pipeline, :mailer do
         end
 
         context 'when kubernetes is active' do
-          shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
+          context 'when user configured kubernetes from CI/CD > Clusters' do
+            let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+            let(:project) { cluster.project }
+            let(:pipeline) { build(:ci_pipeline, project: project, config: config) }
+
             it 'returns seeds for kubernetes dependent job' do
               seeds = pipeline.stage_seeds
 
@@ -970,21 +974,6 @@ describe Ci::Pipeline, :mailer do
               expect(seeds.dig(0, 0, :name)).to eq 'spinach'
               expect(seeds.dig(1, 0, :name)).to eq 'production'
             end
-          end
-
-          context 'when user configured kubernetes from Integration > Kubernetes' do
-            let(:project) { create(:kubernetes_project) }
-            let(:pipeline) { build(:ci_pipeline, project: project, config: config) }
-
-            it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
-          end
-
-          context 'when user configured kubernetes from CI/CD > Clusters' do
-            let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
-            let(:project) { cluster.project }
-            let(:pipeline) { build(:ci_pipeline, project: project, config: config) }
-
-            it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
           end
         end
 
@@ -1381,6 +1370,40 @@ describe Ci::Pipeline, :mailer do
       end
     end
 
+    describe 'auto merge' do
+      let(:merge_request) { create(:merge_request, :merge_when_pipeline_succeeds) }
+
+      let(:pipeline) do
+        create(:ci_pipeline, :running, project: merge_request.source_project,
+                                       ref: merge_request.source_branch,
+                                       sha: merge_request.diff_head_sha)
+      end
+
+      before do
+        merge_request.update_head_pipeline
+      end
+
+      %w[succeed! drop! cancel! skip!].each do |action|
+        context "when the pipeline recieved #{action} event" do
+          it 'performs AutoMergeProcessWorker' do
+            expect(AutoMergeProcessWorker).to receive(:perform_async).with(merge_request.id)
+
+            pipeline.public_send(action)
+          end
+        end
+      end
+
+      context 'when auto merge is not enabled in the merge request' do
+        let(:merge_request) { create(:merge_request) }
+
+        it 'performs AutoMergeProcessWorker' do
+          expect(AutoMergeProcessWorker).not_to receive(:perform_async)
+
+          pipeline.succeed!
+        end
+      end
+    end
+
     def create_build(name, *traits, queued_at: current, started_from: 0, **opts)
       create(:ci_build, *traits,
              name: name,
@@ -1645,23 +1668,13 @@ describe Ci::Pipeline, :mailer do
 
   describe '#has_kubernetes_active?' do
     context 'when kubernetes is active' do
-      shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
-        it 'returns true' do
-          expect(pipeline).to have_kubernetes_active
-        end
-      end
-
-      context 'when user configured kubernetes from Integration > Kubernetes' do
-        let(:project) { create(:kubernetes_project) }
-
-        it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
-      end
-
       context 'when user configured kubernetes from CI/CD > Clusters' do
         let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
         let(:project) { cluster.project }
 
-        it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
+        it 'returns true' do
+          expect(pipeline).to have_kubernetes_active
+        end
       end
     end
 
@@ -2702,7 +2715,7 @@ describe Ci::Pipeline, :mailer do
       create(:ci_pipeline,
              project: project,
              sha: project.commit('master').sha,
-             user: create(:user))
+             user: project.owner)
     end
 
     before do

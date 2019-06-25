@@ -1,5 +1,7 @@
 ---
 description: "How to secure GitLab Pages websites with Let's Encrypt."
+type: howto
+last_updated: 2019-06-04
 ---
 
 # Let's Encrypt for GitLab Pages
@@ -145,8 +147,8 @@ Now that your certificate has been issued, let's add it to your Pages site:
 1. Visit your website at `https://example.com`.
 
 To force `https` connections on your site, navigate to your
-project's **Settings > Pages** and check **Force domains with SSL
-certificates to use HTTPS**.
+project's **Settings > Pages** and check **Force HTTPS (requires
+valid certificates)**.
 
 ## Renewal
 

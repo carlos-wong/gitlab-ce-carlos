@@ -1,6 +1,6 @@
 .dedicated-runner:
   retry:
-    max: 2 # This is confusing but this means "3 runs at max".
+    max: 2  # This is confusing but this means "3 runs at max".
     when:
       - unknown_failure
       - api_failure
@@ -9,7 +9,7 @@
     - gitlab-org
 
 .default-cache: &default-cache
-  key: "debian-stretch-ruby-2.5.3-node-10.x"
+  key: "debian-stretch-ruby-2.6.3-node-12.x"
   paths:
     - vendor/ruby
     - .yarn-cache/
@@ -47,7 +47,7 @@
 
 .single-script-job-dedicated-runner:
   extends: .dedicated-runner
-  image: ruby:2.5-alpine
+  image: ruby:2.6-alpine
   stage: test
   cache: {}
   dependencies: []

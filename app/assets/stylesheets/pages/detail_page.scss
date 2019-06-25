@@ -9,7 +9,6 @@
     color: $gl-text-color;
   }
 
-  .issue_created_ago,
   .author-link {
     white-space: nowrap;
   }
@@ -21,7 +20,6 @@
 
 .detail-page-header-body {
   position: relative;
-  line-height: 35px;
   display: flex;
   flex: 1 1;
   min-width: 0;

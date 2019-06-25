@@ -10,11 +10,24 @@ module QA
       # The environment variables used to indicate if the environment under test
       # supports the given feature
       SUPPORTED_FEATURES = {
-        git_protocol_v2: 'QA_CAN_TEST_GIT_PROTOCOL_V2'
+        git_protocol_v2: 'QA_CAN_TEST_GIT_PROTOCOL_V2',
+        admin: 'QA_CAN_TEST_ADMIN_FEATURES'
       }.freeze
 
       def supported_features
         SUPPORTED_FEATURES
+      end
+
+      def admin_password
+        ENV['GITLAB_ADMIN_PASSWORD']
+      end
+
+      def admin_username
+        ENV['GITLAB_ADMIN_USERNAME']
+      end
+
+      def admin_personal_access_token
+        ENV['GITLAB_QA_ADMIN_ACCESS_TOKEN']
       end
 
       def debug?
@@ -92,14 +105,6 @@ module QA
         ENV['GITLAB_PASSWORD']
       end
 
-      def admin_username
-        ENV['GITLAB_ADMIN_USERNAME']
-      end
-
-      def admin_password
-        ENV['GITLAB_ADMIN_PASSWORD']
-      end
-
       def github_username
         ENV['GITHUB_USERNAME']
       end
@@ -134,6 +139,10 @@ module QA
 
       def gitlab_qa_password_2
         ENV['GITLAB_QA_PASSWORD_2']
+      end
+
+      def knapsack?
+        !!(ENV['KNAPSACK_GENERATE_REPORT'] || ENV['KNAPSACK_REPORT_PATH'] || ENV['KNAPSACK_TEST_FILE_PATTERN'])
       end
 
       def ldap_username

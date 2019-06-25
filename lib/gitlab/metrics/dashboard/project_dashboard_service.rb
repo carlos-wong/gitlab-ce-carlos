@@ -14,9 +14,11 @@ module Gitlab
             file_finder(project)
               .list_files_for(DASHBOARD_ROOT)
               .map do |filepath|
-                Rails.cache.delete(cache_key(project.id, filepath))
-
-                { path: filepath, default: false }
+                {
+                  path: filepath,
+                  display_name: name_for_path(filepath),
+                  default: false
+                }
               end
           end
 
@@ -24,8 +26,9 @@ module Gitlab
             Gitlab::Template::Finders::RepoTemplateFinder.new(project, DASHBOARD_ROOT, '.yml')
           end
 
-          def cache_key(id, dashboard_path)
-            "project_#{id}_metrics_dashboard_#{dashboard_path}"
+          # Grabs the filepath after the base directory.
+          def name_for_path(filepath)
+            filepath.delete_prefix("#{DASHBOARD_ROOT}/")
           end
         end
 
@@ -39,7 +42,7 @@ module Gitlab
         end
 
         def cache_key
-          self.class.cache_key(project.id, dashboard_path)
+          "project_#{project.id}_metrics_dashboard_#{dashboard_path}"
         end
       end
     end

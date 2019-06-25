@@ -13,7 +13,8 @@ module QA
         expect(page).to have_content(issue_title)
       end
 
-      context 'when using attachments in comments', :object_storage do
+      # Failure issue: https://gitlab.com/gitlab-org/quality/nightly/issues/101
+      context 'when using attachments in comments', :object_storage, :quarantine do
         let(:file_to_attach) do
           File.absolute_path(File.join('spec', 'fixtures', 'banana_sample.gif'))
         end
@@ -22,7 +23,6 @@ module QA
           create_issue
 
           Page::Project::Issue::Show.perform do |show|
-            show.select_all_activities_filter
             show.comment('See attached banana for scale', attachment: file_to_attach)
 
             show.refresh
@@ -42,7 +42,7 @@ module QA
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.act { sign_in_using_credentials }
 
-        Resource::Issue.fabricate! do |issue|
+        Resource::Issue.fabricate_via_browser_ui! do |issue|
           issue.title = issue_title
         end
       end

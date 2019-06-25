@@ -228,6 +228,26 @@ FactoryBot.define do
       end
     end
 
+    trait :trace_with_duplicate_sections do
+      after(:create) do |build, evaluator|
+        trace = File.binread(
+          File.expand_path(
+            Rails.root.join('spec/fixtures/trace/trace_with_duplicate_sections')))
+
+        build.trace.set(trace)
+      end
+    end
+
+    trait :trace_with_sections do
+      after(:create) do |build, evaluator|
+        trace = File.binread(
+          File.expand_path(
+            Rails.root.join('spec/fixtures/trace/trace_with_sections')))
+
+        build.trace.set(trace)
+      end
+    end
+
     trait :unicode_trace_live do
       after(:create) do |build, evaluator|
         trace = File.binread(
@@ -246,17 +266,6 @@ FactoryBot.define do
     trait :queued do
       queued_at { Time.now }
       runner factory: :ci_runner
-    end
-
-    trait :legacy_artifacts do
-      after(:create) do |build, _|
-        build.update!(
-          legacy_artifacts_file: fixture_file_upload(
-            Rails.root.join('spec/fixtures/ci_build_artifacts.zip'), 'application/zip'),
-          legacy_artifacts_metadata: fixture_file_upload(
-            Rails.root.join('spec/fixtures/ci_build_artifacts_metadata.gz'), 'application/x-gzip')
-        )
-      end
     end
 
     trait :artifacts do

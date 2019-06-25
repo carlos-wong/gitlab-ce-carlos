@@ -103,6 +103,20 @@ describe Project do
       expect(described_class.reflect_on_association(:merge_requests).has_inverse?).to eq(:target_project)
     end
 
+    it 'has a distinct has_many :lfs_objects relation through lfs_objects_projects' do
+      project = create(:project)
+      lfs_object = create(:lfs_object)
+      [:project, :design].each do |repository_type|
+        create(:lfs_objects_project, project: project,
+                                     lfs_object: lfs_object,
+                                     repository_type: repository_type)
+      end
+
+      expect(project.lfs_objects_projects.size).to eq(2)
+      expect(project.lfs_objects.size).to eq(1)
+      expect(project.lfs_objects.to_a).to eql([lfs_object])
+    end
+
     context 'after initialized' do
       it "has a project_feature" do
         expect(described_class.new.project_feature).to be_present
@@ -1147,7 +1161,7 @@ describe Project do
         allow(project).to receive(:avatar_in_git) { true }
       end
 
-      let(:avatar_path) { "/#{project.full_path}/avatar" }
+      let(:avatar_path) { "/#{project.full_path}/-/avatar" }
 
       it { is_expected.to eq "http://#{Gitlab.config.gitlab.host}#{avatar_path}" }
     end
@@ -1479,11 +1493,28 @@ describe Project do
     end
 
     context 'when set to INTERNAL in application settings' do
+      using RSpec::Parameterized::TableSyntax
+
       before do
         stub_application_setting(default_project_visibility: Gitlab::VisibilityLevel::INTERNAL)
       end
 
       it { is_expected.to eq(Gitlab::VisibilityLevel::INTERNAL) }
+
+      where(:attribute_name, :value) do
+        :visibility | 'public'
+        :visibility_level | Gitlab::VisibilityLevel::PUBLIC
+        'visibility' | 'public'
+        'visibility_level' | Gitlab::VisibilityLevel::PUBLIC
+      end
+
+      with_them do
+        it 'sets the visibility level' do
+          proj = described_class.new(attribute_name => value, name: 'test', path: 'test')
+
+          expect(proj.visibility_level).to eq(Gitlab::VisibilityLevel::PUBLIC)
+        end
+      end
     end
   end
 
@@ -2621,25 +2652,15 @@ describe Project do
     end
 
     context 'when project has a deployment service' do
-      shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
+      context 'when user configured kubernetes from CI/CD > Clusters and KubernetesNamespace migration has not been executed' do
+        let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+        let(:project) { cluster.project }
+
         it 'returns variables from this service' do
           expect(project.deployment_variables).to include(
             { key: 'KUBE_TOKEN', value: project.deployment_platform.token, public: false, masked: true }
           )
         end
-      end
-
-      context 'when user configured kubernetes from Integration > Kubernetes' do
-        let(:project) { create(:kubernetes_project) }
-
-        it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
-      end
-
-      context 'when user configured kubernetes from CI/CD > Clusters and KubernetesNamespace migration has not been executed' do
-        let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
-        let(:project) { cluster.project }
-
-        it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
       end
 
       context 'when user configured kubernetes from CI/CD > Clusters and KubernetesNamespace migration has been executed' do
@@ -3447,6 +3468,7 @@ describe Project do
 
     before do
       allow(project).to receive(:gitlab_shell).and_return(gitlab_shell)
+      stub_application_setting(hashed_storage_enabled: false)
     end
 
     describe '#base_dir' do
@@ -3552,10 +3574,6 @@ describe Project do
     let(:hash) { Digest::SHA2.hexdigest(project.id.to_s) }
     let(:hashed_prefix) { File.join('@hashed', hash[0..1], hash[2..3]) }
     let(:hashed_path) { File.join(hashed_prefix, hash) }
-
-    before do
-      stub_application_setting(hashed_storage_enabled: true)
-    end
 
     describe '#legacy_storage?' do
       it 'returns false' do
@@ -3989,64 +4007,6 @@ describe Project do
 
       expect(project.api_variables.map { |variable| variable[:key] })
         .to contain_exactly(*required_variables)
-    end
-  end
-
-  describe '#auto_devops_variables' do
-    set(:project) { create(:project) }
-
-    subject { project.auto_devops_variables }
-
-    context 'when enabled in instance settings' do
-      before do
-        stub_application_setting(auto_devops_enabled: true)
-      end
-
-      context 'when domain is empty' do
-        before do
-          stub_application_setting(auto_devops_domain: nil)
-        end
-
-        it 'variables does not include AUTO_DEVOPS_DOMAIN' do
-          is_expected.not_to include(domain_variable)
-        end
-      end
-
-      context 'when domain is configured' do
-        before do
-          stub_application_setting(auto_devops_domain: 'example.com')
-        end
-
-        it 'variables includes AUTO_DEVOPS_DOMAIN' do
-          is_expected.to include(domain_variable)
-        end
-      end
-    end
-
-    context 'when explicitly enabled' do
-      context 'when domain is empty' do
-        before do
-          create(:project_auto_devops, project: project, domain: nil)
-        end
-
-        it 'variables does not include AUTO_DEVOPS_DOMAIN' do
-          is_expected.not_to include(domain_variable)
-        end
-      end
-
-      context 'when domain is configured' do
-        before do
-          create(:project_auto_devops, project: project, domain: 'example.com')
-        end
-
-        it 'variables includes AUTO_DEVOPS_DOMAIN' do
-          is_expected.to include(domain_variable)
-        end
-      end
-    end
-
-    def domain_variable
-      { key: 'AUTO_DEVOPS_DOMAIN', value: 'example.com', public: true }
     end
   end
 
@@ -4756,10 +4716,6 @@ describe Project do
 
     subject { project.object_pool_params }
 
-    before do
-      stub_application_setting(hashed_storage_enabled: true)
-    end
-
     context 'when the objects cannot be pooled' do
       let(:project) { create(:project, :repository, :private) }
 
@@ -4804,10 +4760,6 @@ describe Project do
 
       context 'when objects are poolable' do
         let(:project) { create(:project, :repository, :public) }
-
-        before do
-          stub_application_setting(hashed_storage_enabled: true)
-        end
 
         it { is_expected.to be_git_objects_poolable }
       end

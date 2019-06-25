@@ -10,6 +10,7 @@ describe 'Projects > Files > User edits files', :js do
 
   before do
     stub_feature_flags(web_ide_default: false)
+    stub_feature_flags(vue_file_list: false)
 
     sign_in(user)
   end
@@ -171,7 +172,7 @@ describe 'Projects > Files > User edits files', :js do
         wait_for_requests
       end
 
-      it 'links to the forked project for editing', :quarantine do
+      it 'links to the forked project for editing' do
         click_link('.gitignore')
         find('.js-edit-blob').click
 

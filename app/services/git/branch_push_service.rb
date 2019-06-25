@@ -27,7 +27,6 @@ module Git
       execute_related_hooks
       perform_housekeeping
 
-      update_remote_mirrors
       stop_environments
 
       true
@@ -48,7 +47,7 @@ module Git
     def enqueue_detect_repository_languages
       return unless default_branch?
 
-      DetectRepositoryLanguagesWorker.perform_async(project.id, current_user.id)
+      DetectRepositoryLanguagesWorker.perform_async(project.id)
     end
 
     # Only stop environments if the ref is a branch that is being deleted

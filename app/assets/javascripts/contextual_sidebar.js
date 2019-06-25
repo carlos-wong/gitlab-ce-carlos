@@ -8,6 +8,8 @@ import { parseBoolean } from '~/lib/utils/common_utils';
 // https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24555#note_134136110
 const NAV_SIDEBAR_BREAKPOINT = 1200;
 
+export const SIDEBAR_COLLAPSED_CLASS = 'js-sidebar-collapsed';
+
 export default class ContextualSidebar {
   constructor() {
     this.initDomElements();
@@ -62,6 +64,7 @@ export default class ContextualSidebar {
     const breakpoint = bp.getBreakpointSize();
     const dbp = ContextualSidebar.isDesktopBreakpoint();
 
+    this.$sidebar.toggleClass(SIDEBAR_COLLAPSED_CLASS, !show);
     this.$sidebar.toggleClass('sidebar-expanded-mobile', !dbp ? show : false);
     this.$overlay.toggleClass(
       'mobile-nav-open',
@@ -75,7 +78,7 @@ export default class ContextualSidebar {
     const dbp = ContextualSidebar.isDesktopBreakpoint();
 
     if (this.$sidebar.length) {
-      this.$sidebar.toggleClass('sidebar-collapsed-desktop', collapsed);
+      this.$sidebar.toggleClass(`sidebar-collapsed-desktop ${SIDEBAR_COLLAPSED_CLASS}`, collapsed);
       this.$sidebar.toggleClass('sidebar-expanded-mobile', !dbp ? !collapsed : false);
       this.$page.toggleClass(
         'page-with-icon-sidebar',

@@ -33,11 +33,8 @@ module QA
           exists
         end
 
-        def find_element(name, text: nil, wait: Capybara.default_max_wait_time)
-          msg = ["finding :#{name}"]
-          msg << %Q(with text "#{text}") if text
-          msg << "(wait: #{wait})"
-          log(msg.compact.join(' '))
+        def find_element(name, **kwargs)
+          log("finding :#{name} with args #{kwargs}")
 
           element = super
 
@@ -56,8 +53,11 @@ module QA
           elements
         end
 
-        def click_element(name)
-          log("clicking :#{name}")
+        def click_element(name, page = nil)
+          msg = ["clicking :#{name}"]
+          msg << ", expecting to be at #{page.class}" if page
+
+          log(msg.compact.join(' '))
 
           super
         end
@@ -119,7 +119,13 @@ module QA
           loaded
         end
 
-        def within_element(name)
+        def wait_for_animated_element(name)
+          log("waiting for animated element: #{name}")
+
+          super
+        end
+
+        def within_element(name, text: nil)
           log("within element :#{name}")
 
           element = super

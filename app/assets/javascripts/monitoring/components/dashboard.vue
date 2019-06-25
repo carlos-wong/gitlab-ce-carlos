@@ -1,23 +1,15 @@
 <script>
-import {
-  GlButton,
-  GlDropdown,
-  GlDropdownItem,
-  GlModal,
-  GlModalDirective,
-  GlLink,
-} from '@gitlab/ui';
+import { GlButton, GlDropdown, GlDropdownItem, GlModal, GlModalDirective } from '@gitlab/ui';
 import _ from 'underscore';
+import { mapActions, mapState } from 'vuex';
 import { s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import '~/vue_shared/mixins/is_ee';
 import { getParameterValues } from '~/lib/utils/url_utility';
-import Flash from '../../flash';
-import MonitoringService from '../services/monitoring_service';
+import invalidUrl from '~/lib/utils/invalid_url';
 import MonitorAreaChart from './charts/area.vue';
 import GraphGroup from './graph_group.vue';
 import EmptyState from './empty_state.vue';
-import MonitoringStore from '../stores/monitoring_store';
 import { timeWindows, timeWindowsKeyNames } from '../constants';
 import { getTimeDiff } from '../utils';
 
@@ -33,14 +25,13 @@ export default {
     GlButton,
     GlDropdown,
     GlDropdownItem,
-    GlLink,
     GlModal,
   },
   directives: {
     GlModalDirective,
   },
   props: {
-    externalDashboardPath: {
+    externalDashboardUrl: {
       type: String,
       required: false,
       default: '',
@@ -79,7 +70,7 @@ export default {
       type: String,
       required: true,
     },
-    deploymentEndpoint: {
+    deploymentsEndpoint: {
       type: String,
       required: false,
       default: null,
@@ -108,10 +99,6 @@ export default {
       type: String,
       required: true,
     },
-    showTimeWindowDropdown: {
-      type: Boolean,
-      required: true,
-    },
     customMetricsAvailable: {
       type: Boolean,
       required: false,
@@ -125,12 +112,15 @@ export default {
       type: String,
       required: true,
     },
+    dashboardEndpoint: {
+      type: String,
+      required: false,
+      default: invalidUrl,
+    },
   },
   data() {
     return {
-      store: new MonitoringStore(),
       state: 'gettingStarted',
-      showEmptyState: true,
       elWidth: 0,
       selectedTimeWindow: '',
       selectedTimeWindowKey: '',
@@ -141,13 +131,27 @@ export default {
     canAddMetrics() {
       return this.customMetricsAvailable && this.customMetricsPath.length;
     },
+    ...mapState('monitoringDashboard', [
+      'groups',
+      'emptyState',
+      'showEmptyState',
+      'environments',
+      'deploymentData',
+      'metricsWithData',
+      'useDashboardEndpoint',
+    ]),
+    groupsWithData() {
+      return this.groups.filter(group => this.chartsWithData(group.metrics).length > 0);
+    },
   },
   created() {
-    this.service = new MonitoringService({
+    this.setEndpoints({
       metricsEndpoint: this.metricsEndpoint,
-      deploymentEndpoint: this.deploymentEndpoint,
       environmentsEndpoint: this.environmentsEndpoint,
+      deploymentsEndpoint: this.deploymentsEndpoint,
+      dashboardEndpoint: this.dashboardEndpoint,
     });
+
     this.timeWindows = timeWindows;
     this.selectedTimeWindowKey =
       _.escape(getParameterValues('time_window')[0]) || timeWindowsKeyNames.eightHours;
@@ -165,31 +169,11 @@ export default {
     }
   },
   mounted() {
-    const startEndWindow = getTimeDiff(this.timeWindows[this.selectedTimeWindowKey]);
-    this.servicePromises = [
-      this.service
-        .getGraphsData(startEndWindow)
-        .then(data => this.store.storeMetrics(data))
-        .catch(() => Flash(s__('Metrics|There was an error while retrieving metrics'))),
-      this.service
-        .getDeploymentData()
-        .then(data => this.store.storeDeploymentData(data))
-        .catch(() => Flash(s__('Metrics|There was an error getting deployment information.'))),
-    ];
     if (!this.hasMetrics) {
-      this.state = 'gettingStarted';
+      this.setGettingStartedEmptyState();
     } else {
-      if (this.environmentsEndpoint) {
-        this.servicePromises.push(
-          this.service
-            .getEnvironmentsData()
-            .then(data => this.store.storeEnvironmentsData(data))
-            .catch(() =>
-              Flash(s__('Metrics|There was an error getting environments information.')),
-            ),
-        );
-      }
-      this.getGraphsData();
+      this.fetchData(getTimeDiff(this.selectedTimeWindow));
+
       sidebarMutationObserver = new MutationObserver(this.onSidebarMutation);
       sidebarMutationObserver.observe(document.querySelector('.layout-page'), {
         attributes: true,
@@ -199,6 +183,20 @@ export default {
     }
   },
   methods: {
+    ...mapActions('monitoringDashboard', [
+      'fetchData',
+      'setGettingStartedEmptyState',
+      'setEndpoints',
+      'setDashboardEnabled',
+    ]),
+    chartsWithData(charts) {
+      if (!this.useDashboardEndpoint) {
+        return charts;
+      }
+      return charts.filter(chart =>
+        chart.metrics.some(metric => this.metricsWithData.includes(metric.metric_id)),
+      );
+    },
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
       const metricIdsForChart = queries.map(q => q.metricId);
@@ -206,21 +204,6 @@ export default {
     },
     getGraphAlertValues(queries) {
       return Object.values(this.getGraphAlerts(queries));
-    },
-    getGraphsData() {
-      this.state = 'loading';
-      Promise.all(this.servicePromises)
-        .then(() => {
-          if (this.store.groups.length < 1) {
-            this.state = 'noData';
-            return;
-          }
-
-          this.showEmptyState = false;
-        })
-        .catch(() => {
-          this.state = 'unableToConnect';
-        });
     },
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();
@@ -263,10 +246,10 @@ export default {
             class="prepend-left-10 js-environments-dropdown"
             toggle-class="dropdown-menu-toggle"
             :text="currentEnvironmentName"
-            :disabled="store.environmentsData.length === 0"
+            :disabled="environments.length === 0"
           >
             <gl-dropdown-item
-              v-for="environment in store.environmentsData"
+              v-for="environment in environments"
               :key="environment.id"
               :active="environment.name === currentEnvironmentName"
               active-class="is-active"
@@ -274,7 +257,7 @@ export default {
             >
           </gl-dropdown>
         </div>
-        <div v-if="showTimeWindowDropdown" class="d-flex align-items-center">
+        <div class="d-flex align-items-center prepend-left-8">
           <strong>{{ s__('Metrics|Show last') }}</strong>
           <gl-dropdown
             class="prepend-left-10 js-time-window-dropdown"
@@ -285,7 +268,9 @@ export default {
               v-for="(value, key) in timeWindows"
               :key="key"
               :active="activeTimeWindow(key)"
-              ><gl-link :href="setTimeWindowParameter(key)">{{ value }}</gl-link></gl-dropdown-item
+              :href="setTimeWindowParameter(key)"
+              active-class="active"
+              >{{ value }}</gl-dropdown-item
             >
           </gl-dropdown>
         </div>
@@ -295,9 +280,8 @@ export default {
           <gl-button
             v-gl-modal-directive="$options.addMetric.modalId"
             class="js-add-metric-button text-success border-success"
+            >{{ $options.addMetric.title }}</gl-button
           >
-            {{ $options.addMetric.title }}
-          </gl-button>
           <gl-modal
             ref="addMetricModal"
             :modal-id="$options.addMetric.modalId"
@@ -311,24 +295,22 @@ export default {
               />
             </form>
             <div slot="modal-footer">
-              <gl-button @click="hideAddMetricModal">
-                {{ __('Cancel') }}
-              </gl-button>
+              <gl-button @click="hideAddMetricModal">{{ __('Cancel') }}</gl-button>
               <gl-button
                 :disabled="!formIsValid"
                 variant="success"
                 @click="submitCustomMetricsForm"
+                >{{ __('Save changes') }}</gl-button
               >
-                {{ __('Save changes') }}
-              </gl-button>
             </div>
           </gl-modal>
         </div>
         <gl-button
-          v-if="externalDashboardPath.length"
+          v-if="externalDashboardUrl.length"
           class="js-external-dashboard-link prepend-left-8"
           variant="primary"
-          :href="externalDashboardPath"
+          :href="externalDashboardUrl"
+          target="_blank"
         >
           {{ __('View full dashboard') }}
           <icon name="external-link" />
@@ -336,16 +318,16 @@ export default {
       </div>
     </div>
     <graph-group
-      v-for="(groupData, index) in store.groups"
+      v-for="(groupData, index) in groupsWithData"
       :key="index"
       :name="groupData.group"
       :show-panels="showPanels"
     >
       <monitor-area-chart
-        v-for="(graphData, graphIndex) in groupData.metrics"
+        v-for="(graphData, graphIndex) in chartsWithData(groupData.metrics)"
         :key="graphIndex"
         :graph-data="graphData"
-        :deployment-data="store.deploymentData"
+        :deployment-data="deploymentData"
         :thresholds="getGraphAlertValues(graphData.queries)"
         :container-width="elWidth"
         group-id="monitor-area-chart"
@@ -362,7 +344,7 @@ export default {
   </div>
   <empty-state
     v-else
-    :selected-state="state"
+    :selected-state="emptyState"
     :documentation-path="documentationPath"
     :settings-path="settingsPath"
     :clusters-path="clustersPath"

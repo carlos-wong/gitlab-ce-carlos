@@ -4,6 +4,8 @@ module Types
   class IssueType < BaseObject
     graphql_name 'Issue'
 
+    implements(Types::Notes::NoteableType)
+
     authorize :read_issue
 
     expose_permissions Types::PermissionTypes::Issue
@@ -14,6 +16,10 @@ module Types
     field :title, GraphQL::STRING_TYPE, null: false
     field :description, GraphQL::STRING_TYPE, null: true
     field :state, IssueStateEnum, null: false
+
+    field :reference, GraphQL::STRING_TYPE, null: false, method: :to_reference do
+      argument :full, GraphQL::BOOLEAN_TYPE, required: false, default_value: false
+    end
 
     field :author, Types::UserType,
           null: false,
@@ -37,11 +43,15 @@ module Types
     field :upvotes, GraphQL::INT_TYPE, null: false
     field :downvotes, GraphQL::INT_TYPE, null: false
     field :user_notes_count, GraphQL::INT_TYPE, null: false
+    field :web_path, GraphQL::STRING_TYPE, null: false, method: :issue_path
     field :web_url, GraphQL::STRING_TYPE, null: false
+    field :relative_position, GraphQL::INT_TYPE, null: true
 
     field :closed_at, Types::TimeType, null: true
 
     field :created_at, Types::TimeType, null: false
     field :updated_at, Types::TimeType, null: false
+
+    field :task_completion_status, Types::TaskCompletionStatus, null: false
   end
 end

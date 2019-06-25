@@ -27,6 +27,8 @@ People have a hard time figuring out which branch has the latest code, or which 
 Frequently, the reaction to this problem is to adopt a standardized pattern such as [Git flow](https://nvie.com/posts/a-successful-git-branching-model/) and [GitHub flow](http://scottchacon.com/2011/08/31/github-flow.html).
 We think there is still room for improvement. In this document, we describe a set of practices we call GitLab flow.
 
+For a video introduction of how this works in GitLab, see [GitLab Flow](https://youtu.be/InKNIvky2KE).
+
 ## Git flow and its problems
 
 ![Git Flow timeline by Vincent Driessen, used with permission](gitdashflow.png)
@@ -166,7 +168,7 @@ This branch is the place for any work related to this change.
 
 NOTE: **Note:**
 The name of a branch might be dictated by organizational standards.
-For example, in GitLab, any branches in GitLab EE that are equivalent to branches in GitLab CE [must end in `-ee`](https://docs.gitlab.com/ee/development/automatic_ce_ee_merge.html#cherry-picking-from-ce-to-ee).
+For example, in GitLab, any branches in GitLab EE that are equivalent to branches in GitLab CE [must end in `-ee`](../development/automatic_ce_ee_merge.md#cherry-picking-from-ce-to-ee).
 
 When you are done or want to discuss the code, open a merge request.
 A merge request is an online place to discuss the change and review the code.

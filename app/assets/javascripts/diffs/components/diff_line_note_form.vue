@@ -4,11 +4,13 @@ import { s__ } from '~/locale';
 import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
 import noteForm from '../../notes/components/note_form.vue';
 import autosave from '../../notes/mixins/autosave';
+import userAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_link.vue';
 import { DIFF_NOTE_TYPE } from '../constants';
 
 export default {
   components: {
     noteForm,
+    userAvatarLink,
   },
   mixins: [autosave, diffLineNoteFormMixin],
   props: {
@@ -40,8 +42,18 @@ export default {
       noteableData: state => state.notes.noteableData,
       diffViewType: state => state.diffs.diffViewType,
     }),
+    ...mapState('diffs', ['showSuggestPopover']),
     ...mapGetters('diffs', ['getDiffFileByHash']),
-    ...mapGetters(['isLoggedIn', 'noteableType', 'getNoteableData', 'getNotesDataByProp']),
+    ...mapGetters([
+      'isLoggedIn',
+      'noteableType',
+      'getNoteableData',
+      'getNotesDataByProp',
+      'getUserData',
+    ]),
+    author() {
+      return this.getUserData;
+    },
     formData() {
       return {
         noteableData: this.noteableData,
@@ -69,7 +81,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('diffs', ['cancelCommentForm', 'assignDiscussionsToDiff', 'saveDiffDiscussion']),
+    ...mapActions('diffs', [
+      'cancelCommentForm',
+      'assignDiscussionsToDiff',
+      'saveDiffDiscussion',
+      'setSuggestPopoverDismissed',
+    ]),
     handleCancelCommentForm(shouldConfirm, isDirty) {
       if (shouldConfirm && isDirty) {
         const msg = s__('Notes|Are you sure you want to cancel creating this comment?');
@@ -99,6 +116,14 @@ export default {
 
 <template>
   <div class="content discussion-form discussion-form-container discussion-notes">
+    <user-avatar-link
+      v-if="author"
+      :link-href="author.path"
+      :img-src="author.avatar_url"
+      :img-alt="author.name"
+      :img-size="40"
+      class="d-none d-sm-block"
+    />
     <note-form
       ref="noteForm"
       :is-editing="true"
@@ -106,11 +131,13 @@ export default {
       :line="line"
       :help-page-path="helpPagePath"
       :diff-file="diffFile"
+      :show-suggest-popover="showSuggestPopover"
       save-button-title="Comment"
       class="diff-comment-form"
       @handleFormUpdateAddToReview="addToReview"
       @cancelForm="handleCancelCommentForm"
       @handleFormUpdate="handleSaveNote"
+      @handleSuggestDismissed="setSuggestPopoverDismissed"
     />
   </div>
 </template>
