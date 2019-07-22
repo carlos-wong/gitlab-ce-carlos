@@ -2,6 +2,16 @@
  * Container Registry
  */
 
+.container-message {
+  pre {
+    white-space: pre-line;
+  }
+
+  span .btn {
+    margin: 0;
+  }
+}
+
 .container-image {
   border-bottom: 1px solid $white-normal;
 }

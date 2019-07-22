@@ -8,28 +8,36 @@ module Gitlab
     class Config
       ConfigError = Class.new(StandardError)
 
+      RESCUE_ERRORS = [
+        Gitlab::Config::Loader::FormatError,
+        Extendable::ExtensionError,
+        External::Processor::IncludeError
+      ].freeze
+
+      attr_reader :root
+
       def initialize(config, project: nil, sha: nil, user: nil)
         @config = Config::Extendable
           .new(build_config(config, project: project, sha: sha, user: user))
           .to_hash
 
-        @global = Entry::Global.new(@config)
-        @global.compose!
+        @root = Entry::Root.new(@config)
+        @root.compose!
+
       rescue Gitlab::Config::Loader::Yaml::DataTooLargeError => e
         Gitlab::Sentry.track_exception(e, extra: { user: user.inspect, project: project.inspect })
         raise Config::ConfigError, e.message
-      rescue Gitlab::Config::Loader::FormatError,
-             Extendable::ExtensionError,
-             External::Processor::IncludeError => e
+
+      rescue *rescue_errors => e
         raise Config::ConfigError, e.message
       end
 
       def valid?
-        @global.valid?
+        @root.valid?
       end
 
       def errors
-        @global.errors
+        @root.errors
       end
 
       def to_hash
@@ -39,36 +47,16 @@ module Gitlab
       ##
       # Temporary method that should be removed after refactoring
       #
-      def before_script
-        @global.before_script_value
-      end
-
-      def image
-        @global.image_value
-      end
-
-      def services
-        @global.services_value
-      end
-
-      def after_script
-        @global.after_script_value
-      end
-
       def variables
-        @global.variables_value
+        root.variables_value
       end
 
       def stages
-        @global.stages_value
-      end
-
-      def cache
-        @global.cache_value
+        root.stages_value
       end
 
       def jobs
-        @global.jobs_value
+        root.jobs_value
       end
 
       private
@@ -85,6 +73,11 @@ module Gitlab
           sha: sha || project&.repository&.root_ref_sha,
           user: user,
           expandset: Set.new).perform
+      end
+
+      # Overriden in EE
+      def rescue_errors
+        RESCUE_ERRORS
       end
     end
   end

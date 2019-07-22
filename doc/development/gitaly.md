@@ -3,6 +3,16 @@
 [Gitaly](https://gitlab.com/gitlab-org/gitaly) is a high-level Git RPC service used by GitLab CE/EE,
 Workhorse and GitLab-Shell.
 
+## Deep Dive
+
+In May 2019, Bob Van Landuyt hosted a [Deep Dive] on GitLab's [Gitaly project] and how to contribute to it as a Ruby developer, to share his domain specific knowledge with anyone who may work in this part of the code base in the future. You can find the [recording on YouTube], and the slides on [Google Slides] and in [PDF]. Everything covered in this deep dive was accurate as of GitLab 11.11, and while specific details may have changed since then, it should still serve as a good introduction.
+
+[Deep Dive]: https://gitlab.com/gitlab-org/create-stage/issues/1
+[Gitaly project]: https://gitlab.com/gitlab-org/gitaly
+[recording on YouTube]: https://www.youtube.com/watch?v=BmlEWFS8ORo
+[Google Slides]: https://docs.google.com/presentation/d/1VgRbiYih9ODhcPnL8dS0W98EwFYpJ7GXMPpX-1TM6YE/edit
+[PDF]: https://gitlab.com/gitlab-org/create-stage/uploads/a4fdb1026278bda5c1c5bb574379cf80/Create_Deep_Dive__Gitaly_for_Create_Ruby_Devs.pdf
+
 ## Beginner's guide
 
 Start by reading the gitaly repository's
@@ -78,12 +88,12 @@ Until GitLab has eliminated most of these inefficiencies or the use of
 NFS is discontinued for Git data, Rugged implementations of some of the
 most commonly-used RPCs can be enabled via feature flags:
 
-* `rugged_find_commit`
-* `rugged_get_tree_entries`
-* `rugged_tree_entry`
-* `rugged_commit_is_ancestor`
-* `rugged_commit_tree_entry`
-* `rugged_list_commits_by_oid`
+- `rugged_find_commit`
+- `rugged_get_tree_entries`
+- `rugged_tree_entry`
+- `rugged_commit_is_ancestor`
+- `rugged_commit_tree_entry`
+- `rugged_list_commits_by_oid`
 
 A convenience Rake task can be used to enable or disable these flags
 all together. To enable:
@@ -227,24 +237,23 @@ Here are the steps to gate a new feature in Gitaly behind a feature flag.
 1. Create prometheus metrics:
 
    ```go
-   var	findAllTagsRequests = prometheus.NewCounterVec(
-   		prometheus.CounterOpts{
-   			Name: "gitaly_find_all_tags_requests_total",
-   			Help: "Counter of go vs ruby implementation of FindAllTags",
-   		},
-   		[]string{"implementation"},
-   	)
+   var findAllTagsRequests = prometheus.NewCounterVec(
+     prometheus.CounterOpts{
+       Name: "gitaly_find_all_tags_requests_total",
+       Help: "Counter of go vs ruby implementation of FindAllTags",
+     },
+     []string{"implementation"},
    )
 
    func init() {
-   	prometheus.Register(findAllTagsRequests)
+     prometheus.Register(findAllTagsRequests)
    }
 
    if featureflag.IsEnabled(ctx, findAllTagsFeatureFlag) {
-   	findAllTagsRequests.WithLabelValues("go").Inc()
+     findAllTagsRequests.WithLabelValues("go").Inc()
      // go implementation
    } else {
-   	findAllTagsRequests.WithLabelValues("ruby").Inc()
+     findAllTagsRequests.WithLabelValues("ruby").Inc()
      // ruby implementation
    }
    ```

@@ -1,6 +1,8 @@
-[//]: # (Do *NOT* modify this file in EE documentation. All changes in this)
-[//]: # (file should happen in CE, too. If the change is EE-specific, put)
-[//]: # (it in `ldap-ee.md`.)
+---
+type: reference
+---
+
+<!-- If the change is EE-specific, put it in `ldap-ee.md`, NOT here. -->
 
 # LDAP
 
@@ -14,7 +16,7 @@ including group membership syncing as well as multiple LDAP servers support.
 
 The information on this page is relevant for both GitLab CE and EE. For more
 details about EE-specific LDAP features, see the
-[LDAP Enterprise Edition documentation](ldap-ee.md). **[STARTER ONLY]**
+[LDAP Enterprise Edition documentation](ldap-ee.md). **(STARTER ONLY)**
 
 ## Security
 
@@ -48,7 +50,7 @@ LDAP-enabled users can always authenticate with Git using their GitLab username
 or email and LDAP password, even if password authentication for Git is disabled
 in the application settings.
 
-## Google Secure LDAP **[CORE ONLY]**
+## Google Secure LDAP **(CORE ONLY)**
 
 > Introduced in GitLab 11.9.
 
@@ -64,7 +66,7 @@ to connect to one GitLab server.
 
 For a complete guide on configuring LDAP with GitLab Community Edition, please check
 the admin guide [How to configure LDAP with GitLab CE](how_to_configure_ldap_gitlab_ce/index.md).
-For GitLab Enterprise Editions, see also [How to configure LDAP with GitLab EE](how_to_configure_ldap_gitlab_ee/index.md). **[STARTER ONLY]**
+For GitLab Enterprise Editions, see also [How to configure LDAP with GitLab EE](how_to_configure_ldap_gitlab_ee/index.md). **(STARTER ONLY)**
 
 To enable LDAP integration you need to add your LDAP server settings in
 `/etc/gitlab/gitlab.rb` or `/home/git/gitlab/config/gitlab.yml` for Omnibus
@@ -389,28 +391,41 @@ group, you can use the following syntax:
 Find more information about this "LDAP_MATCHING_RULE_IN_CHAIN" filter at
 <https://docs.microsoft.com/en-us/windows/desktop/ADSI/search-filter-syntax>. Support for
 nested members in the user filter should not be confused with
-[group sync nested groups support](ldap-ee.md#supported-ldap-group-typesattributes). **[STARTER ONLY]**
+[group sync nested groups support](ldap-ee.md#supported-ldap-group-typesattributes). **(STARTER ONLY)**
 
 Please note that GitLab does not support the custom filter syntax used by
 omniauth-ldap.
 
 ### Escaping special characters
 
-If the `user_filter` DN contains special characters. For example, a comma:
+The `user_filter` DN can contain special characters. For example:
 
-```
-OU=GitLab, Inc,DC=gitlab,DC=com
-```
+- A comma:
 
-This character needs to be escaped as documented in [RFC 4515](https://tools.ietf.org/search/rfc4515).
+  ```
+  OU=GitLab, Inc,DC=gitlab,DC=com
+  ```
 
-Due to the way the string is parsed, the special character needs to be converted
-to hex and `\\5C\\` (`5C` = `\` in hex) added before it.
-As an example the above DN would look like
+- Open and close brackets:
 
-```
-OU=GitLab\\5C\\2C Inc,DC=gitlab,DC=com
-```
+  ```
+  OU=Gitlab (Inc),DC=gitlab,DC=com
+  ```
+
+  These characters must be escaped as documented in
+  [RFC 4515](https://tools.ietf.org/search/rfc4515).
+
+- Escape commas with `\2C`. For example:
+
+  ```
+  OU=GitLab\2C Inc,DC=gitlab,DC=com
+  ```
+
+- Escape open and close brackets with `\28` and `\29`, respectively. For example:
+
+  ```
+  OU=Gitlab \28Inc\29,DC=gitlab,DC=com
+  ```
 
 ## Enabling LDAP sign-in for existing GitLab users
 
@@ -434,13 +449,13 @@ the configuration option `lowercase_usernames`. By default, this configuration o
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
-    ```ruby
-    gitlab_rails['ldap_servers'] = YAML.load <<-EOS
-    main:
-      # snip...
-      lowercase_usernames: true
-    EOS
-    ```
+   ```ruby
+   gitlab_rails['ldap_servers'] = YAML.load <<-EOS
+   main:
+     # snip...
+     lowercase_usernames: true
+   EOS
+   ```
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
@@ -448,14 +463,14 @@ the configuration option `lowercase_usernames`. By default, this configuration o
 
 1. Edit `config/gitlab.yaml`:
 
-    ```yaml
-    production:
-      ldap:
-        servers:
-          main:
-            # snip...
-            lowercase_usernames: true
-    ```
+   ```yaml
+   production:
+     ldap:
+       servers:
+         main:
+           # snip...
+           lowercase_usernames: true
+   ```
 
 1. [Restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
 
@@ -483,6 +498,13 @@ be mandatory and clients cannot be authenticated with the TLS protocol.
 
 ## Troubleshooting
 
+If a user account is blocked or unblocked due to the LDAP configuration, a
+message will be logged to `application.log`.
+
+If there is an unexpected error during an LDAP lookup (configuration error,
+timeout), the login is rejected and a message will be logged to
+`production.log`.
+
 ### Debug LDAP user filter with ldapsearch
 
 This example uses ldapsearch and assumes you are using ActiveDirectory. The
@@ -508,26 +530,17 @@ ldapsearch -H ldaps://$host:$port -D "$bind_dn" -y bind_dn_password.txt  -b "$ba
 - Run the following check command to make sure that the LDAP settings are
   correct and GitLab can see your users:
 
-    ```bash
-    # For Omnibus installations
-    sudo gitlab-rake gitlab:ldap:check
+  ```bash
+  # For Omnibus installations
+  sudo gitlab-rake gitlab:ldap:check
 
-    # For installations from source
-    sudo -u git -H bundle exec rake gitlab:ldap:check RAILS_ENV=production
-    ```
+  # For installations from source
+  sudo -u git -H bundle exec rake gitlab:ldap:check RAILS_ENV=production
+  ```
 
-### Connection Refused
+### Connection refused
 
 If you are getting 'Connection Refused' errors when trying to connect to the
 LDAP server please double-check the LDAP `port` and `encryption` settings used by
 GitLab. Common combinations are `encryption: 'plain'` and `port: 389`, OR
 `encryption: 'simple_tls'` and `port: 636`.
-
-### Troubleshooting
-
-If a user account is blocked or unblocked due to the LDAP configuration, a
-message will be logged to `application.log`.
-
-If there is an unexpected error during an LDAP lookup (configuration error,
-timeout), the login is rejected and a message will be logged to
-`production.log`.

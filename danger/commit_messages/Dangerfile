@@ -80,13 +80,26 @@ def unicode_emoji_regex
   ))x
 end
 
-def lint_commit(commit)
+def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   # For now we'll ignore merge commits, as getting rid of those is a problem
   # separate from enforcing good commit messages.
   return false if commit.message.start_with?('Merge branch')
 
   # We ignore revert commits as they are well structured by Git already
   return false if commit.message.start_with?('Revert "')
+
+  # Fail if a suggestion commit is used and squash is not enabled
+  if commit.message.start_with?('Apply suggestion to')
+    if gitlab.mr_json['squash']
+      return false
+    else
+      fail_commit(
+        commit,
+        'If you are applying suggestions, enable squash in the merge request and re-run the failed job'
+      )
+      return true
+    end
+  end
 
   failures = false
   subject, separator, details = commit.message.split("\n", 3)

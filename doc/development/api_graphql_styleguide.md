@@ -1,5 +1,16 @@
 # GraphQL API
 
+## Deep Dive
+
+In March 2019, Nick Thomas hosted a [Deep Dive](https://gitlab.com/gitlab-org/create-stage/issues/1)
+on GitLab's [GraphQL API](../api/graphql/index.md) to share his domain specific knowledge
+with anyone who may work in this part of the code base in the future. You can find the
+[recording on YouTube](https://www.youtube.com/watch?v=-9L_1MWrjkg), and the slides on
+[Google Slides](https://docs.google.com/presentation/d/1qOTxpkTdHIp1CRjuTvO-aXg0_rUtzE3ETfLUdnBB5uQ/edit)
+and in [PDF](https://gitlab.com/gitlab-org/create-stage/uploads/8e78ea7f326b2ef649e7d7d569c26d56/GraphQL_Deep_Dive__Create_.pdf).
+Everything covered in this deep dive was accurate as of GitLab 11.9, and while specific
+details may have changed since then, it should still serve as a good introduction.
+
 ## Authentication
 
 Authentication happens through the `GraphqlController`, right now this
@@ -188,9 +199,9 @@ abilities as in the Rails app.
 If the:
 
 - Currently authenticated user fails the authorization, the authorized
-resource will be returned as `null`.
+  resource will be returned as `null`.
 - Resource is part of a collection, the collection will be filtered to
-exclude the objects that the user's authorization checks failed against.
+  exclude the objects that the user's authorization checks failed against.
 
 TIP: **Tip:**
 Try to load only what the currently authenticated user is allowed to
@@ -413,12 +424,8 @@ Will generate a field called `mergeRequestSetWip` that
 
 ### Authorizing resources
 
-To authorize resources inside a mutation, we can include the
-`Gitlab::Graphql::Authorize::AuthorizeResource` concern in the
-mutation.
-
-This allows us to provide the required abilities on the mutation like
-this:
+To authorize resources inside a mutation, we first provide the required
+ abilities on the mutation like this:
 
 ```ruby
 module Mutations
@@ -437,7 +444,7 @@ want to validate the abilities for.
 
 Alternatively, we can add a `find_object` method that will load the
 object on the mutation. This would allow you to use the
-`authorized_find!` and `authorized_find!` helper methods.
+`authorized_find!` helper method.
 
 When a user is not allowed to perform the action, or an object is not
 found, we should raise a

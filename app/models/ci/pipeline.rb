@@ -196,7 +196,7 @@ module Ci
       sql = 'CASE ci_pipelines.source WHEN (?) THEN 0 ELSE 1 END, ci_pipelines.id DESC'
       query = ApplicationRecord.send(:sanitize_sql_array, [sql, sources[:merge_request_event]]) # rubocop:disable GitlabSecurity/PublicSend
 
-      order(query)
+      order(Arel.sql(query))
     end
 
     scope :for_user, -> (user) { where(user: user) }
@@ -293,6 +293,11 @@ module Ci
       relation.each_with_object({}) do |row, hash|
         hash[row[:sha]] = row[:status]
       end
+    end
+
+    def self.latest_for_shas(shas)
+      max_id_per_sha = for_sha(shas).group(:sha).select("max(id)")
+      where(id: max_id_per_sha)
     end
 
     def self.latest_successful_ids_per_project
@@ -783,6 +788,10 @@ module Ci
 
     def find_stage_by_name!(name)
       stages.find_by!(name: name)
+    end
+
+    def error_messages
+      errors ? errors.full_messages.to_sentence : ""
     end
 
     private

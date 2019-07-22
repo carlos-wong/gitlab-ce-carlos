@@ -7,6 +7,7 @@ describe Deployment do
 
   it { is_expected.to belong_to(:project).required }
   it { is_expected.to belong_to(:environment).required }
+  it { is_expected.to belong_to(:cluster).class_name('Clusters::Cluster') }
   it { is_expected.to belong_to(:user) }
   it { is_expected.to belong_to(:deployable) }
 
@@ -294,64 +295,6 @@ describe Deployment do
     end
   end
 
-  describe '#metrics' do
-    let(:deployment) { create(:deployment, :success) }
-    let(:prometheus_adapter) { double('prometheus_adapter', can_query?: true) }
-
-    subject { deployment.metrics }
-
-    context 'metrics are disabled' do
-      it { is_expected.to eq({}) }
-    end
-
-    context 'metrics are enabled' do
-      let(:simple_metrics) do
-        {
-          success: true,
-          metrics: {},
-          last_update: 42
-        }
-      end
-
-      before do
-        allow(deployment).to receive(:prometheus_adapter).and_return(prometheus_adapter)
-        allow(prometheus_adapter).to receive(:query).with(:deployment, deployment).and_return(simple_metrics)
-      end
-
-      it { is_expected.to eq(simple_metrics.merge({ deployment_time: deployment.created_at.to_i })) }
-    end
-  end
-
-  describe '#additional_metrics' do
-    let(:project) { create(:project, :repository) }
-    let(:deployment) { create(:deployment, :succeed, project: project) }
-
-    subject { deployment.additional_metrics }
-
-    context 'metrics are disabled' do
-      it { is_expected.to eq({}) }
-    end
-
-    context 'metrics are enabled' do
-      let(:simple_metrics) do
-        {
-          success: true,
-          metrics: {},
-          last_update: 42
-        }
-      end
-
-      let(:prometheus_adapter) { double('prometheus_adapter', can_query?: true) }
-
-      before do
-        allow(deployment).to receive(:prometheus_adapter).and_return(prometheus_adapter)
-        allow(prometheus_adapter).to receive(:query).with(:additional_metrics_deployment, deployment).and_return(simple_metrics)
-      end
-
-      it { is_expected.to eq(simple_metrics.merge({ deployment_time: deployment.created_at.to_i })) }
-    end
-  end
-
   describe '#stop_action' do
     let(:build) { create(:ci_build) }
 
@@ -377,40 +320,6 @@ describe Deployment do
 
         it { is_expected.to eq(close_action) }
       end
-    end
-  end
-
-  describe '#cluster' do
-    let(:deployment) { create(:deployment) }
-    let(:project) { deployment.project }
-    let(:environment) { deployment.environment }
-
-    subject { deployment.cluster }
-
-    before do
-      expect(project).to receive(:deployment_platform)
-        .with(environment: environment.name).and_call_original
-    end
-
-    context 'project has no deployment platform' do
-      before do
-        expect(project.clusters).to be_empty
-      end
-
-      it { is_expected.to be_nil }
-    end
-
-    context 'project uses the kubernetes service for deployments' do
-      let!(:service) { create(:kubernetes_service, project: project) }
-
-      it { is_expected.to be_nil }
-    end
-
-    context 'project has a deployment platform' do
-      let!(:cluster) { create(:cluster, projects: [project]) }
-      let!(:platform) { create(:cluster_platform_kubernetes, cluster: cluster) }
-
-      it { is_expected.to eq cluster }
     end
   end
 end

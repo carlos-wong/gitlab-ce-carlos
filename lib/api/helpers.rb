@@ -183,11 +183,6 @@ module API
       user_project.commit_by(oid: id)
     end
 
-    def find_project_snippet(id)
-      finder_params = { project: user_project }
-      SnippetsFinder.new(current_user, finder_params).find(id)
-    end
-
     # rubocop: disable CodeReuse/ActiveRecord
     def find_merge_request_with_access(iid, access_level = :read_merge_request)
       merge_request = user_project.merge_requests.find_by!(iid: iid)
@@ -235,6 +230,10 @@ module API
       authorize! :push_code, user_project
     end
 
+    def authorize_admin_tag
+      authorize! :admin_tag, user_project
+    end
+
     def authorize_admin_project
       authorize! :admin_project, user_project
     end
@@ -249,6 +248,10 @@ module API
 
     def authorize_update_builds!
       authorize! :update_build, user_project
+    end
+
+    def require_repository_enabled!(subject = :global)
+      not_found!("Repository") unless user_project.feature_available?(:repository, current_user)
     end
 
     def require_gitlab_workhorse!

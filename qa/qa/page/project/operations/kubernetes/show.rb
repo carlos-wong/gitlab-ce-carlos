@@ -30,7 +30,7 @@ module QA
 
             def await_installed(application_name)
               within(".js-cluster-application-row-#{application_name}") do
-                page.has_text?('Installed', wait: 300)
+                page.has_text?(/Installed|Uninstall/, wait: 300)
               end
             end
 

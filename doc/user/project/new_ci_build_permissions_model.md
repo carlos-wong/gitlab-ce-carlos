@@ -6,8 +6,6 @@ GitLab 8.12 has a completely redesigned [job permissions] system. You can find
 all discussion and all our concerns when choosing the current approach in issue
 [#18994](https://gitlab.com/gitlab-org/gitlab-ce/issues/18994).
 
----
-
 Jobs permissions should be tightly integrated with the permissions of a user
 who is triggering a job.
 
@@ -108,8 +106,6 @@ and to checkout project sources.
 It could also be used with the GitLab Container Registry for that project,
 allowing pulling and pushing Docker images from within the CI job.
 
----
-
 GitLab would create a special checkout URL like:
 
 ```
@@ -185,7 +181,7 @@ The [Job environment variable][jobenv] `CI_JOB_TOKEN` can be used to
 authenticate any clones of dependent repositories. For example:
 
 ```
-git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/myuser/mydependentrepo
+git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/<user>/<mydependentrepo>.git
 ```
 
 It can also be used for system-wide authentication

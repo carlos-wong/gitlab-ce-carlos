@@ -13,8 +13,6 @@ You can select the tag in the version dropdown in the top left corner of GitLab 
 ### 0. Backup
 
 It's useful to make a backup just in case things go south:
-(With MySQL, this may require granting "LOCK TABLES" privileges to the GitLab
-user on the database version)
 
 ```bash
 cd /home/git/gitlab
@@ -48,11 +46,7 @@ sudo -u git -H git checkout LATEST_TAG -b LATEST_TAG
 ```bash
 cd /home/git/gitlab
 
-# PostgreSQL
 sudo -u git -H bundle install --without development test mysql --deployment
-
-# MySQL
-sudo -u git -H bundle install --without development test postgres --deployment
 
 # Optional: clean up old gems
 sudo -u git -H bundle clean
@@ -106,7 +100,7 @@ sudo -u git -H git checkout v$(</home/git/gitlab/GITLAB_PAGES_VERSION)
 sudo -u git -H make
 ```
 
-### 8. Install/Update `gitlab-elasticsearch-indexer` (optional) **[STARTER ONLY]**
+### 8. Install/Update `gitlab-elasticsearch-indexer` (optional) **(STARTER ONLY)**
 
 If you're interested in using GitLab's new [elasticsearch repository indexer](../integration/elasticsearch.md#elasticsearch-repository-indexer-beta) (currently in beta)
 please follow the instructions on the document linked above and enable the

@@ -16,13 +16,13 @@ description: 'Learn how to contribute to GitLab.'
 
 - [GitLab core team & GitLab Inc. contribution process](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/PROCESS.md)
 - [Generate a changelog entry with `bin/changelog`](changelog.md)
-- [Code review guidelines](code_review.md) for reviewing code and having code reviewed.
+- [Code review guidelines](code_review.md) for reviewing code and having code reviewed
 - [Automatic CE->EE merge](automatic_ce_ee_merge.md)
 - [Guidelines for implementing Enterprise Edition features](ee_features.md)
 - [Security process for developers](https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md#security-releases-critical-non-critical-as-a-developer)
 - [Requesting access to Chatops on GitLab.com](chatops_on_gitlabcom.md#requesting-access) (for GitLabbers)
 
-## UX and frontend guides
+## UX and Frontend guides
 
 - [GitLab Design System](https://design.gitlab.com/) for building GitLab with existing CSS styles and elements
 - [Frontend guidelines](fe_guide/index.md)
@@ -33,7 +33,7 @@ description: 'Learn how to contribute to GitLab.'
 - [GitLab utilities](utilities.md)
 - [Logging](logging.md)
 - [API styleguide](api_styleguide.md) Use this styleguide if you are
-  contributing to the API.
+  contributing to the API
 - [GraphQL API styleguide](api_graphql_styleguide.md) Use this
   styleguide if you are contributing to the [GraphQL API](../api/graphql/index.md)
 - [Sidekiq guidelines](sidekiq_style_guide.md) for working with Sidekiq workers
@@ -61,6 +61,8 @@ description: 'Learn how to contribute to GitLab.'
 - [How Git object deduplication works in GitLab](git_object_deduplication.md)
 - [Geo development](geo.md)
 - [Routing](routing.md)
+- [Repository mirroring](repository_mirroring.md)
+- [Git LFS](lfs.md)
 
 ## Performance guides
 
@@ -80,6 +82,7 @@ description: 'Learn how to contribute to GitLab.'
 - [Understanding EXPLAIN plans](understanding_explain_plans.md)
 - [explain.depesz.com](https://explain.depesz.com/) for visualising the output
   of `EXPLAIN`
+- [pgFormatter](http://sqlformat.darold.net/) a PostgreSQL SQL syntax beautifier
 
 ### Migrations
 
@@ -106,6 +109,7 @@ description: 'Learn how to contribute to GitLab.'
 - [Database Debugging and Troubleshooting](database_debugging.md)
 - [Query Count Limits](query_count_limits.md)
 - [Database helper modules](database_helpers.md)
+- [Code comments](code_comments.md)
 
 ## Integration guides
 

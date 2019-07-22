@@ -101,7 +101,7 @@ it 'replaces an existing label if it has the same key' do
   page.find('#content-body').click
   page.refresh
 
-  labels_block = page.find('.qa-labels-block')
+  labels_block = page.find(%q([data-qa-selector="labels_block"]))
 
   expect(labels_block).to have_content('animal::dolphin')
   expect(labels_block).not_to have_content('animal::fox')
@@ -130,7 +130,7 @@ it 'keeps both scoped labels when adding a label with a different key' do
   page.find('#content-body').click
   page.refresh
 
-  labels_block = page.find('.qa-labels-block')
+  labels_block = page.find(%q([data-qa-selector="labels_block"]))
 
   expect(labels_block).to have_content('animal::fox')
   expect(labels_block).to have_content('plant::orchid')
@@ -139,7 +139,7 @@ it 'keeps both scoped labels when adding a label with a different key' do
 end
 ```
 
-> Note that elements are always located using CSS selectors, and a good practice is to add test-specific selectors (this is called adding testability to the application and we will talk more about it later.) For example, the `labels_block` element uses the selector `.qa-labels-block`, which was added specifically for testing purposes.
+> Note that elements are always located using CSS selectors, and a good practice is to add test-specific selectors (this is called "testability"). For example, the `labels_block` element uses the CSS selector [`data-qa-selector="labels_block"`](page_objects.md#data-qa-selector-vs-qa-selector), which was added specifically for testing purposes.
 
 Below are the steps that the test covers:
 
@@ -168,7 +168,7 @@ end
 it 'replaces an existing label if it has the same key' do
   select_label_and_refresh @new_label_same_scope
 
-  labels_block = page.find('.qa-labels-block')
+  labels_block = page.find(%q([data-qa-selector="labels_block"]))
 
   expect(labels_block).to have_content(@new_label_same_scope)
   expect(labels_block).not_to have_content(@initial_label)
@@ -179,7 +179,7 @@ end
 it 'keeps both scoped label when adding a label with a different key' do
   select_label_and_refresh @new_label_different_scope
 
-  labels_block = page.find('.qa-labels-block')
+  labels_block = page.find(%q([data-qa-selector="labels_block"]))
 
   expect(labels_blocks).to have_content(@new_label_different_scope)
   expect(labels_blocks).to have_content(@initial_label)
@@ -222,7 +222,7 @@ As the pre-conditions for our test suite, the things that needs to happen before
 - A project being created with an issue and labels already set;
 - The issue page being opened with only one scoped label applied to it.
 
-> When running end-to-end tests as part of the GitLab's continuous integration process [a license is already set as an environment variable](https://gitlab.com/gitlab-org/gitlab-ee/blob/1a60d926740db10e3b5724713285780a4f470531/qa/qa/ee/strategy.rb#L20). For running tests locally you can set up such license by following the document [what tests can be run?](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/what_tests_can_be_run.md#supported-remote-grid-environment-variables), based on the [supported GitLab environment variables](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/what_tests_can_be_run.md#supported-gitlab-environment-variables).
+> When running end-to-end tests as part of the GitLab's continuous integration process [a license is already set as an environment variable](https://gitlab.com/gitlab-org/gitlab-ee/blob/1a60d926740db10e3b5724713285780a4f470531/qa/qa/ee/strategy.rb#L20). For running tests locally you can set up such license by following the document [what tests can be run?](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/what_tests_can_be_run.md), based on the [supported GitLab environment variables](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/what_tests_can_be_run.md#supported-gitlab-environment-variables).
 
 #### Implementation
 
@@ -242,12 +242,12 @@ module QA
 
         issue = Resource::Issue.fabricate_via_api! do |issue|
           issue.title = 'Issue to test the scoped labels'
-          issue.labels = @initial_label
+          issue.labels = [@initial_label]
         end
 
         [@new_label_same_scope, @new_label_different_scope].each do |label|
           Resource::Label.fabricate_via_api! do |l|
-            l.project = issue.project.id
+            l.project = issue.project
             l.title = label
           end
         end
@@ -305,7 +305,7 @@ module QA
         it 'correctly applies scoped labels depending on if they are from the same or a different scope' do
           select_labels_and_refresh [@new_label_same_scope, @new_label_different_scope]
 
-          labels_block = page.all('.qa-labels-block')
+          labels_block = page.all(%q([data-qa-selector="labels_block"]))
 
           expect(labels_block).to have_content(@new_label_same_scope)
           expect(labels_block).to have_content(@new_label_different_scope)
@@ -365,6 +365,14 @@ Add the following `attribute :id` and `attribute :labels` right above the [`attr
 
 > We add the attributes above the existing attribute to keep them alphabetically organized.
 
+Then, let's initialize an instance variable for labels to allow an empty array as default value when such information is not passed during the resource fabrication, since this optional. [Between the attributes and the `fabricate!` method](https://gitlab.com/gitlab-org/gitlab-ee/blob/1a1f1408728f19b2aa15887cd20bddab7e70c8bd/qa/qa/resource/issue.rb#L18), add the following:
+
+```ruby
+def initialize
+  @labels = []
+end
+```
+
 Next, add the following code right below the [`fabricate!`](https://gitlab.com/gitlab-org/gitlab-ee/blob/d3584e80b4236acdf393d815d604801573af72cc/qa/qa/resource/issue.rb#L27) method.
 
 ```ruby
@@ -378,7 +386,7 @@ end
 
 def api_post_body
   {
-    labels: [labels],
+    labels: labels,
     title: title
   }
 end
@@ -386,15 +394,15 @@ end
 
 By defining the `api_get_path` method, we allow the [`ApiFabricator`](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/qa/qa/resource/api_fabricator.rb) module to know which path to use to get a single issue.
 
-> This `GET` path can be found in the [public API documentation](https://docs.gitlab.com/ee/api/issues.html#single-issue).
+> This `GET` path can be found in the [public API documentation](../../../api/issues.md#single-issue).
 
 By defining the `api_post_path` method, we allow the [`ApiFabricator`](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/qa/qa/resource/api_fabricator.rb) module to know which path to use to create a new issue in a specific project.
 
-> This `POST` path can be found in the [public API documentation](https://docs.gitlab.com/ee/api/issues.html#new-issue).
+> This `POST` path can be found in the [public API documentation](../../../api/issues.md#new-issue).
 
 By defining the `api_post_body` method, we allow the [`ApiFabricator.api_post`](https://gitlab.com/gitlab-org/gitlab-ee/blob/a9177ca1812bac57e2b2fa4560e1d5dd8ffac38b/qa/qa/resource/api_fabricator.rb#L68) method to know which data to send when making the `POST` request.
 
-> Notice that we pass both `labels` and `title` attributes in the `api_post_body`, where `labels` receives an array of labels, and [`title` is required](https://docs.gitlab.com/ee/api/issues.html#new-issue). Also, notice that we keep them alphabetically organized.
+> Notice that we pass both `labels` and `title` attributes in the `api_post_body`, where `labels` receives an array of labels, and [`title` is required](../../../api/issues.md#new-issue). Also, notice that we keep them alphabetically organized.
 
 **Label resource**
 
@@ -414,7 +422,7 @@ def api_get_path
 end
 
 def api_post_path
-  "/projects/#{project}/labels"
+  "/projects/#{project.id}/labels"
 end
 
 def api_post_body
@@ -433,7 +441,7 @@ By defining the `api_post_path` method, we allow for the [`ApiFabricator `](http
 
 By defining the `api_post_body` method, we we allow for the [`ApiFabricator.api_post`](https://gitlab.com/gitlab-org/gitlab-ee/blob/a9177ca1812bac57e2b2fa4560e1d5dd8ffac38b/qa/qa/resource/api_fabricator.rb#L68) method to know which data to send when making the `POST` request.
 
-> Notice that we pass both `color` and `name` attributes in the `api_post_body` since [those are required](https://docs.gitlab.com/ee/api/labels.html#create-a-new-label). Also, notice that we keep them alphabetically organized.
+> Notice that we pass both `color` and `name` attributes in the `api_post_body` since [those are required](../../../api/labels.md#create-a-new-label). Also, notice that we keep them alphabetically organized.
 
 ### 8. Page Objects
 
@@ -544,37 +552,36 @@ The `text_of_labels_block` method is a simple method that returns the `:labels_b
 
 #### Updates in the view (*.html.haml) and `dropdowns_helper.rb` files
 
-Now let's change the view and the `dropdowns_helper` files to add the selectors that relate to the Page Object.
+Now let's change the view and the `dropdowns_helper` files to add the selectors that relate to the [Page Objects].
 
-In the [app/views/shared/issuable/_sidebar.html.haml](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/app/views/shared/issuable/_sidebar.html.haml) file, on [line 105 ](https://gitlab.com/gitlab-org/gitlab-ee/blob/84043fa72ca7f83ae9cde48ad670e6d5d16501a3/app/views/shared/issuable/_sidebar.html.haml#L105), add an extra class `qa-edit-link-labels`.
-
-The code should look like this:
-
-```haml
-= link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link float-right qa-edit-link-labels'
-```
-
-In the same file, on [line 121](https://gitlab.com/gitlab-org/gitlab-ee/blob/84043fa72ca7f83ae9cde48ad670e6d5d16501a3/app/views/shared/issuable/_sidebar.html.haml#L121), add an extra class `.qa-dropdown-menu-labels`.
+In  [`app/views/shared/issuable/_sidebar.html.haml:105`](https://gitlab.com/gitlab-org/gitlab-ee/blob/7ca12defc7a965987b162a6ebef302f95dc8867f/app/views/shared/issuable/_sidebar.html.haml#L105), add a `data: { qa_selector: 'edit_link_labels' }` data attribute.
 
 The code should look like this:
 
 ```haml
-.dropdown-menu.dropdown-select.dropdown-menu-paging.dropdown-menu-labels.dropdown-menu-selectable.qa-dropdown-menu-labels
+= link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link float-right', data: { qa_selector: 'edit_link_labels' }
 ```
 
-In the [`dropdowns_helper.rb`](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/app/helpers/dropdowns_helper.rb) file, on [line 94](https://gitlab.com/gitlab-org/gitlab-ee/blob/99e51a374f2c20bee0989cac802e4b5621f72714/app/helpers/dropdowns_helper.rb#L94), add an extra class `qa-dropdown-input-field`.
+In the same file, on [line 121](https://gitlab.com/gitlab-org/gitlab-ee/blob/7ca12defc7a965987b162a6ebef302f95dc8867f/app/views/shared/issuable/_sidebar.html.haml#L121), add a `data: { qa_selector: 'dropdown_menu_labels' }` data attribute.
+
+The code should look like this:
+
+```haml
+.dropdown-menu.dropdown-select.dropdown-menu-paging.dropdown-menu-labels.dropdown-menu-selectable.dropdown-extended-height{ data: { qa_selector: 'dropdown_menu_labels' } }
+```
+
+In [`app/helpers/dropdowns_helper.rb:94`](https://gitlab.com/gitlab-org/gitlab-ee/blob/7ca12defc7a965987b162a6ebef302f95dc8867f/app/helpers/dropdowns_helper.rb#L94), add a `data: { qa_selector: 'dropdown_input_field' }` data attribute.
 
 The code should look like this:
 
 ```ruby
-filter_output = search_field_tag search_id, nil, class: "dropdown-input-field qa-dropdown-input-field", placeholder: placeholder, autocomplete: 'off'
+filter_output = search_field_tag search_id, nil, class: "dropdown-input-field", placeholder: placeholder, autocomplete: 'off', data: { qa_selector: 'dropdown_input_field' }
 ```
 
-> Classes starting with `qa-` are used for testing purposes only, and by defining such classes in the elements we add **testability** in the application.
+> `data-qa-*` data attributes and CSS classes starting with `qa-` are used solely for the purpose of QA and testing.
+> By defining these, we add **testability** to the application.
 
-> When defining a class like `qa-labels-block`, it is transformed into `:labels_block` for usage in the Page Objects. So, `qa-edit-link-labels` is transformed into `:edit_link_labels`, `qa-dropdown-menu-labels` is transformed into `:dropdown_menu_labels`, and `qa-dropdown-input-field` is transformed into `:dropdown_input_field`. Also, we use a [sanity test](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/qa/page#how-did-we-solve-fragile-tests-problem) to check that defined elements have their respective `qa-` selectors in the specified views.
-
-> We did not define the `qa-labels-block` class in the `app/views/shared/issuable/_sidebar.html.haml` file because it was already there to be used.
+> When defining a data attribute like: `qa_selector: 'labels_block'`, it should match the element definition: `element :labels_block`. We use a [sanity test](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/qa/page#how-did-we-solve-fragile-tests-problem) to check that defined elements have their respective selectors in the specified views.
 
 #### Updates in the `QA::Page::Base` class
 

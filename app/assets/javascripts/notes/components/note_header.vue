@@ -70,7 +70,7 @@ export default {
         @click="handleToggle"
       >
         <i :class="toggleChevronClass" class="fa" aria-hidden="true"></i>
-        {{ __('Toggle discussion') }}
+        {{ __('Toggle thread') }}
       </button>
     </div>
     <a
@@ -103,7 +103,7 @@ export default {
       </template>
       <i
         class="fa fa-spinner fa-spin editing-spinner"
-        aria-label="Comment is being updated"
+        :aria-label="__('Comment is being updated')"
         aria-hidden="true"
       ></i>
     </span>

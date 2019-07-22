@@ -1,4 +1,4 @@
-# Merge request approvals API **[STARTER]**
+# Merge request approvals API **(STARTER)**
 
 Configuration for approvals on all Merge Requests (MR) in the project. Must be authenticated for all endpoints.
 
@@ -178,7 +178,6 @@ PUT /projects/:id/approvers
 }
 ```
 
-
 ## Merge Request-level MR approvals
 
 Configuration for approvals on a specific Merge Request. Must be authenticated for all endpoints.
@@ -222,7 +221,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/approvals
         "id": 1,
         "state": "active",
         "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
-        "web_url": "http://localhost:3000/u/root"
+        "web_url": "http://localhost:3000/root"
       }
     }
   ],
@@ -249,7 +248,6 @@ POST /projects/:id/merge_requests/:merge_request_iid/approvals
 | `id`                 | integer | yes      | The ID of a project                        |
 | `merge_request_iid`  | integer | yes      | The IID of MR                              |
 | `approvals_required` | integer | yes      | Approvals required before MR can be merged |
-
 
 ```json
 {
@@ -314,7 +312,7 @@ PUT /projects/:id/merge_requests/:merge_request_iid/approvers
         "id": 1,
         "state": "active",
         "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
-        "web_url": "http://localhost:3000/u/root" 
+        "web_url": "http://localhost:3000/root"
       }
     }
   ],
@@ -359,7 +357,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/approve
 | `id`                | integer | yes      | The ID of a project     |
 | `merge_request_iid` | integer | yes      | The IID of MR           |
 | `sha`               | string  | no       | The HEAD of the MR      |
-| `approval_password` **[STARTER]** | string  | no      | Current user's password. Required if [**Require user password to approve**](../user/project/merge_requests/merge_request_approvals.md#require-authentication-when-approving-a-merge-request-starter) is enabled in the project settings. |
+| `approval_password` **(STARTER)** | string  | no      | Current user's password. Required if [**Require user password to approve**](../user/project/merge_requests/merge_request_approvals.md#require-authentication-when-approving-a-merge-request-starter) is enabled in the project settings. |
 
 The `sha` parameter works in the same way as
 when [accepting a merge request](merge_requests.md#accept-mr): if it is passed, then it must
@@ -387,7 +385,7 @@ does not match, the response code will be `409`.
         "id": 1,
         "state": "active",
         "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
-        "web_url": "http://localhost:3000/u/root"
+        "web_url": "http://localhost:3000/root"
       }
     },
     {
@@ -397,7 +395,7 @@ does not match, the response code will be `409`.
         "id": 2,
         "state": "active",
         "avatar_url": "http://www.gravatar.com/avatar/cf7ad14b34162a76d593e3affca2adca?s=80\u0026d=identicon",
-        "web_url": "http://localhost:3000/u/ryley"
+        "web_url": "http://localhost:3000/ryley"
       }
     }
   ],

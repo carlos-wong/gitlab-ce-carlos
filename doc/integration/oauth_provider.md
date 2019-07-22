@@ -11,7 +11,7 @@ If you want to use:
 
 ## Introduction to OAuth
 
-[OAuth] provides to client applications a 'secure delegated access' to server
+[OAuth](https://oauth.net/2/) provides to client applications a 'secure delegated access' to server
 resources on behalf of a resource owner. In fact, OAuth allows an authorization
 server to issue access tokens to third-party clients with the approval of the
 resource owner, or the end-user.
@@ -24,8 +24,6 @@ can be used for authentication to your GitLab instance
 
 The 'GitLab Importer' feature is also using the OAuth protocol to give access
 to repositories without sharing user credentials to your GitLab.com account.
-
----
 
 GitLab supports two ways of adding a new OAuth2 application to an instance. You
 can either add an application as a regular user or add it in the admin area.
@@ -41,23 +39,17 @@ In order to add a new application via your profile, navigate to
 
 ![New OAuth application](img/oauth_provider_user_wide_applications.png)
 
----
-
 In the application form, enter a **Name** (arbitrary), and make sure to set up
 correctly the **Redirect URI** which is the URL where users will be sent after
 they authorize with GitLab.
 
 ![New OAuth application form](img/oauth_provider_application_form.png)
 
----
-
 When you hit **Submit** you will be provided with the application ID and
 the application secret which you can then use with your application that
 connects to GitLab.
 
 ![OAuth application ID and secret](img/oauth_provider_application_id_secret.png)
-
----
 
 ## OAuth applications in the admin area
 
@@ -69,8 +61,6 @@ it from the admin area.
 You're also able to mark an application as _trusted_ when creating it through the admin area. By doing that,
 the user authorization step is automatically skipped for this application.
 
----
-
 ## Authorized applications
 
 Every application you authorized to use your GitLab credentials will be shown
@@ -78,12 +68,8 @@ in the **Authorized applications** section under **Profile Settings > Applicatio
 
 ![Authorized_applications](img/oauth_provider_authorized_application.png)
 
----
-
 GitLab's OAuth applications support scopes, which allow various actions that any given
 application can perform such as `read_user` and `api`. There are many more scopes
 available.
 
 At any time you can revoke any access by just clicking **Revoke**.
-
-[oauth]: http://oauth.net/2/ "OAuth website"

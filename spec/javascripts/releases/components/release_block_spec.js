@@ -14,7 +14,7 @@ describe('Release block', () => {
     description_html: '<div><h2>changelog</h2><ul><li>line1</li<li>line 2</li></ul></div>',
     author_name: 'Release bot',
     author_email: 'release-bot@example.com',
-    created_at: '2012-05-28T05:00:00-07:00',
+    released_at: '2012-05-28T05:00:00-07:00',
     author: {
       avatar_url: 'uploads/-/system/user/avatar/johndoe/avatar.png',
       id: 482476,
@@ -78,8 +78,10 @@ describe('Release block', () => {
   };
   let vm;
 
+  const factory = props => mountComponent(Component, { release: props });
+
   beforeEach(() => {
-    vm = mountComponent(Component, { release });
+    vm = factory(release);
   });
 
   afterEach(() => {
@@ -99,7 +101,7 @@ describe('Release block', () => {
   });
 
   it('renders release date', () => {
-    expect(vm.$el.textContent).toContain(timeagoMixin.methods.timeFormated(release.created_at));
+    expect(vm.$el.textContent).toContain(timeagoMixin.methods.timeFormated(release.released_at));
   });
 
   it('renders number of assets provided', () => {
@@ -147,6 +149,16 @@ describe('Release block', () => {
       expect(vm.$el.querySelector('.js-assets-list li:nth-child(2) a').textContent).not.toContain(
         'external source',
       );
+    });
+  });
+
+  describe('with upcoming_release flag', () => {
+    beforeEach(() => {
+      vm = factory(Object.assign({}, release, { upcoming_release: true }));
+    });
+
+    it('renders upcoming release badge', () => {
+      expect(vm.$el.textContent).toContain('Upcoming Release');
     });
   });
 });

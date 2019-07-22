@@ -79,10 +79,6 @@ describe 'Gcp Cluster', :js do
 
           expect(page).to have_content('Something wrong!')
         end
-
-        it 'user sees RBAC is enabled by default' do
-          expect(page).to have_checked_field('RBAC-enabled cluster')
-        end
       end
 
       context 'when user filled form with invalid parameters' do
@@ -122,7 +118,6 @@ describe 'Gcp Cluster', :js do
 
       context 'when user changes cluster parameters' do
         before do
-          allow(ClusterConfigureWorker).to receive(:perform_async)
           fill_in 'cluster_platform_kubernetes_attributes_namespace', with: 'my-namespace'
           page.within('#js-cluster-details') { click_button 'Save changes' }
         end

@@ -35,14 +35,25 @@ export const setEndpoints = ({ commit }, endpoints) => {
   commit(types.SET_ENDPOINTS, endpoints);
 };
 
-export const setDashboardEnabled = ({ commit }, enabled) => {
-  commit(types.SET_DASHBOARD_ENABLED, enabled);
+export const setFeatureFlags = (
+  { commit },
+  { prometheusEndpointEnabled, multipleDashboardsEnabled, additionalPanelTypesEnabled },
+) => {
+  commit(types.SET_DASHBOARD_ENABLED, prometheusEndpointEnabled);
+  commit(types.SET_MULTIPLE_DASHBOARDS_ENABLED, multipleDashboardsEnabled);
+  commit(types.SET_ADDITIONAL_PANEL_TYPES_ENABLED, additionalPanelTypesEnabled);
 };
 
 export const requestMetricsDashboard = ({ commit }) => {
   commit(types.REQUEST_METRICS_DATA);
 };
-export const receiveMetricsDashboardSuccess = ({ commit, dispatch }, { response, params }) => {
+export const receiveMetricsDashboardSuccess = (
+  { state, commit, dispatch },
+  { response, params },
+) => {
+  if (state.multipleDashboardsEnabled) {
+    commit(types.SET_ALL_DASHBOARDS, response.all_dashboards);
+  }
   commit(types.RECEIVE_METRICS_DATA_SUCCESS, response.dashboard.panel_groups);
   dispatch('fetchPrometheusMetrics', params);
 };
@@ -94,6 +105,11 @@ export const fetchMetricsData = ({ state, dispatch }, params) => {
 
 export const fetchDashboard = ({ state, dispatch }, params) => {
   dispatch('requestMetricsDashboard');
+
+  if (state.currentDashboard) {
+    // eslint-disable-next-line no-param-reassign
+    params.dashboard = state.currentDashboard;
+  }
 
   return axios
     .get(state.dashboardEndpoint, { params })

@@ -16,8 +16,8 @@ module Gitlab
       gon.shortcuts_path         = Gitlab::Routing.url_helpers.help_page_path('shortcuts')
       gon.user_color_scheme      = Gitlab::ColorSchemes.for_user(current_user).css_class
 
-      if Gitlab::CurrentSettings.clientside_sentry_enabled
-        gon.sentry_dsn           = Gitlab::CurrentSettings.clientside_sentry_dsn
+      if Gitlab.config.sentry.enabled
+        gon.sentry_dsn           = Gitlab.config.sentry.clientside_dsn
         gon.sentry_environment   = Gitlab.config.sentry.environment
       end
 
@@ -38,6 +38,11 @@ module Gitlab
         gon.current_user_fullname = current_user.name
         gon.current_user_avatar_url = current_user.avatar_url
       end
+
+      # Flag controls a GFM feature used across many routes.
+      # Pushing the flag from one place simplifies control
+      # and facilitates easy removal.
+      push_frontend_feature_flag(:gfm_embedded_metrics)
     end
 
     # Exposes the state of a feature flag to the frontend code.

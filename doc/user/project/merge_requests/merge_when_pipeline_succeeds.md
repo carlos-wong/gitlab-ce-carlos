@@ -36,11 +36,13 @@ changes to be reviewed.
 ## Only allow merge requests to be merged if the pipeline succeeds
 
 You can prevent merge requests from being merged if their pipeline did not succeed
-or if there are discussions to be resolved.
+or if there are threads to be resolved.
 
 Navigate to your project's settings page and expand the **Merge requests** section.
 In the **Merge checks** subsection, select the **Pipelines must succeed** check
 box and hit **Save** for the changes to take effect.
+
+NOTE: **Note:** This setting also prevents merge requests from being merged if there is no pipeline.
 
 ![Pipelines must succeed settings](img/merge_when_pipeline_succeeds_only_if_succeeds_settings.png)
 
@@ -48,6 +50,21 @@ From now on, every time the pipeline fails you will not be able to merge the
 merge request from the UI, until you make all relevant jobs pass.
 
 ![Only allow merge if pipeline succeeds message](img/merge_when_pipeline_succeeds_only_if_succeeds_msg.png)
+
+### Limitations
+
+When this setting is enabled, a merge request is prevented from being merged if there is no pipeline. This may conflict with some use cases where [`only/except`](../../../ci/yaml/README.md#onlyexcept-advanced) rules are used and they don't generate any pipelines.
+
+Users that expect to be able to merge a merge request in this scenario should ensure that [there is always a pipeline](https://gitlab.com/gitlab-org/gitlab-ce/issues/54226) and that it's succesful.
+
+For example, to that on merge requests there is always a passing job even though `only/except` rules may not generate any other jobs:
+
+```yaml
+enable_merge:
+  only: merge_requests
+  script:
+    - echo true
+```
 
 <!-- ## Troubleshooting
 

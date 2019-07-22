@@ -2,13 +2,13 @@
 @import 'framework/variables_overrides';
 @import 'framework/mixins';
 
-@import 'bootstrap';
+@import '@gitlab/ui/scss/gitlab_ui';
+
 @import 'bootstrap_migration';
 @import 'framework/layout';
 
 @import 'framework/animations';
 @import 'framework/vue_transitions';
-@import 'framework/asciidoctor';
 @import 'framework/banner';
 @import 'framework/blocks';
 @import 'framework/buttons';

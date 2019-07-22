@@ -10,6 +10,8 @@ module Gitlab
         NOT_FOUND_ERROR = Gitlab::Template::Finders::RepoTemplateFinder::FileNotFoundError
 
         def get_dashboard
+          return error('Insufficient permissions.', :unauthorized) unless allowed?
+
           success(dashboard: process_dashboard)
         rescue NOT_FOUND_ERROR
           error("#{dashboard_path} could not be found.", :not_found)
@@ -23,7 +25,18 @@ module Gitlab
           raise NotImplementedError
         end
 
+        # Returns an un-processed dashboard from the cache.
+        def raw_dashboard
+          Gitlab::Metrics::Dashboard::Cache.fetch(cache_key) { get_raw_dashboard }
+        end
+
         private
+
+        # Determines whether users should be able to view
+        # dashboards at all.
+        def allowed?
+          Ability.allowed?(current_user, :read_environment, project)
+        end
 
         # Returns a new dashboard Hash, supplemented with DB info
         def process_dashboard
@@ -35,11 +48,6 @@ module Gitlab
         # @return [String] Relative filepath of the dashboard yml
         def dashboard_path
           params[:dashboard_path]
-        end
-
-        # Returns an un-processed dashboard from the cache.
-        def raw_dashboard
-          Gitlab::Metrics::Dashboard::Cache.fetch(cache_key) { get_raw_dashboard }
         end
 
         # @return [Hash] an unmodified dashboard
@@ -54,6 +62,7 @@ module Gitlab
 
         # Determines whether custom metrics should be included
         # in the processed output.
+        # @return [Boolean]
         def insert_project_metrics?
           false
         end

@@ -42,7 +42,7 @@ The list of `GITLAB_DATABASE_XXX` variables that you can set is:
 
 Variable | Default value | Overridden by `DATABASE_URL`?
 -------- | ------------- | -----------------------------
-`GITLAB_DATABASE_ADAPTER`   | `postgresql` (for MySQL use `mysql2`) | Yes
+`GITLAB_DATABASE_ADAPTER`   | `postgresql`                          | Yes
 `GITLAB_DATABASE_DATABASE`  | `gitlab_#{ENV['RAILS_ENV']`           | Yes
 `GITLAB_DATABASE_USERNAME`  | `root`                                | Yes
 `GITLAB_DATABASE_PASSWORD`  | None                                  | Yes
@@ -64,4 +64,4 @@ instructions](https://docs.gitlab.com/omnibus/settings/environment-variables.htm
 
 It's possible to preconfigure the GitLab docker image by adding the environment
 variable `GITLAB_OMNIBUS_CONFIG` to the `docker run` command.
-For more information see the ['preconfigure-docker-container' section in the Omnibus documentation](http://docs.gitlab.com/omnibus/docker/#preconfigure-docker-container).
+For more information see the ['preconfigure-docker-container' section in the Omnibus documentation](https://docs.gitlab.com/omnibus/docker/#preconfigure-docker-container).

@@ -37,15 +37,16 @@ The following table lists examples with step-by-step tutorials that are containe
 | Python on Heroku            | [Test and deploy a Python application with GitLab CI/CD](test-and-deploy-python-application-to-heroku.md).                 |
 | Ruby on Heroku              | [Test and deploy a Ruby application with GitLab CI/CD](test-and-deploy-ruby-application-to-heroku.md).                     |
 | Scala on Heroku             | [Test and deploy a Scala application to Heroku](test-scala-application.md).                                                |
+| Parallel testing Ruby & JS  | [GitLab CI parallel jobs testing for Ruby & JavaScript projects](https://docs.knapsackpro.com/2019/how-to-run-parallel-jobs-for-rspec-tests-on-gitlab-ci-pipeline-and-speed-up-ruby-javascript-testing). |
 
 ### Contributing examples
 
 Contributions are welcome! You can help your favorite programming
 language users and GitLab by sending a merge request with a guide for that language.
-You may want to apply for the [GitLab Community Writers Program](https://about.gitlab.com/community-writers/)
+You may want to apply for the [GitLab Community Writers Program](https://about.gitlab.com/community/writers/)
 to get paid for writing complete articles for GitLab.
 
-## Adding templates to your GitLab installation **[PREMIUM ONLY]**
+## Adding templates to your GitLab installation **(PREMIUM ONLY)**
 
 If you want to have customized examples and templates for your own self-managed GitLab instance available to your team, your GitLab administrator can [designate an instance template repository](../../user/admin_area/settings/instance_template_repository.md) that contains examples and templates specific to your enterprise.
 

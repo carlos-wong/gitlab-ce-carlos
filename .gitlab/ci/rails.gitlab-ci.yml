@@ -1,6 +1,6 @@
 .use-pg: &use-pg
   services:
-    - name: postgres:9.6
+    - name: postgres:9.6.11
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
 
@@ -9,11 +9,6 @@
     - name: postgres:10.7
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
-
-.use-mysql: &use-mysql
-  services:
-    - mysql:5.7
-    - redis:alpine
 
 .only-schedules-master: &only-schedules-master
   only:
@@ -25,8 +20,9 @@
     - master@gitlab/gitlab-ee
 
 .gitlab-setup: &gitlab-setup
-  extends: .dedicated-no-docs-and-no-qa-pull-cache-job
-  <<: *use-pg
+  extends:
+    - .dedicated-no-docs-and-no-qa-pull-cache-job
+    - .use-pg
   variables:
     SETUP_DB: "false"
   script:
@@ -48,7 +44,9 @@
     - bundle exec rake $CI_JOB_NAME
 
 .rspec-metadata: &rspec-metadata
-  extends: .dedicated-pull-cache-job
+  extends:
+    - .dedicated-pull-cache-job
+    - .no-docs-and-no-qa
   stage: test
   script:
     - JOB_NAME=( $CI_JOB_NAME )
@@ -68,6 +66,8 @@
     - scripts/gitaly-test-spawn
     - date
     - 'export KNAPSACK_TEST_FILE_PATTERN=$(ruby -r./lib/quality/test_level.rb -e "puts Quality::TestLevel.new.pattern(:${TEST_LEVEL})")'
+    - mkdir -p tmp/memory_test
+    - export MEMORY_TEST_PATH="tmp/memory_test/${TEST_TOOL}_${TEST_LEVEL}_${DATABASE}_node_${CI_NODE_INDEX}_${CI_NODE_TOTAL}_memory.csv"
     - knapsack rspec "--color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag level:${TEST_LEVEL} --tag ~geo"
     - date
   artifacts:
@@ -79,11 +79,9 @@
       - rspec_flaky/
       - rspec_profiling/
       - tmp/capybara/
-    reports:
-      junit: junit_rspec.xml
-  except:
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+      - tmp/memory_test/
+#    reports:
+#      junit: junit_rspec.xml
 
 .rspec-metadata-pg: &rspec-metadata-pg
   <<: *rspec-metadata
@@ -93,10 +91,6 @@
   <<: *rspec-metadata
   <<: *use-pg-10
   image: "dev.gitlab.org:5005/gitlab/gitlab-build-images:ruby-2.6.3-golang-1.11-git-2.21-chrome-73.0-node-12.x-yarn-1.16-postgresql-10-graphicsmagick-1.3.29"
-
-.rspec-metadata-mysql: &rspec-metadata-mysql
-  <<: *rspec-metadata
-  <<: *use-mysql
 
 # DB migration, rollback, and seed jobs
 .db-migrate-reset: &db-migrate-reset
@@ -131,8 +125,10 @@
     - setup-test-env
 
 setup-test-env:
-  extends: .dedicated-runner-default-cache
-  <<: *use-pg
+  extends:
+    - .dedicated-runner-default-cache
+    - .no-docs
+    - .use-pg
   stage: prepare
   script:
     - bundle exec ruby -Ispec -e 'require "spec_helper" ; TestEnv.init'
@@ -143,8 +139,6 @@ setup-test-env:
       - tmp/tests
       - config/secrets.yml
       - vendor/gitaly-ruby
-  except:
-    - /(^docs[\/-].*|.*-docs$)/
 
 rspec unit pg:
   <<: *rspec-metadata-pg
@@ -173,42 +167,6 @@ rspec system pg-10:
   <<: *only-schedules-master
   parallel: 24
 
-rspec unit mysql:
-  <<: *rspec-metadata-mysql
-  <<: *only-schedules-master
-  parallel: 20
-
-rspec integration mysql:
-  <<: *rspec-metadata-mysql
-  <<: *only-schedules-master
-  parallel: 6
-
-rspec system mysql:
-  <<: *rspec-metadata-mysql
-  <<: *only-schedules-master
-  parallel: 24
-
-.rspec-mysql-on-demand: &rspec-mysql-on-demand
-  only:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[run mysql\]/i
-      - $CI_COMMIT_REF_NAME =~ /mysql/
-
-rspec unit mysql on-demand:
-  <<: *rspec-metadata-mysql
-  <<: *rspec-mysql-on-demand
-  parallel: 20
-
-rspec integration mysql on-demand:
-  <<: *rspec-metadata-mysql
-  <<: *rspec-mysql-on-demand
-  parallel: 6
-
-rspec system mysql on-demand:
-  <<: *rspec-metadata-mysql
-  <<: *rspec-mysql-on-demand
-  parallel: 24
-
 rspec-fast-spec-helper:
   <<: *rspec-metadata-pg
   script:
@@ -226,16 +184,11 @@ rspec quarantine pg:
   <<: *rspec-quarantine
   allow_failure: true
 
-rspec quarantine mysql:
-  <<: *rspec-metadata-mysql
-  <<: *rspec-quarantine
-  <<: *only-schedules-master
-  allow_failure: true
-
 static-analysis:
   extends: .dedicated-no-docs-no-db-pull-cache-job
   dependencies:
     - compile-assets
+    - compile-assets pull-cache
     - setup-test-env
   script:
     - scripts/static-analysis
@@ -250,11 +203,12 @@ static-analysis:
 downtime_check:
   <<: *rake-exec
   except:
-    - master
-    - tags
-    - /^[\d-]+-stable(-ee)?$/
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+    refs:
+      - master
+      - tags
+      - /^[\d-]+-stable(-ee)?$/
+      - /(^docs[\/-].*|.*-docs$)/
+      - /(^qa[\/-].*|.*-qa$)/
   dependencies:
     - setup-test-env
 
@@ -262,12 +216,13 @@ ee_compat_check:
   <<: *rake-exec
   dependencies: []
   except:
-    - master
-    - tags
-    - /[\d-]+-stable(-ee)?/
-    - /^security-/
-    - branches@gitlab-org/gitlab-ee
-    - branches@gitlab/gitlab-ee
+    refs:
+      - master
+      - tags
+      - /[\d-]+-stable(-ee)?/
+      - /^security-/
+      - branches@gitlab-org/gitlab-ee
+      - branches@gitlab/gitlab-ee
   retry: 0
   artifacts:
     name: "${CI_JOB_NAME}_${CI_COMIT_REF_NAME}_${CI_COMMIT_SHA}"
@@ -280,10 +235,6 @@ db:migrate:reset-pg:
   <<: *db-migrate-reset
   <<: *use-pg
 
-db:migrate:reset-mysql:
-  <<: *db-migrate-reset
-  <<: *use-mysql
-
 db:check-schema-pg:
   <<: *db-migrate-reset
   <<: *use-pg
@@ -294,15 +245,11 @@ migration:path-pg:
   <<: *migration-paths
   <<: *use-pg
 
-migration:path-mysql:
-  <<: *migration-paths
-  <<: *use-mysql
-
 .db-rollback: &db-rollback
   extends: .dedicated-no-docs-and-no-qa-pull-cache-job
   script:
-    - bundle exec rake db:migrate VERSION=20170523121229
-    - bundle exec rake db:migrate
+    - bundle exec rake db:migrate VERSION=20180101160629
+    - bundle exec rake db:migrate SKIP_SCHEMA_VERSION_CHECK=true
   dependencies:
     - setup-test-env
 
@@ -310,26 +257,18 @@ db:rollback-pg:
   <<: *db-rollback
   <<: *use-pg
 
-db:rollback-mysql:
-  <<: *db-rollback
-  <<: *use-mysql
-
 gitlab:setup-pg:
   <<: *gitlab-setup
   <<: *use-pg
   dependencies:
     - setup-test-env
 
-gitlab:setup-mysql:
-  <<: *gitlab-setup
-  <<: *use-mysql
-  dependencies:
-    - setup-test-env
-
 coverage:
   # Don't include dedicated-no-docs-no-db-pull-cache-job here since we need to
   # download artifacts from all the rspec jobs instead of from setup-test-env only
-  extends: .dedicated-runner-default-cache
+  extends:
+    - .dedicated-runner-default-cache
+    - .no-docs-and-no-qa
   cache:
     policy: pull
   variables:
@@ -337,6 +276,7 @@ coverage:
   stage: post-test
   script:
     - bundle exec scripts/merge-simplecov
+    - bundle exec scripts/gather-test-memory-data
   coverage: '/LOC \((\d+\.\d+%)\) covered.$/'
   artifacts:
     name: coverage
@@ -344,6 +284,4 @@ coverage:
     paths:
       - coverage/index.html
       - coverage/assets/
-  except:
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+      - tmp/memory_test/

@@ -282,6 +282,10 @@ module IssuablesHelper
 
     data[:hasClosingMergeRequest] = issuable.merge_requests_count(current_user) != 0 if issuable.is_a?(Issue)
 
+    zoom_links = Gitlab::ZoomLinkExtractor.new(issuable.description).links
+
+    data[:zoomMeetingUrl] = zoom_links.last if zoom_links.any?
+
     if parent.is_a?(Group)
       data[:groupPath] = parent.path
     else
@@ -390,8 +394,8 @@ module IssuablesHelper
 
   def issuable_todo_button_data(issuable, is_collapsed)
     {
-      todo_text: _('Add todo'),
-      mark_text: _('Mark todo as done'),
+      todo_text: _('Add a To Do'),
+      mark_text: _('Mark as done'),
       todo_icon: sprite_icon('todo-add'),
       mark_icon: sprite_icon('todo-done', css_class: 'todo-undone'),
       issuable_id: issuable[:id],
@@ -430,7 +434,8 @@ module IssuablesHelper
       editable: issuable.dig(:current_user, :can_edit),
       currentUser: issuable[:current_user],
       rootPath: root_path,
-      fullPath: issuable[:project_full_path]
+      fullPath: issuable[:project_full_path],
+      timeTrackingLimitToHours: Gitlab::CurrentSettings.time_tracking_limit_to_hours
     }
   end
 

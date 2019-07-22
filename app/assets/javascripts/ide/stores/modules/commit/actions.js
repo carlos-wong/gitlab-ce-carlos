@@ -63,9 +63,7 @@ export const setLastCommitMessage = ({ commit, rootGetters }, data) => {
   const commitMsg = sprintf(
     __('Your changes have been committed. Commit %{commitId} %{commitStats}'),
     {
-      commitId: `<a href="${currentProject.web_url}/commit/${data.short_id}" class="commit-sha">${
-        data.short_id
-      }</a>`,
+      commitId: `<a href="${currentProject.web_url}/commit/${data.short_id}" class="commit-sha">${data.short_id}</a>`,
       commitStats,
     },
     false,
@@ -188,6 +186,8 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
 
           commit(rootTypes.CLEAR_STAGED_CHANGES, null, { root: true });
 
+          commit(rootTypes.CLEAR_REPLACED_FILES, null, { root: true });
+
           setTimeout(() => {
             commit(rootTypes.SET_LAST_COMMIT_MSG, '', { root: true });
           }, 5000);
@@ -215,9 +215,7 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
 
             if (rootGetters.activeFile) {
               router.push(
-                `/project/${rootState.currentProjectId}/blob/${getters.branchName}/-/${
-                  rootGetters.activeFile.path
-                }`,
+                `/project/${rootState.currentProjectId}/blob/${getters.branchName}/-/${rootGetters.activeFile.path}`,
               );
             }
           }

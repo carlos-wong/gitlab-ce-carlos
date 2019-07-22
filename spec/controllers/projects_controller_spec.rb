@@ -318,6 +318,53 @@ describe ProjectsController do
     end
   end
 
+  describe '#housekeeping' do
+    let(:group) { create(:group) }
+    let(:project) { create(:project, group: group) }
+    let(:housekeeping) { Projects::HousekeepingService.new(project) }
+
+    context 'when authenticated as owner' do
+      before do
+        group.add_owner(user)
+        sign_in(user)
+
+        allow(Projects::HousekeepingService).to receive(:new).with(project, :gc).and_return(housekeeping)
+      end
+
+      it 'forces a full garbage collection' do
+        expect(housekeeping).to receive(:execute).once
+
+        post :housekeeping,
+             params: {
+               namespace_id: project.namespace.path,
+               id: project.path
+             }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+
+    context 'when authenticated as developer' do
+      let(:developer) { create(:user) }
+
+      before do
+        group.add_developer(developer)
+      end
+
+      it 'does not execute housekeeping' do
+        expect(housekeeping).not_to receive(:execute)
+
+        post :housekeeping,
+             params: {
+               namespace_id: project.namespace.path,
+               id: project.path
+             }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+  end
+
   describe "#update" do
     render_views
 
@@ -693,20 +740,18 @@ describe ProjectsController do
     it 'gets a list of branches and tags' do
       get :refs, params: { namespace_id: project.namespace, id: project, sort: 'updated_desc' }
 
-      parsed_body = JSON.parse(response.body)
-      expect(parsed_body['Branches']).to include('master')
-      expect(parsed_body['Tags'].first).to eq('v1.1.0')
-      expect(parsed_body['Tags'].last).to eq('v1.0.0')
-      expect(parsed_body['Commits']).to be_nil
+      expect(json_response['Branches']).to include('master')
+      expect(json_response['Tags'].first).to eq('v1.1.0')
+      expect(json_response['Tags'].last).to eq('v1.0.0')
+      expect(json_response['Commits']).to be_nil
     end
 
     it "gets a list of branches, tags and commits" do
       get :refs, params: { namespace_id: project.namespace, id: project, ref: "123456" }
 
-      parsed_body = JSON.parse(response.body)
-      expect(parsed_body["Branches"]).to include("master")
-      expect(parsed_body["Tags"]).to include("v1.0.0")
-      expect(parsed_body["Commits"]).to include("123456")
+      expect(json_response["Branches"]).to include("master")
+      expect(json_response["Tags"]).to include("v1.0.0")
+      expect(json_response["Commits"]).to include("123456")
     end
 
     context "when preferred language is Japanese" do
@@ -718,10 +763,9 @@ describe ProjectsController do
       it "gets a list of branches, tags and commits" do
         get :refs, params: { namespace_id: project.namespace, id: project, ref: "123456" }
 
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["Branches"]).to include("master")
-        expect(parsed_body["Tags"]).to include("v1.0.0")
-        expect(parsed_body["Commits"]).to include("123456")
+        expect(json_response["Branches"]).to include("master")
+        expect(json_response["Tags"]).to include("v1.0.0")
+        expect(json_response["Commits"]).to include("123456")
       end
     end
 
@@ -750,7 +794,7 @@ describe ProjectsController do
     it 'renders json in a correct format' do
       post :preview_markdown, params: { namespace_id: public_project.namespace, id: public_project, text: '*Markdown* text' }
 
-      expect(JSON.parse(response.body).keys).to match_array(%w(body references))
+      expect(json_response.keys).to match_array(%w(body references))
     end
 
     context 'when not authorized' do
@@ -774,8 +818,6 @@ describe ProjectsController do
                                   text: issue.to_reference
                                 }
 
-        json_response = JSON.parse(response.body)
-
         expect(json_response['body']).to match(/\##{issue.iid} \(closed\)/)
       end
 
@@ -785,8 +827,6 @@ describe ProjectsController do
                                   id: public_project,
                                   text: merge_request.to_reference
                                 }
-
-        json_response = JSON.parse(response.body)
 
         expect(json_response['body']).to match(/\!#{merge_request.iid} \(closed\)/)
       end

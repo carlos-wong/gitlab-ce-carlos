@@ -59,21 +59,35 @@ describe Gitlab::Kubernetes do
   describe '#filter_by_project_environment' do
     let(:matching_pod) { kube_pod(environment_slug: 'production', project_slug: 'my-cool-app') }
 
-    it 'returns matching legacy env label' do
-      matching_pod['metadata']['annotations'].delete('app.gitlab.com/app')
-      matching_pod['metadata']['annotations'].delete('app.gitlab.com/env')
-      matching_pod['metadata']['labels']['app'] = 'production'
-      matching_items = [matching_pod]
-      items = matching_items + [kube_pod]
-
-      expect(filter_by_project_environment(items, 'my-cool-app', 'production')).to eq(matching_items)
-    end
-
     it 'returns matching env label' do
       matching_items = [matching_pod]
       items = matching_items + [kube_pod]
 
       expect(filter_by_project_environment(items, 'my-cool-app', 'production')).to eq(matching_items)
+    end
+  end
+
+  describe '#filter_by_legacy_label' do
+    let(:non_matching_pod) { kube_pod(environment_slug: 'production', project_slug: 'my-cool-app') }
+
+    let(:non_matching_pod_2) do
+      kube_pod(environment_slug: 'production', project_slug: 'my-cool-app').tap do |pod|
+        pod['metadata']['labels']['app'] = 'production'
+      end
+    end
+
+    let(:matching_pod) do
+      kube_pod.tap do |pod|
+        pod['metadata']['annotations'].delete('app.gitlab.com/env')
+        pod['metadata']['annotations'].delete('app.gitlab.com/app')
+        pod['metadata']['labels']['app'] = 'production'
+      end
+    end
+
+    it 'returns matching labels' do
+      items = [non_matching_pod, non_matching_pod_2, matching_pod]
+
+      expect(filter_by_legacy_label(items, 'my-cool-app', 'production')).to contain_exactly(matching_pod)
     end
   end
 

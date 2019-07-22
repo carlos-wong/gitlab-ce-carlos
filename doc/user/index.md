@@ -66,7 +66,7 @@ With GitLab Enterprise Edition, you can also:
 - Leverage continuous delivery method with [Canary Deployments](project/canary_deployments.md).
 - Scan your code for vulnerabilities and [display them in merge requests](application_security/sast/index.md).
 
-You can also [integrate](project/integrations/project_services.md) GitLab with numerous third-party applications, such as Mattermost, Microsoft Teams, HipChat, Trello, Slack, Bamboo CI, JIRA, and a lot more.
+You can also [integrate](project/integrations/project_services.md) GitLab with numerous third-party applications, such as Mattermost, Microsoft Teams, HipChat, Trello, Slack, Bamboo CI, Jira, and a lot more.
 
 ## Projects
 
@@ -124,12 +124,12 @@ merge requests, code snippets, and commits.
 
 When performing inline reviews to implementations
 to your codebase through merge requests you can
-gather feedback through [resolvable discussions](discussions/index.md#resolvable-comments-and-discussions).
+gather feedback through [resolvable threads](discussions/index.md#resolvable-comments-and-threads).
 
 ### GitLab Flavored Markdown (GFM)
 
 Read through the [GFM documentation](markdown.md) to learn how to apply
-the best of GitLab Flavored Markdown in your discussions, comments,
+the best of GitLab Flavored Markdown in your threads, comments,
 issues and merge requests descriptions, and everywhere else GMF is
 supported.
 
@@ -148,12 +148,12 @@ requests you're assigned to.
 
 [Snippets](snippets.md) are code blocks that you want to store in GitLab, from which
 you have quick access to. You can also gather feedback on them through
-[discussions](#discussions).
+[Discussions](#Discussions).
 
 ## Integrations
 
 [Integrate GitLab](../integration/README.md) with your preferred tool,
-such as Trello, JIRA, etc.
+such as Trello, Jira, etc.
 
 ## Webhooks
 
@@ -173,7 +173,7 @@ Learn what is [Git](../topics/git/index.md) and its best practices.
 
 See [various statistics](instance_statistics/index.md) of your GitLab instance.
 
-## Operations Dashboard **[PREMIUM]**
+## Operations Dashboard **(PREMIUM)**
 
 See [Operations Dashboard](operations_dashboard/index.md) for a summary of each
 project's operational health.

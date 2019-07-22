@@ -1886,6 +1886,17 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '.latest_for_shas' do
+    let(:sha) { 'abc' }
+
+    it 'returns latest pipeline for sha' do
+      create(:ci_pipeline, sha: sha)
+      pipeline2 = create(:ci_pipeline, sha: sha)
+
+      expect(described_class.latest_for_shas(sha)).to contain_exactly(pipeline2)
+    end
+  end
+
   describe '.latest_successful_ids_per_project' do
     let(:projects) { create_list(:project, 2) }
     let!(:pipeline1) { create(:ci_pipeline, :success, project: projects[0]) }
@@ -2984,6 +2995,30 @@ describe Ci::Pipeline, :mailer do
         expect do
           subject
         end.to raise_exception(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
+
+  describe '#error_messages' do
+    subject { pipeline.error_messages }
+
+    before do
+      pipeline.valid?
+    end
+
+    context 'when pipeline has errors' do
+      let(:pipeline) { build(:ci_pipeline, sha: nil, ref: nil) }
+
+      it 'returns the full error messages' do
+        is_expected.to eq("Sha can't be blank and Ref can't be blank")
+      end
+    end
+
+    context 'when pipeline does not have errors' do
+      let(:pipeline) { build(:ci_pipeline) }
+
+      it 'returns empty string' do
+        is_expected.to be_empty
       end
     end
   end

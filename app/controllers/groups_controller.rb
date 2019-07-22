@@ -7,6 +7,10 @@ class GroupsController < Groups::ApplicationController
   include PreviewMarkdown
   include RecordUserLastActivity
 
+  before_action do
+    push_frontend_feature_flag(:manual_sorting)
+  end
+
   respond_to :html
 
   prepend_before_action(only: [:show, :issues]) { authenticate_sessionless_user!(:rss) }
@@ -103,7 +107,7 @@ class GroupsController < Groups::ApplicationController
     if Groups::UpdateService.new(@group, current_user, group_params).execute
       redirect_to edit_group_path(@group, anchor: params[:update_section]), notice: "Group '#{@group.name}' was successfully updated."
     else
-      @group.restore_path!
+      @group.path = @group.path_before_last_save || @group.path_was
 
       render action: "edit"
     end
@@ -197,8 +201,7 @@ class GroupsController < Groups::ApplicationController
     params[:sort] ||= 'latest_activity_desc'
 
     options = {}
-    options[:only_owned] = true if params[:shared] == '0'
-    options[:only_shared] = true if params[:shared] == '1'
+    options[:include_subgroups] = true
 
     @projects = GroupProjectsFinder.new(params: params, group: group, options: options, current_user: current_user)
                   .execute

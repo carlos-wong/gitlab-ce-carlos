@@ -29,7 +29,7 @@ to enable it.
    following the [administration documentation](../../administration/container_registry.md).
    If you are using GitLab.com, this is enabled by default so you can start using
    the Registry immediately. Currently there is a soft (10GB) size restriction for
-   registry on GitLab.com, as part of the [repository size limit](repository/index.html#repository-size).
+   registry on GitLab.com, as part of the [repository size limit](repository/index.md).
 1. Go to your [project's General settings](settings/index.md#sharing-and-permissions)
    and enable the **Container Registry** feature on your project. For new
    projects this might be enabled by default. For existing projects
@@ -113,6 +113,7 @@ This feature requires GitLab 8.8 and GitLab Runner 1.2.
 Make sure that your GitLab Runner is configured to allow building Docker images by
 following the [Using Docker Build](../../ci/docker/using_docker_build.md)
 and [Using the GitLab Container Registry documentation](../../ci/docker/using_docker_build.md#using-the-gitlab-container-registry).
+Alternatively, you can [build images with Kaniko](../../ci/docker/using_kaniko.md) if the Docker builds are not an option for you.
 
 ## Using with private projects
 
@@ -166,6 +167,19 @@ Use curl to request debug output from the debug server:
 curl localhost:5001/debug/health
 curl localhost:5001/debug/vars
 ```
+
+#### Docker connection error
+
+A Docker connection error can occur when there are special characters in either the group,
+project or branch name. Special characters can include:
+
+* Leading underscore
+* Trailing hyphen/dash
+* Double hyphen/dash
+
+To get around this, you can [change the group path](../group/index.md#changing-a-groups-path),
+[change the project path](../project/settings/index.md#renaming-a-repository) or chanage the branch
+name.
 
 ### Advanced Troubleshooting
 
@@ -227,10 +241,10 @@ The following installation instructions assume you are running Ubuntu:
    Enter <kbd>CTRL</kbd>-<kbd>C</kbd> to quit.
 1. Install the certificate from `~/.mitmproxy` to your system:
 
-    ```sh
-    sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /usr/local/share/ca-certificates/mitmproxy-ca-cert.crt
-    sudo update-ca-certificates
-    ```
+   ```sh
+   sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /usr/local/share/ca-certificates/mitmproxy-ca-cert.crt
+   sudo update-ca-certificates
+   ```
 
 If successful, the output should indicate that a certificate was added:
 

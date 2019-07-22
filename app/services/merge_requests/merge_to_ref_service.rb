@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MergeRequests
-  # Performs the merge between source SHA and the target branch. Instead
+  # Performs the merge between source SHA and the target branch or the specified first parent ref. Instead
   # of writing the result to the MR target branch, it targets the `target_ref`.
   #
   # Ideally this should leave the `target_ref` state with the same state the
@@ -11,10 +11,12 @@ module MergeRequests
   # be executed regardless of the `target_ref` current state).
   #
   class MergeToRefService < MergeRequests::MergeBaseService
+    extend ::Gitlab::Utils::Override
+
     def execute(merge_request)
       @merge_request = merge_request
 
-      validate!
+      error_check!
 
       commit_id = commit
 
@@ -26,44 +28,38 @@ module MergeRequests
       success(commit_id: commit.id,
               target_id: target_id,
               source_id: source_id)
-    rescue MergeError => error
+    rescue MergeError, ArgumentError => error
       error(error.message)
     end
 
     private
 
-    def validate!
-      authorization_check!
-      error_check!
+    override :source
+    def source
+      merge_request.diff_head_sha
     end
 
+    override :error_check!
     def error_check!
-      super
-
-      error =
-        if !hooks_validation_pass?(merge_request)
-          hooks_validation_error(merge_request)
-        elsif !@merge_request.mergeable_to_ref?
-          "Merge request is not mergeable to #{target_ref}"
-        elsif !source
-          'No source for merge'
-        end
-
-      raise_error(error) if error
+      check_source
     end
 
-    def authorization_check!
-      unless Ability.allowed?(current_user, :admin_merge_request, project)
-        raise_error("You are not allowed to merge to this ref")
-      end
-    end
-
+    ##
+    # The parameter `target_ref` is where the merge result will be written.
+    # Default is the merge ref i.e. `refs/merge-requests/:iid/merge`.
     def target_ref
-      merge_request.merge_ref_path
+      params[:target_ref] || merge_request.merge_ref_path
+    end
+
+    ##
+    # The parameter `first_parent_ref` is the main line of the merge commit.
+    # Default is the target branch ref of the merge request.
+    def first_parent_ref
+      params[:first_parent_ref] || merge_request.target_branch_ref
     end
 
     def commit
-      repository.merge_to_ref(current_user, source, merge_request, target_ref, commit_message)
+      repository.merge_to_ref(current_user, source, merge_request, target_ref, commit_message, first_parent_ref)
     rescue Gitlab::Git::PreReceiveError => error
       raise MergeError, error.message
     end

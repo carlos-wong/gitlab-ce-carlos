@@ -35,8 +35,8 @@ sudo gitlab-runner register \
   --description "docker-ruby-2.1" \
   --executor "docker" \
   --docker-image ruby:2.1 \
-  --docker-postgres latest \
-  --docker-mysql latest
+  --docker-services postgres:latest \
+  --docker-services mysql:latest
 ```
 
 The registered runner will use the `ruby:2.1` Docker image and will run two
@@ -193,13 +193,14 @@ You can simply define an image that will be used for all jobs and a list of
 services that you want to use during build time:
 
 ```yaml
-image: ruby:2.2
+default:
+  image: ruby:2.2
 
-services:
-  - postgres:9.3
+  services:
+    - postgres:9.3
 
-before_script:
-  - bundle install
+  before_script:
+    - bundle install
 
 test:
   script:
@@ -209,8 +210,9 @@ test:
 It is also possible to define different images and services per job:
 
 ```yaml
-before_script:
-  - bundle install
+default:
+  before_script:
+    - bundle install
 
 test:2.1:
   image: ruby:2.1
@@ -231,15 +233,52 @@ Or you can pass some [extended configuration options](#extended-docker-configura
 for `image` and `services`:
 
 ```yaml
+default:
+  image:
+    name: ruby:2.2
+    entrypoint: ["/bin/bash"]
+
+  services:
+  - name: my-postgres:9.4
+    alias: db-postgres
+    entrypoint: ["/usr/local/bin/db-postgres"]
+    command: ["start"]
+
+  before_script:
+  - bundle install
+
+test:
+  script:
+  - bundle exec rake spec
+```
+
+## Passing environment variables to services
+
+You can also pass custom environment [variables](../variables/README.md)
+to fine tune your Docker `images` and `services` directly in the `.gitlab-ci.yml` file.
+For more information, see [custom environment variables](../variables/README.md#gitlab-ciyml-defined-variables)
+
+```yaml
+# The following variables will automatically be passed down to the Postgres container
+# as well as the Ruby container and available within each.
+variables:
+  HTTPS_PROXY: "https://10.1.1.1:8090"
+  HTTP_PROXY: "https://10.1.1.1:8090"
+  POSTGRES_DB: "my_custom_db"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "example"
+  PGDATA: "/var/lib/postgresql/data"
+  POSTGRES_INITDB_ARGS: "--encoding=UTF8 --data-checksums"
+
+services:
+- name: postgres:9.4
+  alias: db
+  entrypoint: ["docker-entrypoint.sh"]
+  command: ["postgres"]
+
 image:
   name: ruby:2.2
   entrypoint: ["/bin/bash"]
-
-services:
-- name: my-postgres:9.4
-  alias: db-postgres
-  entrypoint: ["/usr/local/bin/db-postgres"]
-  command: ["start"]
 
 before_script:
 - bundle install
@@ -463,8 +502,6 @@ that runner.
 >   support for using private registries, which required manual configuration
 >   of credentials on runner's host. We recommend to upgrade your Runner to
 >   at least version **1.8** if you want to use private registries.
-> - If the repository is private you need to authenticate your GitLab Runner in the
->   registry. Learn more about how [GitLab Runner works in this case][runner-priv-reg].
 
 To access private container registries, the GitLab Runner process can use:
 
@@ -478,17 +515,31 @@ To define which should be used, the GitLab Runner process reads the configuratio
   - A [variable](../variables/README.md#gitlab-cicd-environment-variables) in `.gitlab-ci.yml`.
   - A project's variables stored on the projects **Settings > CI/CD** page.
 - `DOCKER_AUTH_CONFIG` variable provided as environment variable in `config.toml` of the Runner.
-- `config.json` file placed in `$HOME/docker` directory of the user running GitLab Runner process.
+- `config.json` file placed in `$HOME/.docker` directory of the user running GitLab Runner process.
   If the `--user` flag is provided to run the GitLab Runner child processes as unprivileged user,
   the home directory of the main GitLab Runner process user will be used.
 
-NOTE: **Note:** 
-GitLab Runner reads this configuration **only** from `config.toml` and ignores it if 
+NOTE: **Note:**
+GitLab Runner reads this configuration **only** from `config.toml` and ignores it if
 it's provided as an environment variable. This is because GitLab Runnner uses **only**
 `config.toml` configuration and doesn't interpolate **ANY** environment variables at
 runtime.
 
 ### Using statically-defined credentials
+There are two approaches that you can take in order to access a
+private registry. Both require setting the environment variable
+`DOCKER_AUTH_CONFIG` with appropriate authentication info.
+
+1. Per-job: To configure one job to access a private registry, add
+   `DOCKER_AUTH_CONFIG` as a job variable.
+1. Per-runner: To configure a Runner so all its jobs can access a
+   private registry, add `DOCKER_AUTH_CONFIG` to the environment in the
+   Runner's configuration.
+
+See below for examples of each.
+
+#### Determining your `DOCKER_AUTH_CONFIG` data
+
 As an example, let's assume that you want to use the `registry.example.com:5000/private/image:latest`
 image which is private and requires you to login into a private container registry.
 
@@ -500,30 +551,41 @@ Let's also assume that these are the login credentials:
 | username | `my_username`               |
 | password | `my_password`               |
 
-To configure access for `registry.example.com:5000`, follow these steps:
+There are two ways to determine the value of `DOCKER_AUTH_CONFIG`:
 
-1. Find what the value of `DOCKER_AUTH_CONFIG` should be. There are two ways to
-   accomplish this:
-   - **First way -** Do a `docker login` on your local machine:
+- **First way -** Do a `docker login` on your local machine:
 
-        ```bash
-        docker login registry.example.com:5000 --username my_username --password my_password
-        ```
+    ```bash
+    docker login registry.example.com:5000 --username my_username --password my_password
+    ```
 
-        Then copy the content of `~/.docker/config.json`.
-   - **Second way -** In some setups, it's possible that Docker client will use
-       the available system keystore to store the result of `docker login`. In
-       that case, it's impossible to read `~/.docker/config.json`, so you will
-       need to prepare the required base64-encoded version of
-       `${username}:${password}` manually. Open a terminal and execute the
-       following command:
+    Then copy the content of `~/.docker/config.json`.
 
-        ```bash
-        echo -n "my_username:my_password" | base64
+    If you don't need access to the registry from your computer, you
+    can do a `docker logout`:
 
-        # Example output to copy
-        bXlfdXNlcm5hbWU6bXlfcGFzc3dvcmQ=
-        ```
+    ```bash
+    docker logout registry.example.com:5000
+    ```
+
+- **Second way -** In some setups, it's possible that Docker client
+  will use the available system keystore to store the result of `docker
+  login`. In that case, it's impossible to read `~/.docker/config.json`,
+  so you will need to prepare the required base64-encoded version of
+  `${username}:${password}` manually. Open a terminal and execute the
+  following command:
+
+    ```bash
+    echo -n "my_username:my_password" | base64
+
+    # Example output to copy
+    bXlfdXNlcm5hbWU6bXlfcGFzc3dvcmQ=
+    ```
+
+#### Configuring a job
+
+To configure a single job with access for `registry.example.com:5000`,
+follow these steps:
 
 1. Create a [variable](../variables/README.md#gitlab-cicd-environment-variables) `DOCKER_AUTH_CONFIG` with the content of the
    Docker configuration file as the value:
@@ -536,14 +598,6 @@ To configure access for `registry.example.com:5000`, follow these steps:
             }
         }
     }
-    ```
-
-1. Optionally,if you followed the first way of finding the `DOCKER_AUTH_CONFIG`
-   value, do a `docker logout` on your computer if you don't need access to the
-   registry from it:
-
-    ```bash
-    docker logout registry.example.com:5000
     ```
 
 1. You can now use any private image from `registry.example.com:5000` defined in
@@ -566,6 +620,37 @@ for the Runner to match the `DOCKER_AUTH_CONFIG`. For example, if
 then the `DOCKER_AUTH_CONFIG` must also specify `registry.example.com:5000`.
 Specifying only `registry.example.com` will not work.
 
+### Configuring a Runner
+
+If you have many pipelines that access the same registry, it'll
+probably be better to setup registry access at the runner level.  This
+allows pipeline authors to have access to a private registry just by
+running a job on the appropriate runner. It also makes registry
+changes and credential rotations much simpler.
+
+Of course this means that any job on that runner can access the
+registry with the same privilege, even across projects. If you need to
+control access to the registry, you'll need to be sure to control
+access to the runner.
+
+To add `DOCKER_AUTH_CONFIG` to a Runner:
+
+1. Modify the Runner's `config.toml` file as follows:
+
+    ```toml
+    [[runners]]
+      environment = ["DOCKER_AUTH_CONFIG={\"auths\":{\"registry.example.com:5000\":{\"auth\":\"bXlfdXNlcm5hbWU6bXlfcGFzc3dvcmQ=\"}}}"]
+    ```
+
+1. Restart the Runner service.
+
+NOTE: **Note:** The double quotes included in the `DOCKER_AUTH_CONFIG`
+data must be escaped with backslashes. This prevents them from being
+interpreted as TOML.
+
+NOTE: **Note:** The `environment` option is a list. So your Runner may
+have existing entries and you should add this to the list, not replace
+it.
 
 ### Using Credentials Store
 
@@ -574,10 +659,10 @@ Specifying only `registry.example.com` will not work.
 To configure credentials store, follow these steps:
 
 1. To use a credentials store, you need an external helper program to interact with a specific keychain or external store.
-Make sure helper program is available in GitLab Runner `$PATH`.
+   Make sure helper program is available in GitLab Runner `$PATH`.
 
 1. Make GitLab Runner use it. There are two ways to accomplish this. Either:
-   - Create a 
+   - Create a
      [variable](../variables/README.md#gitlab-cicd-environment-variables)
      `DOCKER_AUTH_CONFIG` with the content of the
    Docker configuration file as the value:
@@ -741,7 +826,6 @@ creation.
 [tutum/wordpress]: https://hub.docker.com/r/tutum/wordpress/
 [postgres-hub]: https://hub.docker.com/r/_/postgres/
 [mysql-hub]: https://hub.docker.com/r/_/mysql/
-[runner-priv-reg]: http://docs.gitlab.com/runner/configuration/advanced-configuration.html#using-a-private-container-registry
 [entrypoint]: https://docs.docker.com/engine/reference/builder/#entrypoint
 [cmd]: https://docs.docker.com/engine/reference/builder/#cmd
 [register]: https://docs.gitlab.com/runner/register/

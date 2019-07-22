@@ -201,9 +201,7 @@ class GfmAutoComplete {
             const autoCompleteAvatar = m.avatar_url || m.username.charAt(0).toUpperCase();
 
             const rectAvatarClass = m.type === GROUP_TYPE ? 'rect-avatar' : '';
-            const imgAvatar = `<img src="${m.avatar_url}" alt="${
-              m.username
-            }" class="avatar ${rectAvatarClass} avatar-inline center s26"/>`;
+            const imgAvatar = `<img src="${m.avatar_url}" alt="${m.username}" class="avatar ${rectAvatarClass} avatar-inline center s26"/>`;
             const txtAvatar = `<div class="avatar ${rectAvatarClass} center avatar-inline s26">${autoCompleteAvatar}</div>`;
 
             return {
@@ -320,6 +318,7 @@ class GfmAutoComplete {
   }
 
   setupLabels($input) {
+    const instance = this;
     const fetchData = this.fetchData.bind(this);
     const LABEL_COMMAND = { LABEL: '/label', UNLABEL: '/unlabel', RELABEL: '/relabel' };
     let command = '';
@@ -350,7 +349,6 @@ class GfmAutoComplete {
           }));
         },
         matcher(flag, subtext) {
-          const match = GfmAutoComplete.defaultMatcher(flag, subtext, this.app.controllers);
           const subtextNodes = subtext
             .split(/\n+/g)
             .pop()
@@ -368,6 +366,27 @@ class GfmAutoComplete {
             return null;
           });
 
+          // If any label matches the inserted text after the last `~`, suggest those labels,
+          // even if any spaces or funky characters were typed.
+          // This allows matching labels like "Accepting merge requests".
+          const labels = instance.cachedData[flag];
+          if (labels) {
+            if (!subtext.includes(flag)) {
+              // Do not match if there is no `~` before the cursor
+              return null;
+            }
+            const lastCandidate = subtext.split(flag).pop();
+            if (labels.find(label => label.title.startsWith(lastCandidate))) {
+              return lastCandidate;
+            }
+          } else {
+            // Load all labels into the autocompleter.
+            // This needs to happen if e.g. editing a label in an existing comment, because normally
+            // label data would only be loaded only once you type `~`.
+            fetchData(this.$inputor, this.at);
+          }
+
+          const match = GfmAutoComplete.defaultMatcher(flag, subtext, this.app.controllers);
           return match && match.length ? match[1] : null;
         },
         filter(query, data, searchKey) {
@@ -565,8 +584,9 @@ class GfmAutoComplete {
     const accentAChar = decodeURI('%C3%80');
     const accentYChar = decodeURI('%C3%BF');
 
+    // Holy regex, batman!
     const regexp = new RegExp(
-      `^(?:\\B|[^a-zA-Z0-9_\`${atSymbolsWithoutBar}]|\\s)${resultantFlag}(?!${atSymbolsWithBar})((?:[A-Za-z${accentAChar}-${accentYChar}0-9_'.+-]|[^\\x00-\\x7a])*)$`,
+      `^(?:\\B|[^a-zA-Z0-9_\`${atSymbolsWithoutBar}]|\\s)${resultantFlag}(?!${atSymbolsWithBar})((?:[A-Za-z${accentAChar}-${accentYChar}0-9_'.+-:]|[^\\x00-\\x7a])*)$`,
       'gi',
     );
 

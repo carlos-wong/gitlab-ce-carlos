@@ -1,3 +1,7 @@
+---
+type: reference, concepts
+---
+
 # Scaling and High Availability
 
 GitLab supports several different types of clustering and high-availability.
@@ -162,21 +166,21 @@ contention due to certain workloads.
 
 - **Status:** Work-in-progress
 - **Supported Users (approximate):** 10,000
-- **Related Issues:** [gitlab-com/support/support-team-meta#1513](https://gitlab.com/gitlab-com/support/support-team-meta/issues/1513), 
+- **Related Issues:** [gitlab-com/support/support-team-meta#1513](https://gitlab.com/gitlab-com/support/support-team-meta/issues/1513),
  [gitlab-org/quality/team-tasks#110](https://gitlab.com/gitlab-org/quality/team-tasks/issues/110)
 
 The Support and Quality teams are in the process of building and performance testing
 an environment that will support about 10,000 users. The specifications below
-are a work-in-progress representation of the work so far. Quality will be 
-certifying this environment in FY20-Q2. The specifications may be adjusted 
-prior to certification based on performance testing. 
+are a work-in-progress representation of the work so far. Quality will be
+certifying this environment in FY20-Q2. The specifications may be adjusted
+prior to certification based on performance testing.
 
-- 3 PostgreSQL - 4 CPU, 8GB RAM
+- 3 PostgreSQL - 4 CPU, 8GB RAM per node
 - 1 PgBouncer - 2 CPU, 4GB RAM
-- 2 Redis - 2 CPU, 8GB RAM
-- 3 Consul/Sentinel - 2 CPU, 2GB RAM
-- 4 Sidekiq - 4 CPU, 8GB RAM
-- 5 GitLab application nodes - 20 CPU, 64GB RAM
+- 2 Redis - 2 CPU, 8GB RAM per node
+- 3 Consul/Sentinel - 2 CPU, 2GB RAM per node
+- 4 Sidekiq - 4 CPU, 8GB RAM per node
+- 5 GitLab application nodes - 20 CPU, 64GB RAM per node
 - 1 Gitaly - 20 CPU, 64GB RAM
 - 1 Monitoring node - 4 CPU, 8GB RAM
 
@@ -211,4 +215,3 @@ separately:
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)
 1. [Monitoring node (Prometheus and Grafana)](monitoring_node.md)
-

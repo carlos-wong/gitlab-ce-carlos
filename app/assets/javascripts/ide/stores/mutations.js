@@ -56,6 +56,11 @@ export default {
       stagedFiles: [],
     });
   },
+  [types.CLEAR_REPLACED_FILES](state) {
+    Object.assign(state, {
+      replacedFiles: [],
+    });
+  },
   [types.SET_ENTRIES](state, entries) {
     Object.assign(state, {
       entries,
@@ -69,6 +74,13 @@ export default {
       if (!foundEntry) {
         Object.assign(state.entries, {
           [key]: entry,
+        });
+      } else if (foundEntry.deleted) {
+        Object.assign(state.entries, {
+          [key]: {
+            ...entry,
+            replaces: true,
+          },
         });
       } else {
         const tree = entry.tree.filter(
@@ -144,6 +156,7 @@ export default {
       raw: file.content,
       changed: Boolean(changedFile),
       staged: false,
+      replaces: false,
       prevPath: '',
       moved: false,
       lastCommitSha: lastCommit.commit.id,
@@ -216,15 +229,16 @@ export default {
     Vue.set(state.entries, newPath, {
       ...oldEntry,
       id: newPath,
-      key: `${newPath}-${oldEntry.type}-${oldEntry.id}`,
+      key: `${newPath}-${oldEntry.type}-${oldEntry.path}`,
       path: newPath,
       name: entryPath ? oldEntry.name : name,
       tempFile: true,
       prevPath: oldEntry.tempFile ? null : oldEntry.path,
       url: oldEntry.url.replace(new RegExp(`${oldEntry.path}/?$`), newPath),
       tree: [],
-      parentPath,
       raw: '',
+      opened: false,
+      parentPath,
     });
 
     oldEntry.moved = true;
@@ -239,10 +253,6 @@ export default {
 
     if (newEntry.type === 'blob') {
       state.changedFiles = state.changedFiles.concat(newEntry);
-    }
-
-    if (state.entries[newPath].opened) {
-      state.openFiles.push(state.entries[newPath]);
     }
 
     if (oldEntry.tempFile) {

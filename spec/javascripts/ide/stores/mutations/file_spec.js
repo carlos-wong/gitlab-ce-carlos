@@ -83,6 +83,26 @@ describe('IDE store file mutations', () => {
       expect(localFile.raw).toBeNull();
       expect(localFile.baseRaw).toBeNull();
     });
+
+    it('sets extra file data to all arrays concerned', () => {
+      localState.stagedFiles = [localFile];
+      localState.changedFiles = [localFile];
+      localState.openFiles = [localFile];
+
+      const rawPath = 'foo/bar/blah.md';
+
+      mutations.SET_FILE_DATA(localState, {
+        data: {
+          raw_path: rawPath,
+        },
+        file: localFile,
+      });
+
+      expect(localState.stagedFiles[0].rawPath).toEqual(rawPath);
+      expect(localState.changedFiles[0].rawPath).toEqual(rawPath);
+      expect(localState.openFiles[0].rawPath).toEqual(rawPath);
+      expect(localFile.rawPath).toEqual(rawPath);
+    });
   });
 
   describe('SET_FILE_RAW_DATA', () => {
@@ -314,6 +334,19 @@ describe('IDE store file mutations', () => {
 
       expect(localState.stagedFiles.length).toBe(1);
       expect(localState.stagedFiles[0].raw).toEqual('testing 123');
+    });
+
+    it('adds already-staged file to `replacedFiles`', () => {
+      localFile.raw = 'already-staged';
+
+      mutations.STAGE_CHANGE(localState, localFile.path);
+
+      localFile.raw = 'testing 123';
+
+      mutations.STAGE_CHANGE(localState, localFile.path);
+
+      expect(localState.replacedFiles.length).toBe(1);
+      expect(localState.replacedFiles[0].raw).toEqual('already-staged');
     });
   });
 

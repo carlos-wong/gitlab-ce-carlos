@@ -73,7 +73,7 @@ The GitLab University curriculum is composed of GitLab videos, screencasts, pres
    - Being part of our Great Community and Contributing to GitLab
 1. [Getting Started with the GitLab Development Kit (GDK)](https://about.gitlab.com/2016/06/08/getting-started-with-gitlab-development-kit/)
 1. [Contributing Technical Articles to the GitLab Blog](https://about.gitlab.com/2016/01/26/call-for-writers/)
-1. [GitLab Training Workshops](https://docs.gitlab.com/ce/university/training/end-user/)
+1. [GitLab Training Workshops](training/end-user/README.md)
 1. [GitLab Professional Services](https://about.gitlab.com/services/)
 
 ### 1.8 GitLab Training Material
@@ -149,7 +149,6 @@ The GitLab University curriculum is composed of GitLab videos, screencasts, pres
 1. [How to Install GitLab with Omnibus - Video](https://www.youtube.com/watch?v=Q69YaOjqNhg)
 1. [Installing GitLab - Online Course](https://courses.platzi.com/classes/git-gitlab/concepto/part-1/part-3/material/)
 1. [Using a Non-Packaged PostgreSQL Database](https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#using-a-non-packaged-postgresql-database-management-server)
-1. [Using a MySQL Database](https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#using-a-mysql-database-management-server-enterprise-edition-only)
 1. [Installing GitLab on Microsoft Azure](https://about.gitlab.com/2016/07/13/how-to-setup-a-gitlab-instance-on-microsoft-azure/)
 1. [Installing GitLab on Digital Ocean](https://about.gitlab.com/2016/04/27/getting-started-with-gitlab-and-digitalocean/)
 
@@ -182,7 +181,7 @@ The GitLab University curriculum is composed of GitLab videos, screencasts, pres
 
 ### 3.9. Integrations
 
-1. [How to Integrate JIRA and Jenkins with GitLab - Video](https://gitlabmeetings.webex.com/gitlabmeetings/ldr.php?RCID=44b548147a67ab4d8a62274047146415)
+1. [How to Integrate Jira and Jenkins with GitLab - Video](https://gitlabmeetings.webex.com/gitlabmeetings/ldr.php?RCID=44b548147a67ab4d8a62274047146415)
 1. [How to Integrate Jira with GitLab](../user/project/integrations/jira.md)
 1. [How to Integrate Jenkins with GitLab](../integration/jenkins.md)
 1. [How to Integrate Bamboo with GitLab](../user/project/integrations/bamboo.md)

@@ -1,4 +1,8 @@
-# Google Secure LDAP **[CORE ONLY]**
+---
+type: reference
+---
+
+# Google Secure LDAP **(CORE ONLY)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/46391) in GitLab 11.9.
 
@@ -13,7 +17,7 @@ The steps below cover:
 
 ## Configuring Google LDAP client
 
-1. Navigate to https://admin.google.com and sign in as a GSuite domain administrator.
+1. Navigate to <https://admin.google.com/Dashboard> and sign in as a GSuite domain administrator.
 
 1. Go to **Apps > LDAP > Add Client**.
 
@@ -66,7 +70,7 @@ values obtained during the LDAP client configuration earlier:
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
-    ```ruby
+   ```ruby
    gitlab_rails['ldap_enabled'] = true
    gitlab_rails['ldap_servers'] = YAML.load <<-EOS # remember to close this block with 'EOS' below
      main: # 'main' is the GitLab 'provider ID' of this LDAP server
@@ -127,7 +131,7 @@ values obtained during the LDAP client configuration earlier:
            AcZSFJQjdg5BTyvdEDhaYUKGdRw=
            -----END PRIVATE KEY-----
    EOS
-    ```
+   ```
 
 1. Save the file and [reconfigure] GitLab for the changes to take effect.
 
@@ -137,7 +141,7 @@ values obtained during the LDAP client configuration earlier:
 
 1. Edit `config/gitlab.yml`:
 
-    ```yaml
+   ```yaml
    ldap:
      enabled: true
      servers:
@@ -202,6 +206,17 @@ values obtained during the LDAP client configuration earlier:
 
 1. Save the file and [restart] GitLab for the changes to take effect.
 
-
 [reconfigure]: ../restart_gitlab.md#omnibus-gitlab-reconfigure
 [restart]: ../restart_gitlab.md#installations-from-source
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

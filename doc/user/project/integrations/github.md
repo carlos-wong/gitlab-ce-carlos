@@ -1,4 +1,4 @@
-# GitHub project integration **[PREMIUM]**
+# GitHub project integration **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3836) in GitLab Premium 10.6.
 
@@ -14,10 +14,10 @@ and is automatically configured on [GitHub import](../../../integration/github.m
 
 ### Complete these steps on GitHub
 
-This integration requires a [GitHub API token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
+This integration requires a [GitHub API token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
 with `repo:status` access granted:
 
-1. Go to your "Personal access tokens" page at https://github.com/settings/tokens
+1. Go to your "Personal access tokens" page at <https://github.com/settings/tokens>
 1. Click "Generate New Token"
 1. Ensure that `repo:status` is checked and click "Generate token"
 1. Copy the generated token to use on GitLab

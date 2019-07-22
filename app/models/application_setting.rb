@@ -23,13 +23,12 @@ class ApplicationSetting < ApplicationRecord
   serialize :domain_blacklist, Array # rubocop:disable Cop/ActiveRecordSerialize
   serialize :repository_storages # rubocop:disable Cop/ActiveRecordSerialize
 
-  ignore_column :circuitbreaker_failure_count_threshold
-  ignore_column :circuitbreaker_failure_reset_time
-  ignore_column :circuitbreaker_storage_timeout
-  ignore_column :circuitbreaker_access_retries
-  ignore_column :circuitbreaker_check_interval
   ignore_column :koding_url
   ignore_column :koding_enabled
+  ignore_column :sentry_enabled
+  ignore_column :sentry_dsn
+  ignore_column :clientside_sentry_enabled
+  ignore_column :clientside_sentry_dsn
 
   cache_markdown_field :sign_in_text
   cache_markdown_field :help_page_text
@@ -74,14 +73,6 @@ class ApplicationSetting < ApplicationRecord
   validates :recaptcha_private_key,
             presence: true,
             if: :recaptcha_enabled
-
-  validates :sentry_dsn,
-            presence: true,
-            if: :sentry_enabled
-
-  validates :clientside_sentry_dsn,
-            presence: true,
-            if: :clientside_sentry_enabled
 
   validates :akismet_api_key,
             presence: true,
@@ -264,7 +255,6 @@ class ApplicationSetting < ApplicationRecord
                  encode: true
 
   before_validation :ensure_uuid!
-  before_validation :strip_sentry_values
 
   before_save :ensure_runners_registration_token
   before_save :ensure_health_check_access_token
@@ -281,5 +271,13 @@ class ApplicationSetting < ApplicationRecord
   rescue ActiveRecord::RecordNotUnique
     # We already have an ApplicationSetting record, so just return it.
     current_without_cache
+  end
+
+  # By default, the backend is Rails.cache, which uses
+  # ActiveSupport::Cache::RedisStore. Since loading ApplicationSetting
+  # can cause a significant amount of load on Redis, let's cache it in
+  # memory.
+  def self.cache_backend
+    Gitlab::ThreadMemoryCache.cache_backend
   end
 end

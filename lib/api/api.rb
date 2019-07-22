@@ -10,13 +10,14 @@ module API
     NAMESPACE_OR_PROJECT_REQUIREMENTS = { id: NO_SLASH_URL_PART_REGEX }.freeze
     COMMIT_ENDPOINT_REQUIREMENTS = NAMESPACE_OR_PROJECT_REQUIREMENTS.merge(sha: NO_SLASH_URL_PART_REGEX).freeze
     USER_REQUIREMENTS = { user_id: NO_SLASH_URL_PART_REGEX }.freeze
+    LOG_FILTERS = ::Rails.application.config.filter_parameters + [/^output$/]
 
     insert_before Grape::Middleware::Error,
                   GrapeLogging::Middleware::RequestLogger,
                   logger: Logger.new(LOG_FILENAME),
                   formatter: Gitlab::GrapeLogging::Formatters::LogrageWithTimestamp.new,
                   include: [
-                    GrapeLogging::Loggers::FilterParameters.new,
+                    GrapeLogging::Loggers::FilterParameters.new(LOG_FILTERS),
                     GrapeLogging::Loggers::ClientEnv.new,
                     Gitlab::GrapeLogging::Loggers::RouteLogger.new,
                     Gitlab::GrapeLogging::Loggers::UserLogger.new,
@@ -52,7 +53,10 @@ module API
       rack_response({ 'message' => '404 Not found' }.to_json, 404)
     end
 
-    rescue_from ::Gitlab::ExclusiveLeaseHelpers::FailedToObtainLockError do
+    rescue_from(
+      ::ActiveRecord::StaleObjectError,
+      ::Gitlab::ExclusiveLeaseHelpers::FailedToObtainLockError
+    ) do
       rack_response({ 'message' => '409 Conflict: Resource lock' }.to_json, 409)
     end
 
@@ -108,6 +112,7 @@ module API
     mount ::API::Features
     mount ::API::Files
     mount ::API::GroupBoards
+    mount ::API::GroupClusters
     mount ::API::GroupLabels
     mount ::API::GroupMilestones
     mount ::API::Groups
@@ -163,6 +168,7 @@ module API
     mount ::API::Templates
     mount ::API::Todos
     mount ::API::Triggers
+    mount ::API::UserCounts
     mount ::API::Users
     mount ::API::Variables
     mount ::API::Version

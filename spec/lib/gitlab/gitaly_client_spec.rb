@@ -119,6 +119,19 @@ describe Gitlab::GitalyClient do
     end
   end
 
+  describe '.can_use_disk?' do
+    it 'properly caches a false result' do
+      # spec_helper stubs this globally
+      allow(described_class).to receive(:can_use_disk?).and_call_original
+      expect(described_class).to receive(:filesystem_id).once
+      expect(described_class).to receive(:filesystem_id_from_disk).once
+
+      2.times do
+        described_class.can_use_disk?('unknown')
+      end
+    end
+  end
+
   describe '.connection_data' do
     it 'returns connection data' do
       address = 'tcp://localhost:9876'
@@ -169,17 +182,6 @@ describe Gitlab::GitalyClient do
             expect(described_class.request_kwargs('default', nil)[:metadata]['gitaly-session-id']).to eq(gitaly_session_id)
           end
         end
-      end
-    end
-
-    context 'when catfile-cache feature is disabled' do
-      before do
-        stub_feature_flags({ 'gitaly_catfile-cache': false })
-      end
-
-      it 'does not set the gitaly-session-id in the metadata' do
-        results = described_class.request_kwargs('default', nil)
-        expect(results[:metadata]).not_to include('gitaly-session-id')
       end
     end
   end

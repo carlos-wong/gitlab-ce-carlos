@@ -3,37 +3,37 @@
 This section is to help give some copy-pasta you can use as a reference when you
 run into some head-banging database problems.
 
-An easy first step is to search for your error in Slack or google "GitLab <my error>".
+An easy first step is to search for your error in Slack or google "GitLab (my error)".
 
 ---
 
 Available `RAILS_ENV`
 
- - `production` (generally not for your main GDK db, but you may need this for e.g. omnibus)
- - `development` (this is your main GDK db)
- - `test` (used for tests like rspec)
+- `production` (generally not for your main GDK db, but you may need this for e.g. omnibus)
+- `development` (this is your main GDK db)
+- `test` (used for tests like rspec)
 
 ## Nuke everything and start over
 
 If you just want to delete everything and start over with an empty DB (~1 minute):
 
- - `bundle exec rake db:reset RAILS_ENV=development`
+- `bundle exec rake db:reset RAILS_ENV=development`
 
 If you just want to delete everything and start over with dummy data (~40 minutes). This also does `db:reset` and runs DB-specific migrations:
 
- - `bundle exec rake dev:setup RAILS_ENV=development`
+- `bundle exec rake dev:setup RAILS_ENV=development`
 
 If your test DB is giving you problems, it is safe to nuke it because it doesn't contain important data:
 
- - `bundle exec rake db:reset RAILS_ENV=test`
+- `bundle exec rake db:reset RAILS_ENV=test`
 
 ## Migration wrangling
 
- - `bundle exec rake db:migrate RAILS_ENV=development`: Execute any pending migrations that you may have picked up from a MR
- - `bundle exec rake db:migrate:status RAILS_ENV=development`: Check if all migrations are `up` or `down`
- - `bundle exec rake db:migrate:down VERSION=20170926203418 RAILS_ENV=development`: Tear down a migration
- - `bundle exec rake db:migrate:up VERSION=20170926203418 RAILS_ENV=development`: Set up a migration
- - `bundle exec rake db:migrate:redo VERSION=20170926203418 RAILS_ENV=development`: Re-run a specific migration
+- `bundle exec rake db:migrate RAILS_ENV=development`: Execute any pending migrations that you may have picked up from a MR
+- `bundle exec rake db:migrate:status RAILS_ENV=development`: Check if all migrations are `up` or `down`
+- `bundle exec rake db:migrate:down VERSION=20170926203418 RAILS_ENV=development`: Tear down a migration
+- `bundle exec rake db:migrate:up VERSION=20170926203418 RAILS_ENV=development`: Set up a migration
+- `bundle exec rake db:migrate:redo VERSION=20170926203418 RAILS_ENV=development`: Re-run a specific migration
 
 ## Manually access the database
 
@@ -45,12 +45,12 @@ bundle exec rails dbconsole RAILS_ENV=development
 bundle exec rails db RAILS_ENV=development
 ```
 
- - `\q`: Quit/exit
- - `\dt`: List all tables
- - `\d+ issues`: List columns for `issues` table
- - `CREATE TABLE board_labels();`: Create a table called `board_labels`
- - `SELECT * FROM schema_migrations WHERE version = '20170926203418';`: Check if a migration was run
- - `DELETE FROM schema_migrations WHERE version = '20170926203418';`: Manually remove a migration
+- `\q`: Quit/exit
+- `\dt`: List all tables
+- `\d+ issues`: List columns for `issues` table
+- `CREATE TABLE board_labels();`: Create a table called `board_labels`
+- `SELECT * FROM schema_migrations WHERE version = '20170926203418';`: Check if a migration was run
+- `DELETE FROM schema_migrations WHERE version = '20170926203418';`: Manually remove a migration
 
 ## FAQ
 
@@ -84,4 +84,22 @@ eric             87304   1.3  2.9  3080836 482596   ??  Ss   10:12AM   4:08.36 s
 eric             37709   0.0  0.0  2518640   7524 s006  S    Wed11AM   0:00.79 spring server | gitlab | started 29 hours ago
 $ kill 87304
 $ kill 37709
+```
+
+### db:migrate `database version is too old to be migrated` error
+
+Users receive this error when `db:migrate` detects that the current schema version
+is older than the `MIN_SCHEMA_VERSION` defined in the `Gitlab::Database` library
+module.
+
+Over time we cleanup/combine old migrations in the codebase, so it is not always
+possible to migrate GitLab from every previous version.
+
+In some cases you may want to bypass this check. For example, if you were on a version
+of GitLab schema later than the `MIN_SCHEMA_VERSION`, and then rolled back the
+to an older migration, from before. In this case, in order to migrate forward again,
+you should set the `SKIP_SCHEMA_VERSION_CHECK` environment variable.
+
+```sh
+bundle exec rake db:migrate SKIP_SCHEMA_VERSION_CHECK=true
 ```

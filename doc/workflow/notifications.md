@@ -64,18 +64,18 @@ These settings can be configured on project page under the name of the project. 
 
 Below is the table of events users can be notified of:
 
-| Event                        | Sent to                                                           | Settings level               |
-|------------------------------|-------------------------------------------------------------------|------------------------------|
-| New SSH key added            | User                                                              | Security email, always sent. |
-| New email added              | User                                                              | Security email, always sent. |
-| Email changed                | User                                                              | Security email, always sent. |
-| Password changed             | User                                                              | Security email, always sent. |
-| New user created             | User                                                              | Sent on user creation, except for omniauth (LDAP)|
-| User added to project        | User                                                              | Sent when user is added to project |
-| Project access level changed | User                                                              | Sent when user project access level is changed |
-| User added to group          | User                                                              | Sent when user is added to group |
-| Group access level changed   | User                                                              | Sent when user group access level is changed |
-| Project moved                | Project members [1]                                               | [1] not disabled |
+| Event                        | Sent to             | Settings level               |
+|------------------------------|---------------------|------------------------------|
+| New SSH key added            | User                | Security email, always sent. |
+| New email added              | User                | Security email, always sent. |
+| Email changed                | User                | Security email, always sent. |
+| Password changed             | User                | Security email, always sent. |
+| New user created             | User                | Sent on user creation, except for omniauth (LDAP)|
+| User added to project        | User                | Sent when user is added to project |
+| Project access level changed | User                | Sent when user project access level is changed |
+| User added to group          | User                | Sent when user is added to group |
+| Group access level changed   | User                | Sent when user group access level is changed |
+| Project moved                | Project members (1) | (1) not disabled |
 
 ### Issue / Epics / Merge request events
 
@@ -84,11 +84,11 @@ In most of the below cases, the notification will be sent to:
 - Participants:
   - the author and assignee of the issue/merge request
   - authors of comments on the issue/merge request
-  - anyone mentioned by `@username` in the title or description of the issue, merge request or epic **[ULTIMATE]**
+  - anyone mentioned by `@username` in the title or description of the issue, merge request or epic **(ULTIMATE)**
   - anyone with notification level "Participating" or higher that is mentioned by `@username`
-    in any of the comments on the issue, merge request, or epic **[ULTIMATE]**
+    in any of the comments on the issue, merge request, or epic **(ULTIMATE)**
 - Watchers: users with notification level "Watch"
-- Subscribers: anyone who manually subscribed to the issue, merge request, or epic **[ULTIMATE]**
+- Subscribers: anyone who manually subscribed to the issue, merge request, or epic **(ULTIMATE)**
 - Custom: Users with notification level "custom" who turned on notifications for any of the events present in the table below
 
 | Event                  | Sent to |
@@ -111,9 +111,9 @@ In most of the below cases, the notification will be sent to:
 | New comment            | The above, plus anyone mentioned by `@username` in the comment, with notification level "Mention" or higher |
 | Failed pipeline        | The author of the pipeline |
 | Successful pipeline    | The author of the pipeline, if they have the custom notification setting for successful pipelines set |
-| New epic **[ULTIMATE]** |        |
-| Close epic **[ULTIMATE]** |      |
-| Reopen epic **[ULTIMATE]** |     |
+| New epic **(ULTIMATE)** |        |
+| Close epic **(ULTIMATE)** |      |
+| Reopen epic **(ULTIMATE)** |     |
 
 In addition, if the title or description of an Issue or Merge Request is
 changed, notifications will be sent to any **new** mentions by `@username` as
@@ -138,7 +138,7 @@ Notification emails include headers that provide extra content about the notific
 | X-GitLab-Project-Id         | The ID of the project                                                   |
 | X-GitLab-Project-Path       | The path of the project                                                 |
 | X-GitLab-(Resource)-ID      | The ID of the resource the notification is for, where resource is `Issue`, `MergeRequest`, `Commit`, etc|
-| X-GitLab-Discussion-ID      | Only in comment emails, the ID of the discussion the comment is from    |
+| X-GitLab-Discussion-ID      | Only in comment emails, the ID of the thread the comment is from    |
 | X-GitLab-Pipeline-Id        | Only in pipeline emails, the ID of the pipeline the notification is for |
 | X-GitLab-Reply-Key          | A unique token to support reply by email                                |
 | X-GitLab-NotificationReason | The reason for being notified. "mentioned", "assigned", etc             |

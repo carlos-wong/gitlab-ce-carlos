@@ -130,14 +130,15 @@ module Gitlab
 
       def usage_counters
         {
-          web_ide_commits: Gitlab::WebIdeCommitsCounter.total_count
+          web_ide_commits: Gitlab::UsageDataCounters::WebIdeCounter.total_commits_count
         }
       end
 
       def components_usage_data
         {
-          gitlab_pages: { enabled: Gitlab.config.pages.enabled, version: Gitlab::Pages::VERSION },
           git: { version: Gitlab::Git.version },
+          gitaly: { version: Gitaly::Server.all.first.server_version, servers: Gitaly::Server.count, filesystems: Gitaly::Server.filesystems },
+          gitlab_pages: { enabled: Gitlab.config.pages.enabled, version: Gitlab::Pages::VERSION },
           database: { adapter: Gitlab::Database.adapter_name, version: Gitlab::Database.version }
         }
       end

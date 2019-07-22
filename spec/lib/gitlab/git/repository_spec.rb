@@ -256,6 +256,22 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
+  describe '#submodule_urls_for' do
+    let(:ref) { 'master' }
+
+    it 'returns url mappings for submodules' do
+      urls = repository.submodule_urls_for(ref)
+
+      expect(urls).to eq({
+        "deeper/nested/six" => "git://github.com/randx/six.git",
+               "gitlab-grack" => "https://gitlab.com/gitlab-org/gitlab-grack.git",
+       "gitlab-shell" => "https://github.com/gitlabhq/gitlab-shell.git",
+        "nested/six" => "git://github.com/randx/six.git",
+        "six" => "git://github.com/randx/six.git"
+      })
+    end
+  end
+
   describe '#commit_count' do
     it { expect(repository.commit_count("master")).to eq(25) }
     it { expect(repository.commit_count("feature")).to eq(9) }
@@ -1694,14 +1710,15 @@ describe Gitlab::Git::Repository, :seed_helper do
     let(:branch_head) { '6d394385cf567f80a8fd85055db1ab4c5295806f' }
     let(:left_sha) { 'cfe32cf61b73a0d5e9f13e774abde7ff789b1660' }
     let(:right_branch) { 'test-master' }
+    let(:first_parent_ref) { 'refs/heads/test-master' }
     let(:target_ref) { 'refs/merge-requests/999/merge' }
 
     before do
-      repository.create_branch(right_branch, branch_head) unless repository.branch_exists?(right_branch)
+      repository.create_branch(right_branch, branch_head) unless repository.ref_exists?(first_parent_ref)
     end
 
     def merge_to_ref
-      repository.merge_to_ref(user, left_sha, right_branch, target_ref, 'Merge message')
+      repository.merge_to_ref(user, left_sha, right_branch, target_ref, 'Merge message', first_parent_ref)
     end
 
     it 'generates a commit in the target_ref' do
@@ -1716,7 +1733,7 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
 
     it 'does not change the right branch HEAD' do
-      expect { merge_to_ref }.not_to change { repository.find_branch(right_branch).target }
+      expect { merge_to_ref }.not_to change { repository.commit(first_parent_ref).sha }
     end
   end
 
@@ -2038,24 +2055,24 @@ describe Gitlab::Git::Repository, :seed_helper do
   end
 
   describe '#clean_stale_repository_files' do
-    let(:worktree_path) { File.join(repository_path, 'worktrees', 'delete-me') }
+    let(:worktree_id) { 'rebase-1' }
+    let(:gitlab_worktree_path) { File.join(repository_path, 'gitlab-worktree', worktree_id) }
+    let(:admin_dir) { File.join(repository_path, 'worktrees') }
 
     it 'cleans up the files' do
-      create_worktree = %W[git -C #{repository_path} worktree add --detach #{worktree_path} master]
+      create_worktree = %W[git -C #{repository_path} worktree add --detach #{gitlab_worktree_path} master]
       raise 'preparation failed' unless system(*create_worktree, err: '/dev/null')
 
-      FileUtils.touch(worktree_path, mtime: Time.now - 8.hours)
+      FileUtils.touch(gitlab_worktree_path, mtime: Time.now - 8.hours)
       # git rev-list --all will fail in git 2.16 if HEAD is pointing to a non-existent object,
       # but the HEAD must be 40 characters long or git will ignore it.
-      File.write(File.join(worktree_path, 'HEAD'), Gitlab::Git::BLANK_SHA)
+      File.write(File.join(admin_dir, worktree_id, 'HEAD'), Gitlab::Git::BLANK_SHA)
 
-      # git 2.16 fails with "fatal: bad object HEAD"
-      expect(rev_list_all).to be false
-
+      expect(rev_list_all).to be(false)
       repository.clean_stale_repository_files
 
-      expect(rev_list_all).to be true
-      expect(File.exist?(worktree_path)).to be_falsey
+      expect(rev_list_all).to be(true)
+      expect(File.exist?(gitlab_worktree_path)).to be_falsey
     end
 
     def rev_list_all

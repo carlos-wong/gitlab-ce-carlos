@@ -11,7 +11,7 @@ importance.
 
 ## Overview
 
-GitLab is built on top of [Ruby on Rails][rails], and we're using [RSpec] for all
+GitLab is built on top of [Ruby on Rails](https://rubyonrails.org/), and we're using [RSpec] for all
 the backend tests, with [Capybara] for end-to-end integration testing.
 On the frontend side, we're using [Karma] and [Jasmine] for JavaScript unit and
 integration testing.
@@ -22,67 +22,46 @@ automated testing means, and what are its principles:
 - [Five Factor Testing](https://www.devmynd.com/blog/five-factor-testing): Why do we need tests?
 - [Principles of Automated Testing](http://www.lihaoyi.com/post/PrinciplesofAutomatedTesting.html): Levels of testing. Prioritize tests. Cost of tests.
 
----
-
 ## [Testing levels](testing_levels.md)
 
 Learn about the different testing levels, and how to decide at what level your
 changes should be tested.
-
----
 
 ## [Testing best practices](best_practices.md)
 
 Everything you should know about how to write good tests: Test Design, RSpec, FactoryBot,
 system tests, parameterized tests etc.
 
----
-
 ## [Frontend testing standards and style guidelines](frontend_testing.md)
 
 Everything you should know about how to write good Frontend tests: Karma,
 testing promises, stubbing etc.
-
----
 
 ## [Flaky tests](flaky_tests.md)
 
 What are flaky tests, the different kind of flaky tests we encountered, and what
 we do about them.
 
----
-
 ## [GitLab tests in the Continuous Integration (CI) context](ci.md)
 
 How GitLab test suite is run in the CI context: setup, caches, artifacts,
 parallelization, monitoring.
 
----
-
 ## [Review apps](review_apps.md)
 
 How review apps are set up for GitLab CE/EE and how to use them.
 
----
-
 ## [Testing Rake tasks](testing_rake_tasks.md)
 
 Everything you should know about how to test Rake tasks.
-
----
 
 ## [End-to-end tests](end_to_end/index.md)
 
 Everything you should know about how to run end-to-end tests using
 [GitLab QA][gitlab-qa] testing framework.
 
----
-
 [Return to Development documentation](../README.md)
 
-[^1]: /ci/yaml/README.html#dependencies
-
-[rails]: http://rubyonrails.org/
 [RSpec]: https://github.com/rspec/rspec-rails#feature-specs
 [Capybara]: https://github.com/teamcapybara/capybara
 [Karma]: http://karma-runner.github.io/

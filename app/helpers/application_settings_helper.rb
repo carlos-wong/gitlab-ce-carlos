@@ -69,7 +69,7 @@ module ApplicationSettingsHelper
   # toggle button effect.
   def import_sources_checkboxes(help_block_id, options = {})
     Gitlab::ImportSources.options.map do |name, source|
-      checked = Gitlab::CurrentSettings.import_sources.include?(source)
+      checked = @application_setting.import_sources.include?(source)
       css_class = checked ? 'active' : ''
       checkbox_name = 'application_setting[import_sources][]'
 
@@ -85,7 +85,7 @@ module ApplicationSettingsHelper
 
   def oauth_providers_checkboxes
     button_based_providers.map do |source|
-      disabled = Gitlab::CurrentSettings.disabled_oauth_sign_in_sources.include?(source.to_s)
+      disabled = @application_setting.disabled_oauth_sign_in_sources.include?(source.to_s)
       css_class = ['btn']
       css_class << 'active' unless disabled
       checkbox_name = 'application_setting[enabled_oauth_sign_in_sources][]'
@@ -165,8 +165,6 @@ module ApplicationSettingsHelper
       :authorized_keys_enabled,
       :auto_devops_enabled,
       :auto_devops_domain,
-      :clientside_sentry_dsn,
-      :clientside_sentry_enabled,
       :container_registry_token_expire_delay,
       :default_artifacts_expire_in,
       :default_branch_protection,
@@ -189,6 +187,8 @@ module ApplicationSettingsHelper
       :gitaly_timeout_default,
       :gitaly_timeout_medium,
       :gitaly_timeout_fast,
+      :grafana_enabled,
+      :grafana_url,
       :gravatar_enabled,
       :hashed_storage_enabled,
       :help_page_hide_commercial_content,
@@ -235,8 +235,6 @@ module ApplicationSettingsHelper
       :restricted_visibility_levels,
       :rsa_key_restriction,
       :send_user_confirmation_email,
-      :sentry_dsn,
-      :sentry_enabled,
       :session_expire_delay,
       :shared_runners_enabled,
       :shared_runners_text,
@@ -253,6 +251,7 @@ module ApplicationSettingsHelper
       :throttle_unauthenticated_enabled,
       :throttle_unauthenticated_period_in_seconds,
       :throttle_unauthenticated_requests_per_period,
+      :time_tracking_limit_to_hours,
       :two_factor_grace_period,
       :unique_ips_limit_enabled,
       :unique_ips_limit_per_user,

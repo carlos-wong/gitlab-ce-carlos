@@ -20,7 +20,7 @@ In addition to the specific migration documentation above, you can import any
 Git repository via HTTP from the New Project page. Be aware that if the
 repository is too large the import can timeout.
 
-There is also the option of [connecting your external repository to get CI/CD benefits](../../../ci/ci_cd_for_external_repos/index.md). **[PREMIUM]**
+There is also the option of [connecting your external repository to get CI/CD benefits](../../../ci/ci_cd_for_external_repos/index.md). **(PREMIUM)**
 
 ## Migrating from self-hosted GitLab to GitLab.com
 
@@ -34,7 +34,7 @@ This approach assumes all users from the self-hosted instance have already been 
 If the users haven't been migrated yet, the user conducting the import
 will take the place of all references to the missing user(s).
 
-If you need to migrate all data over, you can leverage our [api](../../../api/README.md) to migrate from self-hosted to GitLab.com. 
+If you need to migrate all data over, you can leverage our [api](../../../api/README.md) to migrate from self-hosted to GitLab.com.
 The order of assets to migrate from a self-hosted instance to GitLab is the following:
 
 1. [Users](../../../api/users.md)
@@ -54,5 +54,5 @@ perhaps from an old server to a new server for example, is to
 [back up the project](../../../raketasks/backup_restore.md),
 then restore it on the new server.
 
-In the event of merging two GitLab instances together (for example, both instances have existing data on them and one can't be wiped), 
+In the event of merging two GitLab instances together (for example, both instances have existing data on them and one can't be wiped),
 refer to the instructions in [Migrating from self-hosted GitLab to GitLab.com](#migrating-from-self-hosted-gitlab-to-gitlabcom).

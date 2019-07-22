@@ -27,10 +27,16 @@ Rails.application.routes.draw do
                 authorizations: 'oauth/authorizations'
   end
 
-  # This is here so we can "reserve" the path for the Jira integration in GitLab EE
-  # Having a non-existent controller here does not affect the scope in any way since all possible routes
-  # get a 404 proc returned. It is written in this way to minimize merge conflicts with EE
+  # This prefixless path is required because Jira gets confused if we set it up with a path
+  # More information: https://gitlab.com/gitlab-org/gitlab-ee/issues/6752
   scope path: '/login/oauth', controller: 'oauth/jira/authorizations', as: :oauth_jira do
+    Gitlab.ee do
+      get :authorize, action: :new
+      get :callback
+      post :access_token
+    end
+
+    # This helps minimize merge conflicts with CE for this scope block
     match '*all', via: [:get, :post], to: proc { [404, {}, ['']] }
   end
 
@@ -44,6 +50,10 @@ Rails.application.routes.draw do
   get '/autocomplete/projects' => 'autocomplete#projects'
   get '/autocomplete/award_emojis' => 'autocomplete#award_emojis'
   get '/autocomplete/merge_request_target_branches' => 'autocomplete#merge_request_target_branches'
+
+  Gitlab.ee do
+    get '/autocomplete/project_groups' => 'autocomplete#project_groups'
+  end
 
   # Search
   get 'search' => 'search#show'
@@ -72,7 +82,16 @@ Rails.application.routes.draw do
         resources :issues, only: [:index, :create, :update]
       end
 
-      resources :issues, module: :boards, only: [:index, :update]
+      resources :issues, module: :boards, only: [:index, :update] do
+        collection do
+          put :bulk_move, format: :json
+        end
+      end
+
+      Gitlab.ee do
+        resources :users, module: :boards, only: [:index]
+        resources :milestones, module: :boards, only: [:index]
+      end
     end
 
     get 'acme-challenge/' => 'acme_challenges#show'
@@ -86,11 +105,25 @@ Rails.application.routes.draw do
     draw :operations
     draw :instance_statistics
 
-    if ENV['GITLAB_ENABLE_CHAOS_ENDPOINTS']
-      get '/chaos/leakmem' => 'chaos#leakmem'
-      get '/chaos/cpuspin' => 'chaos#cpuspin'
-      get '/chaos/sleep' => 'chaos#sleep'
-      get '/chaos/kill' => 'chaos#kill'
+    Gitlab.ee do
+      draw :smartcard
+      draw :jira_connect
+    end
+
+    Gitlab.ee do
+      constraints(::Constraints::FeatureConstrainer.new(:analytics)) do
+        draw :analytics
+      end
+    end
+
+    if ENV['GITLAB_CHAOS_SECRET'] || Rails.env.development?
+      resource :chaos, only: [] do
+        get :leakmem
+        get :cpu_spin
+        get :db_spin
+        get :sleep
+        get :kill
+      end
     end
   end
 
@@ -102,6 +135,10 @@ Rails.application.routes.draw do
       end
 
       member do
+        Gitlab.ee do
+          get :metrics, format: :json
+        end
+
         scope :applications do
           post '/:application', to: 'clusters/applications#create', as: :install_applications
           patch '/:application', to: 'clusters/applications#update', as: :update_applications

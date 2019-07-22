@@ -27,13 +27,29 @@ we need to solve before being able to use Jest for all our needs.
 ### Differences to Karma
 
 - Jest runs in a Node.js environment, not in a browser. Support for running Jest tests in a browser [is planned](https://gitlab.com/gitlab-org/gitlab-ce/issues/58205).
-- Because Jest runs in a Node.js environment, it uses [jsdom](https://github.com/jsdom/jsdom) by default.
+- Because Jest runs in a Node.js environment, it uses [jsdom](https://github.com/jsdom/jsdom) by default. See also its [limitations](#limitations-of-jsdom) below.
+- Jest does not have access to Webpack loaders or aliases.
+  The aliases used by Jest are defined in its [own config](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/jest.config.js).
 - All calls to `setTimeout` and `setInterval` are mocked away. See also [Jest Timer Mocks](https://jestjs.io/docs/en/timer-mocks).
 - `rewire` is not required because Jest supports mocking modules. See also [Manual Mocks](https://jestjs.io/docs/en/manual-mocks).
+- No [context object](https://jasmine.github.io/tutorials/your_first_suite#section-The_%3Ccode%3Ethis%3C/code%3E_keyword) is passed to tests in Jest.
+  This means sharing `this.something` between `beforeEach()` and `it()` for example does not work.
+  Instead you should declare shared variables in the context that they are needed (via `const` / `let`).
 - The following will cause tests to fail in Jest:
   - Unmocked requests.
   - Unhandled Promise rejections.
   - Calls to `console.warn`, including warnings from libraries like Vue.
+
+### Limitations of jsdom
+
+As mentioned [above](#differences-to-karma), Jest uses jsdom instead of a browser for running tests.
+This comes with a number of limitations, namely:
+
+- [No scrolling support](https://github.com/jsdom/jsdom/blob/15.1.1/lib/jsdom/browser/Window.js#L623-L625)
+- [No element sizes or positions](https://github.com/jsdom/jsdom/blob/15.1.1/lib/jsdom/living/nodes/Element-impl.js#L334-L371)
+- [No layout engine](https://github.com/jsdom/jsdom/issues/1322) in general
+
+See also the issue for [support running Jest tests in browsers](https://gitlab.com/gitlab-org/gitlab-ce/issues/58205).
 
 ### Debugging Jest tests
 
@@ -62,6 +78,34 @@ describe('Component', () => {
 ```
 
 Remember that the performance of each test depends on the environment.
+
+### Manual module mocks
+Jest supports [manual module mocks](https://jestjs.io/docs/en/manual-mocks) by placing a mock in a `__mocks__/` directory next to the source module. **Don't do this.** We want to keep all of our test-related code in one place (the `spec/` folder), and the logic that Jest uses to apply mocks from `__mocks__/` is rather inconsistent.
+
+Instead, our test runner detects manual mocks from `spec/frontend/mocks/`. Any mock placed here is automatically picked up and injected whenever you import its source module.
+
+- Files in `spec/frontend/mocks/ce` will mock the corresponding CE module from `app/assets/javascripts`, mirroring the source module's path.
+    - Example: `spec/frontend/mocks/ce/lib/utils/axios_utils` will mock the module `~/lib/utils/axios_utils`.
+- Files in `spec/frontend/mocks/node` will mock NPM packages of the same name or path.
+- We don't support mocking EE modules yet.
+
+If a mock is found for which a source module doesn't exist, the test suite will fail. 'Virtual' mocks, or mocks that don't have a 1-to-1 association with a source module, are not supported yet.
+
+#### Writing a mock
+Create a JS module in the appropriate place in `spec/frontend/mocks/`. That's it. It will automatically mock its source package in all tests.
+
+Make sure that your mock's export has the same format as the mocked module. So, if you're mocking a CommonJS module, you'll need to use `module.exports` instead of the ES6 `export`.
+
+It might be useful for a mock to expose a property that indicates if the mock was loaded. This way, tests can assert the presence of a mock without calling any logic and causing side-effects. The `~/lib/utils/axios_utils` module mock has such a property, `isMock`, that is `true` in the mock and undefined in the original class. Jest's mock functions also have a `mock` property that you can test.
+
+#### Bypassing mocks
+If you ever need to import the original module in your tests, use [`jest.requireActual()`](https://jestjs.io/docs/en/jest-object#jestrequireactualmodulename) (or `jest.requireActual().default` for the default export). The `jest.mock()` and `jest.unmock()` won't have an effect on modules that have a manual mock, because mocks are imported and cached before any tests are run.
+
+#### Keep mocks light
+Global mocks introduce magic and can affect how modules are imported in your tests. Try to keep them as light as possible and dependency-free. A global mock should be useful for any unit test. For example, the `axios_utils` and `jquery` module mocks throw an error when an HTTP request is attempted, since this is useful behaviour in &gt;99% of tests.
+
+When in doubt, construct mocks in your test file using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options), [`jest.spyOn()`](https://jestjs.io/docs/en/jest-object#jestspyonobject-methodname), etc.
+
 
 ## Karma test suite
 
@@ -485,17 +529,17 @@ The following are examples of tests that work for both Karma and Jest:
 it('makes a request', () => {
   const responseBody = getJSONFixture('some/fixture.json'); // loads spec/javascripts/fixtures/some/fixture.json
   axiosMock.onGet(endpoint).reply(200, responseBody);
-  
+
   myButton.click();
-  
+
   // ...
 });
 
 it('uses some HTML element', () => {
   loadFixtures('some/page.html'); // loads spec/javascripts/fixtures/some/page.html and adds it to the DOM
-  
+
   const element = document.getElementById('#my-id');
-  
+
   // ...
 });
 ```
@@ -544,7 +588,6 @@ end
 [vue-test]: https://docs.gitlab.com/ce/development/fe_guide/vue.html#testing-vue-components
 [rspec]: https://github.com/rspec/rspec-rails#feature-specs
 [capybara]: https://github.com/teamcapybara/capybara
-[karma]: http://karma-runner.github.io/
 [jasmine]: https://jasmine.github.io/
 
 ---

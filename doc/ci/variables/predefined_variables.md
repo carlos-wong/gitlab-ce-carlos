@@ -30,7 +30,7 @@ future GitLab releases.**
 | `CI_BUILDS_DIR`                         | all    | 11.10  | Top-level directory where builds are executed. |
 | `CI_CONCURRENT_ID`                      | all    | 11.10  | Unique ID of build execution within a single executor. |
 | `CI_CONCURRENT_PROJECT_ID`              | all    | 11.10  | Unique ID of build execution within a single executor and project. |
-| `CI_COMMIT_BEFORE_SHA`                  | 11.2   | all    | The previous latest commit present on a branch before a push request. |
+| `CI_COMMIT_BEFORE_SHA`                  | 11.2   | all    | The previous latest commit present on a branch before a push request. Only populated when there is a merge request associated with the pipeline. |
 | `CI_COMMIT_DESCRIPTION`                 | 10.8   | all    | The description of the commit: the message without first line, if the title is shorter than 100 characters; full message in other case. |
 | `CI_COMMIT_MESSAGE`                     | 10.8   | all    | The full commit message. |
 | `CI_COMMIT_REF_NAME`                    | 9.0    | all    | The branch or tag name for which project is built |
@@ -78,7 +78,7 @@ future GitLab releases.**
 | `CI_PIPELINE_ID`                        | 8.10   | all    | The unique id of the current pipeline that GitLab CI uses internally |
 | `CI_PIPELINE_IID`                       | 11.0   | all    | The unique id of the current pipeline scoped to project |
 | `CI_PIPELINE_SOURCE`                    | 10.0   | all    | Indicates how the pipeline was triggered. Possible options are: `push`, `web`, `trigger`, `schedule`, `api`, and `pipeline`. For pipelines created before GitLab 9.5, this will show as `unknown` |
-| `CI_PIPELINE_TRIGGERED`                 | all    | all    | The flag to indicate that job was [triggered] |
+| `CI_PIPELINE_TRIGGERED`                 | all    | all    | The flag to indicate that job was [triggered](../triggers/README.md) |
 | `CI_PIPELINE_URL`                       | 11.1   | 0.5    | Pipeline details URL |
 | `CI_PROJECT_DIR`                        | all    | all    | The full path where the repository is cloned and where the job is run. If the GitLab Runner `builds_dir` parameter is set, this variable is set relative to the value of `builds_dir`. For more information, see [Advanced configuration](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section) for GitLab Runner. |
 | `CI_PROJECT_ID`                         | all    | all    | The unique id of the current project that GitLab CI uses internally |
@@ -101,6 +101,7 @@ future GitLab releases.**
 | `CI_RUNNER_TAGS`                        | 8.10   | 0.5    | The defined runner tags |
 | `CI_RUNNER_VERSION`                     | all    | 10.6   | GitLab Runner version that is executing the current job |
 | `CI_SERVER`                             | all    | all    | Mark that job is executed in CI environment |
+| `CI_SERVER_HOST`                        | 12.1   | all    | Host component of the GitLab instance URL, without protocol and port (like gitlab.example.com) |
 | `CI_SERVER_NAME`                        | all    | all    | The name of CI server that is used to coordinate jobs |
 | `CI_SERVER_REVISION`                    | all    | all    | GitLab revision that is used to schedule jobs |
 | `CI_SERVER_VERSION`                     | all    | all    | GitLab version that is used to schedule jobs |

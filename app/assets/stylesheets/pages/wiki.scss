@@ -77,7 +77,6 @@
 
     .nav-controls {
       width: auto;
-      min-width: 50%;
     }
   }
 
@@ -169,6 +168,10 @@
 }
 
 ul.wiki-pages-list.content-list {
+  a {
+    color: $blue-600;
+  }
+
   ul {
     list-style: none;
     margin-left: 0;

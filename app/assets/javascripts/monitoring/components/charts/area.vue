@@ -1,4 +1,6 @@
 <script>
+import { __ } from '~/locale';
+import { GlLink } from '@gitlab/ui';
 import { GlAreaChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
 import { debounceByAnimationFrame, roundOffFloat } from '~/lib/utils/common_utils';
@@ -6,6 +8,7 @@ import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import Icon from '~/vue_shared/components/icon.vue';
 import { chartHeight, graphTypes, lineTypes } from '../../constants';
 import { makeDataSeries } from '~/helpers/monitor_helper';
+import { graphDataValidatorForValues } from '../../utils';
 
 let debouncedResize;
 
@@ -13,6 +16,7 @@ export default {
   components: {
     GlAreaChart,
     GlChartSeriesLabel,
+    GlLink,
     Icon,
   },
   inheritAttrs: false,
@@ -20,19 +24,7 @@ export default {
     graphData: {
       type: Object,
       required: true,
-      validator(data) {
-        return (
-          Array.isArray(data.queries) &&
-          data.queries.filter(query => {
-            if (Array.isArray(query.result)) {
-              return (
-                query.result.filter(res => Array.isArray(res.values)).length === query.result.length
-              );
-            }
-            return false;
-          }).length === data.queries.length
-        );
-      },
+      validator: graphDataValidatorForValues.bind(null, false),
     },
     containerWidth: {
       type: Number,
@@ -42,6 +34,10 @@ export default {
       type: Array,
       required: false,
       default: () => [],
+    },
+    projectPath: {
+      type: String,
+      required: true,
     },
     thresholds: {
       type: Array,
@@ -54,6 +50,7 @@ export default {
       tooltip: {
         title: '',
         content: [],
+        commitUrl: '',
         isDeployment: false,
         sha: '',
       },
@@ -99,7 +96,7 @@ export default {
     chartOptions() {
       return {
         xAxis: {
-          name: 'Time',
+          name: __('Time'),
           type: 'time',
           axisLabel: {
             formatter: date => dateFormat(date, 'h:MM TT'),
@@ -194,12 +191,13 @@ export default {
       this.tooltip.title = dateFormat(params.value, 'dd mmm yyyy, h:MMTT');
       this.tooltip.content = [];
       params.seriesData.forEach(seriesData => {
-        if (seriesData.componentSubType === graphTypes.deploymentData) {
-          this.tooltip.isDeployment = true;
+        this.tooltip.isDeployment = seriesData.componentSubType === graphTypes.deploymentData;
+        if (this.tooltip.isDeployment) {
           const [deploy] = this.recentDeployments.filter(
             deployment => deployment.createdAt === seriesData.value[0],
           );
           this.tooltip.sha = deploy.sha.substring(0, 8);
+          this.tooltip.commitUrl = deploy.commitUrl;
         } else {
           const { seriesName, color } = seriesData;
           // seriesData.value contains the chart's [x, y] value pair
@@ -258,7 +256,7 @@ export default {
         </template>
         <div slot="tooltipContent" class="d-flex align-items-center">
           <icon name="commit" class="mr-2" />
-          {{ tooltip.sha }}
+          <gl-link :href="tooltip.commitUrl">{{ tooltip.sha }}</gl-link>
         </div>
       </template>
       <template v-else>

@@ -2,7 +2,7 @@
 type: reference, concepts
 ---
 
-# Merge request approvals **[STARTER]**
+# Merge request approvals **(STARTER)**
 
 > Introduced in [GitLab Enterprise Edition 7.12](https://about.gitlab.com/2015/06/22/gitlab-7-12-released/#merge-request-approvers-ee-only).
 
@@ -12,9 +12,9 @@ to approve a merge request before it can be unblocked for merging.
 ## Use cases
 
 1. Enforcing review of all code that gets merged into a repository.
-2. Specifying code maintainers for an entire repository.
-3. Specifying reviewers for a given proposed code change.
-4. Specifying categories of reviewers, such as BE, FE, QA, DB, etc., for all proposed code changes.
+1. Specifying code maintainers for an entire repository.
+1. Specifying reviewers for a given proposed code change.
+1. Specifying categories of reviewers, such as BE, FE, QA, DB, etc., for all proposed code changes.
 
 ## Enabling the new approvals interface
 
@@ -64,7 +64,7 @@ suitable to your workflow:
   [overridden per merge request](#overriding-the-merge-request-approvals-default-settings)
 - Choose whether [approvals will be reset with new pushed commits](#resetting-approvals-on-push)
 
-## Editing approvals **[PREMIUM]**
+## Editing approvals **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/1979) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8.
 
@@ -85,7 +85,7 @@ request approval rules:
 
     ![Approvals premium project edit](img/approvals_premium_project_edit.png)
 
-## Multiple approval rules **[PREMIUM]**
+## Multiple approval rules **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/1979) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8.
 
@@ -162,10 +162,10 @@ the merge request is unblocked and can be merged.
 Note, that meeting the required number of approvals is a necessary, but not
 sufficient condition for unblocking a merge request from being merged. There
 are other conditions that may block it, such as merge conflicts,
-[pending discussions](../../discussions/index.md#only-allow-merge-requests-to-be-merged-if-all-discussions-are-resolved)
+[pending discussions](../../discussions/index.md#only-allow-merge-requests-to-be-merged-if-all-threads-are-resolved)
 or a [failed CI/CD pipeline](merge_when_pipeline_succeeds.md).
 
-## Code Owners approvals **[PREMIUM]**
+## Code Owners approvals **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/4418) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.9.
 
@@ -237,7 +237,7 @@ If you are contributing to a forked project, things are a little different.
 Read what happens  when the
 [source and target branches are not the same](#merge-requests-with-different-source-branch-and-target-branch-projects).
 
-## Overriding merge request approvals default settings **[PREMIUM]**
+## Overriding merge request approvals default settings **(PREMIUM)**
 
 In GitLab Premium, when the approval rules are [set at the project level](#editing-approvals-premium), and
 **Can override approvers and approvals required per merge request** is checked, there are a few more
@@ -246,7 +246,7 @@ restrictions (compared to [GitLab Starter](#overriding-the-merge-request-approva
 - Approval rules can be added to an MR with no restriction.
 - For project sourced approval rules, editing and removing approvers is not allowed.
 - The approvals required of all approval rules is configurable, but if a rule is backed by a project rule, then it is restricted
-to the minimum approvals required set in the project's corresponding rule.
+  to the minimum approvals required set in the project's corresponding rule.
 
 ## Resetting approvals on push
 
@@ -295,7 +295,7 @@ enabling [**Prevent approval of merge requests by their committers**](#prevent-a
 1. Tick the checkbox **Prevent approval of merge requests by their committers**.
 1. Click **Save changes**.
 
-## Require authentication when approving a merge request **[STARTER]**
+## Require authentication when approving a merge request **(STARTER)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5981) in [GitLab Starter](https://about.gitlab.com/pricing/) 12.0.
 

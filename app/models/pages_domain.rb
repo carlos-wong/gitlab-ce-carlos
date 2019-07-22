@@ -3,15 +3,20 @@
 class PagesDomain < ApplicationRecord
   VERIFICATION_KEY = 'gitlab-pages-verification-code'.freeze
   VERIFICATION_THRESHOLD = 3.days.freeze
+  SSL_RENEWAL_THRESHOLD = 30.days.freeze
+
+  enum certificate_source: { user_provided: 0, gitlab_provided: 1 }, _prefix: :certificate
 
   belongs_to :project
   has_many :acme_orders, class_name: "PagesDomainAcmeOrder"
 
   validates :domain, hostname: { allow_numeric_hostname: true }
   validates :domain, uniqueness: { case_sensitive: false }
-  validates :certificate, presence: { message: 'must be present if HTTPS-only is enabled' }, if: ->(domain) { domain.project&.pages_https_only? }
+  validates :certificate, presence: { message: 'must be present if HTTPS-only is enabled' },
+            if: :certificate_should_be_present?
   validates :certificate, certificate: true, if: ->(domain) { domain.certificate.present? }
-  validates :key, presence: { message: 'must be present if HTTPS-only is enabled' }, if: ->(domain) { domain.project&.pages_https_only? }
+  validates :key, presence: { message: 'must be present if HTTPS-only is enabled' },
+            if: :certificate_should_be_present?
   validates :key, certificate_key: true, if: ->(domain) { domain.key.present? }
   validates :verification_code, presence: true, allow_blank: false
 
@@ -37,6 +42,15 @@ class PagesDomain < ApplicationRecord
     threshold = Time.now + VERIFICATION_THRESHOLD
 
     where(verified_at.eq(nil).or(enabled_until.eq(nil).or(enabled_until.lt(threshold))))
+  end
+
+  scope :need_auto_ssl_renewal, -> do
+    expiring = where(certificate_valid_not_after: nil).or(
+      where(arel_table[:certificate_valid_not_after].lt(SSL_RENEWAL_THRESHOLD.from_now)))
+
+    user_provided_or_expiring = certificate_user_provided.or(expiring)
+
+    where(auto_ssl_enabled: true).merge(user_provided_or_expiring)
   end
 
   scope :for_removal, -> { where("remove_at < ?", Time.now) }
@@ -143,6 +157,34 @@ class PagesDomain < ApplicationRecord
     self.certificate_valid_not_after = x509&.not_after
   end
 
+  def user_provided_key
+    key if certificate_user_provided?
+  end
+
+  def user_provided_key=(key)
+    self.key = key
+    self.certificate_source = 'user_provided' if key_changed?
+  end
+
+  def user_provided_certificate
+    certificate if certificate_user_provided?
+  end
+
+  def user_provided_certificate=(certificate)
+    self.certificate = certificate
+    self.certificate_source = 'user_provided' if certificate_changed?
+  end
+
+  def gitlab_provided_certificate=(certificate)
+    self.certificate = certificate
+    self.certificate_source = 'gitlab_provided' if certificate_changed?
+  end
+
+  def gitlab_provided_key=(key)
+    self.key = key
+    self.certificate_source = 'gitlab_provided' if key_changed?
+  end
+
   private
 
   def set_verification_code
@@ -208,5 +250,9 @@ class PagesDomain < ApplicationRecord
     @pkey ||= OpenSSL::PKey::RSA.new(key)
   rescue OpenSSL::PKey::PKeyError, OpenSSL::Cipher::CipherError
     nil
+  end
+
+  def certificate_should_be_present?
+    !auto_ssl_enabled? && project&.pages_https_only?
   end
 end

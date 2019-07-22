@@ -530,6 +530,17 @@ describe User do
   end
 
   describe 'before save hook' do
+    context '#default_private_profile_to_false' do
+      let(:user) { create(:user, private_profile: true) }
+
+      it 'converts nil to false' do
+        user.private_profile = nil
+        user.save!
+
+        expect(user.private_profile).to eq false
+      end
+    end
+
     context 'when saving an external user' do
       let(:user)          { create(:user) }
       let(:external_user) { create(:user, external: true) }
@@ -1127,6 +1138,7 @@ describe User do
         expect(user.can_create_group).to eq(Gitlab.config.gitlab.default_can_create_group)
         expect(user.theme_id).to eq(Gitlab.config.gitlab.default_theme)
         expect(user.external).to be_falsey
+        expect(user.private_profile).to eq false
       end
     end
 
@@ -1766,6 +1778,26 @@ describe User do
         expect(user.blocked?).to be_truthy
         expect(user.ldap_blocked?).to be_truthy
       end
+    end
+  end
+
+  describe '#ultraauth_user?' do
+    it 'is true if provider is ultraauth' do
+      user = create(:omniauth_user, provider: 'ultraauth')
+
+      expect(user.ultraauth_user?).to be_truthy
+    end
+
+    it 'is false with othe provider' do
+      user = create(:omniauth_user, provider: 'not-ultraauth')
+
+      expect(user.ultraauth_user?).to be_falsey
+    end
+
+    it 'is false if no extern_uid is provided' do
+      user = create(:omniauth_user, extern_uid: nil)
+
+      expect(user.ldap_user?).to be_falsey
     end
   end
 
@@ -2807,6 +2839,12 @@ describe User do
 
       expect(user.allow_password_authentication_for_web?).to be_falsey
     end
+
+    it 'returns false for ultraauth user' do
+      user = create(:omniauth_user, provider: 'ultraauth')
+
+      expect(user.allow_password_authentication_for_web?).to be_falsey
+    end
   end
 
   describe '#allow_password_authentication_for_git?' do
@@ -2826,6 +2864,12 @@ describe User do
 
     it 'returns false for ldap user' do
       user = create(:omniauth_user, provider: 'ldapmain')
+
+      expect(user.allow_password_authentication_for_git?).to be_falsey
+    end
+
+    it 'returns false for ultraauth user' do
+      user = create(:omniauth_user, provider: 'ultraauth')
 
       expect(user.allow_password_authentication_for_git?).to be_falsey
     end
@@ -2899,7 +2943,7 @@ describe User do
       let(:user) { create(:user, username: username) }
 
       context 'when the user is updated' do
-        context 'when the username is changed' do
+        context 'when the username or name is changed' do
           let(:new_username) { 'bar' }
 
           it 'changes the namespace (just to compare to when username is not changed)' do
@@ -2910,16 +2954,24 @@ describe User do
             end.to change { user.namespace.updated_at }
           end
 
-          it 'updates the namespace name' do
-            user.update!(username: new_username)
-
-            expect(user.namespace.name).to eq(new_username)
-          end
-
-          it 'updates the namespace path' do
+          it 'updates the namespace path when the username was changed' do
             user.update!(username: new_username)
 
             expect(user.namespace.path).to eq(new_username)
+          end
+
+          it 'updates the namespace name if the name was changed' do
+            user.update!(name: 'New name')
+
+            expect(user.namespace.name).to eq('New name')
+          end
+
+          it 'updates nested routes for the namespace if the name was changed' do
+            project = create(:project, namespace: user.namespace)
+
+            user.update!(name: 'New name')
+
+            expect(project.route.reload.name).to include('New name')
           end
 
           context 'when there is a validation error (namespace name taken) while updating namespace' do
@@ -3322,7 +3374,7 @@ describe User do
   end
 
   describe '#requires_usage_stats_consent?' do
-    let(:user) { create(:user, created_at: 8.days.ago) }
+    let(:user) { create(:user, :admin, created_at: 8.days.ago) }
 
     before do
       allow(user).to receive(:has_current_license?).and_return false
@@ -3346,7 +3398,7 @@ describe User do
       end
 
       it 'does not require consent if usage stats were set by this user' do
-        allow(Gitlab::CurrentSettings).to receive(:usage_stats_set_by_user_id).and_return(user.id)
+        create(:application_setting, usage_stats_set_by_user_id: user.id)
 
         expect(user.requires_usage_stats_consent?).to be false
       end

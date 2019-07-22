@@ -28,9 +28,7 @@ module MetricsDashboardHelpers
     end
   end
 
-  shared_examples_for 'valid dashboard service response' do
-    let(:dashboard_schema) { JSON.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/dashboard.json')) }
-
+  shared_examples_for 'valid dashboard service response for schema' do
     it 'returns a json representation of the dashboard' do
       result = service_call
 
@@ -38,6 +36,26 @@ module MetricsDashboardHelpers
       expect(result[:status]).to eq(:success)
 
       expect(JSON::Validator.fully_validate(dashboard_schema, result[:dashboard])).to be_empty
+    end
+  end
+
+  shared_examples_for 'valid dashboard service response' do
+    let(:dashboard_schema) { JSON.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/dashboard.json')) }
+
+    it_behaves_like 'valid dashboard service response for schema'
+  end
+
+  shared_examples_for 'valid embedded dashboard service response' do
+    let(:dashboard_schema) { JSON.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/embedded_dashboard.json')) }
+
+    it_behaves_like 'valid dashboard service response for schema'
+  end
+
+  shared_examples_for 'raises error for users with insufficient permissions' do
+    context 'when the user does not have sufficient access' do
+      let(:user) { build(:user) }
+
+      it_behaves_like 'misconfigured dashboard service response', :unauthorized
     end
   end
 end

@@ -2,13 +2,11 @@
 
 require 'spec_helper'
 
-describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching do
+describe Clusters::Platforms::Kubernetes do
   include KubernetesHelpers
-  include ReactiveCachingHelpers
 
   it { is_expected.to belong_to(:cluster) }
   it { is_expected.to be_kind_of(Gitlab::Kubernetes) }
-  it { is_expected.to be_kind_of(ReactiveCaching) }
   it { is_expected.to respond_to :ca_pem }
 
   it { is_expected.to validate_exclusion_of(:namespace).in_array(%w(gitlab-managed-apps)) }
@@ -281,14 +279,14 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
 
       it_behaves_like 'setting variables'
 
-      it 'sets KUBE_TOKEN' do
-        expect(subject).to include(
+      it 'does not set KUBE_TOKEN' do
+        expect(subject).not_to include(
           { key: 'KUBE_TOKEN', value: kubernetes.token, public: false, masked: true }
         )
       end
     end
 
-    context 'kubernetes namespace is created with no service account token' do
+    context 'kubernetes namespace is created with service account token' do
       let!(:kubernetes_namespace) { create(:cluster_kubernetes_namespace, :with_token, cluster: cluster) }
 
       it_behaves_like 'setting variables'
@@ -337,32 +335,6 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
             )
           end
         end
-      end
-    end
-
-    context 'namespace is provided' do
-      let(:namespace) { 'my-project' }
-
-      before do
-        kubernetes.namespace = namespace
-      end
-
-      it_behaves_like 'setting variables'
-
-      it 'sets KUBE_TOKEN' do
-        expect(subject).to include(
-          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false, masked: true }
-        )
-      end
-    end
-
-    context 'no namespace provided' do
-      it_behaves_like 'setting variables'
-
-      it 'sets KUBE_TOKEN' do
-        expect(subject).to include(
-          { key: 'KUBE_TOKEN', value: kubernetes.token, public: false, masked: true }
-        )
       end
     end
 
@@ -423,17 +395,16 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
   end
 
   describe '#terminals' do
-    subject { service.terminals(environment) }
+    subject { service.terminals(environment, pods: pods) }
 
     let!(:cluster) { create(:cluster, :project, platform_kubernetes: service) }
     let(:project) { cluster.project }
     let(:service) { create(:cluster_platform_kubernetes, :configured) }
     let(:environment) { build(:environment, project: project, name: "env", slug: "env-000000") }
+    let(:pods) { [{ "bad" => "pod" }] }
 
     context 'with invalid pods' do
       it 'returns no terminals' do
-        stub_reactive_cache(service, pods: [{ "bad" => "pod" }])
-
         is_expected.to be_empty
       end
     end
@@ -442,13 +413,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
       let(:pod) { kube_pod(environment_slug: environment.slug, namespace: cluster.kubernetes_namespace_for(project), project_slug: project.full_path_slug) }
       let(:pod_with_no_terminal) { kube_pod(environment_slug: environment.slug, project_slug: project.full_path_slug, status: "Pending") }
       let(:terminals) { kube_terminals(service, pod) }
-
-      before do
-        stub_reactive_cache(
-          service,
-          pods: [pod, pod, pod_with_no_terminal, kube_pod(environment_slug: "should-be-filtered-out")]
-        )
-      end
+      let(:pods) { [pod, pod, pod_with_no_terminal, kube_pod(environment_slug: "should-be-filtered-out")] }
 
       it 'returns terminals' do
         is_expected.to eq(terminals + terminals)
@@ -463,16 +428,18 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
     end
   end
 
-  describe '#calculate_reactive_cache' do
-    subject { service.calculate_reactive_cache }
-
-    let!(:cluster) { create(:cluster, :project, enabled: enabled, platform_kubernetes: service) }
+  describe '#calculate_reactive_cache_for' do
     let(:service) { create(:cluster_platform_kubernetes, :configured) }
-    let(:enabled) { true }
-    let(:namespace) { cluster.kubernetes_namespace_for(cluster.project) }
+    let(:pod) { kube_pod }
+    let(:namespace) { pod["metadata"]["namespace"] }
+    let(:environment) { instance_double(Environment, deployment_namespace: namespace) }
 
-    context 'when cluster is disabled' do
-      let(:enabled) { false }
+    subject { service.calculate_reactive_cache_for(environment) }
+
+    context 'when the kubernetes integration is disabled' do
+      before do
+        allow(service).to receive(:enabled?).and_return(false)
+      end
 
       it { is_expected.to be_nil }
     end
@@ -483,7 +450,7 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
         stub_kubeclient_deployments(namespace)
       end
 
-      it { is_expected.to include(pods: [kube_pod]) }
+      it { is_expected.to include(pods: [pod]) }
     end
 
     context 'when kubernetes responds with 500s' do
@@ -502,35 +469,6 @@ describe Clusters::Platforms::Kubernetes, :use_clean_rails_memory_store_caching 
       end
 
       it { is_expected.to include(pods: []) }
-    end
-
-    context 'when the cluster is not project level' do
-      let(:cluster) { create(:cluster, :group, platform_kubernetes: service) }
-
-      it { is_expected.to include(pods: []) }
-    end
-  end
-
-  describe '#update_kubernetes_namespace' do
-    let(:cluster) { create(:cluster, :provided_by_gcp) }
-    let(:platform) { cluster.platform }
-
-    context 'when namespace is updated' do
-      it 'calls ConfigureWorker' do
-        expect(ClusterConfigureWorker).to receive(:perform_async).with(cluster.id).once
-
-        platform.namespace = 'new-namespace'
-        platform.save
-      end
-    end
-
-    context 'when namespace is not updated' do
-      it 'does not call ConfigureWorker' do
-        expect(ClusterConfigureWorker).not_to receive(:perform_async)
-
-        platform.username = "new-username"
-        platform.save
-      end
     end
   end
 end

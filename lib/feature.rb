@@ -30,7 +30,14 @@ class Feature
     end
 
     def persisted_names
-      Gitlab::SafeRequestStore[:flipper_persisted_names] ||= FlipperFeature.feature_names
+      Gitlab::SafeRequestStore[:flipper_persisted_names] ||=
+        begin
+          # We saw on GitLab.com, this database request was called 2300
+          # times/s. Let's cache it for a minute to avoid that load.
+          Gitlab::ThreadMemoryCache.cache_backend.fetch('flipper:persisted_names', expires_in: 1.minute) do
+            FlipperFeature.feature_names
+          end
+        end
     end
 
     def persisted?(feature)
@@ -96,10 +103,27 @@ class Feature
         feature_class: FlipperFeature,
         gate_class: FlipperGate)
 
+      # Redis L2 cache
+      redis_cache_adapter =
+        Flipper::Adapters::ActiveSupportCacheStore.new(
+          active_record_adapter,
+          l2_cache_backend,
+          expires_in: 1.hour)
+
+      # Thread-local L1 cache: use a short timeout since we don't have a
+      # way to expire this cache all at once
       Flipper::Adapters::ActiveSupportCacheStore.new(
-        active_record_adapter,
-        Rails.cache,
-        expires_in: 1.hour)
+        redis_cache_adapter,
+        l1_cache_backend,
+        expires_in: 1.minute)
+    end
+
+    def l1_cache_backend
+      Gitlab::ThreadMemoryCache.cache_backend
+    end
+
+    def l2_cache_backend
+      Rails.cache
     end
   end
 

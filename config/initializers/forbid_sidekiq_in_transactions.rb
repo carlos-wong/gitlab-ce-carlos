@@ -2,22 +2,23 @@ module Sidekiq
   module Worker
     EnqueueFromTransactionError = Class.new(StandardError)
 
-    mattr_accessor :skip_transaction_check
-    self.skip_transaction_check = false
-
     def self.skipping_transaction_check(&block)
-      skip_transaction_check = self.skip_transaction_check
-      self.skip_transaction_check = true
+      previous_skip_transaction_check = self.skip_transaction_check
+      Thread.current[:sidekiq_worker_skip_transaction_check] = true
       yield
     ensure
-      self.skip_transaction_check = skip_transaction_check
+      Thread.current[:sidekiq_worker_skip_transaction_check] = previous_skip_transaction_check
+    end
+
+    def self.skip_transaction_check
+      Thread.current[:sidekiq_worker_skip_transaction_check]
     end
 
     module ClassMethods
       module NoEnqueueingFromTransactions
         %i(perform_async perform_at perform_in).each do |name|
           define_method(name) do |*args|
-            if !Sidekiq::Worker.skip_transaction_check && AfterCommitQueue.inside_transaction?
+            if !Sidekiq::Worker.skip_transaction_check && Gitlab::Database.inside_transaction?
               begin
                 raise Sidekiq::Worker::EnqueueFromTransactionError, <<~MSG
                 `#{self}.#{name}` cannot be called inside a transaction as this can lead to

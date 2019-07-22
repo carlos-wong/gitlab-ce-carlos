@@ -1,21 +1,24 @@
 # Workflow labels
 
 To allow for asynchronous issue handling, we use [milestones][milestones-page]
-and [labels][labels-page]. Leads and product managers handle most of the
+and [labels](https://gitlab.com/gitlab-org/gitlab-ce/-/labels). Leads and product managers handle most of the
 scheduling into milestones. Labelling is a task for everyone.
 
 Most issues will have labels for at least one of the following:
 
-- Type: ~feature, ~bug, ~customer, etc.
-- Subject: ~wiki, ~"Container Registry", ~ldap, ~api, ~frontend, etc.
-- Team: ~Plan, ~Manage, ~Quality, etc.
-- Stage: ~"devops:plan", ~"devops:create", etc.
+- Type: ~feature, ~bug, ~backstage, etc.
+- Subject: ~wiki, ~"Container Registry", ~ldap, ~api, etc.
+- Team: ~Documentation, ~Delivery, etc.
+- Stage: ~"devops::plan", ~"devops::create", etc.
+- Group: ~"group::source code" ~"group::knowledge" ~"group::editor", etc.
+- Department: ~UX, ~Quality
+- Specialization: ~frontend, ~backend
 - Release Scoping: ~Deliverable, ~Stretch, ~"Next Patch Release"
 - Priority: ~P1, ~P2, ~P3, ~P4
 - Severity: ~S1, ~S2, ~S3, ~S4
 
 All labels, their meaning and priority are defined on the
-[labels page][labels-page].
+[labels page](https://gitlab.com/gitlab-org/gitlab-ce/-/labels).
 
 If you come across an issue that has none of these, and you're allowed to set
 labels, you can _always_ add the team and type, and often also the subject.
@@ -27,8 +30,7 @@ labels, you can _always_ add the team and type, and often also the subject.
 Type labels are very important. They define what kind of issue this is. Every
 issue should have one or more.
 
-Examples of type labels are ~feature, ~bug, ~customer, ~security,
-and ~direction.
+Examples of type labels are ~feature, ~bug, ~backstage and ~security
 
 A number of type labels have a priority assigned to them, which automatically
 makes them float to the top, depending on their importance.
@@ -36,12 +38,16 @@ makes them float to the top, depending on their importance.
 Type labels are always lowercase, and can have any color, besides blue (which is
 already reserved for subject labels).
 
-The descriptions on the [labels page][labels-page] explain what falls under each type label.
+The descriptions on the [labels page](https://gitlab.com/gitlab-org/gitlab-ce/-/labels) explain what falls under each type label.
 
 ## Subject labels
 
 Subject labels are labels that define what area or feature of GitLab this issue
 hits. They are not always necessary, but very convenient.
+
+Subject labels are now used to infer and apply relevant group and devops stage
+labels. Please apply them whenever possible to facilitate accurate matching.
+Please refer to [this merge request][inferred-labels] for more information.
 
 Examples of subject labels are ~wiki, ~ldap, ~api,
 ~issues, ~"merge requests", ~labels, and ~"Container Registry".
@@ -54,30 +60,36 @@ Subject labels are always all-lowercase.
 
 ## Team labels
 
+**Important**: Most of the team labels will be soon deprecated in favor of [Group labels](#group-labels).
+
 Team labels specify what team is responsible for this issue.
 Assigning a team label makes sure issues get the attention of the appropriate
 people.
 
-The current team labels are:
+The team labels planned for deprecation are:
 
 - ~Configure
 - ~Create
 - ~Defend
 - ~Distribution
-- ~Documentation
+- ~Ecosystem
 - ~Geo
 - ~Gitaly
 - ~Growth
 - ~Manage
+- ~Memory
 - ~Monitor
 - ~Plan
-- ~Quality
 - ~Release
 - ~Secure
-- ~UX
 - ~Verify
 
-The descriptions on the [labels page][labels-page] explain what falls under the
+The following team labels are **true** teams per our [organization structure](https://about.gitlab.com/company/team/structure/#organizational-structure) which will remain post deprecation.
+
+- ~Delivery
+- ~Documentation
+
+The descriptions on the [labels page](https://gitlab.com/gitlab-org/gitlab-ce/-/labels) explain what falls under the
 responsibility of each team.
 
 Within those team labels, we also have the ~backend and ~frontend labels to
@@ -126,11 +138,44 @@ The Stage labels are used to generate the [direction pages][direction-pages] aut
 
 Group labels specify which [groups][structure-groups] the issue belongs to.
 
-Examples include:
+The current group labels are:
 
-- ~"group::control"
+- ~"group::access"
+- ~"group::measure"
+- ~"group::source code"
+- ~"group::knowledge"
 - ~"group::editor"
-
+- ~"group::gitaly"  
+- ~"group::gitter"  
+- ~"group::team planning"
+- ~"group::enterprise planning"
+- ~"group::certify"
+- ~"group::ci and runner"
+- ~"group::testing"
+- ~"group::package"
+- ~"group::progressive delivery"
+- ~"group::release management"
+- ~"group::autodevops and kubernetes"
+- ~"group::serverless and paas"
+- ~"group::apm"
+- ~"group::health"
+- ~"group::static analysis"
+- ~"group::dynamic analysis"
+- ~"group::software composition analysis"
+- ~"group::runtime application security"
+- ~"group::threat management"
+- ~"group::application infrastructure security"
+- ~"group::activation"
+- ~"group::adoption"
+- ~"group::upsell"
+- ~"group::retention"
+- ~"group::fulfillment"
+- ~"group::telemetry"
+- ~"group::distribution"
+- ~"group::geo"
+- ~"group::memory"
+- ~"group::ecosystem"
+  
 These labels are [scoped labels](../../user/project/labels.md#scoped-labels-premium)
 and thus are mutually exclusive.
 
@@ -140,6 +185,20 @@ can be applied to a single issue. You can find the groups listed in the
 
 [structure-groups]: https://about.gitlab.com/company/team/structure/#groups
 [product-categories]: https://about.gitlab.com/handbook/product/categories/
+
+## Department labels
+
+The current department labels are:
+
+- ~UX
+- ~Quality
+
+## Specialization labels
+
+These labels narrow the [specialization](https://about.gitlab.com/company/team/structure/#specialist) on a unit of work.
+
+- ~frontend
+- ~backend
 
 ## Release Scoping labels
 
@@ -172,35 +231,35 @@ This label documents the planned timeline & urgency which is used to measure aga
 | ~P3   | Medium Priority | Within the next 3 releases (approx one quarter or 90 days)                 |
 | ~P4   | Low Priority    | Anything outside the next 3 releases (more than one quarter or 120 days)   |
 
-If an issue seems to fall between two priority labels, assign it to the higher-
-priority label.
-
 ## Severity labels
 
 Severity labels help us clearly communicate the impact of a ~bug on users.
+There can be multiple facets of the impact. The below is a guideline.
 
-| Label | Meaning           | Impact on Functionality                               | Example |
-|-------|-------------------|-------------------------------------------------------|---------|
-| ~S1   | Blocker           | Outage, broken feature with no workaround             | Unable to create an issue. Data corruption/loss. Security breach. |
-| ~S2   | Critical Severity | Broken Feature, workaround too complex & unacceptable | Can push commits, but only via the command line. |
-| ~S3   | Major Severity    | Broken Feature, workaround acceptable                 | Can create merge requests only from the Merge Requests page, not through the Issue. |
-| ~S4   | Low Severity      | Functionality inconvenience or cosmetic issue         | Label colors are incorrect / not being displayed. |
+| Label | Meaning           | Functionality                                         | Affected Users                   | GitLab.com Availability                            | Performance Degradation      |
+|-------|-------------------|-------------------------------------------------------|----------------------------------|----------------------------------------------------|------------------------------|
+| ~S1   | Blocker           | Unusable feature with no workaround, user is blocked  | Impacts 50% or more of users     | Outage, Significant impact on all of GitLab.com    |                                                       |
+| ~S2   | Critical Severity | Broken Feature, workaround too complex & unacceptable | Impacts between 25%-50% of users | Significant impact on large portions of GitLab.com | Degradation is guaranteed to occur in the near future |
+| ~S3   | Major Severity    | Broken feature with an acceptable workaround          | Impacts up to 25% of users       | Limited impact on important portions of GitLab.com | Degradation is likely to occur in the near future     |
+| ~S4   | Low Severity      | Functionality inconvenience or cosmetic issue         | Impacts less than 5% of users    | Minor impact on GitLab.com                         | Degradation _may_ occur but it's not likely           |
 
-If an issue seems to fall between two severity labels, even taking the
-[severity impact guidance](#severity-impact-guidance) into account, assign
-it to the higher-severity label.
+If a bug seems to fall between two severity labels, assign it to the higher-severity label.
 
-### Severity impact guidance
-
-Severity levels can be applied further depending on the facet of the impact; e.g. Affected customers, GitLab.com availability, performance and etc. The below is a guideline.
-
-| Severity | Affected Customers/Users                                            | GitLab.com Availability                            |  Performance Degradation     |
-|----------|---------------------------------------------------------------------|----------------------------------------------------|------------------------------|
-| ~S1      | >50% users affected (possible company extinction level event)       | Significant impact on all of GitLab.com            |                              |
-| ~S2      | Many users or multiple paid customers affected (but not apocalyptic)| Significant impact on large portions of GitLab.com | Degradation is guaranteed to occur in the near future |
-| ~S3      | A few users or a single paid customer affected                      | Limited impact on important portions of GitLab.com | Degradation is likely to occur in the near future     |
-| ~S4      | No paid users/customer affected, or expected to in the near future  | Minor impact on GitLab.com                         | Degradation _may_ occur but it's not likely           |
-
+- Example(s) of ~S1
+  - Data corruption/loss.
+  - Security breach.
+  - Unable to create an issue or merge request. 
+  - Unable to add a comment or thread to the issue or merge request.
+- Example(s) of ~S2
+  - Cannot submit changes through the web IDE but the commandline works.
+  - A status widget on the merge request page is not working but information can be seen in the test pipeline page.
+- Example(s) of ~S3
+  - Can create merge requests only from the Merge Requests list view, not from an Issue page.
+  - Status is not updated in real time and needs a page refresh.
+- Example(s) of ~S4
+  - Label colors are incorrect.
+  - UI elements are not fully aligned.
+  
 ## Label for community contributors
 
 Issues that are beneficial to our users, 'nice to haves', that we currently do
@@ -284,7 +343,7 @@ For feature proposals for EE, open an issue on the
 
 In order to help track the feature proposals, we have created a
 [`feature`][fl] label. For the time being, users that are not members
-of the project cannot add labels. You can instead ask one of the [core team]
+of the project cannot add labels. You can instead ask one of the [core team](https://about.gitlab.com/community/core-team/)
 members to add the label ~feature to the issue or add the following
 code snippet right after your description in a new line: `~feature`.
 
@@ -295,7 +354,7 @@ Please submit Feature Proposals using the ['Feature Proposal' issue template](ht
 
 For changes in the interface, it is helpful to include a mockup. Issues that add to, or change, the interface should
 be given the ~"UX" label. This will allow the UX team to provide input and guidance. You may
-need to ask one of the [core team] members to add the label, if you do not have permissions to do it by yourself.
+need to ask one of the [core team](https://about.gitlab.com/community/core-team/) members to add the label, if you do not have permissions to do it by yourself.
 
 If you want to create something yourself, consider opening an issue first to
 discuss whether it is interesting to include this in GitLab.
@@ -439,6 +498,6 @@ A recent example of this was the issue for
 
 [Return to Contributing documentation](index.md)
 
-[labels-page]: https://gitlab.com/gitlab-org/gitlab-ce/labels
 [ce-tracker]: https://gitlab.com/gitlab-org/gitlab-ce/issues
 [ee-tracker]: https://gitlab.com/gitlab-org/gitlab-ee/issues
+[inferred-labels]: https://gitlab.com/gitlab-org/quality/triage-ops/merge_requests/155

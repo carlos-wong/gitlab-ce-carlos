@@ -7,6 +7,7 @@ class Deployment < ApplicationRecord
 
   belongs_to :project, required: true
   belongs_to :environment, required: true
+  belongs_to :cluster, class_name: 'Clusters::Cluster', optional: true
   belongs_to :user
   belongs_to :deployable, polymorphic: true # rubocop:disable Cop/PolymorphicAssociations
 
@@ -82,14 +83,6 @@ class Deployment < ApplicationRecord
 
   def short_sha
     Commit.truncate_sha(sha)
-  end
-
-  def cluster
-    platform = project.deployment_platform(environment: environment.name)
-
-    if platform.present? && platform.respond_to?(:cluster)
-      platform.cluster
-    end
   end
 
   def execute_hooks
@@ -178,29 +171,7 @@ class Deployment < ApplicationRecord
     deployed_at&.to_time&.in_time_zone&.to_s(:medium)
   end
 
-  def has_metrics?
-    prometheus_adapter&.can_query? && success?
-  end
-
-  def metrics
-    return {} unless has_metrics?
-
-    metrics = prometheus_adapter.query(:deployment, self)
-    metrics&.merge(deployment_time: finished_at.to_i) || {}
-  end
-
-  def additional_metrics
-    return {} unless has_metrics?
-
-    metrics = prometheus_adapter.query(:additional_metrics_deployment, self)
-    metrics&.merge(deployment_time: finished_at.to_i) || {}
-  end
-
   private
-
-  def prometheus_adapter
-    environment.prometheus_adapter
-  end
 
   def ref_path
     File.join(environment.ref_path, 'deployments', iid.to_s)

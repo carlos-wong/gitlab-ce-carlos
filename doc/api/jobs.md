@@ -14,7 +14,7 @@ GET /projects/:id/jobs
 | `scope`   | string **or** array of strings | no       | Scope of jobs to show. Either one of or an array of the following: `created`, `pending`, `running`, `failed`, `success`, `canceled`, `skipped`, or `manual`. All jobs are returned if `scope` is not provided. |
 
 ```sh
-curl --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/1/jobs?scope[]=pending&scope[]=running'
+curl --globoff --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/1/jobs?scope[]=pending&scope[]=running'
 ```
 
 Example of response
@@ -359,7 +359,7 @@ GET /projects/:id/jobs/:job_id/artifacts
 |-------------|----------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|
 | `id`        | integer/string | yes      | ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user.                                |
 | `job_id`    | integer        | yes      | ID of a job.                                                                                                                                |
-| `job_token` **[PREMIUM]** | string         | no       | To be used with [triggers] for multi-project pipelines. It should be invoked only inside `.gitlab-ci.yml`. Its value is always `$CI_JOB_TOKEN`. |
+| `job_token` **(PREMIUM)** | string         | no       | To be used with [triggers] for multi-project pipelines. It should be invoked only inside `.gitlab-ci.yml`. Its value is always `$CI_JOB_TOKEN`. |
 
 Example request using the `PRIVATE-TOKEN` header:
 
@@ -368,7 +368,7 @@ curl --output artifacts.zip --header "PRIVATE-TOKEN: <your_access_token>" "https
 ```
 
 To use this in a [`script` definition](../ci/yaml/README.md#script) inside
-`.gitlab-ci.yml` **[PREMIUM]**, you can use either:
+`.gitlab-ci.yml` **(PREMIUM)**, you can use either:
 
 - The `JOB-TOKEN` header with the GitLab-provided `CI_JOB_TOKEN` variable.
   For example, the following job will download the artifacts of the job with ID
@@ -409,10 +409,10 @@ Possible response status codes:
 > - The use of `CI_JOB_TOKEN` in the artifacts download API was [introduced][ee-2346]
 >   in [GitLab Premium][ee] 9.5.
 
-Download the artifacts zipped archive from the given reference name and job,
-provided the job finished successfully. This is the same as
-[getting the job's artifacts](#get-job-artifacts), but by defining the job's
-name instead of its ID.
+Download the artifacts zipped archive from the latest successful pipeline for
+the given reference name and job, provided the job finished successfully. This
+is the same as [getting the job's artifacts](#get-job-artifacts), but by
+defining the job's name instead of its ID.
 
 ```
 GET /projects/:id/jobs/artifacts/:ref_name/download?job=name
@@ -425,7 +425,7 @@ Parameters
 | `id`        | integer/string | yes      | ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user.                                |
 | `ref_name`  | string         | yes      | Branch or tag name in repository. HEAD or SHA references are not supported.                                                                     |
 | `job`       | string         | yes      | The name of the job.                                                                                                                            |
-| `job_token` **[PREMIUM]** | string         | no       | To be used with [triggers] for multi-project pipelines. It should be invoked only inside `.gitlab-ci.yml`. Its value is always `$CI_JOB_TOKEN`. |
+| `job_token` **(PREMIUM)** | string         | no       | To be used with [triggers] for multi-project pipelines. It should be invoked only inside `.gitlab-ci.yml`. Its value is always `$CI_JOB_TOKEN`. |
 
 Example request using the `PRIVATE-TOKEN` header:
 
@@ -434,7 +434,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/a
 ```
 
 To use this in a [`script` definition](../ci/yaml/README.md#script) inside
-`.gitlab-ci.yml` **[PREMIUM]**, you can use either:
+`.gitlab-ci.yml` **(PREMIUM)**, you can use either:
 
 - The `JOB-TOKEN` header with the GitLab-provided `CI_JOB_TOKEN` variable.
   For example, the following job will download the artifacts of the `test` job
@@ -485,7 +485,7 @@ Parameters
 | Attribute       | Type           | Required | Description                                                                                                      |
 |-----------------|----------------|----------|------------------------------------------------------------------------------------------------------------------|
 | `id`            | integer/string | yes      | ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user. |
-| `job_id  `      | integer        | yes      | The unique job identifier.                                                                                       |
+| `job_id`        | integer        | yes      | The unique job identifier.                                                                                       |
 | `artifact_path` | string         | yes      | Path to a file inside the artifacts archive.                                                                     |
 
 Example request:
@@ -506,9 +506,9 @@ Possible response status codes:
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/23538) in GitLab 11.5.
 
-Download a single artifact file from a specific tag or branch from within the
-job's artifacts archive. The file is extracted from the archive and streamed to
-the client.
+Download a single artifact file for a specific job of the latest successful
+pipeline for the given reference name from within the job's artifacts archive.
+The file is extracted from the archive and streamed to the client.
 
 ```
 GET /projects/:id/jobs/artifacts/:ref_name/raw/*artifact_path?job=name
@@ -781,7 +781,6 @@ DELETE /projects/:id/jobs/:job_id/artifacts
 |-----------|----------------|----------|------------------------------------------------------------------------------------------------------------------|
 | `id`      | integer/string | yes      | ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 | `job_id`  | integer        | yes      | ID of a job.                                                                |
-
 
 Example request:
 

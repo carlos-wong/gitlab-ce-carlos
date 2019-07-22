@@ -17,7 +17,7 @@ When you create a project in GitLab, you'll have access to a large number of
 
 - [Issue tracker](issues/index.md): Discuss implementations with your team within issues
   - [Issue Boards](issue_board.md): Organize and prioritize your workflow
-  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **[STARTER]**
+  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **(STARTER)**
 - [Repositories](repository/index.md): Host your code in a fully
   integrated platform
   - [Branches](repository/branches/index.md): use Git branching strategies to
@@ -34,11 +34,11 @@ When you create a project in GitLab, you'll have access to a large number of
 
 - [Issue tracker](issues/index.md): Discuss implementations with your team within issues
   - [Issue Boards](issue_board.md): Organize and prioritize your workflow
-  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **[STARTER]**
+  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **(STARTER)**
 - [Merge Requests](merge_requests/index.md): Apply your branching
   strategy and get reviewed by your team
   - [Merge Request Approvals](merge_requests/merge_request_approvals.md): Ask for approval before
-  implementing a change **[STARTER]**
+  implementing a change **(STARTER)**
   - [Fix merge conflicts from the UI](merge_requests/resolve_conflicts.md):
   Your Git diff tool right from GitLab's UI
   - [Review Apps](../../ci/review_apps/index.md): Live preview the results
@@ -52,6 +52,9 @@ When you create a project in GitLab, you'll have access to a large number of
   templates for issue and merge request description fields for your project
 - [Slash commands (quick actions)](quick_actions.md): Textual shortcuts for
   common actions on issues or merge requests
+- [Autocomplete characters](autocomplete_characters.md): Autocomplete
+  references to users, groups, issues, merge requests, and other GitLab
+  elements.
 - [Web IDE](web_ide/index.md)
 
 **GitLab CI/CD:**
@@ -75,7 +78,7 @@ When you create a project in GitLab, you'll have access to a large number of
   - [Kubernetes cluster integration](clusters/index.md): Connecting your GitLab project
     with a Kubernetes cluster
   - [Feature Flags](operations/feature_flags.md): Feature flags allow you to ship a project in
-    different flavors by dynamically toggling certain functionality **[PREMIUM]**
+    different flavors by dynamically toggling certain functionality **(PREMIUM)**
 - [GitLab Pages](pages/index.md): Build, test, and deploy your static
   website with GitLab Pages
 
@@ -84,18 +87,18 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Wiki](wiki/index.md): document your GitLab project in an integrated Wiki.
 - [Snippets](../snippets.md): store, share and collaborate on code snippets.
 - [Cycle Analytics](cycle_analytics.md): review your development lifecycle.
-- [Insights](insights/index.md): configure the Insights that matter for your projects. **[ULTIMATE]**
-- [Security Dashboard](security_dashboard.md): Security Dashboard. **[ULTIMATE]**
+- [Insights](insights/index.md): configure the Insights that matter for your projects. **(ULTIMATE)**
+- [Security Dashboard](security_dashboard.md): Security Dashboard. **(ULTIMATE)**
 - [Syntax highlighting](highlighting.md): an alternative to customize
   your code blocks, overriding GitLab's default choice of language.
 - [Badges](badges.md): badges for the project overview.
 - [Releases](releases/index.md): a way to track deliverables in your project as snapshot in time of
   the source, build output, and other metadata or artifacts
   associated with a released version of your code.
-- [Maven packages](packages/maven_repository.md): your private Maven repository in GitLab. **[PREMIUM]**
-- [NPM packages](packages/npm_registry.md): your private NPM package registry in GitLab. **[PREMIUM]**
-- [Code owners](code_owners.md): specify code owners for certain files **[STARTER]**
-- [License Management](../application_security/license_management/index.md): approve and blacklist licenses for projects. **[ULTIMATE]**
+- [Maven packages](packages/maven_repository.md): your private Maven repository in GitLab. **(PREMIUM)**
+- [NPM packages](packages/npm_registry.md): your private NPM package registry in GitLab. **(PREMIUM)**
+- [Code owners](code_owners.md): specify code owners for certain files **(STARTER)**
+- [License Management](../application_security/license_management/index.md): approve and blacklist licenses for projects. **(ULTIMATE)**
 
 ### Project integrations
 
@@ -131,7 +134,7 @@ Read through the documentation on [project settings](settings/index.md).
 - [Export a project from GitLab](settings/import_export.md#exporting-a-project-and-its-data)
 - [Importing and exporting projects between GitLab instances](settings/import_export.md)
 
-## CI/CD for external repositories **[PREMIUM]**
+## CI/CD for external repositories **(PREMIUM)**
 
 Instead of importing a repository directly to GitLab, you can connect your repository
 as a CI/CD project.
@@ -193,13 +196,35 @@ password <personal_access_token>
 To quickly access a project from the GitLab UI using the project ID,
 visit the `/projects/:id` URL in your browser or other tool accessing the project.
 
+## Project aliases **(PREMIUM ONLY)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
+
+When migrating repositories to GitLab and they are being accessed by other systems,
+it's very useful to be able to access them using the same name especially when
+they are a lot. It reduces the risk of changing significant number of Git URLs in
+a large number of systems.
+
+GitLab provides a functionality to help with this. In GitLab, repositories are
+usually accessed with a namespace and project name. It is also possible to access
+them via a project alias. This feature is only available on Git over SSH.
+
+A project alias can be only created via API and only by GitLab administrators.
+Follow the [Project Aliases API documentation](../../api/project_aliases.md) for
+more details.
+
+Once an alias has been created for a project (e.g., an alias `gitlab-ce` for the
+project `https://gitlab.com/gitlab-org/gitlab-ce`), the repository can be cloned
+using the alias (e.g `git clone git@gitlab.com:gitlab-ce.git` instead of
+`git clone git@gitlab.com:gitlab-org/gitlab-ce.git`).
+
 ## Project APIs
 
 There are numerous [APIs](../../api/README.md) to use with your projects:
 
 - [Badges](../../api/project_badges.md)
 - [Clusters](../../api/project_clusters.md)
-- [Discussions](../../api/discussions.md)
+- [Threads](../../api/discussions.md)
 - [General](../../api/projects.md)
 - [Import/export](../../api/project_import_export.md)
 - [Issue Board](../../api/boards.md)
@@ -212,3 +237,4 @@ There are numerous [APIs](../../api/README.md) to use with your projects:
 - [Templates](../../api/project_templates.md)
 - [Traffic](../../api/project_statistics.md)
 - [Variables](../../api/project_level_variables.md)
+- [Aliases](../../api/project_aliases.md)

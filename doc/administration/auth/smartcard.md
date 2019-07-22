@@ -1,4 +1,8 @@
-# Smartcard authentication **[PREMIUM ONLY]**
+---
+type: reference
+---
+
+# Smartcard authentication **(PREMIUM ONLY)**
 
 GitLab supports authentication using smartcards.
 
@@ -22,7 +26,7 @@ To use a smartcard with an X.509 certificate to authenticate against a local
 database with GitLab, `CN` and `emailAddress` must be defined in the
 certificate. For example:
 
-```
+```text
 Certificate:
     Data:
         Version: 1 (0x0)
@@ -56,11 +60,11 @@ attribute. As a prerequisite, you must use an LDAP server that:
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
-    ```ruby
-    gitlab_rails['smartcard_enabled'] = true
-    gitlab_rails['smartcard_ca_file'] = "/etc/ssl/certs/CA.pem"
-    gitlab_rails['smartcard_client_certificate_required_port'] = 3444
-    ```
+   ```ruby
+   gitlab_rails['smartcard_enabled'] = true
+   gitlab_rails['smartcard_ca_file'] = "/etc/ssl/certs/CA.pem"
+   gitlab_rails['smartcard_client_certificate_required_port'] = 3444
+   ```
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
    GitLab for the changes to take effect.
@@ -154,15 +158,15 @@ attribute. As a prerequisite, you must use an LDAP server that:
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
-    ```ruby
-    gitlab_rails['ldap_servers'] = YAML.load <<-EOS
-    main:
-      # snip...
-      # Enable smartcard authentication against the LDAP server. Valid values
-      # are "false", "optional", and "required".
-      smartcard_auth: optional
-    EOS
-    ```
+   ```ruby
+   gitlab_rails['ldap_servers'] = YAML.load <<-EOS
+   main:
+     # snip...
+     # Enable smartcard authentication against the LDAP server. Valid values
+     # are "false", "optional", and "required".
+     smartcard_auth: optional
+   EOS
+   ```
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
    GitLab for the changes to take effect.
@@ -171,16 +175,56 @@ attribute. As a prerequisite, you must use an LDAP server that:
 
 1. Edit `config/gitlab.yml`:
 
-    ```yaml
-    production:
-      ldap:
-        servers:
-          main:
-            # snip...
-            # Enable smartcard authentication against the LDAP server. Valid values
-            # are "false", "optional", and "required".
-            smartcard_auth: optional
-    ```
+   ```yaml
+   production:
+     ldap:
+       servers:
+         main:
+           # snip...
+           # Enable smartcard authentication against the LDAP server. Valid values
+           # are "false", "optional", and "required".
+           smartcard_auth: optional
+   ```
 
 1. Save the file and [restart](../restart_gitlab.md#installations-from-source)
    GitLab for the changes to take effect.
+
+### Require browser session with smartcard sign-in for Git access
+
+**For Omnibus installations**
+
+1. Edit `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitlab_rails['smartcard_required_for_git_access'] = true
+   ```
+
+1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
+   GitLab for the changes to take effect.
+
+**For installations from source**
+
+1. Edit `config/gitlab.yml`:
+
+   ```yaml
+   ## Smartcard authentication settings
+   smartcard:
+     # snip...
+     # Browser session with smartcard sign-in is required for Git access
+     required_for_git_access: true
+   ```
+
+1. Save the file and [restart](../restart_gitlab.md#installations-from-source)
+   GitLab for the changes to take effect.
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

@@ -15,6 +15,8 @@ describe Namespace do
     it { is_expected.to have_many :project_statistics }
     it { is_expected.to belong_to :parent }
     it { is_expected.to have_many :children }
+    it { is_expected.to have_one :root_storage_statistics }
+    it { is_expected.to have_one :aggregation_schedule }
   end
 
   describe 'validations' do
@@ -832,6 +834,22 @@ describe Namespace do
     context 'when type is a group' do
       let(:namespace) { create(:group) }
 
+      it { is_expected.to be_falsy }
+    end
+  end
+
+  describe '#aggregation_scheduled?' do
+    let(:namespace) { create(:namespace) }
+
+    subject { namespace.aggregation_scheduled? }
+
+    context 'with an aggregation scheduled association' do
+      let(:namespace) { create(:namespace, :with_aggregation_schedule) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'without an aggregation scheduled association' do
       it { is_expected.to be_falsy }
     end
   end

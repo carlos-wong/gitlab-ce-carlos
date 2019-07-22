@@ -40,7 +40,7 @@ A complete architecture diagram is available in our
 
 ![Simplified Component Overview](img/architecture_simplified.png)
 
-<!-- 
+<!--
 To update this diagram, GitLab team members can edit this source file:
 https://docs.google.com/drawings/d/1fBzAyklyveF-i-2q-OHUIqDkYfjjxC4mq5shwKSZHLs/edit.
  -->
@@ -93,8 +93,8 @@ graph TB
   Prometheus --> Alertmanager
   Migrations --> PostgreSQL
   Runner -- TCP 443 --> NGINX
-  Unicorn -- TCP 9200 --> ElasticSearch
-  Sidekiq -- TCP 9200 --> ElasticSearch
+  Unicorn -- TCP 9200 --> Elasticsearch
+  Sidekiq -- TCP 9200 --> Elasticsearch
   Sidekiq -- TCP 80, 443 --> Sentry
   Unicorn -- TCP 80, 443 --> Sentry
   Sidekiq -- UDP 6831 --> Jaeger
@@ -116,10 +116,10 @@ graph TB
 
 ### Component legend
 
-* ✅ - Installed by default
-* ⚙ - Requires additional configuration, or GitLab Managed Apps
-* ⤓ - Manual installation required
-* ❌ - Not supported or no instructions available
+- ✅ - Installed by default
+- ⚙ - Requires additional configuration, or GitLab Managed Apps
+- ⤓ - Manual installation required
+- ❌ - Not supported or no instructions available
 
 Component statuses are linked to configuration documentation for each component.
 
@@ -147,9 +147,9 @@ Component statuses are linked to configuration documentation for each component.
 | [Redis Exporter](#redis-exporter) | Prometheus endpoint with Redis metrics | [✅][redis-exporter-omnibus] | [✅][redis-exporter-charts] | [✅][redis-exporter-charts] | [✅](https://about.gitlab.com/handbook/engineering/monitoring/) | ❌ | ❌ | CE & EE |
 | [Postgres Exporter](#postgres-exporter) | Prometheus endpoint with PostgreSQL metrics | [✅][postgres-exporter-omnibus] | [✅][postgres-exporter-charts] | [✅][postgres-exporter-charts] | [✅](https://about.gitlab.com/handbook/engineering/monitoring/) | ❌ | ❌ | CE & EE |
 | [PgBouncer Exporter](#pgbouncer-exporter) | Prometheus endpoint with PgBouncer metrics | [⚙][pgbouncer-exporter-omnibus] | [❌][pgbouncer-exporter-charts] | [❌][pgbouncer-exporter-charts] | [✅](https://about.gitlab.com/handbook/engineering/monitoring/) | ❌ | ❌ | CE & EE |
-| [GitLab Monitor](#gitlab-monitor) | Generates a variety of GitLab metrics | [✅][gitlab-monitor-omnibus] | [✅][gitab-monitor-charts] | [✅][gitab-monitor-charts] | [✅](https://about.gitlab.com/handbook/engineering/monitoring/) | ❌ | ❌ | CE & EE |
+| [GitLab Monitor](#gitlab-monitor) | Generates a variety of GitLab metrics | [✅][gitlab-monitor-omnibus] | [✅][gitlab-monitor-charts] | [✅][gitlab-monitor-charts] | [✅](https://about.gitlab.com/handbook/engineering/monitoring/) | ❌ | ❌ | CE & EE |
 | [Node Exporter](#node-exporter) | Prometheus endpoint with system metrics | [✅][node-exporter-omnibus] | [❌][node-exporter-charts] | [❌][node-exporter-charts] | [✅](https://about.gitlab.com/handbook/engineering/monitoring/) | ❌ | ❌ | CE & EE |
-| [Mattermost](#mattermost) | Open-source Slack alternative | [⚙][mattermost-omnibus] | [⤓][mattermost-charts] | [⤓][mattermost-charts] | [⤓](../user/project/integrations/mattermost_slash_commands.md#manual-configuration), [⤓](../user/project/integrations/mattermost.html) | ❌ | ❌ | CE & EE |
+| [Mattermost](#mattermost) | Open-source Slack alternative | [⚙][mattermost-omnibus] | [⤓][mattermost-charts] | [⤓][mattermost-charts] | [⤓](../user/project/integrations/mattermost.md) | ❌ | ❌ | CE & EE |
 | [MinIO](#minio) | Object storage service | [⤓][minio-omnibus] | [✅][minio-charts] | [✅][minio-charts] | [✅](https://about.gitlab.com/handbook/engineering/infrastructure/production-architecture/#storage-architecture) | ❌ | [⚙][minio-gdk] | CE & EE |
 | [Runner](#gitlab-runner) | Executes GitLab CI jobs | [⤓][runner-omnibus] | [✅][runner-charts] | [⚙][runner-charts] | [✅](../user/gitlab_com/index.md#shared-runners) | [⚙][runner-source] | [⚙][runner-gdk] | CE & EE |
 | [Database Migrations](#database-migrations) | Database migrations | [✅][database-migrations-omnibus] | [✅][database-migrations-charts] | [✅][database-migrations-charts] | ✅ | [⚙][database-migrations-source] | ✅ | CE & EE |
@@ -158,7 +158,7 @@ Component statuses are linked to configuration documentation for each component.
 | [LDAP Authentication](#ldap-authentication) | Authenticate users against centralized LDAP directory | [⤓][ldap-omnibus] | [⤓][ldap-charts] | [⤓][ldap-charts] | [❌](https://about.gitlab.com/pricing/#gitlab-com) | [⤓][gitlab-yml] | [⤓][ldap-gdk] | CE & EE |
 | [Outbound email (SMTP)](#outbound-email) | Send email messages to users | [⤓][outbound-email-omnibus] | [⤓][outbound-email-charts] | [⤓][outbound-email-charts] | [✅](../user/gitlab_com/index.md#mail-configuration) | [⤓][gitlab-yml] | [⤓][gitlab-yml] | CE & EE |
 | [Inbound email (SMTP)](#inbound-email) | Receive messages to update issues | [⤓][inbound-email-omnibus] | [⤓][inbound-email-charts] | [⤓][inbound-email-charts] | [✅](../user/gitlab_com/index.md#mail-configuration) | [⤓][gitlab-yml] | [⤓][gitlab-yml] |  CE & EE |
-| [ElasticSearch](#elasticsearch) | Improved search within GitLab | [⤓][elasticsearch-omnibus] | [⤓][elasticsearch-charts] | [⤓][elasticsearch-charts] | [❌](https://gitlab.com/groups/gitlab-org/-/epics/153) | [⤓][elasticsearch-source] | [⤓][elasticsearch-gdk] | EE Only |
+| [Elasticsearch](#elasticsearch) | Improved search within GitLab | [⤓][elasticsearch-omnibus] | [⤓][elasticsearch-charts] | [⤓][elasticsearch-charts] | [❌](https://gitlab.com/groups/gitlab-org/-/epics/153) | [⤓][elasticsearch-source] | [⤓][elasticsearch-gdk] | EE Only |
 | [Sentry integration](#sentry) | Error tracking for deployed apps | [⤓][sentry-integration] | [⤓][sentry-integration] | [⤓][sentry-integration] | [⤓][sentry-integration] | [⤓][sentry-integration] | [⤓][sentry-integration] | CE & EE |
 | [Jaeger integration](#jaeger) | Distributed tracing for deployed apps | [⤓][jaeger-integration] | [⤓][jaeger-integration] | [⤓][jaeger-integration] | [⤓][jaeger-integration] | [⤓][jaeger-integration] | [⤓][jaeger-integration] | EE Only |
 | [GitLab Managed Apps](#gitlab-managed-apps) | Deploy [Helm](https://docs.helm.sh/), [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), [Cert-Manager](https://docs.cert-manager.io/en/latest/), [Prometheus](https://prometheus.io/docs/introduction/overview/), a [Runner](https://docs.gitlab.com/runner/), [JupyterHub](http://jupyter.org/), [Knative](https://cloud.google.com/knative) to a cluster | [⤓][managed-k8s-apps] | [⤓][managed-k8s-apps] | [⤓][managed-k8s-apps] | [⤓][managed-k8s-apps] | [⤓][managed-k8s-apps] | [⤓][managed-k8s-apps] | CE & EE |
@@ -267,7 +267,7 @@ GitLab CI is the open-source continuous integration service included with GitLab
 #### Gitlab Workhorse
 
 - [Project page](https://gitlab.com/gitlab-org/gitlab-workhorse/blob/master/README.md)
-- Configuration: [Omnibus][gitlab-workhorse-omnibus], [Charts][gitlab-workhorse-charts], [Source][workhorse-source]
+- Configuration: [Omnibus][workhorse-omnibus], [Charts][workhorse-charts], [Source][workhorse-source]
 - Layer: Core Service (Processor)
 - Process: `gitlab-workhorse`
 
@@ -304,7 +304,7 @@ GitLab is comprised of a large number of services that all log. We started bundl
 - Configuration: [Omnibus][mattermost-omnibus], [Charts][mattermost-charts]
 - Layer: Core Service (Processor)
 
-Mattermost is an open source, private cloud, Slack-alternative from https://mattermost.com.
+Mattermost is an open source, private cloud, Slack-alternative from <https://mattermost.com>.
 
 #### MinIO
 
@@ -321,7 +321,7 @@ MinIO is an object storage server released under Apache License v2.0. It is comp
 - Layer: Core Service (Processor)
 - Process: `nginx`
 
-Nginx as an ingress port for all HTTP requests and routes them to the approriate sub-systems within GitLab. We are bundling an unmodified version of the popular open source webserver.
+Nginx as an ingress port for all HTTP requests and routes them to the appropriate sub-systems within GitLab. We are bundling an unmodified version of the popular open source webserver.
 
 #### Node Exporter
 
@@ -484,9 +484,11 @@ When making a request to an HTTP Endpoint (think `/users/sign_in`) the request w
 Below we describe the different pathing that HTTP vs. SSH Git requests will take. There is some overlap with the Web Request Cycle but also some differences.
 
 ### Web Request (80/443)
+
 TODO
 
 ### SSH Request (22)
+
 TODO
 
 ## System Layout
@@ -505,7 +507,9 @@ To summarize here's the [directory structure of the `git` user home directory](.
 
 ### Processes
 
-    ps aux | grep '^git'
+```sh
+ps aux | grep '^git'
+```
 
 GitLab has several components to operate. As a system user (i.e. any user that is not the `git` user) it requires a persistent database (MySQL/PostreSQL) and redis database. It also uses Apache httpd or Nginx to proxypass Unicorn. As the `git` user it starts Sidekiq and Unicorn (a simple ruby HTTP server running on port `8080` by default). Under the GitLab user there are normally 4 processes: `unicorn_rails master` (1 process), `unicorn_rails worker` (2 processes), `sidekiq` (1 process).
 
@@ -681,7 +685,7 @@ We've also detailed [our architecture of GitLab.com](https://about.gitlab.com/ha
 [pgbouncer-exporter-omnibus]: ../administration/monitoring/prometheus/pgbouncer_exporter.md
 [pgbouncer-exporter-charts]: https://docs.gitlab.com/charts/installation/deployment.html#postgresql
 [gitlab-monitor-omnibus]: ../administration/monitoring/prometheus/gitlab_monitor_exporter.md
-[gitab-monitor-charts]: https://docs.gitlab.com/charts/charts/gitlab/gitlab-monitor/index.html
+[gitlab-monitor-charts]: https://docs.gitlab.com/charts/charts/gitlab/gitlab-monitor/index.html
 [node-exporter-omnibus]: ../administration/monitoring/prometheus/node_exporter.md
 [node-exporter-charts]: https://gitlab.com/charts/gitlab/issues/1332
 [mattermost-omnibus]: https://docs.gitlab.com/omnibus/gitlab-mattermost/
@@ -695,7 +699,7 @@ We've also detailed [our architecture of GitLab.com](https://about.gitlab.com/ha
 [runner-gdk]: https://gitlab.com/gitlab-org/gitlab-development-kit/blob/master/doc/howto/runner.md
 [database-migrations-omnibus]: https://docs.gitlab.com/omnibus/settings/database.html#disabling-automatic-database-migration
 [database-migrations-charts]: https://docs.gitlab.com/charts/charts/gitlab/migrations/
-[database-migrations-source]: ../update/upgrading_from_source.md#14-install-libs-migrations-etc
+[database-migrations-source]: ../update/upgrading_from_source.md#13-install-libs-migrations-etc
 [certificate-management-omnibus]: https://docs.gitlab.com/omnibus/settings/ssl.html
 [certificate-management-charts]: https://docs.gitlab.com/charts/installation/tls.html
 [certificate-management-source]: ../install/installation.md#using-https

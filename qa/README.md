@@ -34,8 +34,23 @@ using `package-and-qa` manual action, to test if everything works fine.
 
 ## How can I use it?
 
-You can use GitLab QA to exercise tests on any live instance! For example, the
-following call would login to a local [GDK] instance and run all specs in
+You can use GitLab QA to exercise tests on any live instance! If you don't
+have an instance available you can follow the instructions below to use
+the [GitLab Development Kit (GDK)][GDK].
+This is the recommended option if you would like to contribute to the tests.
+
+### Run the end-to-end tests in a local development environment
+
+Follow the GDK instructions to [prepare](https://gitlab.com/gitlab-org/gitlab-development-kit/blob/master/doc/prepare.md)
+and [install](https://gitlab.com/gitlab-org/gitlab-development-kit/blob/master/doc/set-up-gdk.md)
+your local GitLab development environment.
+
+Once you have GDK running, switch to the `qa` directory. E.g., if you setup
+GDK to develop in the main `gitlab-ce` repo, the GitLab source code will be
+in a `gitlab` directory and so the end-to-end test code will be in `gitlab/qa`.
+
+From there you can run the tests. For example, the
+following call would login to the GDK instance and run all specs in
 `qa/specs/features`:
 
 ```
@@ -60,14 +75,14 @@ You can also supply specific tests to run as another parameter. For example, to
 run the repository-related specs, you can execute:
 
 ```
-bundle exec bin/qa Test::Instance::All http://localhost -- qa/specs/features/browser_ui/3_create/repository
+bundle exec bin/qa Test::Instance::All http://localhost:3000 -- qa/specs/features/browser_ui/3_create/repository
 ```
 
 Since the arguments would be passed to `rspec`, you could use all `rspec`
 options there. For example, passing `--backtrace` and also line number:
 
 ```
-bundle exec bin/qa Test::Instance::All http://localhost -- qa/specs/features/browser_ui/3_create/merge_request/create_merge_request_spec.rb:6 --backtrace
+bundle exec bin/qa Test::Instance::All http://localhost:3000 -- qa/specs/features/browser_ui/3_create/merge_request/create_merge_request_spec.rb:6 --backtrace
 ```
 
 Note that the separator `--` is required; all subsequent options will be
@@ -125,7 +140,7 @@ tests that are expected to fail while a fix is in progress (similar to how
  can be used).
 
 ```
-bundle exec bin/qa Test::Instance::All http://localhost -- --tag quarantine
+bundle exec bin/qa Test::Instance::All http://localhost:3000 -- --tag quarantine
 ```
 
 If `quarantine` is used with other tags, tests will only be run if they have at
@@ -144,7 +159,7 @@ option `--enable-feature FEATURE_FLAG`. For example, to enable the feature flag
 that enforces Gitaly request limits, you would use the command:
 
 ```
-bundle exec bin/qa Test::Instance::All http://localhost --enable-feature gitaly_enforce_requests_limits
+bundle exec bin/qa Test::Instance::All http://localhost:3000 --enable-feature gitaly_enforce_requests_limits
 ```
 
 This will instruct the QA framework to enable the `gitaly_enforce_requests_limits`

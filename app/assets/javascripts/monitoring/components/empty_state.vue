@@ -1,5 +1,11 @@
 <script>
+import { __ } from '~/locale';
+import { GlEmptyState } from '@gitlab/ui';
+
 export default {
+  components: {
+    GlEmptyState,
+  },
   props: {
     documentationPath: {
       type: String,
@@ -35,42 +41,55 @@ export default {
       type: String,
       required: true,
     },
+    compact: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
       states: {
         gettingStarted: {
           svgUrl: this.emptyGettingStartedSvgPath,
-          title: 'Get started with performance monitoring',
-          description: `Stay updated about the performance and health
-              of your environment by configuring Prometheus to monitor your deployments.`,
-          buttonText: 'Install on clusters',
+          title: __('Get started with performance monitoring'),
+          description: __(`Stay updated about the performance and health
+              of your environment by configuring Prometheus to monitor your deployments.`),
+          buttonText: __('Install on clusters'),
           buttonPath: this.clustersPath,
-          secondaryButtonText: 'Configure existing installation',
+          secondaryButtonText: __('Configure existing installation'),
           secondaryButtonPath: this.settingsPath,
         },
         loading: {
           svgUrl: this.emptyLoadingSvgPath,
-          title: 'Waiting for performance data',
-          description: `Creating graphs uses the data from the Prometheus server.
-              If this takes a long time, ensure that data is available.`,
-          buttonText: 'View documentation',
+          title: __('Waiting for performance data'),
+          description: __(`Creating graphs uses the data from the Prometheus server.
+              If this takes a long time, ensure that data is available.`),
+          buttonText: __('View documentation'),
           buttonPath: this.documentationPath,
+          secondaryButtonText: '',
+          secondaryButtonPath: '',
         },
         noData: {
           svgUrl: this.emptyNoDataSvgPath,
-          title: 'No data found',
-          description: `You are connected to the Prometheus server, but there is currently
-              no data to display.`,
-          buttonText: 'Configure Prometheus',
+          title: __('No data found'),
+          description: __(`You are connected to the Prometheus server, but there is currently
+              no data to display.`),
+          buttonText: __('Configure Prometheus'),
           buttonPath: this.settingsPath,
+          secondaryButtonText: '',
+          secondaryButtonPath: '',
         },
         unableToConnect: {
           svgUrl: this.emptyUnableToConnectSvgPath,
-          title: 'Unable to connect to Prometheus server',
-          description: 'Ensure connectivity is available from the GitLab server to the ',
-          buttonText: 'View documentation',
+          title: __('Unable to connect to Prometheus server'),
+          description: __(
+            'Ensure connectivity is available from the GitLab server to the Prometheus server',
+          ),
+          buttonText: __('View documentation'),
           buttonPath: this.documentationPath,
+          secondaryButtonText: __('Configure Prometheus'),
+          secondaryButtonPath: this.settingsPath,
         },
       },
     };
@@ -79,41 +98,19 @@ export default {
     currentState() {
       return this.states[this.selectedState];
     },
-    showButtonDescription() {
-      if (this.selectedState === 'unableToConnect') return true;
-      return false;
-    },
   },
 };
 </script>
 
 <template>
-  <div class="row empty-state js-empty-state">
-    <div class="col-12">
-      <div class="state-svg svg-content"><img :src="currentState.svgUrl" /></div>
-    </div>
-
-    <div class="col-12">
-      <div class="text-content">
-        <h4 class="state-title text-center">{{ currentState.title }}</h4>
-        <p class="state-description">
-          {{ currentState.description }}
-          <a v-if="showButtonDescription" :href="settingsPath"> Prometheus server </a>
-        </p>
-
-        <div class="text-center">
-          <a v-if="currentState.buttonPath" :href="currentState.buttonPath" class="btn btn-success">
-            {{ currentState.buttonText }}
-          </a>
-          <a
-            v-if="currentState.secondaryButtonPath"
-            :href="currentState.secondaryButtonPath"
-            class="btn"
-          >
-            {{ currentState.secondaryButtonText }}
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <gl-empty-state
+    :title="currentState.title"
+    :description="currentState.description"
+    :primary-button-text="currentState.buttonText"
+    :primary-button-link="currentState.buttonPath"
+    :secondary-button-text="currentState.secondaryButtonText"
+    :secondary-button-link="currentState.secondaryButtonPath"
+    :svg-path="currentState.svgUrl"
+    :compact="compact"
+  />
 </template>

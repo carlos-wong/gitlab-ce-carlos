@@ -3,6 +3,7 @@
   = render "layouts/head"
   %body{ class: "#{user_application_theme} #{@body_class} fullscreen-layout", data: { page: body_data_page } }
     = render 'peek/bar'
+    = header_message
     = render partial: "layouts/header/default", locals: { project: @project, group: @group }
     = render 'shared/outdated_browser'
     .mobile-overlay
@@ -10,5 +11,6 @@
       = render "layouts/broadcast"
       = yield :flash_message
       = render "layouts/flash"
-    .content-wrapper{ id: "content-body", class: "d-flex flex-column align-items-stretch" }
+    .content-wrapper{ id: "content-body", class: "d-flex flex-column align-items-stretch mt-0" }
       = yield
+    = footer_message

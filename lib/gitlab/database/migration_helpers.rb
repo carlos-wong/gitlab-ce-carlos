@@ -61,7 +61,7 @@ module Gitlab
         end
 
         if index_exists?(table_name, column_name, options)
-          Rails.logger.warn "Index not created because it already exists (this may be due to an aborted migration or similar): table_name: #{table_name}, column_name: #{column_name}"
+          Rails.logger.warn "Index not created because it already exists (this may be due to an aborted migration or similar): table_name: #{table_name}, column_name: #{column_name}" # rubocop:disable Gitlab/RailsLogger
           return
         end
 
@@ -91,7 +91,7 @@ module Gitlab
         end
 
         unless index_exists?(table_name, column_name, options)
-          Rails.logger.warn "Index not removed because it does not exist (this may be due to an aborted migration or similar): table_name: #{table_name}, column_name: #{column_name}"
+          Rails.logger.warn "Index not removed because it does not exist (this may be due to an aborted migration or similar): table_name: #{table_name}, column_name: #{column_name}" # rubocop:disable Gitlab/RailsLogger
           return
         end
 
@@ -121,7 +121,7 @@ module Gitlab
         end
 
         unless index_exists_by_name?(table_name, index_name)
-          Rails.logger.warn "Index not removed because it does not exist (this may be due to an aborted migration or similar): table_name: #{table_name}, index_name: #{index_name}"
+          Rails.logger.warn "Index not removed because it does not exist (this may be due to an aborted migration or similar): table_name: #{table_name}, index_name: #{index_name}" # rubocop:disable Gitlab/RailsLogger
           return
         end
 
@@ -149,6 +149,8 @@ module Gitlab
       # column - The name of the column to create the foreign key on.
       # on_delete - The action to perform when associated data is removed,
       #             defaults to "CASCADE".
+      #
+      # rubocop:disable Gitlab/RailsLogger
       def add_concurrent_foreign_key(source, target, column:, on_delete: :cascade, name: nil)
         # Transactions would result in ALTER TABLE locks being held for the
         # duration of the transaction, defeating the purpose of this method.
@@ -208,6 +210,7 @@ module Gitlab
           execute("ALTER TABLE #{source} VALIDATE CONSTRAINT #{key_name};")
         end
       end
+      # rubocop:enable Gitlab/RailsLogger
 
       def foreign_key_exists?(source, target = nil, column: nil)
         foreign_keys(source).any? do |key|
@@ -225,7 +228,10 @@ module Gitlab
       # here is based on Rails' foreign_key_name() method, which unfortunately
       # is private so we can't rely on it directly.
       def concurrent_foreign_key_name(table, column)
-        "fk_#{Digest::SHA256.hexdigest("#{table}_#{column}_fk").first(10)}"
+        identifier = "#{table}_#{column}_fk"
+        hashed_identifier = Digest::SHA256.hexdigest(identifier).first(10)
+
+        "fk_#{hashed_identifier}"
       end
 
       # Long-running migrations may take more than the timeout allowed by
@@ -431,7 +437,8 @@ module Gitlab
           end
 
           begin
-            update_column_in_batches(table, column, default, &block)
+            default_after_type_cast = connection.type_cast(default, column_for(table, column))
+            update_column_in_batches(table, column, default_after_type_cast, &block)
 
             change_column_null(table, column, false) unless allow_null
           # We want to rescue _all_ exceptions here, even those that don't inherit

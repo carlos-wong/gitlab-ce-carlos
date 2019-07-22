@@ -38,10 +38,6 @@ For routes that require authorization you will need to provide a user to
 Gitlab::Profiler.profile('/gitlab-org/gitlab-test', user: User.first)
 ```
 
-The user you provide will need to have a [personal access
-token](https://docs.gitlab.com/ce/user/profile/personal_access_tokens.html) in
-the GitLab instance.
-
 Passing a `logger:` keyword argument to `Gitlab::Profiler.profile` will send
 ActiveRecord and ActionController log output to that logger. Further options are
 documented with the method source.
@@ -99,7 +95,9 @@ Sherlock is a custom profiling tool built into GitLab. Sherlock is _only_
 available when running GitLab in development mode _and_ when setting the
 environment variable `ENABLE_SHERLOCK` to a non empty value. For example:
 
-    ENABLE_SHERLOCK=1 bundle exec rails s
+```sh
+ENABLE_SHERLOCK=1 bundle exec rails s
+```
 
 Recorded transactions can be found by navigating to `/sherlock/transactions`.
 
@@ -110,7 +108,9 @@ Bullet adds quite a bit of logging noise it's disabled by default. To enable
 Bullet, set the environment variable `ENABLE_BULLET` to a non-empty value before
 starting GitLab. For example:
 
-    ENABLE_BULLET=true bundle exec rails s
+```sh
+ENABLE_BULLET=true bundle exec rails s
+```
 
 Bullet will log query problems to both the Rails log as well as the Chrome
 console.

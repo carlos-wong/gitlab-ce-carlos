@@ -7,6 +7,8 @@ describe MergeRequest do
   include ProjectForksHelper
   include ReactiveCachingHelpers
 
+  using RSpec::Parameterized::TableSyntax
+
   subject { create(:merge_request) }
 
   describe 'associations' do
@@ -1996,54 +1998,44 @@ describe MergeRequest do
     end
   end
 
-  describe '#check_if_can_be_merged' do
-    let(:project) { create(:project, only_allow_merge_if_pipeline_succeeds: true) }
+  describe '#rebase_async' do
+    let(:merge_request) { create(:merge_request) }
+    let(:user_id) { double(:user_id) }
+    let(:rebase_jid) { 'rebase-jid' }
 
-    shared_examples 'checking if can be merged' do
-      context 'when it is not broken and has no conflicts' do
-        before do
-          allow(subject).to receive(:broken?) { false }
-          allow(project.repository).to receive(:can_be_merged?).and_return(true)
-        end
+    subject(:execute) { merge_request.rebase_async(user_id) }
 
-        it 'is marked as mergeable' do
-          expect { subject.check_if_can_be_merged }.to change { subject.merge_status }.to('can_be_merged')
-        end
-      end
+    it 'atomically enqueues a RebaseWorker job and updates rebase_jid' do
+      expect(RebaseWorker)
+        .to receive(:perform_async)
+        .with(merge_request.id, user_id)
+        .and_return(rebase_jid)
 
-      context 'when broken' do
-        before do
-          allow(subject).to receive(:broken?) { true }
-          allow(project.repository).to receive(:can_be_merged?).and_return(false)
-        end
+      expect(merge_request).to receive(:lock!).and_call_original
 
-        it 'becomes unmergeable' do
-          expect { subject.check_if_can_be_merged }.to change { subject.merge_status }.to('cannot_be_merged')
-        end
-      end
+      execute
 
-      context 'when it has conflicts' do
-        before do
-          allow(subject).to receive(:broken?) { false }
-          allow(project.repository).to receive(:can_be_merged?).and_return(false)
-        end
-
-        it 'becomes unmergeable' do
-          expect { subject.check_if_can_be_merged }.to change { subject.merge_status }.to('cannot_be_merged')
-        end
-      end
+      expect(merge_request.rebase_jid).to eq(rebase_jid)
     end
 
-    context 'when merge_status is unchecked' do
-      subject { create(:merge_request, source_project: project, merge_status: :unchecked) }
+    it 'refuses to enqueue a job if a rebase is in progress' do
+      merge_request.update_column(:rebase_jid, rebase_jid)
 
-      it_behaves_like 'checking if can be merged'
+      expect(RebaseWorker).not_to receive(:perform_async)
+      expect(Gitlab::SidekiqStatus)
+        .to receive(:running?)
+        .with(rebase_jid)
+        .and_return(true)
+
+      expect { execute }.to raise_error(ActiveRecord::StaleObjectError)
     end
 
-    context 'when merge_status is unchecked' do
-      subject { create(:merge_request, source_project: project, merge_status: :cannot_be_merged_recheck) }
+    it 'refuses to enqueue a job if the MR is not open' do
+      merge_request.update_column(:state, 'foo')
 
-      it_behaves_like 'checking if can be merged'
+      expect(RebaseWorker).not_to receive(:perform_async)
+
+      expect { execute }.to raise_error(ActiveRecord::StaleObjectError)
     end
   end
 
@@ -2060,7 +2052,7 @@ describe MergeRequest do
 
     it 'return true if #mergeable_state? is true and the MR #can_be_merged? is true' do
       allow(subject).to receive(:mergeable_state?) { true }
-      expect(subject).to receive(:check_if_can_be_merged)
+      expect(subject).to receive(:check_mergeability)
       expect(subject).to receive(:can_be_merged?) { true }
 
       expect(subject.mergeable?).to be_truthy
@@ -2074,7 +2066,7 @@ describe MergeRequest do
 
     it 'checks if merge request can be merged' do
       allow(subject).to receive(:mergeable_ci_state?) { true }
-      expect(subject).to receive(:check_if_can_be_merged)
+      expect(subject).to receive(:check_mergeability)
 
       subject.mergeable?
     end
@@ -2175,7 +2167,7 @@ describe MergeRequest do
           allow(subject).to receive(:head_pipeline) { nil }
         end
 
-        it { expect(subject.mergeable_ci_state?).to be_truthy }
+        it { expect(subject.mergeable_ci_state?).to be_falsey }
       end
     end
 
@@ -2462,6 +2454,13 @@ describe MergeRequest do
   describe "#diff_refs" do
     context "with diffs" do
       subject { create(:merge_request, :with_diffs) }
+      let(:expected_diff_refs) do
+        Gitlab::Diff::DiffRefs.new(
+          base_sha:  subject.merge_request_diff.base_commit_sha,
+          start_sha: subject.merge_request_diff.start_commit_sha,
+          head_sha:  subject.merge_request_diff.head_commit_sha
+        )
+      end
 
       it "does not touch the repository" do
         subject # Instantiate the object
@@ -2472,13 +2471,17 @@ describe MergeRequest do
       end
 
       it "returns expected diff_refs" do
-        expected_diff_refs = Gitlab::Diff::DiffRefs.new(
-          base_sha:  subject.merge_request_diff.base_commit_sha,
-          start_sha: subject.merge_request_diff.start_commit_sha,
-          head_sha:  subject.merge_request_diff.head_commit_sha
-        )
-
         expect(subject.diff_refs).to eq(expected_diff_refs)
+      end
+
+      context 'when importing' do
+        before do
+          subject.importing = true
+        end
+
+        it "returns MR diff_refs" do
+          expect(subject.diff_refs).to eq(expected_diff_refs)
+        end
       end
     end
   end
@@ -2997,40 +3000,64 @@ describe MergeRequest do
   end
 
   describe '#rebase_in_progress?' do
-    shared_examples 'checking whether a rebase is in progress' do
-      let(:repo_path) do
-        Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-          subject.source_project.repository.path
-        end
+    where(:rebase_jid, :jid_valid, :result) do
+      'foo' | true  | true
+      'foo' | false | false
+      ''    | true  | false
+      nil   | true  | false
+    end
+
+    with_them do
+      let(:merge_request) { create(:merge_request) }
+
+      subject { merge_request.rebase_in_progress? }
+
+      it do
+        # Stub out the legacy gitaly implementation
+        allow(merge_request).to receive(:gitaly_rebase_in_progress?) { false }
+
+        allow(Gitlab::SidekiqStatus).to receive(:running?).with(rebase_jid) { jid_valid }
+
+        merge_request.rebase_jid = rebase_jid
+
+        is_expected.to eq(result)
       end
-      let(:rebase_path) { File.join(repo_path, "gitlab-worktree", "rebase-#{subject.id}") }
+    end
+  end
 
-      before do
-        system(*%W(#{Gitlab.config.git.bin_path} -C #{repo_path} worktree add --detach #{rebase_path} master))
+  describe '#gitaly_rebase_in_progress?' do
+    let(:repo_path) do
+      Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+        subject.source_project.repository.path
       end
+    end
+    let(:rebase_path) { File.join(repo_path, "gitlab-worktree", "rebase-#{subject.id}") }
 
-      it 'returns true when there is a current rebase directory' do
-        expect(subject.rebase_in_progress?).to be_truthy
-      end
+    before do
+      system(*%W(#{Gitlab.config.git.bin_path} -C #{repo_path} worktree add --detach #{rebase_path} master))
+    end
 
-      it 'returns false when there is no rebase directory' do
-        FileUtils.rm_rf(rebase_path)
+    it 'returns true when there is a current rebase directory' do
+      expect(subject.rebase_in_progress?).to be_truthy
+    end
 
-        expect(subject.rebase_in_progress?).to be_falsey
-      end
+    it 'returns false when there is no rebase directory' do
+      FileUtils.rm_rf(rebase_path)
 
-      it 'returns false when the rebase directory has expired' do
-        time = 20.minutes.ago.to_time
-        File.utime(time, time, rebase_path)
+      expect(subject.rebase_in_progress?).to be_falsey
+    end
 
-        expect(subject.rebase_in_progress?).to be_falsey
-      end
+    it 'returns false when the rebase directory has expired' do
+      time = 20.minutes.ago.to_time
+      File.utime(time, time, rebase_path)
 
-      it 'returns false when the source project has been removed' do
-        allow(subject).to receive(:source_project).and_return(nil)
+      expect(subject.rebase_in_progress?).to be_falsey
+    end
 
-        expect(subject.rebase_in_progress?).to be_falsey
-      end
+    it 'returns false when the source project has been removed' do
+      allow(subject).to receive(:source_project).and_return(nil)
+
+      expect(subject.rebase_in_progress?).to be_falsey
     end
   end
 
@@ -3142,38 +3169,6 @@ describe MergeRequest do
     end
   end
 
-  describe '#mergeable_to_ref?' do
-    it 'returns true when merge request is mergeable' do
-      subject = create(:merge_request)
-
-      expect(subject.mergeable_to_ref?).to be(true)
-    end
-
-    it 'returns false when merge request is already merged' do
-      subject = create(:merge_request, :merged)
-
-      expect(subject.mergeable_to_ref?).to be(false)
-    end
-
-    it 'returns false when merge request is closed' do
-      subject = create(:merge_request, :closed)
-
-      expect(subject.mergeable_to_ref?).to be(false)
-    end
-
-    it 'returns false when merge request is work in progress' do
-      subject = create(:merge_request, title: 'WIP: The feature')
-
-      expect(subject.mergeable_to_ref?).to be(false)
-    end
-
-    it 'returns false when merge request has no commits' do
-      subject = create(:merge_request, source_branch: 'empty-branch', target_branch: 'master')
-
-      expect(subject.mergeable_to_ref?).to be(false)
-    end
-  end
-
   describe '#merge_participants' do
     it 'contains author' do
       expect(subject.merge_participants).to eq([subject.author])
@@ -3234,6 +3229,36 @@ describe MergeRequest do
       let(:ref) { 'refs/merge-requests/1/merge' }
 
       it { is_expected.to be_truthy }
+    end
+  end
+
+  describe '#cleanup_refs' do
+    subject { merge_request.cleanup_refs(only: only) }
+
+    let(:merge_request) { build(:merge_request) }
+
+    context 'when removing all refs' do
+      let(:only) { :all }
+
+      it 'deletes all refs from the target project' do
+        expect(merge_request.target_project.repository)
+          .to receive(:delete_refs)
+          .with(merge_request.ref_path, merge_request.merge_ref_path, merge_request.train_ref_path)
+
+        subject
+      end
+    end
+
+    context 'when removing only train ref' do
+      let(:only) { :train }
+
+      it 'deletes train ref from the target project' do
+        expect(merge_request.target_project.repository)
+          .to receive(:delete_refs)
+          .with(merge_request.train_ref_path)
+
+        subject
+      end
     end
   end
 end

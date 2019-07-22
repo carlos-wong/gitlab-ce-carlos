@@ -6,8 +6,6 @@ FactoryBot.define do
 
   factory :custom_issue_tracker_service, class: CustomIssueTrackerService do
     project
-    type 'CustomIssueTrackerService'
-    category 'issue_tracker'
     active true
     properties(
       project_url: 'https://project.url.com',
@@ -54,9 +52,39 @@ FactoryBot.define do
     )
   end
 
-  factory :jira_cloud_service, class: JiraService do
+  factory :bugzilla_service do
     project
     active true
+    issue_tracker
+  end
+
+  factory :redmine_service do
+    project
+    active true
+    issue_tracker
+  end
+
+  factory :youtrack_service do
+    project
+    active true
+    issue_tracker
+  end
+
+  factory :gitlab_issue_tracker_service do
+    project
+    active true
+    issue_tracker
+  end
+
+  trait :issue_tracker do
+    properties(
+      project_url: 'http://issue-tracker.example.com',
+      issues_url: 'http://issue-tracker.example.com/issues/:id',
+      new_issue_url: 'http://issue-tracker.example.com'
+    )
+  end
+
+  trait :jira_cloud_service do
     properties(
       url: 'https://mysite.atlassian.net',
       username: 'jira_user',
@@ -69,5 +97,17 @@ FactoryBot.define do
     project
     type 'HipchatService'
     token 'test_token'
+  end
+
+  trait :without_properties_callback do
+    after(:build) do |service|
+      allow(service).to receive(:handle_properties)
+    end
+
+    after(:create) do |service|
+      # we have to remove the stub because the behaviour of
+      # handle_properties method is tested after the creation
+      allow(service).to receive(:handle_properties).and_call_original
+    end
   end
 end

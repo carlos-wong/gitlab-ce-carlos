@@ -350,6 +350,15 @@ entry.
 - Moves snowplow to CE repo.
 
 
+## 11.11.4 (2019-06-26)
+
+### Fixed (3 changes)
+
+- Fix Fogbugz Importer not working. !29383
+- Fix scrolling to top on assignee change. !29500
+- Fix IDE commit using latest ref in branch and overriding contents. !29769
+
+
 ## 11.11.3 (2019-06-10)
 
 ### Fixed (5 changes)
@@ -561,6 +570,27 @@ entry.
 - Replaces CSS with BS4 utility class for pipeline schedules.
 - Creates a vendors folder for external CSS.
 - Add some frozen string to spec/**/*.rb. (gfyoung)
+
+
+## 11.10.8 (2019-06-27)
+
+- No changes.
+### Security (10 changes)
+
+- Fix Denial of Service for comments when rendering issues/MR comments.
+- Gate MR head_pipeline behind read_pipeline ability.
+- Fix DoS vulnerability in color validation regex.
+- Expose merge requests count based on user access.
+- Persist tmp snippet uploads at users.
+- Add missing authorizations in GraphQL.
+- Disable Rails SQL query cache when applying service templates.
+- Prevent Billion Laughs attack.
+- Correctly check permissions when creating snippet notes.
+- Prevent the detection of merge request templates by unauthorized users.
+
+### Performance (1 change)
+
+- Add improvements to global search of issues and merge requests. !27817
 
 
 ## 11.10.6 (2019-06-04)

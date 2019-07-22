@@ -25,14 +25,14 @@ templates of the default branch will be taken into account.
 ## Use-cases
 
 - Add a template to be used in every issue for a specific project,
-giving instructions and guidelines, requiring for information specific to that subject.
-For example, if you have a project for tracking new blog posts, you can require the
-title, outlines, author name, author social media information, etc.
+  giving instructions and guidelines, requiring for information specific to that subject.
+  For example, if you have a project for tracking new blog posts, you can require the
+  title, outlines, author name, author social media information, etc.
 - Following the previous example, you can make a template for every MR submitted
-with a new blog post, requiring information about the post date, frontmatter data,
-images guidelines, link to the related issue, reviewer name, etc.
+  with a new blog post, requiring information about the post date, frontmatter data,
+  images guidelines, link to the related issue, reviewer name, etc.
 - You can also create issues and merge request templates for different
-stages of your workflow, e.g., feature proposal, feature improvement, bug report, etc.
+  stages of your workflow, e.g., feature proposal, feature improvement, bug report, etc.
 
 ## Creating issue templates
 
@@ -55,9 +55,10 @@ changes you made after picking the template and return it to its initial status.
 
 ![Description templates](img/description_templates.png)
 
-## Setting a default template for issues and merge requests  **[STARTER]**
+## Setting a default template for issues and merge requests  **(STARTER)**
 
 > **Notes:**
+>
 > - This feature was introduced before [description templates](#overview) and is
 >   available in [GitLab Starter][products]. It can be enabled
 >   in the project's settings.
@@ -65,7 +66,7 @@ changes you made after picking the template and return it to its initial status.
 > - Templates for merge requests were [introduced][ee-7478ece] in GitLab EE 6.9.
 
 The visibility of issues and/or merge requests should be set to either "Everyone
-with access" or "Only team members" in your project's **Settings** otherwise the
+with access" or "Only Project Members" in your project's **Settings** otherwise the
 template text areas won't show. This is the default behavior so in most cases
 you should be fine.
 

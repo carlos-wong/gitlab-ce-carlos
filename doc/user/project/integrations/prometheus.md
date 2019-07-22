@@ -18,6 +18,7 @@ Once enabled, GitLab will automatically detect metrics from known services in th
 ## Enabling Prometheus Integration
 
 ### Managed Prometheus on Kubernetes
+
 > **Note**: [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/28916) in GitLab 10.5
 
 GitLab can seamlessly deploy and manage Prometheus on a [connected Kubernetes cluster](../clusters/index.md), making monitoring of your apps easy.
@@ -39,9 +40,9 @@ Once you have a connected Kubernetes cluster with Helm installed, deploying a ma
 
 #### About managed Prometheus deployments
 
-Prometheus is deployed into the `gitlab-managed-apps` namespace, using the [official Helm chart](https://github.com/kubernetes/charts/tree/master/stable/prometheus). Prometheus is only accessible within the cluster, with GitLab communicating through the [Kubernetes API](https://kubernetes.io/docs/concepts/overview/kubernetes-api/).
+Prometheus is deployed into the `gitlab-managed-apps` namespace, using the [official Helm chart](https://github.com/helm/charts/tree/master/stable/prometheus). Prometheus is only accessible within the cluster, with GitLab communicating through the [Kubernetes API](https://kubernetes.io/docs/concepts/overview/kubernetes-api/).
 
-The Prometheus server will [automatically detect and monitor](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Ckubernetes_sd_config%3E) nodes, pods, and endpoints. To configure a resource to be monitored by Prometheus, simply set the following [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/):
+The Prometheus server will [automatically detect and monitor](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config) nodes, pods, and endpoints. To configure a resource to be monitored by Prometheus, simply set the following [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/):
 
 - `prometheus.io/scrape` to `true` to enable monitoring of the resource.
 - `prometheus.io/port` to define the port of the metrics endpoint.
@@ -66,9 +67,9 @@ Integration with Prometheus requires the following:
 
 Installing and configuring Prometheus to monitor applications is fairly straight forward.
 
-1. [Install Prometheus](https://prometheus.io/docs/introduction/install/)
+1. [Install Prometheus](https://prometheus.io/docs/prometheus/latest/installation/)
 1. Set up one of the [supported monitoring targets](prometheus_library/index.md)
-1. Configure the Prometheus server to [collect their metrics](https://prometheus.io/docs/operating/configuration/#scrape_config)
+1. Configure the Prometheus server to [collect their metrics](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config)
 
 #### Configuration in GitLab
 
@@ -93,7 +94,7 @@ GitLab will automatically scan the Prometheus server for metrics from known serv
 
 You can view the performance dashboard for an environment by [clicking on the monitoring button](../../../ci/environments.md#monitoring-environments).
 
-### Adding additional metrics **[PREMIUM]**
+### Adding additional metrics **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3799) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.6.
 
@@ -120,7 +121,93 @@ GitLab supports a limited set of [CI variables](../../../ci/variables/README.htm
 
 To specify a variable in a query, enclose it in curly braces with a leading percent. For example: `%{ci_environment_slug}`.
 
-### Setting up alerts for Prometheus metrics **[ULTIMATE]**
+### Defining custom dashboards per project
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/59974) in GitLab 12.1.
+
+By default, all projects include a GitLab-defined Prometheus dashboard, which
+includes a few key metrics, but you can also define your own custom dashboards.
+
+NOTE: **Note:**
+The custom metrics as defined below do not support alerts, unlike
+[additional metrics](#adding-additional-metrics-premium).
+
+Dashboards have several components:
+
+- Panel groups, which comprise panels.
+- Panels, which support one or more metrics.
+
+To configure a custom dashboard:
+
+1. Create a YAML file with the `.yml` extension under your repository's root
+   directory inside `.gitlab/dashboards/`. For example, create
+   `.gitlab/dashboards/prom_alerts.yml` with the following contents:
+
+   ```yaml
+   dashboard: 'Dashboard Title'
+   panel_groups:
+     - group: 'Group Title'
+       panels:
+         - type: area-chart
+           title: "Chart Title"
+           y_label: "Y-Axis"
+           metrics:
+             - id: metric_of_ages
+               query_range: 'http_requests_total'
+               label: "Metric of Ages"
+               unit: "count"
+   ```
+
+   The above sample dashboard would display a single area chart. Each file should
+   define the layout of the dashboard and the Prometheus queries used to populate
+   data.
+
+1. Save the file, commit, and push to your repository.
+1. Navigate to your project's **Operations > Metrics** and choose the custom
+   dashboard from the dropdown.
+
+NOTE: **Note:**
+Configuration files nested under subdirectories of `.gitlab/dashboards` are not
+supported and will not be available in the UI.
+
+The following tables outline the details of expected properties.
+
+**Dashboard properties:**
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| `dashboard` | string | yes | Heading for the dashboard. Only one dashboard should be defined per file. |
+| `panel_groups` | array | yes | The panel groups which should be on the dashboard. |
+
+**Panel group (`panel_groups`) properties:**
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| `group` | string | required | Heading for the panel group. |
+| `priority` | number | optional, defaults to order in file | Order to appear on the dashboard. Higher number means higher priority, which will be higher on the page. Numbers do not need to be consecutive. |
+| `panels` | array | required | The panels which should be in the panel group. |
+
+**Panel (`panels`) properties:**
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------- |
+| `type` | enum | no, defaults to `area-chart` | Specifies the chart type to use. Only `area-chart` is currently supported. |
+| `title` | string | yes | Heading for the panel. |
+| `y_label` | string | no, but highly encouraged | Y-Axis label for the panel. |
+| `weight` | number | no, defaults to order in file | Order to appear within the grouping. Lower number means higher priority, which will be higher on the page. Numbers do not need to be consecutive. |
+| `metrics` | array | yes | The metrics which should be displayed in the panel. |
+
+**Metrics (`metrics`) properties:**
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| `id` | string | no | Used for associating dashboard metrics with database records. Must be unique across dashboard configuration files. Required for [alerting](#setting-up-alerts-for-prometheus-metrics-ultimate) (support not yet enabled, see [relevant issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/60319)). |
+| `unit` | string | yes | Defines the unit of the query's return data. |
+| `label` | string | no, but highly encouraged | Defines the legend-label for the query. Should be unique within the panel's metrics. |
+| `query` | string | yes if `query_range` is not defined | Defines the Prometheus query to be used to populate the chart/panel. If defined, the `query` endpoint of the [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/) will be utilized. |
+| `query_range` | string | yes if `query` is not defined | Defines the Prometheus query to be used to populate the chart/panel. If defined, the `query_range` endpoint of the [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/) will be utilized. |
+
+### Setting up alerts for Prometheus metrics **(ULTIMATE)**
 
 #### Managed Prometheus instances
 
@@ -156,11 +243,11 @@ receivers:
   ...
 ```
 
-### Taking action on incidents **[ULTIMATE]**
+### Taking action on incidents **(ULTIMATE)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/4925) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.11.
 
-Alerts can be used to trigger actions, like open an issue automatically. To configure the actions:
+Alerts can be used to trigger actions, like open an issue automatically (enabled by default since `12.1`). To configure the actions:
 
 1. Navigate to your project's **Settings > Operations > Incidents**.
 1. Enable the option to create issues.
@@ -168,7 +255,17 @@ Alerts can be used to trigger actions, like open an issue automatically. To conf
 1. Optionally, select whether to send an email notification to the developers of the project.
 1. Click **Save changes**.
 
-Once enabled, an issue will be opened automatically when an alert is triggered. The author of the issue will be the GitLab Alert Bot. To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template.
+Once enabled, an issue will be opened automatically when an alert is triggered which contains values extracted from [alert's payload](https://prometheus.io/docs/alerting/configuration/#webhook_config
+):
+
+- Issue author: `GitLab Alert Bot`
+- Issue title: Extract from `annotations/title`, `annotations/summary` or `labels/alertname`
+- Alert `Summary`: A list of properties
+  - `starts_at`: Alert start time via `startsAt`
+  - `full_query`: Alert query extracted from `generatorURL`
+  - Optional list of attached annotations extracted from `annotations/*`
+
+To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template.
 
 If the metric exceeds the threshold of the alert for over 5 minutes, an email will be sent to all [Maintainers and Owners](../../permissions.md#project-members-permissions) of the project.
 

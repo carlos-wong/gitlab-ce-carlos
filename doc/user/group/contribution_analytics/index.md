@@ -2,7 +2,7 @@
 type: reference
 ---
 
-# Contribution Analytics **[STARTER]**
+# Contribution Analytics **(STARTER)**
 
 > Introduced in [GitLab Starter](https://about.gitlab.com/pricing/) 8.3.
 
@@ -21,9 +21,9 @@ page.
 ## Use cases
 
 - Analyze your team's contributions over a period of time, and offer a bonus for the top
-contributors.
+  contributors.
 - Identify opportunities for improvement with group members who may benefit from additional
-support.
+  support.
 
 ## Using Contribution Analytics
 
@@ -54,13 +54,13 @@ Select the desired period from the calendar dropdown.
 
 Contributions per group member are also presented in tabular format. Click a column header to sort the table by that column:
 
-* Member name
-* Number of pushed events
-* Number of opened issues
-* Number of closed issues
-* Number of opened MRs
-* Number of accepted MRs
-* Number of total contributions
+- Member name
+- Number of pushed events
+- Number of opened issues
+- Number of closed issues
+- Number of opened MRs
+- Number of accepted MRs
+- Number of total contributions
 
 ![Contribution analytics contributions table](img/group_stats_table.png)
 

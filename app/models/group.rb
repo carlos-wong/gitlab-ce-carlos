@@ -63,6 +63,8 @@ class Group < Namespace
   after_save :update_two_factor_requirement
   after_update :path_changed_hook, if: :saved_change_to_path?
 
+  scope :with_users, -> { includes(:users) }
+
   class << self
     def sort_by_attribute(method)
       if method == 'storage_size_desc'
@@ -408,10 +410,6 @@ class Group < Namespace
   # solution.
   def runners_token
     ensure_runners_token!
-  end
-
-  def group_clusters_enabled?
-    Feature.enabled?(:group_clusters, root_ancestor, default_enabled: true)
   end
 
   def project_creation_level

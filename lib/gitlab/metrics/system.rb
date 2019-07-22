@@ -31,14 +31,6 @@ module Gitlab
 
           match[1].to_i
         end
-
-        def self.process_start_time
-          fields = File.read('/proc/self/stat').split
-
-          # fields[21] is linux proc stat field "(22) starttime".
-          # The value is expressed in clock ticks, divide by clock ticks for seconds.
-          ( fields[21].to_i || 0 ) / clk_tck
-        end
       else
         def self.memory_usage
           0.0
@@ -51,23 +43,11 @@ module Gitlab
         def self.max_open_file_descriptors
           0
         end
-
-        def self.process_start_time
-          0
-        end
       end
 
-      # THREAD_CPUTIME is not supported on OS X
-      if Process.const_defined?(:CLOCK_THREAD_CPUTIME_ID)
-        def self.cpu_time
-          Process
-            .clock_gettime(Process::CLOCK_THREAD_CPUTIME_ID, :float_second)
-        end
-      else
-        def self.cpu_time
-          Process
-            .clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID, :float_second)
-        end
+      def self.cpu_time
+        Process
+          .clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID, :float_second)
       end
 
       # Returns the current real time in a given precision.
@@ -82,10 +62,6 @@ module Gitlab
       # Returns the time as a Float.
       def self.monotonic_time
         Process.clock_gettime(Process::CLOCK_MONOTONIC, :float_second)
-      end
-
-      def self.clk_tck
-        @clk_tck ||= `getconf CLK_TCK`.to_i
       end
     end
   end

@@ -134,6 +134,15 @@ $note-form-margin-left: 72px;
     }
   }
 
+  .discussion-toggle-replies {
+    border-top: 0;
+    border-radius: 4px 4px 0 0;
+
+    &.collapsed {
+      border-radius: 4px;
+    }
+  }
+
   .note-created-ago,
   .note-updated-at {
     white-space: normal;
@@ -396,7 +405,7 @@ $note-form-margin-left: 72px;
     border-radius: 0;
 
     @media (min-width: map-get($grid-breakpoints, md)) {
-      top: 91px;
+      top: $mr-tabs-height + $header-height;
 
       .with-performance-bar & {
         top: 126px;
@@ -462,6 +471,14 @@ $note-form-margin-left: 72px;
     position: relative;
   }
 
+  .notes-content .discussion-notes.diff-discussions {
+    border-bottom: 1px solid $border-color;
+
+    &:nth-last-child(1) {
+      border-bottom: 0;
+    }
+  }
+
   .notes_holder {
     font-family: $regular-font;
 
@@ -517,6 +534,17 @@ $note-form-margin-left: 72px;
   .discussion-reply-holder {
     border-radius: 0 0 $border-radius-default $border-radius-default;
     position: relative;
+
+    .discussion-form {
+      width: 100%;
+      background-color: $gray-light;
+      padding: 0;
+    }
+
+    .disabled-comment {
+      padding: $gl-vert-padding 0;
+      width: 100%;
+    }
   }
 }
 
@@ -569,7 +597,8 @@ $note-form-margin-left: 72px;
 }
 
 .discussion-header {
-  min-height: 74px;
+  min-height: $line-height-base * 2em;
+  box-sizing: content-box;
 
   .note-header-info {
     padding-bottom: 0;
@@ -579,13 +608,10 @@ $note-form-margin-left: 72px;
     overflow-x: auto;
     overflow-y: hidden;
   }
-}
 
-.unresolved {
-  .discussion-header {
-    .note-header-info {
-      margin-top: $gl-padding-8;
-    }
+  &.note-wrapper {
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -628,7 +654,7 @@ $note-form-margin-left: 72px;
 
 .note-headline-meta {
   .system-note-separator {
-    color: $gl-text-color-disabled;
+    color: $gray-700;
   }
 
   .note-timestamp {
@@ -655,6 +681,10 @@ $note-form-margin-left: 72px;
 
   .btn-group > .discussion-next-btn {
     margin-left: -1px;
+  }
+
+  .btn-group > .discussion-create-issue-btn {
+    margin-left: -2px;
   }
 
   svg {

@@ -60,7 +60,7 @@ export default {
 </script>
 <template>
   <div class="table-section section-10 d-none d-sm-none d-md-block pipeline-tags">
-    <gl-link :href="pipeline.path" class="js-pipeline-url-link">
+    <gl-link :href="pipeline.path" class="js-pipeline-url-link js-onboarding-pipeline-item">
       <span class="pipeline-id">#{{ pipeline.id }}</span>
     </gl-link>
     <div class="label-container">
@@ -94,9 +94,8 @@ export default {
         tabindex="0"
         class="js-pipeline-url-autodevops badge badge-info autodevops-badge"
         role="button"
+        >{{ __('Auto DevOps') }}</gl-link
       >
-        Auto DevOps
-      </gl-link>
       <span v-if="pipeline.flags.stuck" class="js-pipeline-url-stuck badge badge-warning">
         {{ __('stuck') }}
       </span>

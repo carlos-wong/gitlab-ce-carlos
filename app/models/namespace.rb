@@ -8,12 +8,9 @@ class Namespace < ApplicationRecord
   include AfterCommitQueue
   include Storage::LegacyNamespace
   include Gitlab::SQL::Pattern
-  include IgnorableColumn
   include FeatureGate
   include FromUnion
   include Gitlab::Utils::StrongMemoize
-
-  ignore_column :deleted_at
 
   # Prevent users from creating unreasonably deep level of nesting.
   # The number 20 was taken based on maximum nesting level of
@@ -35,12 +32,13 @@ class Namespace < ApplicationRecord
   belongs_to :parent, class_name: "Namespace"
   has_many :children, class_name: "Namespace", foreign_key: :parent_id
   has_one :chat_team, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_one :root_storage_statistics, class_name: 'Namespace::RootStorageStatistics'
+  has_one :aggregation_schedule, class_name: 'Namespace::AggregationSchedule'
 
   validates :owner, presence: true, unless: ->(n) { n.type == "Group" }
   validates :name,
     presence: true,
-    length: { maximum: 255 },
-    namespace_name: true
+    length: { maximum: 255 }
 
   validates :description, length: { maximum: 255 }
   validates :path,
@@ -248,7 +246,9 @@ class Namespace < ApplicationRecord
   end
 
   def root_ancestor
-    self_and_ancestors.reorder(nil).find_by(parent_id: nil)
+    strong_memoize(:root_ancestor) do
+      self_and_ancestors.reorder(nil).find_by(parent_id: nil)
+    end
   end
 
   def subgroup?
@@ -257,6 +257,11 @@ class Namespace < ApplicationRecord
 
   # Overridden on EE module
   def multiple_issue_boards_available?
+    false
+  end
+
+  # Overridden in EE::Namespace
+  def feature_available?(_feature)
     false
   end
 
@@ -287,6 +292,10 @@ class Namespace < ApplicationRecord
         { scope: :instance, status: Gitlab::CurrentSettings.auto_devops_enabled? }
       end
     end
+  end
+
+  def aggregation_scheduled?
+    aggregation_schedule.present?
   end
 
   private

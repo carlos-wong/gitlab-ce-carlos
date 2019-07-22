@@ -6,7 +6,10 @@ module API
   class Commits < Grape::API
     include PaginationParams
 
-    before { authorize! :download_code, user_project }
+    before do
+      require_repository_enabled!
+      authorize! :download_code, user_project
+    end
 
     helpers do
       def user_access
@@ -123,7 +126,7 @@ module API
         if result[:status] == :success
           commit_detail = user_project.repository.commit(result[:result])
 
-          Gitlab::WebIdeCommitsCounter.increment if find_user_from_warden
+          Gitlab::UsageDataCounters::WebIdeCounter.increment_commits_count if find_user_from_warden
 
           present commit_detail, with: Entities::CommitDetail, stats: params[:stats]
         else

@@ -16,25 +16,25 @@ To create a project in GitLab:
    - [Import a project](../user/project/import/index.md) from a different repository,
      if enabled on your GitLab instance. Contact your GitLab admin if this
      is unavailable.
-   - Run [CI/CD pipelines for external repositories](../ci/ci_cd_for_external_repos/index.md). **[PREMIUM]**
+   - Run [CI/CD pipelines for external repositories](../ci/ci_cd_for_external_repos/index.md). **(PREMIUM)**
 
 ## Blank projects
 
 To create a new blank project on the **New project** page:
 
 1. On the **Blank project** tab, provide the following information:
-    - The name of your project in the **Project name** field. You can't use
-      special characters, but you can use spaces, hyphens, underscores or even
-      emoji.
-    - The **Project description (optional)** field enables you to enter a
-      description for your project's dashboard, which will help others
-      understand what your project is about. Though it's not required, it's a good
-      idea to fill this in.
-    - Changing the **Visibility Level** modifies the project's
-      [viewing and access rights](../public_access/public_access.md) for users.
-    - Selecting the **Initialize repository with a README** option creates a
-      README file so that the Git repository is initialized, has a default branch, and
-      can be cloned.
+   - The name of your project in the **Project name** field. You can't use
+     special characters, but you can use spaces, hyphens, underscores or even
+     emoji.
+   - The **Project description (optional)** field enables you to enter a
+     description for your project's dashboard, which will help others
+     understand what your project is about. Though it's not required, it's a good
+     idea to fill this in.
+   - Changing the **Visibility Level** modifies the project's
+     [viewing and access rights](../public_access/public_access.md) for users.
+   - Selecting the **Initialize repository with a README** option creates a
+     README file so that the Git repository is initialized, has a default branch, and
+     can be cloned.
 1. Click **Create project**.
 
 ## Project templates
@@ -60,8 +60,8 @@ To use a built-in template on the **New project** page:
 
 1. On the **Create from template** tab, select the **Built-in** tab.
 1. From the list of available built-in templates, click the:
-    - **Preview** button to look at the template source itself.
-    - **Use template** button to start creating the project.
+   - **Preview** button to look at the template source itself.
+   - **Use template** button to start creating the project.
 1. Finish creating the project by filling out the project's details. The process is the same as for
    using a [blank project](#blank-projects).
 
@@ -69,7 +69,7 @@ TIP: **Tip:**
 You can improve the existing built-in templates or contribute new ones on the
 [`project-templates`](https://gitlab.com/gitlab-org/project-templates) and [`pages`](https://gitlab.com/pages) groups.
 
-### Custom project templates **[PREMIUM ONLY]**
+### Custom project templates **(PREMIUM ONLY)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/6860) in
 [GitLab Premium](https://about.gitlab.com/pricing) 11.2.
@@ -83,8 +83,8 @@ To use a custom project template on the **New project** page:
 
 1. On the **Create from template** tab, select the **Instance** tab or the **Group** tab.
 1. From the list of available custom templates, click the:
-    - **Preview** button to look at the template source itself.
-    - **Use template** button to start creating the project.
+   - **Preview** button to look at the template source itself.
+   - **Use template** button to start creating the project.
 1. Finish creating the project by filling out the project's details. The process is the same as for
    using a [blank project](#blank-projects).
 

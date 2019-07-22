@@ -59,14 +59,12 @@ describe Groups::BoardsController do
       it 'return an array with one group board' do
         create(:board, group: group)
 
-        expect(Boards::Visits::LatestService).not_to receive(:new)
+        expect(Boards::VisitsFinder).not_to receive(:new)
 
         list_boards format: :json
 
-        parsed_response = JSON.parse(response.body)
-
         expect(response).to match_response_schema('boards')
-        expect(parsed_response.length).to eq 1
+        expect(json_response.length).to eq 1
       end
 
       context 'with unauthorized user' do

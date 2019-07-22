@@ -1,3 +1,7 @@
+---
+type: reference
+---
+
 # NFS
 
 You can view information and options set for each of the mounted NFS file
@@ -42,34 +46,20 @@ maintaining ID mapping without LDAP, in most cases you should enable numeric UID
 and GIDs (which is off by default in some cases) for simplified permission
 management between systems:
 
-  - [NetApp instructions](https://library.netapp.com/ecmdocs/ECMP1401220/html/GUID-24367A9F-E17B-4725-ADC1-02D86F56F78E.html)
-  - For non-NetApp devices, disable NFSv4 `idmapping` by performing opposite of [enable NFSv4 idmapper](https://wiki.archlinux.org/index.php/NFS#Enabling_NFSv4_idmapping)
+- [NetApp instructions](https://library.netapp.com/ecmdocs/ECMP1401220/html/GUID-24367A9F-E17B-4725-ADC1-02D86F56F78E.html)
+- For non-NetApp devices, disable NFSv4 `idmapping` by performing opposite of [enable NFSv4 idmapper](https://wiki.archlinux.org/index.php/NFS#Enabling_NFSv4_idmapping)
 
 ### Improving NFS performance with GitLab
 
-NOTE: **Note:** This is only available starting in certain versions of GitLab: 11.5.11,
-11.6.11, 11.7.12, 11.8.8, 11.9.0 and up (e.g. 11.10, 11.11, etc.)
+NOTE: **Note:** From GitLab 12.1, it will automatically be detected if Rugged can and should be used per storage.
 
-If you are using NFS to share Git data, we recommend that you enable a
-number of feature flags that will allow GitLab application processes to
-access Git data directly instead of going through the [Gitaly
-service](../gitaly/index.md). Depending on your workload and disk
-performance, these flags may help improve performance. See [the
-issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/57317) for more
-details.
-
-To do this, run the Rake task:
+If you previously enabled Rugged using the feature flag, you will need to unset the feature flag by using:
 
 ```sh
-sudo gitlab-rake gitlab:features:enable_rugged
+sudo gitlab-rake gitlab:features:unset_rugged
 ```
 
-If you need to undo this setting for some reason such as switching to [Gitaly without NFS](gitaly.md)
-(recommended), run:
-
-```sh
-sudo gitlab-rake gitlab:features:disable_rugged
-```
+If the Rugged feature flag is explicitly set to either true or false, GitLab will use the value explicitly set.
 
 ### Known issues
 
@@ -87,10 +77,10 @@ on an Linux NFS server, do the following:
 
 1. On the NFS server, run:
 
-    ```sh
-    echo 0 > /proc/sys/fs/leases-enable
-    sysctl -w fs.leases-enable=0
-    ```
+   ```sh
+   echo 0 > /proc/sys/fs/leases-enable
+   sysctl -w fs.leases-enable=0
+   ```
 
 1. Restart the NFS server process. For example, on CentOS run `service nfs restart`.
 
@@ -235,4 +225,16 @@ Read more on high-availability configuration:
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)
 
-[udp-log-shipping]: http://docs.gitlab.com/omnibus/settings/logs.html#udp-log-shipping-gitlab-enterprise-edition-only "UDP log shipping"
+[udp-log-shipping]: https://docs.gitlab.com/omnibus/settings/logs.html#udp-log-shipping-gitlab-enterprise-edition-only "UDP log shipping"
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

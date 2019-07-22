@@ -2,14 +2,14 @@
 type: reference
 ---
 
-# Continuous Integration and Deployment Admin settings **[CORE ONLY]**
+# Continuous Integration and Deployment Admin settings **(CORE ONLY)**
 
 In this area, you will find settings for Auto DevOps, Runners and job artifacts.
 You can find it in the admin area, under **Settings > Continuous Integration and Deployment**.
 
 ![Admin area settings button](../img/admin_area_settings_button.png)
 
-## Auto DevOps **[CORE ONLY]**
+## Auto DevOps **(CORE ONLY)**
 
 To enable (or disable) [Auto DevOps](../../../topics/autodevops/index.md)
 for all projects:
@@ -26,7 +26,7 @@ From now on, every existing project and newly created ones that don't have a
 If you want to disable it for a specific project, you can do so in
 [its settings](../../../topics/autodevops/index.md#enablingdisabling-auto-devops).
 
-## Maximum artifacts size **[CORE ONLY]**
+## Maximum artifacts size **(CORE ONLY)**
 
 The maximum size of the [job artifacts](../../../administration/job_artifacts.md)
 can be set in the Admin area of your GitLab instance. The value is in *MB* and
@@ -38,7 +38,7 @@ To change it:
 1. Change the value of maximum artifacts size (in MB).
 1. Hit **Save changes** for the changes to take effect.
 
-## Default artifacts expiration **[CORE ONLY]**
+## Default artifacts expiration **(CORE ONLY)**
 
 The default expiration time of the [job artifacts](../../../administration/job_artifacts.md)
 can be set in the Admin area of your GitLab instance. The syntax of duration is
@@ -54,7 +54,7 @@ This setting is set per job and can be overridden in
 [`.gitlab-ci.yml`](../../../ci/yaml/README.md#artifactsexpire_in).
 To disable the expiration, set it to `0`. The default unit is in seconds.
 
-## Shared Runners pipeline minutes quota **[STARTER ONLY]**
+## Shared Runners pipeline minutes quota **(STARTER ONLY)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/1078)
 in GitLab Starter 8.16.
@@ -94,14 +94,11 @@ a group in the **Usage Quotas** page available to the group page settings list.
 
 ![Group pipelines quota](img/group_pipelines_quota.png)
 
+## Extra Shared Runners pipeline minutes quota **(FREE ONLY)**
 
-## Extra Shared Runners pipeline minutes quota
-
-NOTE: **Note:**
-Only available on GitLab.com.
-
-You can purchase additional CI minutes so your pipelines will not be blocked after you have
-used all your CI minutes from your main quota.
+If you're using GitLab.com, you can purchase additional CI minutes so your
+pipelines will not be blocked after you have used all your CI minutes from your
+main quota.
 
 In order to purchase additional minutes, you should follow these steps:
 
@@ -110,27 +107,27 @@ In order to purchase additional minutes, you should follow these steps:
     ![Buy additional minutes](img/buy_btn.png)
 
 1. Locate the subscription card that is linked to your group on GitLab.com,
-click on **Buy more CI minutes**, and complete the details about the transaction.
+   click on **Buy more CI minutes**, and complete the details about the transaction.
 
     ![Buy additional minutes](img/buy_minutes_card.png)
 
 1. Once we have processed your payment, the extra CI minutes
-will be synced to your Group and you can visualize it from  the
-**Group > Settings > Pipelines quota** page:
+   will be synced to your Group and you can visualize it from  the
+   **Group > Settings > Pipelines quota** page:
 
     ![Additional minutes](img/additional_minutes.png)
 
 Be aware that:
 
 1. If you have purchased extra CI minutes before the purchase of a paid plan,
-we will calculate a pro-rated charge for your paid plan. That means you may
-be charged for less than one year since your subscription was previously
-created with the extra CI minutes.
+   we will calculate a pro-rated charge for your paid plan. That means you may
+   be charged for less than one year since your subscription was previously
+   created with the extra CI minutes.
 1. Once the extra CI minutes has been assigned to a Group they cannot be transferred
-to a different Group.
+   to a different Group.
 1. If you have some minutes used over your default quota, these minutes will
-be deducted from your Additional Minutes quota immediately after your purchase of additional
-minutes.
+   be deducted from your Additional Minutes quota immediately after your purchase of additional
+   minutes.
 
 ## What happens when my CI minutes quota run out
 
@@ -140,7 +137,7 @@ includes a link to [purchase more minutes](https://customers.gitlab.com/plans).
 If you are not the owner of the group, you will need to contact them to let them know they need to
 [purchase more minutes](https://customers.gitlab.com/plans).
 
-## Archive jobs **[CORE ONLY]**
+## Archive jobs **(CORE ONLY)**
 
 Archiving jobs is useful for reducing the CI/CD footprint on the system by
 removing some of the capabilities of the jobs (metadata needed to run the job),
@@ -167,3 +164,23 @@ questions that you know someone might ask.
 Each scenario can be a third-level heading, e.g. `### Getting error message X`.
 If you have none to add when creating a doc, leave this section in place
 but commented out to help encourage others to add to it in the future. -->
+
+## Required pipeline configuration **(PREMIUM ONLY)**
+
+GitLab administrators can force a pipeline configuration to run on every
+pipeline.
+
+The configuration applies to all pipelines for a GitLab instance and is 
+sourced from:
+
+- The [instance template repository](instance_template_repository.md).
+- GitLab-supplied configuration.
+
+To set required pipeline configuration:
+
+1. Go to **Admin area > Settings > CI/CD**.
+1. Expand the **Required pipeline configuration** section.
+1. Select the required configuration from the provided dropdown.
+1. Click **Save changes**.
+
+![Required pipeline](img/admin_required_pipeline.png)

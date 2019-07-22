@@ -12,7 +12,6 @@ type: index, reference
 > - Support for subgroup project's websites was [introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/30548) in GitLab 11.8.
 > - Bundled project templates were [introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/47857) in GitLab 11.8.
 
-
 **GitLab Pages is a feature that allows you to publish static websites
 directly from a repository in GitLab.**
 
@@ -102,13 +101,13 @@ To get started with GitLab Pages, you can either:
 1. Select **Create from Template**.
 1. Choose one of the templates starting with **Pages**:
 
-    ![Project templates for Pages](img/pages_project_templates_11-8.png)
+    ![Project templates for Pages](img/pages_project_templates_v11_8.png)
 
 1. From the left sidebar, navigate to your project's **CI/CD > Pipelines**
-and click **Run pipeline** to trigger GitLab CI/CD to build and deploy your
-site to the server.
+   and click **Run pipeline** to trigger GitLab CI/CD to build and deploy your
+   site to the server.
 1. Once the pipeline has finished successfully, find the link to visit your
-website from your project's **Settings > Pages**.
+   website from your project's **Settings > Pages**.
 
 Your website is then visible on your domain, and you can modify yourfiles
 as you wish. For every modification pushed to your repository, GitLab CI/CD
@@ -116,8 +115,8 @@ will run a new pipeline to publish your changes to the server.
 
 _Advanced options:_
 
-- [Use a custom domain](getting_started_part_three.md#adding-your-custom-domain-to-gitlab-pages)
-- Apply [SSL/TLS certification](getting_started_part_three.md#ssltls-certificates) to your custom domain
+- [Use a custom domain](custom_domains_ssl_tls_certification/index.md#set-up-pages-with-a-custom-domain)
+- Apply [SSL/TLS certification](custom_domains_ssl_tls_certification/index.md#adding-an-ssltls-certificate-to-pages) to your custom domain
 
 ## Availability
 
@@ -141,11 +140,11 @@ To learn more about configuration options for GitLab Pages, read the following:
 | [Static websites and Pages domains](getting_started_part_one.md) | Understand what is a static website, and how GitLab Pages default domains work. |
 | [Projects and URL structure](getting_started_part_two.md) | Forking projects and creating new ones from scratch, understanding URLs structure and baseurls. |
 | [GitLab CI/CD for GitLab Pages](getting_started_part_four.md) | Understand how to create your own `.gitlab-ci.yml` for your site. |
-| [Exploring GitLab Pages](introduction.md) | Requirements, technical aspects, specific GitLab CI's configuration options, custom 404 pages, limitations, FAQ. |
+| [Exploring GitLab Pages](introduction.md) | Requirements, technical aspects, specific GitLab CI's configuration options, Access Control, custom 404 pages, limitations, FAQ. |
 |---+---|
-| [Custom domains and SSL/TLS Certificates](getting_started_part_three.md) | How to add custom domains and subdomains to your website, configure DNS records and SSL/TLS certificates. |
+| [Custom domains and SSL/TLS Certificates](custom_domains_ssl_tls_certification/index.md) | How to add custom domains and subdomains to your website, configure DNS records and SSL/TLS certificates. |
+| [Let's Encrypt integration](custom_domains_ssl_tls_certification/lets_encrypt_integration.md) | Secure your Pages sites with Let's Encrypt certificates automatically obtained and renewed by GitLab. |
 | [CloudFlare certificates](https://about.gitlab.com/2017/02/07/setting-up-gitlab-pages-with-cloudflare-certificates/) | Secure your Pages site with CloudFlare certificates. |
-| [Let's Encrypt certificates](lets_encrypt_for_gitlab_pages.md) | Secure your Pages site with Let's Encrypt certificates. |
 |---+---|
 | [Static vs dynamic websites](https://about.gitlab.com/2016/06/03/ssg-overview-gitlab-pages-part-1-dynamic-x-static/) | A conceptual overview on static versus dynamic sites. |
 | [Modern static site generators](https://about.gitlab.com/2016/06/10/ssg-overview-gitlab-pages-part-2/) | A conceptual overview on SSGs. |

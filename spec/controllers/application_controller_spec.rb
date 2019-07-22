@@ -63,8 +63,6 @@ describe ApplicationController do
       sign_in user
     end
 
-    let(:json_response) { JSON.parse(response.body) }
-
     controller(described_class) do
       def index
         render json: Gon.all_variables
@@ -285,6 +283,13 @@ describe ApplicationController do
 
       it 'returns true if a 2FA requirement is set on the user' do
         user.require_two_factor_authentication_from_group = true
+        allow(controller).to receive(:current_user).and_return(user)
+
+        expect(subject).to be_truthy
+      end
+
+      it 'returns true if user has signed up using omniauth-ultraauth' do
+        user = create(:omniauth_user, provider: 'ultraauth')
         allow(controller).to receive(:current_user).and_return(user)
 
         expect(subject).to be_truthy

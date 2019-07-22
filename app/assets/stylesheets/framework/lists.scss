@@ -133,7 +133,6 @@ ul.content-list {
 
     .description {
       @include str-truncated;
-      color: $gl-text-color-secondary;
     }
 
     .controls {
@@ -266,7 +265,6 @@ ul.controls {
   }
 
   .issuable-pipeline-broken a,
-  .issuable-pipeline-status a,
   .author-link {
     display: flex;
   }

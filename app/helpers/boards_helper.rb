@@ -14,7 +14,9 @@ module BoardsHelper
       issue_link_base: build_issue_link_base,
       root_path: root_path,
       bulk_update_path: @bulk_issues_path,
-      default_avatar: image_path(default_avatar)
+      default_avatar: image_path(default_avatar),
+      time_tracking_limit_to_hours: Gitlab::CurrentSettings.time_tracking_limit_to_hours.to_s,
+      recent_boards_endpoint: recent_boards_path
     }
   end
 
@@ -86,6 +88,22 @@ module BoardsHelper
   end
 
   def boards_link_text
-    s_("IssueBoards|Board")
+    if current_board_parent.multiple_issue_boards_available?
+      s_("IssueBoards|Boards")
+    else
+      s_("IssueBoards|Board")
+    end
+  end
+
+  def recent_boards_path
+    recent_project_boards_path(@project) if current_board_parent.is_a?(Project)
+  end
+
+  def serializer
+    CurrentBoardSerializer.new
+  end
+
+  def current_board_json
+    serializer.represent(board).as_json
   end
 end

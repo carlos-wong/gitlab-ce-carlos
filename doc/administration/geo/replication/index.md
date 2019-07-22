@@ -1,4 +1,4 @@
-# Geo Replication **[PREMIUM ONLY]**
+# Geo Replication **(PREMIUM ONLY)**
 
 Geo is the solution for widely distributed development teams.
 
@@ -80,8 +80,8 @@ In this diagram:
 - If present, the [LDAP server](#ldap) should be configured to replicate for [Disaster Recovery](../disaster_recovery/index.md) scenarios.
 - A **secondary** node performs different type of synchronizations against the **primary** node, using a special
   authorization protected by JWT:
-   - Repositories are cloned/updated via Git over HTTPS.
-   - Attachments, LFS objects, and other files are downloaded via HTTPS using a private API endpoint.
+  - Repositories are cloned/updated via Git over HTTPS.
+  - Attachments, LFS objects, and other files are downloaded via HTTPS using a private API endpoint.
 
 From the perspective of a user performing Git operations:
 
@@ -107,8 +107,8 @@ The following are required to run Geo:
 - An operating system that supports OpenSSH 6.9+ (needed for
   [fast lookup of authorized SSH keys in the database](../../operations/fast_ssh_key_lookup.md))
   The following operating systems are known to ship with a current version of OpenSSH:
-    - [CentOS](https://www.centos.org) 7.4+
-    - [Ubuntu](https://www.ubuntu.com) 16.04+
+  - [CentOS](https://www.centos.org) 7.4+
+  - [Ubuntu](https://www.ubuntu.com) 16.04+
 - PostgreSQL 9.6+ with [FDW](https://www.postgresql.org/docs/9.6/postgres-fdw.html) support and [Streaming Replication](https://wiki.postgresql.org/wiki/Streaming_Replication)
 - Git 2.9+
 
@@ -178,7 +178,7 @@ The steps below should be followed in the order they appear. **Make sure the Git
 
 If you installed GitLab using the Omnibus packages (highly recommended):
 
-1. [Install GitLab Enterprise Edition](https://about.gitlab.com/installation/) on the server that will serve as the **secondary** node. Do not create an account or log in to the new **secondary** node.
+1. [Install GitLab Enterprise Edition](https://about.gitlab.com/install/) on the server that will serve as the **secondary** node. Do not create an account or log in to the new **secondary** node.
 1. [Upload the GitLab License](../../../user/admin_area/license.md) on the **primary** node to unlock Geo. The license must be for [GitLab Premium](https://about.gitlab.com/pricing/) or higher.
 1. [Set up the database replication](database.md) (`primary (read-write) <-> secondary (read-only)` topology).
 1. [Configure fast lookup of authorized SSH keys in the database](../../operations/fast_ssh_key_lookup.md). This step is required and needs to be done on **both** the **primary** and **secondary** nodes.

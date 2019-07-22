@@ -507,7 +507,6 @@ $toast-height: 48px;
 $toast-max-width: 586px;
 $toast-padding-right: 42px;
 $toast-default-margin: 8px;
-$toast-action-margin-left: 16px;
 $toast-background-opacity: 0.95;
 
 /*
@@ -805,8 +804,9 @@ $border-color-settings: #e1e1e1;
 /*
 Modals
 */
-$modal-body-height: 134px;
+$modal-body-height: 80px;
 $modal-border-color: #e9ecef;
+$modal-border-radius: 0.25rem;
 
 $priority-label-empty-state-width: 114px;
 

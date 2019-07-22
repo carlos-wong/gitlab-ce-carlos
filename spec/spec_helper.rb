@@ -47,7 +47,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 quality_level = Quality::TestLevel.new
 
 RSpec.configure do |config|
-  config.use_transactional_fixtures = false
+  config.use_transactional_fixtures = true
   config.use_instantiated_fixtures  = false
   config.fixture_path = Rails.root
 
@@ -103,6 +103,7 @@ RSpec.configure do |config|
   config.include RedisHelpers
   config.include Rails.application.routes.url_helpers, type: :routing
   config.include PolicyHelpers, type: :policy
+  config.include MemoryUsageHelper
 
   if ENV['CI']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -133,12 +134,16 @@ RSpec.configure do |config|
       allow(Feature).to receive(:enabled?).with(flag).and_return(enabled)
     end
 
+    allow(Gitlab::GitalyClient).to receive(:can_use_disk?).and_return(enabled)
+
     # The following can be removed when we remove the staged rollout strategy
     # and we can just enable it using instance wide settings
     # (ie. ApplicationSetting#auto_devops_enabled)
     allow(Feature).to receive(:enabled?)
       .with(:force_autodevops_on_by_default, anything)
       .and_return(false)
+
+    Gitlab::ThreadMemoryCache.cache_backend.clear
   end
 
   config.around(:example, :quarantine) do
@@ -286,6 +291,16 @@ RSpec.configure do |config|
 
   config.before(:each, :https_pages_disabled) do |_|
     allow(Gitlab.config.pages).to receive(:external_https).and_return(false)
+  end
+
+  # We can't use an `around` hook here because the wrapping transaction
+  # is not yet opened at the time that is triggered
+  config.prepend_before do
+    Gitlab::Database.set_open_transactions_baseline
+  end
+
+  config.append_after do
+    Gitlab::Database.reset_open_transactions_baseline
   end
 end
 

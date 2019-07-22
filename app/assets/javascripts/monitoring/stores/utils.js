@@ -36,15 +36,26 @@ function removeTimeSeriesNoData(queries) {
 //                                                       { metricId: 2, ...query2Attrs }] },
 //            { title: 'new title', y_label: 'MB', queries: [{ metricId: 3, ...query3Attrs }]}
 //          ]
-function groupQueriesByChartInfo(metrics) {
+export function groupQueriesByChartInfo(metrics) {
   const metricsByChart = metrics.reduce((accumulator, metric) => {
     const { queries, ...chart } = metric;
-    const metricId = chart.id ? chart.id.toString() : null;
 
     const chartKey = `${chart.title}|${chart.y_label}`;
     accumulator[chartKey] = accumulator[chartKey] || { ...chart, queries: [] };
 
-    queries.forEach(queryAttrs => accumulator[chartKey].queries.push({ metricId, ...queryAttrs }));
+    queries.forEach(queryAttrs => {
+      let metricId;
+
+      if (chart.id) {
+        metricId = chart.id.toString();
+      } else if (queryAttrs.metric_id) {
+        metricId = queryAttrs.metric_id.toString();
+      } else {
+        metricId = null;
+      }
+
+      accumulator[chartKey].queries.push({ metricId, ...queryAttrs });
+    });
 
     return accumulator;
   }, {});
@@ -58,13 +69,26 @@ export const sortMetrics = metrics =>
     .sortBy('weight')
     .value();
 
-export const normalizeQueryResult = timeSeries => ({
-  ...timeSeries,
-  values: timeSeries.values.map(([timestamp, value]) => [
-    new Date(timestamp * 1000).toISOString(),
-    Number(value),
-  ]),
-});
+export const normalizeQueryResult = timeSeries => {
+  let normalizedResult = {};
+
+  if (timeSeries.values) {
+    normalizedResult = {
+      ...timeSeries,
+      values: timeSeries.values.map(([timestamp, value]) => [
+        new Date(timestamp * 1000).toISOString(),
+        Number(value),
+      ]),
+    };
+  } else if (timeSeries.value) {
+    normalizedResult = {
+      ...timeSeries,
+      value: [new Date(timeSeries.value[0] * 1000).toISOString(), Number(timeSeries.value[1])],
+    };
+  }
+
+  return normalizedResult;
+};
 
 export const normalizeMetrics = metrics => {
   const groupedMetrics = groupQueriesByChartInfo(metrics);

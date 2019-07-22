@@ -25,7 +25,7 @@ module RelativePositioning
           relative_position = position_between(max_relative_position, MAX_POSITION)
           object.relative_position = relative_position
           max_relative_position = relative_position
-          object.save
+          object.save(touch: false)
         end
       end
     end
@@ -159,7 +159,7 @@ module RelativePositioning
   def save_positionable_neighbours
     return unless @positionable_neighbours
 
-    status = @positionable_neighbours.all?(&:save)
+    status = @positionable_neighbours.all? { |issue| issue.save(touch: false) }
     @positionable_neighbours = nil
 
     status
@@ -179,7 +179,7 @@ module RelativePositioning
     relation = yield relation if block_given?
 
     relation
-      .pluck(self.class.parent_column, "#{calculation}(relative_position) AS position")
+      .pluck(self.class.parent_column, Arel.sql("#{calculation}(relative_position) AS position"))
       .first&.
       last
   end

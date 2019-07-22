@@ -12,6 +12,8 @@ describe('collapsible registry container', () => {
   let mock;
   const Component = Vue.extend(collapsibleComponent);
 
+  const findDeleteBtn = () => vm.$el.querySelector('.js-remove-repo');
+
   beforeEach(() => {
     mock = new MockAdapter(axios);
 
@@ -67,7 +69,19 @@ describe('collapsible registry container', () => {
 
   describe('delete repo', () => {
     it('should be possible to delete a repo', () => {
-      expect(vm.$el.querySelector('.js-remove-repo')).not.toBeNull();
+      expect(findDeleteBtn()).not.toBeNull();
+    });
+
+    it('should call deleteItem when confirming deletion', done => {
+      findDeleteBtn().click();
+      spyOn(vm, 'deleteItem').and.returnValue(Promise.resolve());
+
+      Vue.nextTick(() => {
+        document.querySelector(`#${vm.modalId} .btn-danger`).click();
+
+        expect(vm.deleteItem).toHaveBeenCalledWith(vm.repo);
+        done();
+      });
     });
   });
 });

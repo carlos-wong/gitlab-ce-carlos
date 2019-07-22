@@ -412,6 +412,22 @@ describe('Api', () => {
     });
   });
 
+  describe('user counts', () => {
+    it('fetches single user counts', done => {
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/user_counts`;
+      mock.onGet(expectedUrl).reply(200, {
+        merge_requests: 4,
+      });
+
+      Api.userCounts()
+        .then(({ data }) => {
+          expect(data.merge_requests).toBe(4);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+  });
+
   describe('user status', () => {
     it('fetches single user status', done => {
       const userId = '123456';
@@ -469,6 +485,29 @@ describe('Api', () => {
         .then(({ data }) => {
           expect(data.name).toBe(branch);
           expect(axios.post).toHaveBeenCalledWith(expectedUrl, { ref, branch });
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+  });
+
+  describe('projectForks', () => {
+    it('gets forked projects', done => {
+      const dummyProjectPath = 'gitlab-org/gitlab-ce';
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${encodeURIComponent(
+        dummyProjectPath,
+      )}/forks`;
+
+      jest.spyOn(axios, 'get');
+
+      mock.onGet(expectedUrl).replyOnce(200, ['fork']);
+
+      Api.projectForks(dummyProjectPath, { visibility: 'private' })
+        .then(({ data }) => {
+          expect(data).toEqual(['fork']);
+          expect(axios.get).toHaveBeenCalledWith(expectedUrl, {
+            params: { visibility: 'private' },
+          });
         })
         .then(done)
         .catch(done.fail);

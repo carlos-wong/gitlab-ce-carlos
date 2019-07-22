@@ -39,21 +39,17 @@ a GitLab project with any single Jira project.
 If you have one Jira instance, you can pre-fill the settings page with a default
 template. See the [Services Templates][services-templates] docs.
 
-Configuration happens via user name and password. Connecting to a Jira server
-via CAS is not possible.
-
-In order to enable the Jira service in GitLab, you need to first configure the
-project in Jira and then enter the correct values in GitLab.
+In order to enable the Jira service in GitLab, you need to first configure the project in Jira and then enter the correct values in GitLab.
 
 ### Configuring Jira
 
-When connecting to **JIRA Server**, which supports basic authentication, a **username and password** are required. Check the link below and proceed to the next step:
+#### Jira Server
 
-- [Setting up a user in JIRA server](jira_server_configuration.md)
+When connecting to **Jira Server**, which supports basic authentication, a **username and password** are required. Note that connecting to a Jira server via CAS is not possible. [Set up a user in Jira Server](jira_server_configuration.md) first and then proceed to [Configuring GitLab](#configuring-gitlab).
 
-When connecting to **JIRA Cloud**, which supports authentication via API token, an **email and API token**, are required. Check the link below and proceed to the next step:
+#### Jira Cloud
 
-- [Setting up a user in JIRA cloud](jira_cloud_configuration.md)
+When connecting to **Jira Cloud**, which supports authentication via API token, an **email and API token**, are required. [Set up a user in Jira Cloud](jira_cloud_configuration.md) first and then proceed to [Configuring GitLab](#configuring-gitlab).
 
 ### Configuring GitLab
 
@@ -68,7 +64,7 @@ When connecting to **JIRA Cloud**, which supports authentication via API token, 
 >   to enable Basic Auth. The cookie being added to each request is `OBBasicAuth` with
 >   a value of `fromDialog`.
 
-To enable Jira integration in a project, navigate to the
+To enable the Jira integration in a project, navigate to the
 [Integrations page](project_services.md#accessing-the-project-services), click
 the **Jira** service, and fill in the required details on the page as described
 in the table below.
@@ -77,8 +73,8 @@ in the table below.
 | ----- | ----------- |
 | `Web URL` | The base URL to the Jira instance web interface which is being linked to this GitLab project. E.g., `https://Jira.example.com`. |
 | `Jira API URL` | The base URL to the Jira instance API. Web URL value will be used if not set. E.g., `https://jira-api.example.com`. |
-| `Username/Email` | Created when [configuring Jira step](#configuring-jira). Use `username` for **JIRA server** or `email` for **JIRA cloud**. |
-| `Password/API token` |Created in [configuring Jira step](#configuring-jira). Use `password` for **JIRA server** or `API token` for **JIRA cloud**. |
+| `Username/Email` | Created when [configuring Jira step](#configuring-jira). Use `username` for **Jira Server** or `email` for **Jira Cloud**. |
+| `Password/API token` |Created in [configuring Jira step](#configuring-jira). Use `password` for **Jira Server** or `API token` for **Jira Cloud**. |
 | `Transition ID` | This is the ID of a transition that moves issues to the desired state. It is possible to insert transition ids separated by `,` or `;` which means the issue will be moved to each state after another using the given order.  **Closing Jira issues via commits or Merge Requests won't work if you don't set the ID correctly.** |
 
 ### Obtaining a transition ID
@@ -127,6 +123,12 @@ ENTITY_TITLE
 
 ![example of mentioning or closing the Jira issue](img/jira_issue_reference.png)
 
+For example, the following commit will reference the Jira issue with `PROJECT-1` as its ID:
+
+```bash
+git commit -m "PROJECT-1 Fix spelling and grammar"
+```
+
 ### Closing Jira Issues
 
 Jira issues can be closed directly from GitLab by using trigger words in
@@ -142,7 +144,7 @@ the same goal:
 - `Closes PROJECT-1`
 - `Fixes PROJECT-1`
 
-where `PROJECT-1` is the issue ID of the Jira project.
+where `PROJECT-1` is the ID of the Jira issue.
 
 > **Notes:**
 >
@@ -173,8 +175,6 @@ Once this merge request is merged, the Jira issue will be automatically closed
 with a link to the commit that resolved the issue.
 
 ![The GitLab integration closes Jira issue](img/jira_service_close_issue.png)
-
-![The GitLab integration creates a comment and a link on Jira issue.](img/jira_service_close_comment.png)
 
 ## Troubleshooting
 

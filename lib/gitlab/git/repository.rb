@@ -15,11 +15,6 @@ module Gitlab
 
       SEARCH_CONTEXT_LINES = 3
       REV_LIST_COMMIT_LIMIT = 2_000
-      # In https://gitlab.com/gitlab-org/gitaly/merge_requests/698
-      # We copied these two prefixes into gitaly-go, so don't change these
-      # or things will break! (REBASE_WORKTREE_PREFIX and SQUASH_WORKTREE_PREFIX)
-      REBASE_WORKTREE_PREFIX = 'rebase'.freeze
-      SQUASH_WORKTREE_PREFIX = 'squash'.freeze
       GITALY_INTERNAL_URL = 'ssh://gitaly/internal.git'.freeze
       GITLAB_PROJECTS_TIMEOUT = Gitlab.config.gitlab_shell.git_timeout
       EMPTY_REPOSITORY_CHECKSUM = '0000000000000000000000000000000000000000'.freeze
@@ -469,6 +464,18 @@ module Gitlab
         end
       end
 
+      # Returns path to url mappings for submodules
+      #
+      # Ex.
+      #   @repository.submodule_urls_for('master')
+      #   # => { 'rack' => 'git@localhost:rack.git' }
+      #
+      def submodule_urls_for(ref)
+        wrapped_gitaly_errors do
+          gitaly_submodule_urls_for(ref)
+        end
+      end
+
       # Return total commits count accessible from passed ref
       def commit_count(ref)
         wrapped_gitaly_errors do
@@ -541,9 +548,9 @@ module Gitlab
         tags.find { |tag| tag.name == name }
       end
 
-      def merge_to_ref(user, source_sha, branch, target_ref, message)
+      def merge_to_ref(user, source_sha, branch, target_ref, message, first_parent_ref)
         wrapped_gitaly_errors do
-          gitaly_operation_client.user_merge_to_ref(user, source_sha, branch, target_ref, message)
+          gitaly_operation_client.user_merge_to_ref(user, source_sha, branch, target_ref, message, first_parent_ref)
         end
       end
 
@@ -683,17 +690,16 @@ module Gitlab
         attributes(path)[name]
       end
 
-      # Check .gitattributes for a given ref
+      # Returns parsed .gitattributes for a given ref
       #
-      # This only checks the root .gitattributes file,
+      # This only parses the root .gitattributes file,
       # it does not traverse subfolders to find additional .gitattributes files
       #
       # This method is around 30 times slower than `attributes`, which uses
       # `$GIT_DIR/info/attributes`. Consider caching AttributesAtRefParser
       # and reusing that for multiple calls instead of this method.
-      def attributes_at(ref, file_path)
-        parser = AttributesAtRefParser.new(self, ref)
-        parser.attributes(file_path)
+      def attributes_at(ref)
+        AttributesAtRefParser.new(self, ref)
       end
 
       def languages(ref = nil)
@@ -942,7 +948,7 @@ module Gitlab
           gitaly_repository_client.cleanup if exists?
         end
       rescue Gitlab::Git::CommandError => e # Don't fail if we can't cleanup
-        Rails.logger.error("Unable to clean repository on storage #{storage} with relative path #{relative_path}: #{e.message}")
+        Rails.logger.error("Unable to clean repository on storage #{storage} with relative path #{relative_path}: #{e.message}") # rubocop:disable Gitlab/RailsLogger
         Gitlab::Metrics.counter(
           :failed_repository_cleanup_total,
           'Number of failed repository cleanup events'
@@ -1065,12 +1071,16 @@ module Gitlab
 
         return unless commit_object && commit_object.type == :COMMIT
 
+        urls = gitaly_submodule_urls_for(ref)
+        urls && urls[path]
+      end
+
+      def gitaly_submodule_urls_for(ref)
         gitmodules = gitaly_commit_client.tree_entry(ref, '.gitmodules', Gitlab::Git::Blob::MAX_DATA_DISPLAY_SIZE)
         return unless gitmodules
 
-        found_module = GitmodulesParser.new(gitmodules.data).parse[path]
-
-        found_module && found_module['url']
+        submodules = GitmodulesParser.new(gitmodules.data).parse
+        submodules.transform_values { |submodule| submodule['url'] }
       end
 
       # Returns true if the given ref name exists

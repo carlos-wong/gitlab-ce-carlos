@@ -36,7 +36,8 @@ export default function renderMermaid($els) {
       });
 
       $els.each((i, el) => {
-        const source = el.textContent;
+        // Mermaid doesn't like `<br />` tags, so collapse all like tags into `<br>`, which is parsed correctly.
+        const source = el.textContent.replace(/<br\s*\/>/g, '<br>');
 
         /**
          * Restrict the rendering to a certain amount of character to
@@ -58,6 +59,14 @@ export default function renderMermaid($els) {
 
         mermaid.init(undefined, el, id => {
           const svg = document.getElementById(id);
+
+          // As of https://github.com/knsv/mermaid/commit/57b780a0d,
+          // Mermaid will make two init callbacks:one to initialize the
+          // flow charts, and another to initialize the Gannt charts.
+          // Guard against an error caused by double initialization.
+          if (svg.classList.contains('mermaid')) {
+            return;
+          }
 
           svg.classList.add('mermaid');
 

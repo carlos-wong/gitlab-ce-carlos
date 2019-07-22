@@ -36,10 +36,6 @@ module API
       given akismet_enabled: ->(val) { val } do
         requires :akismet_api_key, type: String, desc: 'Generate API key at http://www.akismet.com'
       end
-      optional :clientside_sentry_enabled, type: Boolean, desc: 'Sentry can also be used for reporting and logging clientside exceptions. https://sentry.io/for/javascript/'
-      given clientside_sentry_enabled: ->(val) { val } do
-        requires :clientside_sentry_dsn, type: String, desc: 'Clientside Sentry Data Source Name'
-      end
       optional :container_registry_token_expire_delay, type: Integer, desc: 'Authorization token duration (minutes)'
       optional :default_artifacts_expire_in, type: String, desc: "Set the default expiration time for each job's artifacts"
       optional :default_project_creation, type: Integer, values: ::Gitlab::Access.project_creation_values, desc: 'Determine if developers can create projects in the group'
@@ -59,6 +55,8 @@ module API
       optional :gitaly_timeout_default, type: Integer, desc: 'Default Gitaly timeout, in seconds. Set to 0 to disable timeouts.'
       optional :gitaly_timeout_fast, type: Integer, desc: 'Gitaly fast operation timeout, in seconds. Set to 0 to disable timeouts.'
       optional :gitaly_timeout_medium, type: Integer, desc: 'Medium Gitaly timeout, in seconds. Set to 0 to disable timeouts.'
+      optional :grafana_enabled, type: Boolean, desc: 'Enable Grafana'
+      optional :grafana_url, type: String, desc: 'Grafana URL'
       optional :gravatar_enabled, type: Boolean, desc: 'Flag indicating if the Gravatar service is enabled'
       optional :help_page_hide_commercial_content, type: Boolean, desc: 'Hide marketing-related entries from help'
       optional :help_page_support_url, type: String, desc: 'Alternate support URL for help page'
@@ -114,10 +112,6 @@ module API
       end
       optional :restricted_visibility_levels, type: Array[String], desc: 'Selected levels cannot be used by non-admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users.'
       optional :send_user_confirmation_email, type: Boolean, desc: 'Send confirmation email on sign-up'
-      optional :sentry_enabled, type: Boolean, desc: 'Sentry is an error reporting and logging tool which is currently not shipped with GitLab, get it here: https://getsentry.com'
-      given sentry_enabled: ->(val) { val } do
-        requires :sentry_dsn, type: String, desc: 'Sentry Data Source Name'
-      end
       optional :session_expire_delay, type: Integer, desc: 'Session duration in minutes. GitLab restart is required to apply changes.'
       optional :shared_runners_enabled, type: Boolean, desc: 'Enable shared runners for new projects'
       given shared_runners_enabled: ->(val) { val } do

@@ -28,7 +28,7 @@ bin/rake "gitlab:seed:issues[group-path/project-path]"
 By default, this seeds an average of 2 issues per week for the last 5 weeks per
 project.
 
-#### Seeding issues for Insights charts **[ULTIMATE]**
+#### Seeding issues for Insights charts **(ULTIMATE)**
 
 You can seed issues specifically for working with the
 [Insights charts](../user/group/insights/index.md) with the
@@ -79,30 +79,6 @@ There are a few environment flags you can pass to change how projects are seeded
 - `SIZE`: defaults to `8`, max: `32`. Amount of projects to create.
 - `LARGE_PROJECTS`: defaults to false. If set will clone 6 large projects to help with testing.
 - `FORK`: defaults to false. If set to `true` will fork `torvalds/linux` five times. Can also be set to an existing project full_path and it will fork that instead.
-
-### Notes for MySQL
-
-Since the seeds would contain various UTF-8 characters, such as emojis or so,
-we'll need to make sure that we're using `utf8mb4` for all the encoding
-settings and `utf8mb4_unicode_ci` for collation. Please check
-[MySQL utf8mb4 support](../install/database_mysql.md#mysql-utf8mb4-support)
-
-Make sure that `config/database.yml` has `encoding: utf8mb4`, too.
-
-Next, we'll need to update the schema to make the indices fit:
-
-``` shell
-sed -i 's/limit: 255/limit: 191/g' db/schema.rb
-```
-
-Then run the setup script:
-
-``` shell
-bundle exec rake setup
-```
-
-To make sure that indices still fit. You could find great details in:
-[How to support full Unicode in MySQL databases](https://mathiasbynens.be/notes/mysql-utf8mb4)
 
 ## Run tests
 

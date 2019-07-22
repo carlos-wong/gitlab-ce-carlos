@@ -281,7 +281,7 @@ describe API::Commits do
       end
 
       it 'does not increment the usage counters using access token authentication' do
-        expect(::Gitlab::WebIdeCommitsCounter).not_to receive(:increment)
+        expect(::Gitlab::UsageDataCounters::WebIdeCounter).not_to receive(:increment_commits_count)
 
         post api(url, user), params: valid_c_params
       end
@@ -736,7 +736,7 @@ describe API::Commits do
     context 'when repository is disabled' do
       include_context 'disabled repository'
 
-      it_behaves_like '403 response' do
+      it_behaves_like '404 response' do
         let(:request) { get api(route, current_user) }
       end
     end
@@ -825,7 +825,7 @@ describe API::Commits do
       context 'when repository is disabled' do
         include_context 'disabled repository'
 
-        it_behaves_like '403 response' do
+        it_behaves_like '404 response' do
           let(:request) { get api(route, current_user) }
         end
       end
@@ -968,7 +968,7 @@ describe API::Commits do
       context 'when repository is disabled' do
         include_context 'disabled repository'
 
-        it_behaves_like '403 response' do
+        it_behaves_like '404 response' do
           let(:request) { get api(route, current_user) }
         end
       end
@@ -1067,7 +1067,7 @@ describe API::Commits do
       context 'when repository is disabled' do
         include_context 'disabled repository'
 
-        it_behaves_like '403 response' do
+        it_behaves_like '404 response' do
           let(:request) { get api(route, current_user) }
         end
       end
@@ -1169,7 +1169,7 @@ describe API::Commits do
       context 'when repository is disabled' do
         include_context 'disabled repository'
 
-        it_behaves_like '403 response' do
+        it_behaves_like '404 response' do
           let(:request) { post api(route, current_user), params: { branch: 'master' } }
         end
       end
@@ -1324,7 +1324,7 @@ describe API::Commits do
       context 'when repository is disabled' do
         include_context 'disabled repository'
 
-        it_behaves_like '403 response' do
+        it_behaves_like '404 response' do
           let(:request) { post api(route, current_user), params: { branch: branch } }
         end
       end
@@ -1435,7 +1435,7 @@ describe API::Commits do
       context 'when repository is disabled' do
         include_context 'disabled repository'
 
-        it_behaves_like '403 response' do
+        it_behaves_like '404 response' do
           let(:request) { post api(route, current_user), params: { note: 'My comment' } }
         end
       end

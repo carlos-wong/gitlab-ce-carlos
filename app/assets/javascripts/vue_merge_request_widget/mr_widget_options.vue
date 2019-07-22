@@ -162,7 +162,8 @@ export default {
         removeWIPPath: store.removeWIPPath,
         sourceBranchPath: store.sourceBranchPath,
         ciEnvironmentsStatusPath: store.ciEnvironmentsStatusPath,
-        statusPath: store.statusPath,
+        mergeRequestBasicPath: store.mergeRequestBasicPath,
+        mergeRequestWidgetPath: store.mergeRequestWidgetPath,
         mergeActionsContentPath: store.mergeActionsContentPath,
         rebasePath: store.rebasePath,
       };
@@ -262,8 +263,11 @@ export default {
       if (!data.pipeline) return;
 
       const { label } = data.pipeline.details.status;
-      const title = `Pipeline ${label}`;
-      const message = `Pipeline ${label} for "${data.title}"`;
+      const title = sprintf(__('Pipeline %{label}'), { label });
+      const message = sprintf(__('Pipeline %{label} for "%{dataTitle}"'), {
+        dataTitle: data.title,
+        label,
+      });
 
       notify.notifyMe(title, message, this.mr.gitlabLogo);
     },

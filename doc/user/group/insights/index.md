@@ -2,10 +2,9 @@
 type: reference, howto
 ---
 
-# Insights **[ULTIMATE]**
+# Insights **(ULTIMATE)**
 
-> Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.9 behind the `insights` feature flag.
-> **Generally Available** (GA) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
+> [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/725) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
 
 Configure the Insights that matter for your groups to explore data such as
 triage hygiene, issues created/closed per a given period, average time for merge

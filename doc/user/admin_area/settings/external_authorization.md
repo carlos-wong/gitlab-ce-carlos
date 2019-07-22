@@ -2,10 +2,10 @@
 type: reference
 ---
 
-# External authorization control **[CORE ONLY]**
+# External authorization control **(CORE ONLY)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/4216) in
-> [GitLab Premium](https://about.gitlab.com/pricing) 10.6.
+> [GitLab Premium](https://about.gitlab.com/pricing/) 10.6.
 > [Moved](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27056) to
 > [GitLab Core](https://about.gitlab.com/pricing/) in 11.10.
 
@@ -76,12 +76,18 @@ service with this body:
 {
   "user_identifier": "jane@acme.org",
   "project_classification_label": "project-label",
-  "user_ldap_dn": "CN=Jane Doe,CN=admin,DC=acme"
+  "user_ldap_dn": "CN=Jane Doe,CN=admin,DC=acme",
+  "identities": [
+    { "provider": "ldap", "extern_uid": "CN=Jane Doe,CN=admin,DC=acme" },
+    { "provider": "bitbucket", "extern_uid": "2435223452345" }
+  ]
 }
 ```
 
 The `user_ldap_dn` is optional and is only sent when the user is logged in
 through LDAP.
+
+`identities` will contain the details of all the identities associated with the user. This will be an empty array if there are no identities associated with the user.
 
 When the external authorization service responds with a status code 200, the
 user is granted access. When the external service responds with a status code

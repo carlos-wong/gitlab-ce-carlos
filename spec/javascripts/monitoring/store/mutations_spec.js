@@ -1,7 +1,12 @@
 import mutations from '~/monitoring/stores/mutations';
 import * as types from '~/monitoring/stores/mutation_types';
 import state from '~/monitoring/stores/state';
-import { metricsGroupsAPIResponse, deploymentData, metricsDashboardResponse } from '../mock_data';
+import {
+  metricsGroupsAPIResponse,
+  deploymentData,
+  metricsDashboardResponse,
+  dashboardGitResponse,
+} from '../mock_data';
 
 describe('Monitoring mutations', () => {
   let stateCopy;
@@ -110,12 +115,14 @@ describe('Monitoring mutations', () => {
         environmentsEndpoint: 'environments.json',
         deploymentsEndpoint: 'deployments.json',
         dashboardEndpoint: 'dashboard.json',
+        projectPath: '/gitlab-org/gitlab-ce',
       });
 
       expect(stateCopy.metricsEndpoint).toEqual('additional_metrics.json');
       expect(stateCopy.environmentsEndpoint).toEqual('environments.json');
       expect(stateCopy.deploymentsEndpoint).toEqual('deployments.json');
       expect(stateCopy.dashboardEndpoint).toEqual('dashboard.json');
+      expect(stateCopy.projectPath).toEqual('/gitlab-org/gitlab-ce');
     });
   });
 
@@ -154,6 +161,14 @@ describe('Monitoring mutations', () => {
       });
 
       expect(stateCopy.metricsWithData).toEqual([]);
+    });
+  });
+
+  describe('SET_ALL_DASHBOARDS', () => {
+    it('stores the dashboards loaded from the git repository', () => {
+      mutations[types.SET_ALL_DASHBOARDS](stateCopy, dashboardGitResponse);
+
+      expect(stateCopy.allDashboards).toEqual(dashboardGitResponse);
     });
   });
 });

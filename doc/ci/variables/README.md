@@ -27,8 +27,7 @@ CI/CD's pipelines. Using variables means no hardcoded values.
 
 ### Predefined environment variables
 
-GitLab CI/CD has a default set of
-[predefined variables](predefined_variables.md)
+GitLab CI/CD has a [default set of predefined variables](predefined_variables.md)
 which can be used without any specification needed.
 You can call issues numbers, user names, branch names,
 pipeline and commit IDs, and much more.
@@ -36,13 +35,16 @@ pipeline and commit IDs, and much more.
 Predefined environment variables are the ones that GitLab
 provides out of the box for the local environment of the Runner.
 
-GitLab reads the .gitlab-ci.yml file, sends the information
+GitLab reads the `.gitlab-ci.yml` file, sends the information
 to the Runner (which runs the script commands), under which
 the variables are exposed.
 
 For example, two jobs under the same pipeline can share the same
 `CI_PIPELINE_ID` variable, but each one has its own `CI_JOB_ID`
 variable.
+
+NOTE: **Note:**
+Find here the full [**predefined variables reference table**](predefined_variables.md).
 
 ### Custom environment variables
 
@@ -271,6 +273,7 @@ export CI_RUNNER_ID="10"
 export CI_RUNNER_DESCRIPTION="my runner"
 export CI_RUNNER_TAGS="docker, linux"
 export CI_SERVER="yes"
+export CI_SERVER_HOST="example.com"
 export CI_SERVER_NAME="GitLab"
 export CI_SERVER_REVISION="70606bf"
 export CI_SERVER_VERSION="8.9.0"
@@ -337,7 +340,7 @@ Group-level variables can be added by:
 
 1. Navigating to your group's **Settings > CI/CD** page.
 1. Inputing variable types, keys, and values in the **Variables** section.
-Any variables of [subgroups](../../user/group/subgroups/index.md) will be inherited recursively.
+   Any variables of [subgroups](../../user/group/subgroups/index.md) will be inherited recursively.
 
 Once you set them, they will be available for all subsequent pipelines.
 
@@ -387,7 +390,7 @@ Protected variables can be added by going to your project's
 
 Once you set them, they will be available for all subsequent pipelines.
 
-### Limiting environment scopes of environment variables **[PREMIUM]**
+### Limiting environment scopes of environment variables **(PREMIUM)**
 
 You can limit the environment scope of a variable by
 [defining which environments][envs] it can be available for.
@@ -642,6 +645,8 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ CI_PROJECT_DIR=/builds/gitlab-examples/ci-debug-trace
 ++ export CI_SERVER=yes
 ++ CI_SERVER=yes
+++ export 'CI_SERVER_HOST=example.com'
+++ CI_SERVER_HOST='example.com'
 ++ export 'CI_SERVER_NAME=GitLab CI'
 ++ CI_SERVER_NAME='GitLab CI'
 ++ export CI_SERVER_VERSION=
@@ -676,6 +681,8 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ CI_JOB_NAME=debug_trace
 ++ export CI_JOB_STAGE=test
 ++ CI_JOB_STAGE=test
+++ export CI_SERVER_HOST=example.com
+++ CI_SERVER_HOST=example.com
 ++ export CI_SERVER_NAME=GitLab
 ++ CI_SERVER_NAME=GitLab
 ++ export CI_SERVER_VERSION=8.14.3-ee

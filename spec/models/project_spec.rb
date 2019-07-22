@@ -213,7 +213,7 @@ describe Project do
         .only_integer
         .is_greater_than_or_equal_to(10.minutes)
         .is_less_than(1.month)
-        .with_message('needs to be beetween 10 minutes and 1 month')
+        .with_message('needs to be between 10 minutes and 1 month')
     end
 
     it 'does not allow new projects beyond user limits' do
@@ -497,7 +497,6 @@ describe Project do
 
     it { is_expected.to delegate_method(:members).to(:team).with_prefix(true) }
     it { is_expected.to delegate_method(:name).to(:owner).with_prefix(true).with_arguments(allow_nil: true) }
-    it { is_expected.to delegate_method(:group_clusters_enabled?).to(:group).with_arguments(allow_nil: true) }
     it { is_expected.to delegate_method(:root_ancestor).to(:namespace).with_arguments(allow_nil: true) }
     it { is_expected.to delegate_method(:last_pipeline).to(:commit).with_arguments(allow_nil: true) }
   end
@@ -2656,8 +2655,8 @@ describe Project do
         let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
         let(:project) { cluster.project }
 
-        it 'returns variables from this service' do
-          expect(project.deployment_variables).to include(
+        it 'does not return variables from this service' do
+          expect(project.deployment_variables).not_to include(
             { key: 'KUBE_TOKEN', value: project.deployment_platform.token, public: false, masked: true }
           )
         end

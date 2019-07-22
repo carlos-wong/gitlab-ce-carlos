@@ -416,7 +416,6 @@ describe API::Users do
       expect(response).to have_gitlab_http_status(201)
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user).not_to eq(nil)
       expect(new_user.admin).to eq(true)
       expect(new_user.can_create_group).to eq(true)
     end
@@ -435,7 +434,6 @@ describe API::Users do
       expect(response).to have_gitlab_http_status(201)
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user).not_to eq(nil)
       expect(new_user.admin).to eq(false)
       expect(new_user.can_create_group).to eq(false)
     end
@@ -445,12 +443,12 @@ describe API::Users do
       expect(response).to have_gitlab_http_status(201)
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user).not_to eq(nil)
       expect(new_user.admin).to eq(false)
     end
 
     it "returns 201 Created on success" do
       post api("/users", admin), params: attributes_for(:user, projects_limit: 3)
+      expect(response).to match_response_schema('public_api/v4/user/admin')
       expect(response).to have_gitlab_http_status(201)
     end
 
@@ -460,7 +458,6 @@ describe API::Users do
 
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user).not_to eq nil
       expect(new_user.external).to be_falsy
     end
 
@@ -470,7 +467,6 @@ describe API::Users do
 
       user_id = json_response['id']
       new_user = User.find(user_id)
-      expect(new_user).not_to eq nil
       expect(new_user.external).to be_truthy
     end
 
@@ -482,7 +478,19 @@ describe API::Users do
       user_id = json_response['id']
       new_user = User.find(user_id)
 
-      expect(new_user).not_to eq(nil)
+      expect(new_user.recently_sent_password_reset?).to eq(true)
+    end
+
+    it "creates user with random password" do
+      params = attributes_for(:user, force_random_password: true, reset_password: true)
+      post api('/users', admin), params: params
+
+      expect(response).to have_gitlab_http_status(201)
+
+      user_id = json_response['id']
+      new_user = User.find(user_id)
+
+      expect(new_user.valid_password?(params[:password])).to eq(false)
       expect(new_user.recently_sent_password_reset?).to eq(true)
     end
 
@@ -636,6 +644,13 @@ describe API::Users do
   describe "PUT /users/:id" do
     let!(:admin_user) { create(:admin) }
 
+    it "returns 200 OK on success" do
+      put api("/users/#{user.id}", admin), params: { bio: 'new test bio' }
+
+      expect(response).to match_response_schema('public_api/v4/user/admin')
+      expect(response).to have_gitlab_http_status(200)
+    end
+
     it "updates user with new bio" do
       put api("/users/#{user.id}", admin), params: { bio: 'new test bio' }
 
@@ -736,6 +751,14 @@ describe API::Users do
 
       expect(response).to have_gitlab_http_status(200)
       expect(user.reload.private_profile).to eq(true)
+    end
+
+    it "updates private profile when nil is given to false" do
+      admin.update(private_profile: true)
+
+      put api("/users/#{user.id}", admin), params: { private_profile: nil }
+
+      expect(user.reload.private_profile).to eq(false)
     end
 
     it "does not update admin status" do

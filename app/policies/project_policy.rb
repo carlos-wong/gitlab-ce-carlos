@@ -2,7 +2,6 @@
 
 class ProjectPolicy < BasePolicy
   extend ClassMethods
-  include ClusterableActions
 
   READONLY_FEATURES_WHEN_ARCHIVED = %i[
     issue
@@ -114,9 +113,6 @@ class ProjectPolicy < BasePolicy
     @subject.feature_available?(:merge_requests, @user)
   end
 
-  condition(:has_clusters, scope: :subject) { clusterable_has_clusters? }
-  condition(:can_have_multiple_clusters) { multiple_clusters_available? }
-
   condition(:internal_builds_disabled) do
     !@subject.builds_enabled?
   end
@@ -195,6 +191,7 @@ class ProjectPolicy < BasePolicy
   rule { guest & can?(:read_container_image) }.enable :build_read_container_image
 
   rule { can?(:reporter_access) }.policy do
+    enable :admin_board
     enable :download_code
     enable :read_statistics
     enable :download_wiki_code
@@ -239,8 +236,6 @@ class ProjectPolicy < BasePolicy
   rule { can?(:developer_access) & can?(:create_issue) }.enable :import_issues
 
   rule { can?(:developer_access) }.policy do
-    #
-
     enable :admin_merge_request
     enable :admin_milestone
     enable :update_merge_request
@@ -267,6 +262,7 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { can?(:maintainer_access) }.policy do
+    enable :admin_board
     enable :push_to_delete_protected_branch
 
     enable :update_issue
@@ -302,6 +298,7 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
+  rule { can?(:push_code) }.enable :admin_tag
 
   rule { archived }.policy do
     prevent :push_code
@@ -430,8 +427,6 @@ class ProjectPolicy < BasePolicy
   rule do
     (~guest & can?(:read_project_for_iids) & merge_requests_visible_to_user) | can?(:read_merge_request)
   end.enable :read_merge_request_iid
-
-  rule { ~can_have_multiple_clusters & has_clusters }.prevent :add_cluster
 
   rule { ~can?(:read_cross_project) & ~classification_label_authorized }.policy do
     # Preventing access here still allows the projects to be listed. Listing

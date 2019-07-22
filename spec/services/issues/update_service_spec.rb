@@ -480,6 +480,22 @@ describe Issues::UpdateService, :mailer do
           update_issue(description: "- [x] Task 1\n- [X] Task 2")
         end
 
+        it 'does not check for spam on task status change' do
+          params = {
+            update_task: {
+              index: 1,
+              checked: false,
+              line_source: '- [x] Task 1',
+              line_number: 1
+            }
+          }
+          service = described_class.new(project, user, params)
+
+          expect(service).not_to receive(:spam_check)
+
+          service.execute(issue)
+        end
+
         it 'creates system note about task status change' do
           note1 = find_note('marked the task **Task 1** as completed')
           note2 = find_note('marked the task **Task 2** as completed')
@@ -684,6 +700,22 @@ describe Issues::UpdateService, :mailer do
 
           update_issue(target_project: target_project)
         end
+      end
+    end
+
+    context 'when moving an issue ', :nested_groups do
+      it 'raises an error for invalid move ids within a project' do
+        opts = { move_between_ids: [9000, 9999] }
+
+        expect { described_class.new(issue.project, user, opts).execute(issue) }
+            .to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      it 'raises an error for invalid move ids within a group' do
+        opts = { move_between_ids: [9000, 9999], board_group_id: create(:group).id }
+
+        expect { described_class.new(issue.project, user, opts).execute(issue) }
+            .to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 

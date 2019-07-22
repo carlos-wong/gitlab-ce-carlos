@@ -1,4 +1,5 @@
 <script>
+import { __, sprintf } from '~/locale';
 import Timeago from 'timeago.js';
 import _ from 'underscore';
 import { GlTooltipDirective } from '@gitlab/ui';
@@ -14,7 +15,6 @@ import MonitoringButtonComponent from './environment_monitoring.vue';
 import CommitComponent from '../../vue_shared/components/commit.vue';
 import eventHub from '../event_hub';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
-import { CLUSTER_TYPE } from '~/clusters/constants';
 
 /**
  * Environment Item Component
@@ -77,15 +77,6 @@ export default {
      */
     isProtected() {
       return this.model && this.model.is_protected;
-    },
-
-    /**
-     * Hide group cluster features which are not currently implemented.
-     *
-     * @returns {Boolean}
-     */
-    disableGroupClusterFeatures() {
-      return this.model && this.model.cluster_type === CLUSTER_TYPE.GROUP;
     },
 
     /**
@@ -172,7 +163,9 @@ export default {
         this.model.last_deployment.user &&
         this.model.last_deployment.user.username
       ) {
-        return `${this.model.last_deployment.user.username}'s avatar'`;
+        return sprintf(__("%{username}'s avatar"), {
+          username: this.model.last_deployment.user.username,
+        });
       }
       return '';
     },
@@ -293,6 +286,9 @@ export default {
      * @returns {Boolean|Undefined}
      */
     isLastDeployment() {
+      // TODO: when the vue i18n rules are merged need to disable @gitlab/i18n/no-non-i18n-strings
+      // name: 'last?' is a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26#possible-false-positives
+      // Vue i18n ESLint rules issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/63560
       return this.model && this.model.last_deployment && this.model.last_deployment['last?'];
     },
 
@@ -575,7 +571,6 @@ export default {
         <terminal-button-component
           v-if="model && model.terminal_path"
           :terminal-path="model.terminal_path"
-          :disabled="disableGroupClusterFeatures"
         />
 
         <rollback-component

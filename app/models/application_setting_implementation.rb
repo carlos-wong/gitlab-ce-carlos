@@ -82,6 +82,7 @@ module ApplicationSettingImplementation
         throttle_unauthenticated_enabled: false,
         throttle_unauthenticated_period_in_seconds: 3600,
         throttle_unauthenticated_requests_per_period: 3600,
+        time_tracking_limit_to_hours: false,
         two_factor_grace_period: 48,
         unique_ips_limit_enabled: false,
         unique_ips_limit_per_user: 10,
@@ -177,27 +178,6 @@ module ApplicationSettingImplementation
 
   def restricted_visibility_levels=(levels)
     super(levels&.map { |level| Gitlab::VisibilityLevel.level_value(level) })
-  end
-
-  def strip_sentry_values
-    sentry_dsn.strip! if sentry_dsn.present?
-    clientside_sentry_dsn.strip! if clientside_sentry_dsn.present?
-  end
-
-  def sentry_enabled
-    Gitlab.config.sentry.enabled || read_attribute(:sentry_enabled)
-  end
-
-  def sentry_dsn
-    Gitlab.config.sentry.dsn || read_attribute(:sentry_dsn)
-  end
-
-  def clientside_sentry_enabled
-    Gitlab.config.sentry.enabled || read_attribute(:clientside_sentry_enabled)
-  end
-
-  def clientside_sentry_dsn
-    Gitlab.config.sentry.clientside_dsn || read_attribute(:clientside_sentry_dsn)
   end
 
   def performance_bar_allowed_group

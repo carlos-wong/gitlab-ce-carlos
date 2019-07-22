@@ -3,8 +3,8 @@ import { GlLoadingIcon } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { sprintf, __ } from '../../../locale';
 import getRefMixin from '../../mixins/get_ref';
-import getFiles from '../../queries/getFiles.graphql';
-import getProjectPath from '../../queries/getProjectPath.graphql';
+import getFiles from '../../queries/getFiles.query.graphql';
+import getProjectPath from '../../queries/getProjectPath.query.graphql';
 import TableHeader from './header.vue';
 import TableRow from './row.vue';
 import ParentRow from './parent_row.vue';
@@ -76,7 +76,7 @@ export default {
           variables: {
             projectPath: this.projectPath,
             ref: this.ref,
-            path: this.path,
+            path: this.path || '/',
             nextPageCursor: this.nextPageCursor,
             pageSize: PAGE_SIZE,
           },
@@ -131,10 +131,13 @@ export default {
               v-for="entry in val"
               :id="entry.id"
               :key="`${entry.flatPath}-${entry.id}`"
+              :project-path="projectPath"
               :current-path="path"
+              :name="entry.name"
               :path="entry.flatPath"
               :type="entry.type"
               :url="entry.webUrl"
+              :submodule-tree-url="entry.treeUrl"
               :lfs-oid="entry.lfsOid"
             />
           </template>

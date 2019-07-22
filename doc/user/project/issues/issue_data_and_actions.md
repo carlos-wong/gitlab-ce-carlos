@@ -39,16 +39,19 @@ after it is closed.
 
 ![Report Abuse](img/report-abuse.png)
 
-#### 2. Todos
+#### 2. To Do
 
-You can click **add todo** to add the issue to your [GitLab Todo](../../../workflow/todos.md)
-list. If it is already on your todo list, the buttom will show **mark todo as done**,
-which you can click to mark that issue as done (which will be reflected in the Todo list).
+You can add issues to and remove issues from your [GitLab To-Do List](../../../workflow/todos.md).
+
+The button to do this has a different label depending on whether the issue is already on your To-Do List or not. If the issue is:
+
+- Already on your To-Do List: The button is labeled **Mark as done**. Click the button to remove the issue from your To-Do List.
+- Not on your To-Do List: The button is labelled **Add a To Do**. Click the button to add the issue to your To-Do List.
 
 #### 3. Assignee
 
 An issue can be assigned to yourself, another person, or [many people](#31-multiple-assignees-STARTER).
-The assignee(s) can be changed as much as needed. The idea is that the assignees are
+The assignee(s) can be changed as often as needed. The idea is that the assignees are
 responsible for that issue until it's reassigned to someone else to take it from there.
 When assigned to someone, it will appear in their assigned issues list.
 
@@ -56,7 +59,7 @@ TIP: **Tip:**
 If a user is not member of that project, it can only be
 assigned to them if they created the issue themselves.
 
-##### 3.1. Multiple Assignees **[STARTER]**
+##### 3.1. Multiple Assignees **(STARTER)**
 
 Often multiple people work on the same issue together, which can be especially difficult
 to track in large teams where there is shared ownership of an issue.
@@ -64,7 +67,7 @@ to track in large teams where there is shared ownership of an issue.
 In [GitLab Starter](https://about.gitlab.com/pricing/), you can
 [assign multiple people](multiple_assignees_for_issues.md) to an issue.
 
-#### 4. Epic **[ULTIMATE]**
+#### 4. Epic **(ULTIMATE)**
 
 You can assign issues to an [Epic](../../group/epics/index.md), which allows better
 management of groups of related issues.
@@ -99,7 +102,7 @@ TIP: **Tip:**
 If a label doesn't exist yet, you can click **Edit**, and it opens a dropdown menu
 from which you can select **Create new label**.
 
-#### 9. Weight **[STARTER]**
+#### 9. Weight **(STARTER)**
 
 [Assign a weight](../../../workflow/issue_weight.md) to an issue.
 Larger values are used to indicate more effort is required to complete the issue. Only
@@ -113,13 +116,13 @@ issue boards or the issue list.
 
 #### 11. Lock issue
 
-You can [lock the discussions](../../discussions/index.md#lock-discussions) in the issue,
+You can [lock the threads](../../discussions/index.md#lock-discussions) in the issue,
 to prevent further comments from being added.
 
 #### 12. Participants
 
-All the users involved in that issue. Either they participated in the [discussion](../../discussions/index.md),
-or were mentioned in the description or discussions.
+All the users involved in that issue. Either they participated in the [thread](../../discussions/index.md),
+or were mentioned in the description or threads.
 
 #### 13. Notifications
 
@@ -177,15 +180,15 @@ TIP: **Tip:**
 Avoid mentioning `@all` in issues and merge requests, as it sends an email notification
 to all the members of that project's group, which can be interpreted as spam.
 
-#### 18. Related Issues **[STARTER]**
+#### 18. Related Issues **(STARTER)**
 
 Issues that were mentioned as [related issues](related_issues.md) are listed here.
 You can also click the `+` to add more related issues.
 
 #### 19. Related Merge Requests
 
-Merge requests that were mentioned in that issue's description or in the issue discussion
-thread are listed as [related merge requests](crosslinking_issues.md#from-merge-requests) here.
+Merge requests that were mentioned in that issue's description or in the issue thread 
+are listed as [related merge requests](crosslinking_issues.md#from-merge-requests) here.
 Also, if the current issue was mentioned as related in another merge request, that
 merge request will be listed here.
 
@@ -197,14 +200,22 @@ dropdown list of available [GitLab Flavored Markdown Emoji](../../markdown.md#em
 
 TIP: **Tip:**
 Posting "+1" as a comment in a thread spams all subscribed participants of that issue,
-clutters the discussion threads, and is not recommended. Awarding an emoji is a way
+clutters the threads, and is not recommended. Awarding an emoji is a way
 to let them know your reaction without spamming them.
 
 #### 21. Show all activity
 
 You can filter what is displayed in the issue history by clicking on **Show all activity**
-and selecting either **Show comments only**, which only shows discussions and hides
-updates to the issue, or **Show history only**, which hides discussions and only shows updates.
+and selecting either **Show comments only**, which only shows threads and hides
+updates to the issue, or **Show history only**, which hides threads and only shows updates.
+
+- You can mention a user or a group present in your GitLab instance with
+  `@username` or `@groupname` and they will be notified via To-Do items
+  and email, unless they have [disabled all notifications](#13-notifications)
+  in their profile settings.
+- Mentions for yourself (the current logged in user), will be highlighted
+  in a different color, allowing you to easily see which comments involve you,
+  helping you focus on them quickly.
 
 ![Show all activity](img/show-all-activity.png)
 
@@ -231,15 +242,15 @@ filtered, as shown above.
 Collaborate in the issue by posting comments in its thread. This text field also fully
 supports [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm).
 
-#### 25. Submit Comment, start a discussion, or comment and close
+#### 25. Submit Comment, start a thread, or comment and close
 
 Once you write a comment, you can:
 
 - Click **Comment** and your comment will be published.
-- Choose **Start discussion** from the dropdown list and start a new [discussion thread](../../discussions/index.md#threaded-discussions)
+- Choose **Start thread** from the dropdown list and start a new [thread](../../discussions/index.md#threaded-discussions)
   within that issue's main thread to discuss specific points. This invites other participants
-  to reply directly to your discussion, keeping related comments grouped together.
+  to reply directly to your thread, keeping related comments grouped together.
 
-![Comment or discussion](img/comment-or-discussion.png)
+![Comment or thread](img/comment-or-discussion.png)
 
 You can also close the issue from here, so you don't need to scroll to the top of the issue page.

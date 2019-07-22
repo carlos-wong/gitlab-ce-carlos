@@ -22,7 +22,6 @@ describe MergeRequests::MergeToRefService do
   shared_examples_for 'successfully merges to ref with merge method' do
     it 'writes commit to merge ref' do
       repository = project.repository
-      target_ref = merge_request.merge_ref_path
 
       expect(repository.ref_exists?(target_ref)).to be(false)
 
@@ -33,7 +32,7 @@ describe MergeRequests::MergeToRefService do
       expect(result[:status]).to eq(:success)
       expect(result[:commit_id]).to be_present
       expect(result[:source_id]).to eq(merge_request.source_branch_sha)
-      expect(result[:target_id]).to eq(merge_request.target_branch_sha)
+      expect(result[:target_id]).to eq(repository.commit(first_parent_ref).sha)
       expect(repository.ref_exists?(target_ref)).to be(true)
       expect(ref_head.id).to eq(result[:commit_id])
     end
@@ -72,15 +71,12 @@ describe MergeRequests::MergeToRefService do
   let(:merge_request) { create(:merge_request, :simple) }
   let(:project) { merge_request.project }
 
-  before do
-    project.add_maintainer(user)
-  end
-
   describe '#execute' do
     let(:service) do
-      described_class.new(project, user, commit_message: 'Awesome message',
-                                         should_remove_source_branch: true)
+      described_class.new(project, user, **params)
     end
+
+    let(:params) { { commit_message: 'Awesome message', should_remove_source_branch: true } }
 
     def process_merge_to_ref
       perform_enqueued_jobs do
@@ -88,10 +84,20 @@ describe MergeRequests::MergeToRefService do
       end
     end
 
-    it_behaves_like 'successfully merges to ref with merge method'
+    it_behaves_like 'successfully merges to ref with merge method' do
+      let(:first_parent_ref) { 'refs/heads/master' }
+      let(:target_ref) { merge_request.merge_ref_path }
+    end
+
     it_behaves_like 'successfully evaluates pre-condition checks'
 
     context 'commit history comparison with regular MergeService' do
+      before do
+        # The merge service needs an authorized user while merge-to-ref
+        # doesn't.
+        project.add_maintainer(user)
+      end
+
       let(:merge_ref_service) do
         described_class.new(project, user, {})
       end
@@ -104,12 +110,18 @@ describe MergeRequests::MergeToRefService do
         it_behaves_like 'MergeService for target ref'
       end
 
-      context 'when merge commit with squash', :quarantine do
+      context 'when merge commit with squash' do
         before do
-          merge_request.update!(squash: true, source_branch: 'master', target_branch: 'feature')
+          merge_request.update!(squash: true)
         end
 
         it_behaves_like 'MergeService for target ref'
+
+        it 'does not squash before merging' do
+          expect(MergeRequests::SquashService).not_to receive(:new)
+
+          process_merge_to_ref
+        end
       end
     end
 
@@ -121,14 +133,22 @@ describe MergeRequests::MergeToRefService do
       context 'when semi-linear merge method' do
         let(:merge_method) { :rebase_merge }
 
-        it_behaves_like 'successfully merges to ref with merge method'
+        it_behaves_like 'successfully merges to ref with merge method' do
+          let(:first_parent_ref) { 'refs/heads/master' }
+          let(:target_ref) { merge_request.merge_ref_path }
+        end
+
         it_behaves_like 'successfully evaluates pre-condition checks'
       end
 
       context 'when fast-forward merge method' do
         let(:merge_method) { :ff }
 
-        it_behaves_like 'successfully merges to ref with merge method'
+        it_behaves_like 'successfully merges to ref with merge method' do
+          let(:first_parent_ref) { 'refs/heads/master' }
+          let(:target_ref) { merge_request.merge_ref_path }
+        end
+
         it_behaves_like 'successfully evaluates pre-condition checks'
       end
 
@@ -136,9 +156,9 @@ describe MergeRequests::MergeToRefService do
         let(:merge_method) { :merge }
 
         it 'returns error' do
-          allow(merge_request).to receive(:mergeable_to_ref?) { false }
+          allow(project).to receive_message_chain(:repository, :merge_to_ref) { nil }
 
-          error_message = "Merge request is not mergeable to #{merge_request.merge_ref_path}"
+          error_message = 'Conflicts detected during merge'
 
           result = service.execute(merge_request)
 
@@ -171,27 +191,55 @@ describe MergeRequests::MergeToRefService do
       it { expect(todo).not_to be_done }
     end
 
-    context 'when merge request is WIP state' do
-      it 'fails to merge' do
-        merge_request = create(:merge_request, title: 'WIP: The feature')
+    context 'when source is missing' do
+      it 'returns error' do
+        allow(merge_request).to receive(:diff_head_sha) { nil }
+
+        error_message = 'No source for merge'
 
         result = service.execute(merge_request)
 
         expect(result[:status]).to eq(:error)
-        expect(result[:message]).to eq("Merge request is not mergeable to #{merge_request.merge_ref_path}")
+        expect(result[:message]).to eq(error_message)
       end
     end
 
-    it 'returns error when user has no authorization to admin the merge request' do
-      unauthorized_user = create(:user)
-      project.add_reporter(unauthorized_user)
+    context 'when target ref is passed as a parameter' do
+      let(:params) { { commit_message: 'merge train', target_ref: target_ref } }
 
-      service = described_class.new(project, unauthorized_user)
+      it_behaves_like 'successfully merges to ref with merge method' do
+        let(:first_parent_ref) { 'refs/heads/master' }
+        let(:target_ref) { 'refs/merge-requests/1/train' }
+      end
+    end
 
-      result = service.execute(merge_request)
+    describe 'cascading merge refs' do
+      set(:project) { create(:project, :repository) }
+      let(:params) { { commit_message: 'Cascading merge', first_parent_ref: first_parent_ref, target_ref: target_ref } }
 
-      expect(result[:status]).to eq(:error)
-      expect(result[:message]).to eq('You are not allowed to merge to this ref')
+      context 'when first merge happens' do
+        let(:merge_request) do
+          create(:merge_request, source_project: project, source_branch: 'feature',
+                                 target_project: project, target_branch: 'master')
+        end
+
+        it_behaves_like 'successfully merges to ref with merge method' do
+          let(:first_parent_ref) { 'refs/heads/master' }
+          let(:target_ref) { 'refs/merge-requests/1/train' }
+        end
+
+        context 'when second merge happens' do
+          let(:merge_request) do
+            create(:merge_request, source_project: project, source_branch: 'improve/awesome',
+                                   target_project: project, target_branch: 'master')
+          end
+
+          it_behaves_like 'successfully merges to ref with merge method' do
+            let(:first_parent_ref) { 'refs/merge-requests/1/train' }
+            let(:target_ref) { 'refs/merge-requests/2/train' }
+          end
+        end
+      end
     end
   end
 end

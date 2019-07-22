@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe Projects::IssuesController do
+  include ProjectForksHelper
+
   let(:project) { create(:project) }
   let(:user)    { create(:user) }
   let(:issue)   { create(:issue, project: project) }
@@ -320,6 +322,90 @@ describe Projects::IssuesController do
     end
   end
 
+  describe 'PUT #reorder' do
+    let(:group)   { create(:group, projects: [project]) }
+    let!(:issue1) { create(:issue, project: project, relative_position: 10) }
+    let!(:issue2) { create(:issue, project: project, relative_position: 20) }
+    let!(:issue3) { create(:issue, project: project, relative_position: 30) }
+
+    before do
+      sign_in(user)
+    end
+
+    context 'when user has access' do
+      before do
+        project.add_developer(user)
+      end
+
+      context 'with valid params' do
+        it 'reorders issues and returns a successful 200 response' do
+          reorder_issue(issue1,
+            move_after_id: issue2.id,
+            move_before_id: issue3.id,
+            group_full_path: group.full_path)
+
+          [issue1, issue2, issue3].map(&:reload)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(issue1.relative_position)
+            .to be_between(issue2.relative_position, issue3.relative_position)
+        end
+      end
+
+      context 'with invalid params' do
+        it 'returns a unprocessable entity 422 response for invalid move ids' do
+          reorder_issue(issue1, move_after_id: 99, move_before_id: 999)
+
+          expect(response).to have_gitlab_http_status(422)
+        end
+
+        it 'returns a not found 404 response for invalid issue id' do
+          reorder_issue(object_double(issue1, iid: 999),
+            move_after_id: issue2.id,
+            move_before_id: issue3.id)
+
+          expect(response).to have_gitlab_http_status(404)
+        end
+
+        it 'returns a unprocessable entity 422 response for issues not in group' do
+          another_group = create(:group)
+
+          reorder_issue(issue1,
+            move_after_id: issue2.id,
+            move_before_id: issue3.id,
+            group_full_path: another_group.full_path)
+
+          expect(response).to have_gitlab_http_status(422)
+        end
+      end
+    end
+
+    context 'with unauthorized user' do
+      before do
+        project.add_guest(user)
+      end
+
+      it 'responds with 404' do
+        reorder_issue(issue1, move_after_id: issue2.id, move_before_id: issue3.id)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
+    def reorder_issue(issue, move_after_id: nil, move_before_id: nil, group_full_path: nil)
+      put :reorder,
+           params: {
+               namespace_id: project.namespace.to_param,
+               project_id: project,
+               id: issue.iid,
+               move_after_id: move_after_id,
+               move_before_id: move_before_id,
+               group_full_path: group_full_path
+           },
+           format: :json
+    end
+  end
+
   describe 'PUT #update' do
     subject do
       put :update,
@@ -358,7 +444,7 @@ describe Projects::IssuesController do
         it 'renders json with recaptcha_html' do
           subject
 
-          expect(JSON.parse(response.body)).to have_key('recaptcha_html')
+          expect(json_response).to have_key('recaptcha_html')
         end
       end
     end
@@ -398,10 +484,8 @@ describe Projects::IssuesController do
       it 'returns last edited time' do
         go(id: issue.iid)
 
-        data = JSON.parse(response.body)
-
-        expect(data).to include('updated_at')
-        expect(data['updated_at']).to eq(issue.last_edited_at.to_time.iso8601)
+        expect(json_response).to include('updated_at')
+        expect(json_response['updated_at']).to eq(issue.last_edited_at.to_time.iso8601)
       end
     end
 
@@ -434,10 +518,8 @@ describe Projects::IssuesController do
       it 'returns the necessary data' do
         go(id: issue.iid)
 
-        data = JSON.parse(response.body)
-
-        expect(data).to include('title_text', 'description', 'description_text')
-        expect(data).to include('task_status', 'lock_version')
+        expect(json_response).to include('title_text', 'description', 'description_text')
+        expect(json_response).to include('task_status', 'lock_version')
       end
     end
   end
@@ -606,9 +688,7 @@ describe Projects::IssuesController do
 
           update_issue(issue_params: { assignee_ids: [assignee.id] })
 
-          body = JSON.parse(response.body)
-
-          expect(body['assignees'].first.keys)
+          expect(json_response['assignees'].first.keys)
             .to match_array(%w(id name username avatar_url state web_url))
         end
       end
@@ -1046,6 +1126,7 @@ describe Projects::IssuesController do
   end
 
   describe 'POST create_merge_request' do
+    let(:target_project_id) { nil }
     let(:project) { create(:project, :repository, :public) }
 
     before do
@@ -1079,13 +1160,42 @@ describe Projects::IssuesController do
       expect(response).to have_gitlab_http_status(404)
     end
 
+    context 'target_project_id is set' do
+      let(:target_project) { fork_project(project, user, repository: true) }
+      let(:target_project_id) { target_project.id }
+
+      context 'create_confidential_merge_request feature is enabled' do
+        before do
+          stub_feature_flags(create_confidential_merge_request: true)
+        end
+
+        it 'creates a new merge request' do
+          expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
+        end
+      end
+
+      context 'create_confidential_merge_request feature is disabled' do
+        before do
+          stub_feature_flags(create_confidential_merge_request: false)
+        end
+
+        it 'creates a new merge request' do
+          expect { create_merge_request }.to change(project.merge_requests, :count).by(1)
+        end
+      end
+    end
+
     def create_merge_request
-      post :create_merge_request, params: {
-                                    namespace_id: project.namespace.to_param,
-                                    project_id: project.to_param,
-                                    id: issue.to_param
-                                  },
-                                  format: :json
+      post(
+        :create_merge_request,
+        params: {
+          namespace_id: project.namespace.to_param,
+          project_id: project.to_param,
+          id: issue.to_param,
+          target_project_id: target_project_id
+        },
+        format: :json
+      )
     end
   end
 
@@ -1198,7 +1308,7 @@ describe Projects::IssuesController do
         it 'filters notes that the user should not see' do
           get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
 
-          expect(JSON.parse(response.body).count).to eq(1)
+          expect(json_response.count).to eq(1)
         end
 
         it 'does not result in N+1 queries' do

@@ -102,6 +102,7 @@
 
 .onboarding-popover {
   box-shadow: 0 2px 4px $dropdown-shadow-color;
+  max-width: 280px;
 
   .popover-body {
     font-size: $gl-font-size;
@@ -135,11 +136,5 @@
   .popover {
     min-width: auto;
     max-width: 40%;
-
-    .popover-body {
-      padding-top: $gl-padding;
-      padding-bottom: $gl-padding;
-      font-size: $gl-font-size-small;
-    }
   }
 }

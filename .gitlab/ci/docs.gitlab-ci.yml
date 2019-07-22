@@ -12,7 +12,9 @@
 # Trigger a manual docs build in gitlab-docs only on non docs-only branches.
 # Useful to preview the docs changes live.
 review-docs-deploy-manual:
-  <<: *review-docs
+  extends:
+    - .review-docs
+    - .no-docs-and-no-qa
   stage: build
   script:
     - gem install gitlab --no-document
@@ -21,9 +23,6 @@ review-docs-deploy-manual:
   only:
     - branches@gitlab-org/gitlab-ce
     - branches@gitlab-org/gitlab-ee
-  except:
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
 
 # Always trigger a docs build in gitlab-docs only on docs-only branches.
 # Useful to preview the docs changes live.
@@ -66,6 +65,8 @@ docs lint:
     - scripts/lint-changelog-yaml
     - mv doc/ /tmp/gitlab-docs/content/$DOCS_GITLAB_REPO_SUFFIX
     - cd /tmp/gitlab-docs
+    # Lint Markdown
+    - bundle exec mdl content/$DOCS_GITLAB_REPO_SUFFIX -c $CI_PROJECT_DIR/.mdlrc
     # Build HTML from Markdown
     - bundle exec nanoc
     # Check the internal links

@@ -14,12 +14,12 @@ the start and end of your Agile sprint.
 Set the milestone title to the name of your Agile sprint,
 such as `November 2018 sprint`.
 Add an issue to your Agile sprint by associating
-the milestone to the issue.  
+the milestone to the issue.
 
 ## Milestones as releases
 
 Milestones can be used as releases.
-Set the milestone due date to represent the release date of your release. 
+Set the milestone due date to represent the release date of your release.
 (And leave the milestone start date blank.)
 Set the milestone title to the version of your release,
 such as `Version 9.4`.
@@ -84,9 +84,9 @@ From the project issue/merge request list pages and the group issue/merge reques
 ### Filtering in issue boards
 
 - From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [search and filter bar](../../search/index.md#issue-boards).
-- From [group issue boards](../issue_board.md#group-issue-boards-premium), you can filter by only group milestones in the [search and filter bar](../../search/index.md#issue-boards). **[PREMIUM]**
-- From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **[STARTER]**
-- From [group issue boards](../issue_board.md#group-issue-boards-premium) you can filter by only group milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **[STARTER]**
+- From [group issue boards](../issue_board.md#group-issue-boards-premium), you can filter by only group milestones in the [search and filter bar](../../search/index.md#issue-boards). **(PREMIUM)**
+- From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **(STARTER)**
+- From [group issue boards](../issue_board.md#group-issue-boards-premium) you can filter by only group milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **(STARTER)**
 
 ### Special milestone filters
 
@@ -124,13 +124,13 @@ These features are only available for project milestones and not group milestone
 - Participants and labels that are used in issues and merge requests that have the milestone assigned are displayed.
 - [Burndown chart](#project-burndown-charts-starter).
 
-### Project Burndown Charts **[STARTER]**
+### Project Burndown Charts **(STARTER)**
 
 For project milestones in [GitLab Starter](https://about.gitlab.com/pricing), a [burndown chart](burndown_charts.md) is in the milestone view, showing the progress of completing a milestone.
 
 ![burndown chart](img/burndown_chart.png)
 
-### Group Burndown Charts **[PREMIUM]**
+### Group Burndown Charts **(PREMIUM)**
 
 For group milestones in [GitLab Premium](https://about.gitlab.com/pricing), a [burndown chart](burndown_charts.md) is in the milestone view, showing the progress of completing a milestone.
 

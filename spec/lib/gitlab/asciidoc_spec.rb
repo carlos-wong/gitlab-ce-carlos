@@ -45,25 +45,299 @@ module Gitlab
       end
 
       context "XSS" do
-        links = {
-          'links' => {
+        items = {
+          'link with extra attribute' => {
             input: 'link:mylink"onmouseover="alert(1)[Click Here]',
             output: "<div>\n<p><a href=\"mylink\">Click Here</a></p>\n</div>"
           },
-          'images' => {
+          'link with unsafe scheme' => {
+              input: 'link:data://danger[Click Here]',
+              output: "<div>\n<p><a>Click Here</a></p>\n</div>"
+          },
+          'image with onerror' => {
             input: 'image:https://localhost.com/image.png[Alt text" onerror="alert(7)]',
             output: "<div>\n<p><span><img src=\"https://localhost.com/image.png\" alt='Alt text\" onerror=\"alert(7)'></span></p>\n</div>"
           },
-          'pre' => {
+          'fenced code with inline script' => {
             input: '```mypre"><script>alert(3)</script>',
-            output: "<div>\n<div>\n<pre lang=\"mypre\">\"&gt;<code></code></pre>\n</div>\n</div>"
+            output: "<div>\n<div>\n<pre class=\"code highlight js-syntax-highlight plaintext\" lang=\"plaintext\" v-pre=\"true\"><code><span id=\"LC1\" class=\"line\" lang=\"plaintext\">\"&gt;</span></code></pre>\n</div>\n</div>"
           }
         }
 
-        links.each do |name, data|
+        items.each do |name, data|
           it "does not convert dangerous #{name} into HTML" do
             expect(render(data[:input], context)).to include(data[:output])
           end
+        end
+      end
+
+      context 'with admonition' do
+        it 'preserves classes' do
+          input = <<~ADOC
+            NOTE: An admonition paragraph, like this note, grabs the reader’s attention.
+          ADOC
+
+          output = <<~HTML
+            <div class="admonitionblock">
+            <table>
+            <tr>
+            <td class="icon">
+            <i class="fa icon-note" title="Note"></i>
+            </td>
+            <td>
+            An admonition paragraph, like this note, grabs the reader’s attention.
+            </td>
+            </tr>
+            </table>
+            </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with passthrough' do
+        it 'removes non heading ids' do
+          input = <<~ADOC
+            ++++
+            <h2 id="foo">Title</h2>
+            ++++
+          ADOC
+
+          output = <<~HTML
+           <h2>Title</h2>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+
+        it 'removes non footnote def ids' do
+          input = <<~ADOC
+            ++++
+            <div id="def">Footnote definition</div>
+            ++++
+          ADOC
+
+          output = <<~HTML
+            <div>Footnote definition</div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+
+        it 'removes non footnote ref ids' do
+          input = <<~ADOC
+            ++++
+            <a id="ref">Footnote reference</a>
+            ++++
+          ADOC
+
+          output = <<~HTML
+            <a>Footnote reference</a>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with footnotes' do
+        it 'preserves ids and links' do
+          input = <<~ADOC
+            This paragraph has a footnote.footnote:[This is the text of the footnote.]
+          ADOC
+
+          output = <<~HTML
+           <div>
+           <p>This paragraph has a footnote.<sup>[<a id="_footnoteref_1" href="#_footnotedef_1" title="View footnote.">1</a>]</sup></p>
+           </div>
+           <div>
+           <hr>
+           <div id="_footnotedef_1">
+           <a href="#_footnoteref_1">1</a>. This is the text of the footnote.
+           </div>
+           </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with section anchors' do
+        it 'preserves ids and links' do
+          input = <<~ADOC
+            = Title
+
+            == First section
+
+            This is the first section.
+
+            == Second section
+
+            This is the second section.
+
+            == Thunder ⚡ !
+
+            This is the third section.
+          ADOC
+
+          output = <<~HTML
+           <h1>Title</h1>
+           <div>
+           <h2 id="user-content-first-section">
+           <a class="anchor" href="#user-content-first-section"></a>First section</h2>
+           <div>
+           <div>
+           <p>This is the first section.</p>
+           </div>
+           </div>
+           </div>
+           <div>
+           <h2 id="user-content-second-section">
+           <a class="anchor" href="#user-content-second-section"></a>Second section</h2>
+           <div>
+           <div>
+           <p>This is the second section.</p>
+           </div>
+           </div>
+           </div>
+           <div>
+           <h2 id="user-content-thunder">
+           <a class="anchor" href="#user-content-thunder"></a>Thunder ⚡ !</h2>
+           <div>
+           <div>
+           <p>This is the third section.</p>
+           </div>
+           </div>
+           </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with checklist' do
+        it 'preserves classes' do
+          input = <<~ADOC
+            * [x] checked
+            * [ ] not checked
+          ADOC
+
+          output = <<~HTML
+            <div>
+            <ul class="checklist">
+            <li>
+            <p><i class="fa fa-check-square-o"></i> checked</p>
+            </li>
+            <li>
+            <p><i class="fa fa-square-o"></i> not checked</p>
+            </li>
+            </ul>
+            </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with marks' do
+        it 'preserves classes' do
+          input = <<~ADOC
+            Werewolves are allergic to #cassia cinnamon#.
+
+            Did the werewolves read the [.small]#small print#?
+
+            Where did all the [.underline.small]#cores# run off to?
+
+            We need [.line-through]#ten# make that twenty VMs.
+
+            [.big]##O##nce upon an infinite loop.
+          ADOC
+
+          output = <<~HTML
+            <div>
+            <p>Werewolves are allergic to <mark>cassia cinnamon</mark>.</p>
+            </div>
+            <div>
+            <p>Did the werewolves read the <span class="small">small print</span>?</p>
+            </div>
+            <div>
+            <p>Where did all the <span class="underline small">cores</span> run off to?</p>
+            </div>
+            <div>
+            <p>We need <span class="line-through">ten</span> make that twenty VMs.</p>
+            </div>
+            <div>
+            <p><span class="big">O</span>nce upon an infinite loop.</p>
+            </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with fenced block' do
+        it 'highlights syntax' do
+          input = <<~ADOC
+            ```js
+            console.log('hello world')
+            ```
+          ADOC
+
+          output = <<~HTML
+            <div>
+            <div>
+            <pre class="code highlight js-syntax-highlight javascript" lang="javascript" v-pre="true"><code><span id="LC1" class="line" lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">hello world</span><span class="dl">'</span><span class="p">)</span></span></code></pre>
+            </div>
+            </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with listing block' do
+        it 'highlights syntax' do
+          input = <<~ADOC
+            [source,c++]
+            .class.cpp
+            ----
+            #include <stdio.h>
+
+            for (int i = 0; i < 5; i++) {
+              std::cout<<"*"<<std::endl;
+            }
+            ----
+          ADOC
+
+          output = <<~HTML
+            <div>
+            <div>class.cpp</div>
+            <div>
+            <pre class="code highlight js-syntax-highlight cpp" lang="cpp" v-pre="true"><code><span id="LC1" class="line" lang="cpp"><span class="cp">#include &lt;stdio.h&gt;</span></span>
+            <span id="LC2" class="line" lang="cpp"></span>
+            <span id="LC3" class="line" lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span></span>
+            <span id="LC4" class="line" lang="cpp">  <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"*"</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span></span>
+            <span id="LC5" class="line" lang="cpp"><span class="p">}</span></span></code></pre>
+            </div>
+            </div>
+          HTML
+
+          expect(render(input, context)).to include(output.strip)
+        end
+      end
+
+      context 'with stem block' do
+        it 'does not apply syntax highlighting' do
+          input = <<~ADOC
+            [stem]
+            ++++
+            \sqrt{4} = 2
+            ++++
+          ADOC
+
+          output = "<div>\n<div>\n\\$ qrt{4} = 2\\$\n</div>\n</div>"
+
+          expect(render(input, context)).to include(output)
         end
       end
 

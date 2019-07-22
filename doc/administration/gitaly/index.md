@@ -48,7 +48,7 @@ used by Omnibus and the GitLab source installation guide.
 Starting with GitLab 11.4, Gitaly is able to serve all Git requests without
 needed a shared NFS mount for Git repository data.
 Between 11.4 and 11.8 the exception was the
-[Elastic Search indexer](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
+[Elasticsearch indexer](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
 But since 11.8 the indexer uses Gitaly for data access as well. NFS can still
 be leveraged for redudancy on block level of the Git data. But only has to
 be mounted on the Gitaly server.
@@ -91,7 +91,7 @@ your GitLab installation has two repository storages, `default` and
 
 First install Gitaly using either Omnibus or from source.
 
-Omnibus: [Download/install](https://about.gitlab.com/installation) the Omnibus GitLab
+Omnibus: [Download/install](https://about.gitlab.com/install/) the Omnibus GitLab
 package you want using **steps 1 and 2** from the GitLab downloads page but
 **_do not_** provide the `EXTERNAL_URL=` value.
 
@@ -220,7 +220,7 @@ network, firewall, or name resolution problem preventing your GitLab
 server from reaching the Gitaly server then all Gitaly requests will
 fail.
 
-Additionally, you need to 
+Additionally, you need to
 [disable Rugged if previously manually enabled](../high_availability/nfs.md#improving-nfs-performance-with-gitlab).
 
 We assume that your Gitaly server can be reached at
@@ -247,8 +247,10 @@ gitlab:
   repositories:
     storages:
       default:
+        path: /mnt/gitlab/default/repositories
         gitaly_address: tcp://gitaly.internal:8075
       storage1:
+        path: /mnt/gitlab/storage1/repositories
         gitaly_address: tcp://gitaly.internal:8075
 
   gitaly:
@@ -267,7 +269,7 @@ repository from your GitLab server over HTTP.
 
 Gitaly supports TLS encryption. To be able to communicate
 with a Gitaly instance that listens for secure connections you will need to use `tls://` url
-scheme in the `gitaly_address` of the corresponding storage entry in the gitlab configuration.
+scheme in the `gitaly_address` of the corresponding storage entry in the GitLab configuration.
 
 The admin needs to bring their own certificate as we do not provide that automatically.
 The certificate to be used needs to be installed on all Gitaly nodes and on all client nodes that communicate with it following procedures described in [GitLab custom certificate configuration](https://docs.gitlab.com/omnibus/settings/ssl.html#install-custom-public-certificates).
@@ -293,8 +295,8 @@ sum(rate(gitaly_connections_total[5m])) by (type)
 ```ruby
 # /etc/gitlab/gitlab.rb
 git_data_dirs({
-  'default' => { 'path' => '/mnt/gitlab/default', 'gitaly_address' => 'tls://gitaly.internal:9999' },
-  'storage1' => { 'path' => '/mnt/gitlab/storage1', 'gitaly_address' => 'tls://gitaly.internal:9999' },
+  'default' => { 'gitaly_address' => 'tls://gitaly.internal:9999' },
+  'storage1' => { 'gitaly_address' => 'tls://gitaly.internal:9999' },
 })
 
 gitlab_rails['gitaly_token'] = 'abc123secret'
@@ -431,6 +433,24 @@ gitaly_enabled=false
 
 When you run `service gitlab restart` Gitaly will be disabled on this
 particular machine.
+
+## Eliminating NFS altogether
+
+If you are planning to use Gitaly without NFS for your storage needs
+and want to eliminate NFS from your environment altogether, there are
+a few things that you need to do:
+
+ 1. Make sure the [`git` user home directory](https://docs.gitlab.com/omnibus/settings/configuration.html#moving-the-home-directory-for-a-user) is on local disk.
+ 1. Configure [database lookup of SSH keys](../operations/fast_ssh_key_lookup.md)
+ to eliminate the need for a shared authorized_keys file.
+ 1. Configure [object storage for job artifacts](../job_artifacts.md#using-object-storage)
+ including [live tracing](../job_traces.md#new-live-trace-architecture).
+ 1. Configure [object storage for LFS objects](../../workflow/lfs/lfs_administration.md#storing-lfs-objects-in-remote-object-storage).
+ 1. Configure [object storage for uploads](../uploads.md#using-object-storage-core-only).
+
+NOTE: **Note:** One current feature of GitLab still requires a shared directory (NFS): [GitLab Pages](../../user/project/pages/index.md).
+There is [work in progress](https://gitlab.com/gitlab-org/gitlab-pages/issues/196)
+to eliminate the need for NFS to support GitLab Pages.
 
 ## Troubleshooting Gitaly in production
 

@@ -17,8 +17,8 @@ module Issues
       super
     end
 
-    def before_update(issue)
-      spam_check(issue, current_user)
+    def before_update(issue, skip_spam_check: false)
+      spam_check(issue, current_user) unless skip_spam_check
     end
 
     def handle_changes(issue, options)
@@ -76,6 +76,7 @@ module Issues
 
       issue_before = get_issue_if_allowed(before_id, board_group_id)
       issue_after = get_issue_if_allowed(after_id, board_group_id)
+      raise ActiveRecord::RecordNotFound unless issue_before || issue_after
 
       issue.move_between(issue_before, issue_after)
     end

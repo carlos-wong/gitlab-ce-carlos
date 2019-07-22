@@ -8,6 +8,7 @@ import * as types from './mutation_types';
 import { decorateFiles } from '../lib/files';
 import { stageKeys } from '../constants';
 import service from '../services';
+import router from '../ide_router';
 
 export const redirectToUrl = (self, url) => visitUrl(url);
 
@@ -61,7 +62,7 @@ export const createTempEntry = (
   new Promise(resolve => {
     const fullName = name.slice(-1) !== '/' && type === 'tree' ? `${name}/` : name;
 
-    if (state.entries[name]) {
+    if (state.entries[name] && !state.entries[name].deleted) {
       flash(
         `The name "${name.split('/').pop()}" is already taken in this directory.`,
         'alert',
@@ -207,10 +208,7 @@ export const deleteEntry = ({ commit, dispatch, state }, path) => {
   }
 
   commit(types.DELETE_ENTRY, path);
-
-  if (entry.parentPath && state.entries[entry.parentPath].tree.length === 0) {
-    dispatch('deleteEntry', entry.parentPath);
-  }
+  dispatch('stageChange', path);
 
   dispatch('triggerFilesChange');
 };
@@ -238,10 +236,15 @@ export const renameEntry = (
         parentPath: newParentPath,
       });
     });
-  }
+  } else {
+    const newPath = parentPath ? `${parentPath}/${name}` : name;
+    const newEntry = state.entries[newPath];
+    commit(types.TOGGLE_FILE_CHANGED, { file: newEntry, changed: true });
 
-  if (!entryPath && !entry.tempFile) {
-    dispatch('deleteEntry', path);
+    if (entry.opened) {
+      router.push(`/project${newEntry.url}`);
+      commit(types.TOGGLE_FILE_OPEN, entry.path);
+    }
   }
 
   dispatch('triggerFilesChange');

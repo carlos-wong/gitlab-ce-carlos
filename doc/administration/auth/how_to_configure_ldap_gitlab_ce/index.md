@@ -1,14 +1,8 @@
 ---
-author: Chris Wilson
-author_gitlab: MrChrisW
-level: intermediary
-article_type: admin guide
-date: 2017-05-03
+type: howto
 ---
 
 # How to configure LDAP with GitLab CE
-
-## Introduction
 
 Managing a large number of users in GitLab can become a burden for system administrators. As an organization grows so do user accounts. Keeping these user accounts in sync across multiple enterprise applications often becomes a time consuming task.
 
@@ -111,7 +105,7 @@ The initial configuration of LDAP in GitLab requires changes to the `gitlab.rb` 
 
 The two Active Directory specific values are `active_directory: true` and `uid: 'sAMAccountName'`. `sAMAccountName` is an attribute returned by Active Directory used for GitLab usernames. See the example output from `ldapsearch` for a full list of attributes a "person" object (user) has in **AD** - [`ldapsearch` example](#using-ldapsearch-unix)
 
-> Both group_base and admin_group configuration options are only available in GitLab Enterprise Edition. See [GitLab EE - LDAP Features](../how_to_configure_ldap_gitlab_ee/index.html#gitlab-enterprise-edition---ldap-features) **[STARTER ONLY]**
+> Both group_base and admin_group configuration options are only available in GitLab Enterprise Edition. See [GitLab EE - LDAP Features](../how_to_configure_ldap_gitlab_ee/index.html#gitlab-enterprise-edition---ldap-features) **(STARTER ONLY)**
 
 ### Example `gitlab.rb` LDAP
 
@@ -267,4 +261,16 @@ have extended functionalities with LDAP, such as:
 - Updating user permissions
 - Multiple LDAP servers
 
-Read through the article on [LDAP for GitLab EE](../how_to_configure_ldap_gitlab_ee/index.md) **[STARTER ONLY]** for an overview.
+Read through the article on [LDAP for GitLab EE](../how_to_configure_ldap_gitlab_ee/index.md) **(STARTER ONLY)** for an overview.
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

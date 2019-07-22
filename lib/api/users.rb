@@ -51,7 +51,7 @@ module API
           optional :can_create_group, type: Boolean, desc: 'Flag indicating the user can create groups'
           optional :external, type: Boolean, desc: 'Flag indicating the user is an external user'
           optional :avatar, type: File, desc: 'Avatar image for user'
-          optional :private_profile, type: Boolean, desc: 'Flag indicating the user has a private profile'
+          optional :private_profile, type: Boolean, default: false, desc: 'Flag indicating the user has a private profile'
           all_or_none_of :extern_uid, :provider
 
           use :optional_params_ee
@@ -148,7 +148,7 @@ module API
       end
 
       desc 'Create a user. Available only for admins.' do
-        success Entities::UserPublic
+        success Entities::UserWithAdmin
       end
       params do
         requires :email, type: String, desc: 'The email of the user'
@@ -158,6 +158,7 @@ module API
         at_least_one_of :password, :reset_password
         requires :name, type: String, desc: 'The name of the user'
         requires :username, type: String, desc: 'The username of the user'
+        optional :force_random_password, type: Boolean, desc: 'Flag indicating a random password will be set'
         use :optional_attributes
       end
       post do
@@ -167,7 +168,7 @@ module API
         user = ::Users::CreateService.new(current_user, params).execute(skip_authorization: true)
 
         if user.persisted?
-          present user, with: Entities::UserPublic, current_user: current_user
+          present user, with: Entities::UserWithAdmin, current_user: current_user
         else
           conflict!('Email has already been taken') if User
             .by_any_email(user.email.downcase)
@@ -182,7 +183,7 @@ module API
       end
 
       desc 'Update a user. Available only for admins.' do
-        success Entities::UserPublic
+        success Entities::UserWithAdmin
       end
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
@@ -209,25 +210,12 @@ module API
                 .where.not(id: user.id).count > 0
 
         user_params = declared_params(include_missing: false)
-        identity_attrs = user_params.slice(:provider, :extern_uid)
-
-        if identity_attrs.any?
-          identity = user.identities.find_by(provider: identity_attrs[:provider])
-
-          if identity
-            identity.update(identity_attrs)
-          else
-            identity = user.identities.build(identity_attrs)
-            identity.save
-          end
-        end
 
         user_params[:password_expires_at] = Time.now if user_params[:password].present?
-
-        result = ::Users::UpdateService.new(current_user, user_params.except(:extern_uid, :provider).merge(user: user)).execute
+        result = ::Users::UpdateService.new(current_user, user_params.merge(user: user)).execute
 
         if result[:status] == :success
-          present user, with: Entities::UserPublic, current_user: current_user
+          present user, with: Entities::UserWithAdmin, current_user: current_user
         else
           render_validation_error!(user)
         end

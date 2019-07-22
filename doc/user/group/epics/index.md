@@ -2,7 +2,7 @@
 type: reference, howto
 ---
 
-# Epics **[ULTIMATE]**
+# Epics **(ULTIMATE)**
 
 > Introduced in [GitLab Ultimate][ee] 10.2.
 
@@ -202,21 +202,21 @@ You may also consult the [group permissions table][permissions].
 ## Thread
 
 - Comments: collaborate on that epic by posting comments in its thread.
-These text fields also fully support
-[GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm).
+  These text fields also fully support
+  [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm).
 
-## Comment, or start a discussion
+## Comment, or start a thread
 
 Once you wrote your comment, you can either:
 
 - Click "Comment" and your comment will be published.
-- Click "Start discussion": start a thread within that epic's thread to discuss specific points.
+- Click "Start thread": start a thread within that epic's discussion to discuss specific points.
 
 ## Award emoji
 
 - You can [award an emoji](../../award_emojis.md) to that epic or its comments.
 
-## Notifications            
+## Notifications
 
 - [Receive notifications](../../../workflow/notifications.md) for epic events.
 

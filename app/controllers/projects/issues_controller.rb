@@ -10,6 +10,10 @@ class Projects::IssuesController < Projects::ApplicationController
   include SpammableActions
   include RecordUserLastActivity
 
+  before_action do
+    push_frontend_feature_flag(:manual_sorting)
+  end
+
   def issue_except_actions
     %i[index calendar new create bulk_update import_csv]
   end
@@ -33,15 +37,13 @@ class Projects::IssuesController < Projects::ApplicationController
   before_action :authorize_create_issue!, only: [:new, :create]
 
   # Allow modify issue
-  before_action :authorize_update_issuable!, only: [:edit, :update, :move]
+  before_action :authorize_update_issuable!, only: [:edit, :update, :move, :reorder]
 
   # Allow create a new branch and empty WIP merge request from current issue
   before_action :authorize_create_merge_request_from!, only: [:create_merge_request]
 
   before_action :authorize_import_issues!, only: [:import_csv]
   before_action :authorize_download_code!, only: [:related_branches]
-
-  before_action :set_suggested_issues_feature_flags, only: [:new]
 
   respond_to :html
 
@@ -132,6 +134,16 @@ class Projects::IssuesController < Projects::ApplicationController
     render_conflict_response
   end
 
+  def reorder
+    service = Issues::ReorderService.new(project, current_user, reorder_params)
+
+    if service.execute(issue)
+      head :ok
+    else
+      head :unprocessable_entity
+    end
+  end
+
   def related_branches
     @related_branches = Issues::RelatedBranchesService.new(project, current_user).execute(issue)
 
@@ -158,6 +170,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def create_merge_request
     create_params = params.slice(:branch_name, :ref).merge(issue_iid: issue.iid)
+    create_params[:target_project_id] = params[:target_project_id] if helpers.create_confidential_merge_request_enabled?
     result = ::MergeRequests::CreateFromIssueService.new(project, current_user, create_params).execute
 
     if result[:status] == :success
@@ -239,6 +252,10 @@ class Projects::IssuesController < Projects::ApplicationController
     ] + [{ label_ids: [], assignee_ids: [], update_task: [:index, :checked, :line_number, :line_source] }]
   end
 
+  def reorder_params
+    params.permit(:move_before_id, :move_after_id, :group_full_path)
+  end
+
   def store_uri
     if request.get? && !request.xhr?
       store_location_for :user, request.fullpath
@@ -265,9 +282,5 @@ class Projects::IssuesController < Projects::ApplicationController
     # 2. https://gitlab.com/gitlab-org/gitlab-ce/issues/42424
     # 3. https://gitlab.com/gitlab-org/gitlab-ce/issues/42426
     Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42422')
-  end
-
-  def set_suggested_issues_feature_flags
-    push_frontend_feature_flag(:graphql, default_enabled: true)
   end
 end

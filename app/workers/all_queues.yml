@@ -9,6 +9,7 @@
 - cronjob:import_export_project_cleanup
 - cronjob:pages_domain_verification_cron
 - cronjob:pages_domain_removal_cron
+- cronjob:pages_domain_ssl_renewal_cron
 - cronjob:pipeline_schedule
 - cronjob:prune_old_events
 - cronjob:remove_expired_group_links
@@ -25,6 +26,7 @@
 - cronjob:issue_due_scheduler
 - cronjob:prune_web_hook_logs
 - cronjob:schedule_migrate_external_diffs
+- cronjob:namespaces_prune_aggregation_schedules
 
 - gcp_cluster:cluster_install_app
 - gcp_cluster:cluster_patch_app
@@ -100,6 +102,9 @@
 - todos_destroyer:todos_destroyer_project_private
 - todos_destroyer:todos_destroyer_private_features
 
+- update_namespace_statistics:namespaces_schedule_aggregation
+- update_namespace_statistics:namespaces_root_statistics
+
 - object_pool:object_pool_create
 - object_pool:object_pool_schedule_join
 - object_pool:object_pool_join
@@ -133,6 +138,7 @@
 - new_note
 - pages
 - pages_domain_verification
+- pages_domain_ssl_renewal
 - plugin
 - post_receive
 - process_commit
