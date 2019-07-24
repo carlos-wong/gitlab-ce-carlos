@@ -24,6 +24,8 @@ else
   export GITLAB_DATABASE='postgresql'
 fi
 
+export GITLAB_DATABASE='postgresql'
+
 cp config/database.yml.$GITLAB_DATABASE config/database.yml
 
 if [ -f config/database_geo.yml.$GITLAB_DATABASE ]; then
