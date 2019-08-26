@@ -6,7 +6,7 @@ module QA
       class Menu < Page::Base
         view 'app/views/layouts/header/_current_user_dropdown.html.haml' do
           element :sign_out_link
-          element :settings_link, 'link_to s_("CurrentUser|Settings")' # rubocop:disable QA/ElementWithPattern
+          element :settings_link
         end
 
         view 'app/views/layouts/header/_default.html.haml' do
@@ -25,6 +25,10 @@ module QA
         view 'app/views/layouts/nav/projects_dropdown/_show.html.haml' do
           element :projects_dropdown_sidebar
           element :your_projects_link
+        end
+
+        view 'app/views/layouts/_search.html.haml' do
+          element :search_term_field
         end
 
         def go_to_groups
@@ -69,6 +73,10 @@ module QA
 
         def click_snippets_link
           click_element :snippets_link
+        end
+
+        def search_for(term)
+          fill_element :search_term_field, "#{term}\n"
         end
 
         def has_personal_area?(wait: Capybara.default_max_wait_time)

@@ -2,6 +2,7 @@
 
 module ApplicationSettingImplementation
   extend ActiveSupport::Concern
+  include Gitlab::Utils::StrongMemoize
 
   DOMAIN_LIST_SEPARATOR = %r{\s*[,;]\s*     # comma or semicolon, optionally surrounded by whitespace
                             |               # or
@@ -20,7 +21,8 @@ module ApplicationSettingImplementation
       {
         after_sign_up_text: nil,
         akismet_enabled: false,
-        allow_local_requests_from_hooks_and_services: false,
+        allow_local_requests_from_web_hooks_and_services: false,
+        allow_local_requests_from_system_hooks: true,
         dns_rebinding_protection_enabled: true,
         authorized_keys_enabled: true, # TODO default to false if the instance is configured to use AuthorizedKeysCommand
         container_registry_token_expire_delay: 5,
@@ -95,8 +97,14 @@ module ApplicationSettingImplementation
         usage_stats_set_by_user_id: nil,
         diff_max_patch_bytes: Gitlab::Git::Diff::DEFAULT_MAX_PATCH_BYTES,
         commit_email_hostname: default_commit_email_hostname,
+        snowplow_collector_hostname: nil,
+        snowplow_cookie_domain: nil,
+        snowplow_enabled: false,
+        snowplow_site_id: nil,
         protected_ci_variables: false,
-        local_markdown_version: 0
+        local_markdown_version: 0,
+        outbound_local_requests_whitelist: [],
+        raw_blob_request_limit: 300
       }
     end
 
@@ -131,29 +139,63 @@ module ApplicationSettingImplementation
   end
 
   def domain_whitelist_raw
-    self.domain_whitelist&.join("\n")
+    array_to_string(self.domain_whitelist)
   end
 
   def domain_blacklist_raw
-    self.domain_blacklist&.join("\n")
+    array_to_string(self.domain_blacklist)
   end
 
   def domain_whitelist_raw=(values)
-    self.domain_whitelist = []
-    self.domain_whitelist = values.split(DOMAIN_LIST_SEPARATOR)
-    self.domain_whitelist.reject! { |d| d.empty? }
-    self.domain_whitelist
+    self.domain_whitelist = domain_strings_to_array(values)
   end
 
   def domain_blacklist_raw=(values)
-    self.domain_blacklist = []
-    self.domain_blacklist = values.split(DOMAIN_LIST_SEPARATOR)
-    self.domain_blacklist.reject! { |d| d.empty? }
-    self.domain_blacklist
+    self.domain_blacklist = domain_strings_to_array(values)
   end
 
   def domain_blacklist_file=(file)
     self.domain_blacklist_raw = file.read
+  end
+
+  def outbound_local_requests_whitelist_raw
+    array_to_string(self.outbound_local_requests_whitelist)
+  end
+
+  def outbound_local_requests_whitelist_raw=(values)
+    clear_memoization(:outbound_local_requests_whitelist_arrays)
+
+    self.outbound_local_requests_whitelist = domain_strings_to_array(values)
+  end
+
+  def add_to_outbound_local_requests_whitelist(values_array)
+    clear_memoization(:outbound_local_requests_whitelist_arrays)
+
+    self.outbound_local_requests_whitelist ||= []
+    self.outbound_local_requests_whitelist += values_array
+
+    self.outbound_local_requests_whitelist.uniq!
+  end
+
+  def outbound_local_requests_whitelist_arrays
+    strong_memoize(:outbound_local_requests_whitelist_arrays) do
+      next [[], []] unless self.outbound_local_requests_whitelist
+
+      ip_whitelist = []
+      domain_whitelist = []
+
+      self.outbound_local_requests_whitelist.each do |str|
+        ip_obj = Gitlab::Utils.string_to_ip_object(str)
+
+        if ip_obj
+          ip_whitelist << ip_obj
+        else
+          domain_whitelist << str
+        end
+      end
+
+      [ip_whitelist, domain_whitelist]
+    end
   end
 
   def repository_storages
@@ -254,6 +296,19 @@ module ApplicationSettingImplementation
   end
 
   private
+
+  def array_to_string(arr)
+    arr&.join("\n")
+  end
+
+  def domain_strings_to_array(values)
+    return [] unless values
+
+    values
+      .split(DOMAIN_LIST_SEPARATOR)
+      .reject(&:empty?)
+      .uniq
+  end
 
   def ensure_uuid!
     return if uuid?

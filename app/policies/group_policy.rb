@@ -16,8 +16,6 @@ class GroupPolicy < BasePolicy
   condition(:maintainer) { access_level >= GroupMember::MAINTAINER }
   condition(:reporter) { access_level >= GroupMember::REPORTER }
 
-  condition(:nested_groups_supported, scope: :global) { Group.supports_nested_objects? }
-
   condition(:has_parent, scope: :subject) { @subject.has_parent? }
   condition(:share_with_group_locked, scope: :subject) { @subject.share_with_group_lock? }
   condition(:parent_share_with_group_locked, scope: :subject) { @subject.parent&.share_with_group_lock? }
@@ -36,6 +34,10 @@ class GroupPolicy < BasePolicy
 
   condition(:developer_maintainer_access) do
     @subject.project_creation_level == ::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS
+  end
+
+  condition(:maintainer_can_create_group) do
+    @subject.subgroup_creation_level == ::Gitlab::Access::MAINTAINER_SUBGROUP_ACCESS
   end
 
   rule { public_group }.policy do
@@ -66,6 +68,7 @@ class GroupPolicy < BasePolicy
   rule { developer }.enable :admin_milestone
 
   rule { reporter }.policy do
+    enable :read_container_image
     enable :admin_label
     enable :admin_list
     enable :admin_issue
@@ -89,6 +92,7 @@ class GroupPolicy < BasePolicy
     enable :change_visibility_level
 
     enable :set_note_created_at
+    enable :set_emails_disabled
   end
 
   rule { can?(:read_nested_project_resources) }.policy do
@@ -104,7 +108,8 @@ class GroupPolicy < BasePolicy
     enable :read_nested_project_resources
   end
 
-  rule { owner & nested_groups_supported }.enable :create_subgroup
+  rule { owner }.enable :create_subgroup
+  rule { maintainer & maintainer_can_create_group }.enable :create_subgroup
 
   rule { public_group | logged_in_viewable }.enable :view_globally
 

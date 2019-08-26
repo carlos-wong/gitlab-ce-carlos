@@ -700,6 +700,138 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
+  context 'when pipeline with needs is created' do
+    let!(:linux_build) { create_build('linux:build', stage: 'build', stage_idx: 0) }
+    let!(:mac_build) { create_build('mac:build', stage: 'build', stage_idx: 0) }
+    let!(:linux_rspec) { create_build('linux:rspec', stage: 'test', stage_idx: 1) }
+    let!(:linux_rubocop) { create_build('linux:rubocop', stage: 'test', stage_idx: 1) }
+    let!(:mac_rspec) { create_build('mac:rspec', stage: 'test', stage_idx: 1) }
+    let!(:mac_rubocop) { create_build('mac:rubocop', stage: 'test', stage_idx: 1) }
+    let!(:deploy) { create_build('deploy', stage: 'deploy', stage_idx: 2) }
+
+    let!(:linux_rspec_on_build) { create(:ci_build_need, build: linux_rspec, name: 'linux:build') }
+    let!(:linux_rubocop_on_build) { create(:ci_build_need, build: linux_rubocop, name: 'linux:build') }
+
+    let!(:mac_rspec_on_build) { create(:ci_build_need, build: mac_rspec, name: 'mac:build') }
+    let!(:mac_rubocop_on_build) { create(:ci_build_need, build: mac_rubocop, name: 'mac:build') }
+
+    it 'when linux:* finishes first it runs it out of order' do
+      expect(process_pipeline).to be_truthy
+
+      expect(stages).to eq(%w(pending created created))
+      expect(builds.pending).to contain_exactly(linux_build, mac_build)
+
+      # we follow the single path of linux
+      linux_build.reset.success!
+
+      expect(stages).to eq(%w(running pending created))
+      expect(builds.success).to contain_exactly(linux_build)
+      expect(builds.pending).to contain_exactly(mac_build, linux_rspec, linux_rubocop)
+
+      linux_rspec.reset.success!
+
+      expect(stages).to eq(%w(running running created))
+      expect(builds.success).to contain_exactly(linux_build, linux_rspec)
+      expect(builds.pending).to contain_exactly(mac_build, linux_rubocop)
+
+      linux_rubocop.reset.success!
+
+      expect(stages).to eq(%w(running running created))
+      expect(builds.success).to contain_exactly(linux_build, linux_rspec, linux_rubocop)
+      expect(builds.pending).to contain_exactly(mac_build)
+
+      mac_build.reset.success!
+      mac_rspec.reset.success!
+      mac_rubocop.reset.success!
+
+      expect(stages).to eq(%w(success success pending))
+      expect(builds.success).to contain_exactly(
+        linux_build, linux_rspec, linux_rubocop, mac_build, mac_rspec, mac_rubocop)
+      expect(builds.pending).to contain_exactly(deploy)
+    end
+
+    context 'when feature ci_dag_support is disabled' do
+      before do
+        stub_feature_flags(ci_dag_support: false)
+      end
+
+      it 'when linux:build finishes first it follows stages' do
+        expect(process_pipeline).to be_truthy
+
+        expect(stages).to eq(%w(pending created created))
+        expect(builds.pending).to contain_exactly(linux_build, mac_build)
+
+        # we follow the single path of linux
+        linux_build.reset.success!
+
+        expect(stages).to eq(%w(running created created))
+        expect(builds.success).to contain_exactly(linux_build)
+        expect(builds.pending).to contain_exactly(mac_build)
+
+        mac_build.reset.success!
+
+        expect(stages).to eq(%w(success pending created))
+        expect(builds.success).to contain_exactly(linux_build, mac_build)
+        expect(builds.pending).to contain_exactly(
+          linux_rspec, linux_rubocop, mac_rspec, mac_rubocop)
+
+        linux_rspec.reset.success!
+        linux_rubocop.reset.success!
+        mac_rspec.reset.success!
+        mac_rubocop.reset.success!
+
+        expect(stages).to eq(%w(success success pending))
+        expect(builds.success).to contain_exactly(
+          linux_build, linux_rspec, linux_rubocop, mac_build, mac_rspec, mac_rubocop)
+        expect(builds.pending).to contain_exactly(deploy)
+      end
+    end
+
+    context 'when one of the jobs is run on a failure' do
+      let!(:linux_notify) { create_build('linux:notify', stage: 'deploy', stage_idx: 2, when: 'on_failure') }
+
+      let!(:linux_notify_on_build) { create(:ci_build_need, build: linux_notify, name: 'linux:build') }
+
+      context 'when another job in build phase fails first' do
+        context 'when ci_dag_support is enabled' do
+          it 'does skip linux:notify' do
+            expect(process_pipeline).to be_truthy
+
+            mac_build.reset.drop!
+            linux_build.reset.success!
+
+            expect(linux_notify.reset).to be_skipped
+          end
+        end
+
+        context 'when ci_dag_support is disabled' do
+          before do
+            stub_feature_flags(ci_dag_support: false)
+          end
+
+          it 'does run linux:notify' do
+            expect(process_pipeline).to be_truthy
+
+            mac_build.reset.drop!
+            linux_build.reset.success!
+
+            expect(linux_notify.reset).to be_pending
+          end
+        end
+      end
+
+      context 'when linux:build job fails first' do
+        it 'does run linux:notify' do
+          expect(process_pipeline).to be_truthy
+
+          linux_build.reset.drop!
+
+          expect(linux_notify.reset).to be_pending
+        end
+      end
+    end
+  end
+
   def process_pipeline
     described_class.new(pipeline.project, user).execute(pipeline)
   end
@@ -710,6 +842,10 @@ describe Ci::ProcessPipelineService, '#execute' do
 
   def builds
     all_builds.where.not(status: [:created, :skipped])
+  end
+
+  def stages
+    pipeline.reset.stages.map(&:status)
   end
 
   def builds_names

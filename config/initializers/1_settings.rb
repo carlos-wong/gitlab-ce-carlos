@@ -200,6 +200,7 @@ Settings.gitlab.default_projects_features['visibility_level']   = Settings.__sen
 Settings.gitlab['domain_whitelist'] ||= []
 Settings.gitlab['import_sources'] ||= Gitlab::ImportSources.values
 Settings.gitlab['trusted_proxies'] ||= []
+Settings.gitlab['content_security_policy'] ||= Gitlab::ContentSecurityPolicy::ConfigLoader.default_settings_hash
 Settings.gitlab['no_todos_messages'] ||= YAML.load_file(Rails.root.join('config', 'no_todos_messages.yml'))
 Settings.gitlab['impersonation_enabled'] ||= true if Settings.gitlab['impersonation_enabled'].nil?
 Settings.gitlab['usage_ping_enabled'] = true if Settings.gitlab['usage_ping_enabled'].nil?
@@ -217,6 +218,7 @@ Gitlab.ee do
   Settings['elasticsearch'] ||= Settingslogic.new({})
   Settings.elasticsearch['enabled'] = false if Settings.elasticsearch['enabled'].nil?
   Settings.elasticsearch['url'] = ENV['ELASTIC_URL'] || "http://localhost:9200"
+  Settings.elasticsearch['indexer_path'] ||= Gitlab::Utils.which('gitlab-elasticsearch-indexer')
 end
 
 #
@@ -258,6 +260,7 @@ Settings.registry['key']           ||= nil
 Settings.registry['issuer']        ||= nil
 Settings.registry['host_port']     ||= [Settings.registry['host'], Settings.registry['port']].compact.join(':')
 Settings.registry['path']            = Settings.absolute(Settings.registry['path'] || File.join(Settings.shared['path'], 'registry'))
+Settings.registry['notifications'] ||= []
 
 #
 # Error Reporting and Logging with Sentry
@@ -294,6 +297,12 @@ Gitlab.ee do
   Settings['geo'] ||= Settingslogic.new({})
   # For backwards compatibility, default to gitlab_url and if so, ensure it ends with "/"
   Settings.geo['node_name'] = Settings.geo['node_name'].presence || Settings.gitlab['url'].chomp('/').concat('/')
+
+  #
+  # Registry replication
+  #
+  Settings.geo['registry_replication'] ||= Settingslogic.new({})
+  Settings.geo.registry_replication['enabled'] ||= false
 end
 
 #
@@ -471,6 +480,9 @@ Gitlab.ee do
   Settings.cron_jobs['geo_repository_verification_secondary_scheduler_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['geo_repository_verification_secondary_scheduler_worker']['cron'] ||= '*/1 * * * *'
   Settings.cron_jobs['geo_repository_verification_secondary_scheduler_worker']['job_class'] ||= 'Geo::RepositoryVerification::Secondary::SchedulerWorker'
+  Settings.cron_jobs['geo_container_repository_sync_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['geo_container_repository_sync_worker']['cron'] ||= '*/1 * * * *'
+  Settings.cron_jobs['geo_container_repository_sync_worker']['job_class'] ||= 'Geo::ContainerRepositorySyncDispatchWorker'
   Settings.cron_jobs['historical_data_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['historical_data_worker']['cron'] ||= '0 12 * * *'
   Settings.cron_jobs['historical_data_worker']['job_class'] = 'HistoricalDataWorker'

@@ -10,15 +10,29 @@ export default () => {
       JobApp,
     },
     render(createElement) {
+      const {
+        deploymentHelpUrl,
+        runnerHelpUrl,
+        runnerSettingsUrl,
+        variablesSettingsUrl,
+        endpoint,
+        pagePath,
+        logState,
+        buildStatus,
+        projectPath,
+      } = element.dataset;
+
       return createElement('job-app', {
         props: {
-          deploymentHelpUrl: element.dataset.deploymentHelpUrl,
-          runnerHelpUrl: element.dataset.runnerHelpUrl,
-          runnerSettingsUrl: element.dataset.runnerSettingsUrl,
-          endpoint: element.dataset.endpoint,
-          pagePath: element.dataset.buildOptionsPagePath,
-          logState: element.dataset.buildOptionsLogState,
-          buildStatus: element.dataset.buildOptionsBuildStatus,
+          deploymentHelpUrl,
+          runnerHelpUrl,
+          runnerSettingsUrl,
+          variablesSettingsUrl,
+          endpoint,
+          pagePath,
+          logState,
+          buildStatus,
+          projectPath,
         },
       });
     },

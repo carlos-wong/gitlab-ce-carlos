@@ -16,11 +16,14 @@ export default {
       type: String,
       required: true,
     },
-    header: {
+    title: {
       type: String,
-      required: true,
+      required: false,
+      default() {
+        return this.metric;
+      },
     },
-    details: {
+    header: {
       type: String,
       required: true,
     },
@@ -34,14 +37,14 @@ export default {
       return this.currentRequest.details[this.metric];
     },
     detailsList() {
-      return this.metricDetails[this.details];
+      return this.metricDetails.details;
     },
   },
 };
 </script>
 <template>
   <div
-    v-if="currentRequest.details"
+    v-if="currentRequest.details && metricDetails"
     :id="`peek-view-${metric}`"
     class="view qa-performance-bar-detailed-metric"
   >
@@ -63,7 +66,7 @@ export default {
         <template v-if="detailsList.length">
           <tr v-for="(item, index) in detailsList" :key="index">
             <td>
-              <span>{{ item.duration }}ms</span>
+              <span>{{ sprintf(__('%{duration}ms'), { duration: item.duration }) }}</span>
             </td>
             <td>
               <div class="js-toggle-container">
@@ -101,6 +104,6 @@ export default {
 
       <div slot="footer"></div>
     </gl-modal>
-    {{ metric }}
+    {{ title }}
   </div>
 </template>

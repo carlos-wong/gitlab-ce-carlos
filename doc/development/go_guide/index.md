@@ -107,6 +107,32 @@ Modules](https://github.com/golang/go/wiki/Modules). It provides a way to
 define and lock dependencies for reproducible builds. It should be used
 whenever possible.
 
+When Go Modules are in use, there should not be a `vendor/` directory. Instead,
+Go will automatically download dependencies when they are needed to build the
+project. This is in line with how dependencies are handled with Bundler in Ruby
+projects, and makes merge requests easier to review.
+
+In some cases, such as building a Go project for it to act as a dependency of a
+CI run for another project, removing the `vendor/` directory means the code must
+be downloaded repeatedly, which can lead to intermittent problems due to rate
+limiting or network failures. In these circumstances, you should cache the
+downloaded code between runs with a `.gitlab-ci.yml` snippet like this:
+
+```yaml
+.go-cache:
+  variables:
+    GOPATH: $CI_PROJECT_DIR/.go
+  before_script:
+    - mkdir -p .go
+  cache:
+    paths:
+      - .go/pkg/mod/
+
+test:
+  extends: .go-cache
+  # ...
+```
+
 There was a [bug on modules
 checksums](https://github.com/golang/go/issues/29278) in Go < v1.11.4, so make
 sure to use at least this version to avoid `checksum mismatch` errors.
@@ -172,6 +198,45 @@ func Test(t *testing.T) {
     })
 }
 ```
+
+### Table-Driven Tests
+
+Using [Table-Driven Tests](https://github.com/golang/go/wiki/TableDrivenTests)
+is generally good practice when you have multiple entries of
+inputs/outputs for the same function. Below are some guidelines one can
+follow when writing table-driven test. These guidelines are mostly
+extracted from Go standard library source code. Keep in mind it's OK not
+to follow these guidelines when it makes sense.
+
+#### Defining test cases
+
+Each table entry is a complete test case with inputs and expected
+results, and sometimes with additional information such as a test name
+to make the test output easily readable.
+
+- [Define a slice of anonymous struct](https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/encoding/csv/reader_test.go#L16)
+  inside of the test.
+- [Define a slice of anonymous struct](https://github.com/golang/go/blob/55d31e16c12c38d36811bdee65ac1f7772148250/src/cmd/go/internal/module/module_test.go#L9-L66)
+  outside of the test.
+- [Named structs](https://github.com/golang/go/blob/2e0cd2aef5924e48e1ceb74e3d52e76c56dd34cc/src/cmd/go/internal/modfetch/coderepo_test.go#L54-L69)
+  for code reuse.
+- [Using `map[string]struct{}`](https://github.com/golang/go/blob/6d5caf38e37bf9aeba3291f1f0b0081f934b1187/src/cmd/trace/annotations_test.go#L180-L235).
+
+#### Contents of the test case
+
+- Ideally, each test case should have a field with a unique identifier
+  to use for naming subtests. In the Go standard library, this is commonly the
+  `name string` field.
+- Use `want`/`expect`/`actual` when you are specifcing something in the
+  test case that will be used for assertion.
+
+#### Variable names
+
+- Each table-driven test map/slice of struct can be named `tests`.
+- When looping through `tests` the anonymous struct can be referred
+  to as `tt` or `tc`.
+- The description of the test can be referred to as
+  `name`/`testName`/`tn`.
 
 ### Benchmarks
 

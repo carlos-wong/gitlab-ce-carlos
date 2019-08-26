@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::Ci::Trace::ChunkedIO, :clean_gitlab_redis_cache do
@@ -312,7 +314,7 @@ describe Gitlab::Ci::Trace::ChunkedIO, :clean_gitlab_redis_cache do
     end
 
     context 'when utf-8 is being used' do
-      let(:sample_trace_raw) { sample_trace_raw_utf8.force_encoding(Encoding::BINARY) }
+      let(:sample_trace_raw) { sample_trace_raw_utf8.dup.force_encoding(Encoding::BINARY) }
       let(:sample_trace_raw_utf8) { "😺\n😺\n😺\n😺" }
 
       before do
@@ -441,6 +443,16 @@ describe Gitlab::Ci::Trace::ChunkedIO, :clean_gitlab_redis_cache do
         .from(sample_trace_raw.bytesize).to(0)
 
       expect(Ci::BuildTraceChunk.where(build: build).count).to eq(0)
+    end
+
+    context 'when the job does not have archived trace' do
+      it 'leaves a message in sidekiq log' do
+        expect(Sidekiq.logger).to receive(:warn).with(
+          message: 'The job does not have archived trace but going to be destroyed.',
+          job_id: build.id).and_call_original
+
+        subject
+      end
     end
   end
 end

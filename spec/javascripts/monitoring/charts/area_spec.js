@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
+import { createStore } from '~/monitoring/stores';
 import { GlLink } from '@gitlab/ui';
 import { GlAreaChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import { shallowWrapperContainsSlotText } from 'spec/helpers/vue_test_utils_helper';
 import Area from '~/monitoring/components/charts/area.vue';
-import { createStore } from '~/monitoring/stores';
 import * as types from '~/monitoring/stores/mutation_types';
 import { TEST_HOST } from 'spec/test_constants';
 import MonitoringMock, { deploymentData } from '../mock_data';
@@ -17,10 +17,10 @@ describe('Area component', () => {
   let mockGraphData;
   let areaChart;
   let spriteSpy;
+  let store;
 
   beforeEach(() => {
-    const store = createStore();
-
+    store = createStore();
     store.commit(`monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`, MonitoringMock.data);
     store.commit(`monitoringDashboard/${types.RECEIVE_DEPLOYMENTS_DATA_SUCCESS}`, deploymentData);
 
@@ -36,6 +36,7 @@ describe('Area component', () => {
       slots: {
         default: mockWidgets,
       },
+      store,
     });
 
     spriteSpy = spyOnDependency(Area, 'getSvgIconPathContent').and.callFake(

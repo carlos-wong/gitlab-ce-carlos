@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User visits the notifications tab', :js do
@@ -17,5 +19,13 @@ describe 'User visits the notifications tab', :js do
     click_link('On mention')
 
     expect(page).to have_selector('#notifications-button', text: 'On mention')
+  end
+
+  context 'when project emails are disabled' do
+    let(:project) { create(:project, emails_disabled: true) }
+
+    it 'notification button is disabled' do
+      expect(page).to have_selector('.notifications-btn.disabled', visible: true)
+    end
   end
 end

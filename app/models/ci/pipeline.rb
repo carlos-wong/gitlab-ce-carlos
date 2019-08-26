@@ -229,15 +229,15 @@ module Ci
     #
     # ref - The name (or names) of the branch(es)/tag(s) to limit the list of
     #       pipelines to.
+    # sha - The commit SHA (or mutliple SHAs) to limit the list of pipelines to.
     # limit - This limits a backlog search, default to 100.
-    def self.newest_first(ref: nil, limit: 100)
+    def self.newest_first(ref: nil, sha: nil, limit: 100)
       relation = order(id: :desc)
       relation = relation.where(ref: ref) if ref
+      relation = relation.where(sha: sha) if sha
 
       if limit
         ids = relation.limit(limit).select(:id)
-        # MySQL does not support limit in subquery
-        ids = ids.pluck(:id) if Gitlab::Database.mysql?
         relation = relation.where(id: ids)
       end
 
@@ -248,8 +248,12 @@ module Ci
       newest_first(ref: ref).pluck(:status).first
     end
 
-    def self.latest_successful_for(ref)
+    def self.latest_successful_for_ref(ref)
       newest_first(ref: ref).success.take
+    end
+
+    def self.latest_successful_for_sha(sha)
+      newest_first(sha: sha).success.take
     end
 
     def self.latest_successful_for_refs(refs)
@@ -322,6 +326,10 @@ module Ci
 
     def self.ci_sources_values
       config_sources.values_at(:repository_source, :auto_devops_source, :unknown_source)
+    end
+
+    def self.bridgeable_statuses
+      ::Ci::Pipeline::AVAILABLE_STATUSES - %w[created preparing pending]
     end
 
     def stages_count
@@ -500,8 +508,9 @@ module Ci
       return [] unless config_processor
 
       strong_memoize(:stage_seeds) do
-        seeds = config_processor.stages_attributes.map do |attributes|
-          Gitlab::Ci::Pipeline::Seed::Stage.new(self, attributes)
+        seeds = config_processor.stages_attributes.inject([]) do |previous_stages, attributes|
+          seed = Gitlab::Ci::Pipeline::Seed::Stage.new(self, attributes, previous_stages)
+          previous_stages + [seed]
         end
 
         seeds.select(&:included?)
@@ -607,8 +616,8 @@ module Ci
     end
 
     # rubocop: disable CodeReuse/ServiceClass
-    def process!
-      Ci::ProcessPipelineService.new(project, user).execute(self)
+    def process!(trigger_build_ids = nil)
+      Ci::ProcessPipelineService.new(project, user).execute(self, trigger_build_ids)
     end
     # rubocop: enable CodeReuse/ServiceClass
 

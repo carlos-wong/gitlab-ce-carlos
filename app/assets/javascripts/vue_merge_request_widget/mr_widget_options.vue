@@ -40,6 +40,8 @@ import { setFaviconOverlay } from '../lib/utils/common_utils';
 
 export default {
   el: '#js-vue-mr-widget',
+  // False positive i18n lint: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/25
+  // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
   name: 'MRWidget',
   components: {
     'mr-widget-header': WidgetHeader,
@@ -164,6 +166,7 @@ export default {
         ciEnvironmentsStatusPath: store.ciEnvironmentsStatusPath,
         mergeRequestBasicPath: store.mergeRequestBasicPath,
         mergeRequestWidgetPath: store.mergeRequestWidgetPath,
+        mergeRequestCachedWidgetPath: store.mergeRequestCachedWidgetPath,
         mergeActionsContentPath: store.mergeActionsContentPath,
         rebasePath: store.rebasePath,
       };
@@ -174,8 +177,7 @@ export default {
     checkStatus(cb, isRebased) {
       return this.service
         .checkStatus()
-        .then(res => res.data)
-        .then(data => {
+        .then(({ data }) => {
           this.handleNotification(data);
           this.mr.setData(data, isRebased);
           this.setFaviconHelper();

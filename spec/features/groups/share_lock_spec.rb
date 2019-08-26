@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Group share with group lock' do
@@ -9,7 +11,7 @@ describe 'Group share with group lock' do
     sign_in(root_owner)
   end
 
-  context 'with a subgroup', :nested_groups do
+  context 'with a subgroup' do
     let!(:subgroup) { create(:group, parent: root_group) }
 
     context 'when enabling the parent group share with group lock' do

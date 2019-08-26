@@ -6,8 +6,9 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
   let(:project) { create(:project, :repository) }
   let(:pipeline) { create(:ci_empty_pipeline, project: project) }
   let(:attributes) { { name: 'rspec', ref: 'master' } }
+  let(:previous_stages) { [] }
 
-  let(:seed_build) { described_class.new(pipeline, attributes) }
+  let(:seed_build) { described_class.new(pipeline, attributes, previous_stages) }
 
   describe '#attributes' do
     subject { seed_build.attributes }
@@ -19,20 +20,36 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
   describe '#bridge?' do
     subject { seed_build.bridge? }
 
-    context 'when job is a bridge' do
+    context 'when job is a downstream bridge' do
       let(:attributes) do
         { name: 'rspec', ref: 'master', options: { trigger: 'my/project' } }
       end
 
       it { is_expected.to be_truthy }
+
+      context 'when trigger definition is empty' do
+        let(:attributes) do
+          { name: 'rspec', ref: 'master', options: { trigger: '' } }
+        end
+
+        it { is_expected.to be_falsey }
+      end
     end
 
-    context 'when trigger definition is empty' do
+    context 'when job is an upstream bridge' do
       let(:attributes) do
-        { name: 'rspec', ref: 'master', options: { trigger: '' } }
+        { name: 'rspec', ref: 'master', options: { bridge_needs: { pipeline: 'my/project' } } }
       end
 
-      it { is_expected.to be_falsey }
+      it { is_expected.to be_truthy }
+
+      context 'when upstream definition is empty' do
+        let(:attributes) do
+          { name: 'rspec', ref: 'master', options: { bridge_needs: { pipeline: '' } } }
+        end
+
+        it { is_expected.to be_falsey }
+      end
     end
 
     context 'when job is not a bridge' do
@@ -378,6 +395,84 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
         end
 
         it { is_expected.not_to be_included }
+      end
+    end
+  end
+
+  describe 'applying needs: dependency' do
+    subject { seed_build }
+
+    let(:needs_count) { 1 }
+
+    let(:needs_attributes) do
+      Array.new(needs_count, name: 'build')
+    end
+
+    let(:attributes) do
+      {
+        name: 'rspec',
+        needs_attributes: needs_attributes
+      }
+    end
+
+    context 'when build job is not present in prior stages' do
+      it "is included" do
+        is_expected.to be_included
+      end
+
+      it "returns an error" do
+        expect(subject.errors).to contain_exactly(
+          "rspec: needs 'build'")
+      end
+    end
+
+    context 'when build job is part of prior stages' do
+      let(:stage_attributes) do
+        {
+          name: 'build',
+          index: 0,
+          builds: [{ name: 'build' }]
+        }
+      end
+
+      let(:stage_seed) do
+        Gitlab::Ci::Pipeline::Seed::Stage.new(pipeline, stage_attributes, [])
+      end
+
+      let(:previous_stages) { [stage_seed] }
+
+      it "is included" do
+        is_expected.to be_included
+      end
+
+      it "does not have errors" do
+        expect(subject.errors).to be_empty
+      end
+    end
+
+    context 'when lower limit of needs is reached' do
+      before do
+        stub_feature_flags(ci_dag_limit_needs: true)
+      end
+
+      let(:needs_count) { described_class::LOW_NEEDS_LIMIT + 1 }
+
+      it "returns an error" do
+        expect(subject.errors).to contain_exactly(
+          "rspec: one job can only need 5 others, but you have listed 6. See needs keyword documentation for more details")
+      end
+    end
+
+    context 'when upper limit of needs is reached' do
+      before do
+        stub_feature_flags(ci_dag_limit_needs: false)
+      end
+
+      let(:needs_count) { described_class::HARD_NEEDS_LIMIT + 1 }
+
+      it "returns an error" do
+        expect(subject.errors).to contain_exactly(
+          "rspec: one job can only need 50 others, but you have listed 51. See needs keyword documentation for more details")
       end
     end
   end

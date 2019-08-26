@@ -1,11 +1,13 @@
 import Vue from 'vue';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { GlToast } from '@gitlab/ui';
 import MockAdapter from 'axios-mock-adapter';
 import Dashboard from '~/monitoring/components/dashboard.vue';
 import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
 import * as types from '~/monitoring/stores/mutation_types';
 import { createStore } from '~/monitoring/stores';
 import axios from '~/lib/utils/axios_utils';
-import {
+import MonitoringMock, {
   metricsGroupsAPIResponse,
   mockApiEndpoint,
   environmentData,
@@ -13,6 +15,7 @@ import {
   dashboardGitResponse,
 } from './mock_data';
 
+const localVue = createLocalVue();
 const propsData = {
   hasMetrics: false,
   documentationPath: '/path/to/docs',
@@ -40,6 +43,7 @@ describe('Dashboard', () => {
   let mock;
   let store;
   let component;
+  let mockGraphData;
 
   beforeEach(() => {
     setFixtures(`
@@ -58,7 +62,9 @@ describe('Dashboard', () => {
   });
 
   afterEach(() => {
-    component.$destroy();
+    if (component) {
+      component.$destroy();
+    }
     mock.restore();
   });
 
@@ -307,7 +313,7 @@ describe('Dashboard', () => {
       });
 
       spyOn(component.$store, 'dispatch').and.stub();
-      const getTimeDiffSpy = spyOnDependency(Dashboard, 'getTimeDiff');
+      const getTimeDiffSpy = spyOnDependency(Dashboard, 'getTimeDiff').and.callThrough();
 
       component.$store.commit(
         `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
@@ -319,7 +325,7 @@ describe('Dashboard', () => {
       Vue.nextTick()
         .then(() => {
           expect(component.$store.dispatch).toHaveBeenCalled();
-          expect(getTimeDiffSpy).toHaveBeenCalledWith(component.selectedTimeWindow);
+          expect(getTimeDiffSpy).toHaveBeenCalled();
 
           done();
         })
@@ -327,7 +333,17 @@ describe('Dashboard', () => {
     });
 
     it('shows a specific time window selected from the url params', done => {
-      spyOnDependency(Dashboard, 'getParameterValues').and.returnValue(['thirtyMinutes']);
+      const start = 1564439536;
+      const end = 1564441336;
+      spyOnDependency(Dashboard, 'getTimeDiff').and.returnValue({
+        start,
+        end,
+      });
+      spyOnDependency(Dashboard, 'getParameterValues').and.callFake(param => {
+        if (param === 'start') return [start];
+        if (param === 'end') return [end];
+        return [];
+      });
 
       component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
@@ -359,6 +375,71 @@ describe('Dashboard', () => {
 
         done();
       });
+    });
+  });
+
+  describe('link to chart', () => {
+    let wrapper;
+    const currentDashboard = 'TEST_DASHBOARD';
+    localVue.use(GlToast);
+    const link = () => wrapper.find('.js-chart-link');
+    const clipboardText = () => link().element.dataset.clipboardText;
+
+    beforeEach(done => {
+      mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
+
+      wrapper = shallowMount(DashboardComponent, {
+        localVue,
+        sync: false,
+        attachToDocument: true,
+        propsData: { ...propsData, hasMetrics: true, currentDashboard },
+        store,
+      });
+
+      setTimeout(done);
+    });
+
+    afterEach(() => {
+      wrapper.destroy();
+    });
+
+    it('adds a copy button to the dropdown', () => {
+      expect(link().text()).toContain('Generate link to chart');
+    });
+
+    it('contains a link to the dashboard', () => {
+      expect(clipboardText()).toContain(`dashboard=${currentDashboard}`);
+      expect(clipboardText()).toContain(`group=`);
+      expect(clipboardText()).toContain(`title=`);
+      expect(clipboardText()).toContain(`y_label=`);
+    });
+
+    it('undefined parameter is stripped', done => {
+      wrapper.setProps({ currentDashboard: undefined });
+
+      wrapper.vm.$nextTick(() => {
+        expect(clipboardText()).not.toContain(`dashboard=`);
+        expect(clipboardText()).toContain(`y_label=`);
+        done();
+      });
+    });
+
+    it('null parameter is stripped', done => {
+      wrapper.setProps({ currentDashboard: null });
+
+      wrapper.vm.$nextTick(() => {
+        expect(clipboardText()).not.toContain(`dashboard=`);
+        expect(clipboardText()).toContain(`y_label=`);
+        done();
+      });
+    });
+
+    it('creates a toast when clicked', () => {
+      spyOn(wrapper.vm.$toast, 'show').and.stub();
+
+      link().vm.$emit('click');
+
+      expect(wrapper.vm.$toast.show).toHaveBeenCalled();
     });
   });
 
@@ -469,6 +550,38 @@ describe('Dashboard', () => {
 
         expect(dashboardDropdown).not.toEqual(null);
         done();
+      });
+    });
+  });
+
+  describe('when downloading metrics data as CSV', () => {
+    beforeEach(() => {
+      component = new DashboardComponent({
+        propsData: {
+          ...propsData,
+        },
+        store,
+      });
+      store.commit(
+        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        MonitoringMock.data,
+      );
+      [mockGraphData] = component.$store.state.monitoringDashboard.groups[0].metrics;
+    });
+
+    describe('csvText', () => {
+      it('converts metrics data from json to csv', () => {
+        const header = `timestamp,${mockGraphData.y_label}`;
+        const data = mockGraphData.queries[0].result[0].values;
+        const firstRow = `${data[0][0]},${data[0][1]}`;
+
+        expect(component.csvText(mockGraphData)).toMatch(`^${header}\r\n${firstRow}`);
+      });
+    });
+
+    describe('downloadCsv', () => {
+      it('produces a link with a Blob', () => {
+        expect(component.downloadCsv(mockGraphData)).toContain(`blob:`);
       });
     });
   });

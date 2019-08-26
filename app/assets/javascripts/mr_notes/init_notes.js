@@ -3,6 +3,7 @@ import Vue from 'vue';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import store from 'ee_else_ce/mr_notes/stores';
 import notesApp from '../notes/components/notes_app.vue';
+import discussionKeyboardNavigator from '../notes/components/discussion_keyboard_navigator.vue';
 
 export default () => {
   // eslint-disable-next-line no-new
@@ -56,15 +57,23 @@ export default () => {
       },
     },
     render(createElement) {
-      return createElement('notes-app', {
-        props: {
-          noteableData: this.noteableData,
-          notesData: this.notesData,
-          userData: this.currentUserData,
-          shouldShow: this.activeTab === 'show',
-          helpPagePath: this.helpPagePath,
-        },
-      });
+      const isDiffView = this.activeTab === 'diffs';
+
+      // NOTE: Even though `discussionKeyboardNavigator` is added to the `notes-app`,
+      // it adds a global key listener so it works on the diffs tab as well.
+      // If we create a single Vue app for all of the MR tabs, we should move this
+      // up the tree, to the root.
+      return createElement(discussionKeyboardNavigator, { props: { isDiffView } }, [
+        createElement('notes-app', {
+          props: {
+            noteableData: this.noteableData,
+            notesData: this.notesData,
+            userData: this.currentUserData,
+            shouldShow: this.activeTab === 'show',
+            helpPagePath: this.helpPagePath,
+          },
+        }),
+      ]);
     },
   });
 };

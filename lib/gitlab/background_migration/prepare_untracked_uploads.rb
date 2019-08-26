@@ -55,7 +55,7 @@ module Gitlab
       def ensure_temporary_tracking_table_exists
         table_name = :untracked_files_for_uploads
 
-        unless ActiveRecord::Base.connection.data_source_exists?(table_name)
+        unless ActiveRecord::Base.connection.table_exists?(table_name)
           UntrackedFile.connection.create_table table_name do |t|
             t.string :path, limit: 600, null: false
             t.index :path, unique: true
@@ -133,12 +133,9 @@ module Gitlab
       def insert_sql(file_paths)
         if postgresql_pre_9_5?
           "INSERT INTO #{table_columns_and_values_for_insert(file_paths)};"
-        elsif postgresql?
+        else
           "INSERT INTO #{table_columns_and_values_for_insert(file_paths)}"\
             " ON CONFLICT DO NOTHING;"
-        else # MySQL
-          "INSERT IGNORE INTO"\
-            " #{table_columns_and_values_for_insert(file_paths)};"
         end
       end
 
@@ -150,19 +147,13 @@ module Gitlab
         "#{UntrackedFile.table_name} (path) VALUES #{values}"
       end
 
-      def postgresql?
-        strong_memoize(:postgresql) do
-          Gitlab::Database.postgresql?
-        end
-      end
-
       def can_bulk_insert_and_ignore_duplicates?
         !postgresql_pre_9_5?
       end
 
       def postgresql_pre_9_5?
         strong_memoize(:postgresql_pre_9_5) do
-          postgresql? && Gitlab::Database.version.to_f < 9.5
+          Gitlab::Database.version.to_f < 9.5
         end
       end
 

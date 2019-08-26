@@ -42,6 +42,10 @@ describe Gitlab::ImportExport::ProjectTreeSaver do
         expect(saved_project_json).to include({ 'description' => 'description', 'visibility_level' => 20 })
       end
 
+      it 'has approvals_before_merge set' do
+        expect(saved_project_json['approvals_before_merge']).to eq(1)
+      end
+
       it 'has milestones' do
         expect(saved_project_json['milestones']).not_to be_empty
       end
@@ -175,9 +179,9 @@ describe Gitlab::ImportExport::ProjectTreeSaver do
       end
 
       it 'has priorities associated to labels' do
-        priorities = saved_project_json['issues'].first['label_links'].map { |link| link['label']['priorities'] }
+        priorities = saved_project_json['issues'].first['label_links'].flat_map { |link| link['label']['priorities'] }
 
-        expect(priorities.flatten).not_to be_empty
+        expect(priorities).not_to be_empty
       end
 
       it 'has issue resource label events' do
@@ -268,6 +272,10 @@ describe Gitlab::ImportExport::ProjectTreeSaver do
           expect(saved_project_json).not_to include("runners_token" => 'token')
         end
       end
+
+      it 'has a board and a list' do
+        expect(saved_project_json['boards'].first['lists']).not_to be_empty
+      end
     end
   end
 
@@ -287,7 +295,8 @@ describe Gitlab::ImportExport::ProjectTreeSaver do
                      issues: [issue],
                      snippets: [snippet],
                      releases: [release],
-                     group: group
+                     group: group,
+                     approvals_before_merge: 1
                     )
     project_label = create(:label, project: project)
     group_label = create(:group_label, group: group)
@@ -321,6 +330,9 @@ describe Gitlab::ImportExport::ProjectTreeSaver do
 
     create(:project_badge, project: project)
     create(:project_badge, project: project)
+
+    board = create(:board, project: project, name: 'TestBoard')
+    create(:list, board: board, position: 0, label: project_label)
 
     project
   end

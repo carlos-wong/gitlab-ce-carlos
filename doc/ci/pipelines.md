@@ -6,6 +6,11 @@ type: reference
 
 > Introduced in GitLab 8.8.
 
+NOTE: **Tip:**
+Watch our
+["Mastering continuous software development"](https://about.gitlab.com/webcast/mastering-ci-cd/)
+webcast to see a comprehensive demo of GitLab CI/CD pipeline.
+
 ## Introduction
 
 Pipelines are the top-level component of continuous integration, delivery, and deployment.
@@ -318,6 +323,20 @@ stage has a job with a manual action.
 
 ![Pipelines example](img/pipelines.png)
 
+### Specifying variables when running manual jobs
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/30485) in GitLab 12.2.
+
+When running manual jobs you can supply additional job specific variables.
+
+You can do this from the job page of the manual job you want to run with
+additional variables.
+
+This is useful when you want to alter the execution of a job by using
+environment variables.
+
+![Manual job variables](img/manual_job_variables.png)
+
 ### Delay a job in a pipeline graph
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/21767) in GitLab 11.4.
@@ -345,7 +364,7 @@ GitLab provides API endpoints to:
   - [Triggering pipelines through the API](triggers/README.md).
   - [Pipeline triggers API](../api/pipeline_triggers.md).
 
-### Start multiple manual actions in a stage
+### Start multiple manual actions in a stage
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27188) in GitLab 11.11.
 

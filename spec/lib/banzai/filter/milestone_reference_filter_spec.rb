@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Banzai::Filter::MilestoneReferenceFilter do
@@ -363,7 +365,7 @@ describe Banzai::Filter::MilestoneReferenceFilter do
       expect(doc.css('a')).to be_empty
     end
 
-    it 'supports parent group references', :nested_groups do
+    it 'supports parent group references' do
       milestone.update!(group: parent_group)
 
       doc = reference_filter("See #{reference}")
@@ -396,7 +398,7 @@ describe Banzai::Filter::MilestoneReferenceFilter do
     context 'when group milestone' do
       let(:group_milestone) { create(:milestone, title: 'group_milestone', group: group) }
 
-      context 'for subgroups', :nested_groups do
+      context 'for subgroups' do
         let(:sub_group) { create(:group, parent: group) }
         let(:sub_group_milestone) { create(:milestone, title: 'sub_group_milestone', group: sub_group) }
 

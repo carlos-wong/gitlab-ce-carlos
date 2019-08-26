@@ -40,7 +40,7 @@ Please consider using a virtual machine to run GitLab.
 
 ## Ruby versions
 
-GitLab requires Ruby (MRI) 2.5. Support for Ruby versions below 2.5 (2.3, 2.4) will stop with GitLab 11.6.
+GitLab requires Ruby (MRI) 2.6. Support for Ruby versions below 2.6 (2.4, 2.5) will stop with GitLab 12.2.
 
 You will have to use the standard MRI implementation of Ruby.
 We love [JRuby](https://www.jruby.org/) and [Rubinius](https://rubinius.com) but GitLab
@@ -62,16 +62,18 @@ NOTE: **Note:** Since file system performance may affect GitLab's overall perfor
 
 ### CPU
 
+This is the recommended minimum hardware for a handful of example GitLab user base sizes. Your exact needs may be more, depending on your workload. Your workload is influenced by factors such as - but not limited to - how active your users are, how much automation you use, mirroring, and repo/change size.
+
 - 1 core supports up to 100 users but the application can be a bit slower due to having all workers and background jobs running on the same core
-- **2 cores** is the **recommended** number of cores and supports up to 500 users
-- 4 cores supports up to 2,000 users
-- 8 cores supports up to 5,000 users
-- 16 cores supports up to 10,000 users
-- 32 cores supports up to 20,000 users
-- 64 cores supports up to 40,000 users
-- More users? Run it on [multiple application servers](https://about.gitlab.com/high-availability/)
+- **2 cores** is the **recommended** minimum number of cores and supports up to 100 users
+- 4 cores supports up to 500 users
+- 8 cores supports up to 1,000 users
+- 32 cores supports up to 5,000 users
+- More users? Run it high-availability on [multiple application servers](https://about.gitlab.com/high-availability/)
 
 ### Memory
+
+This is the recommended minimum hardware for a handful of example GitLab user base sizes. Your exact needs may be more, depending on your workload. Your workload is influenced by factors such as - but not limited to - how active your users are, how much automation you use, mirroring, and repo/change size.
 
 You need at least 8GB of addressable memory (RAM + swap) to install and use GitLab!
 The operating system and any other running applications will also be using memory
@@ -80,19 +82,19 @@ less memory GitLab will give strange errors during the reconfigure run and 500
 errors during usage.
 
 - 4GB RAM + 4GB swap supports up to 100 users but it will be very slow
-- **8GB RAM** is the **recommended** memory size for all installations and supports up to 100 users
-- 16GB RAM supports up to 2,000 users
-- 32GB RAM supports up to 4,000 users
-- 64GB RAM supports up to 8,000 users
-- 128GB RAM supports up to 16,000 users
-- 256GB RAM supports up to 32,000 users
-- More users? Run it on [multiple application servers](https://about.gitlab.com/high-availability/)
+- **8GB RAM** is the **recommended** minimum memory size for all installations and supports up to 100 users
+- 16GB RAM supports up to 500 users
+- 32GB RAM supports up to 1,000 users
+- 128GB RAM supports up to 5,000 users
+- More users? Run it high-availability on [multiple application servers](https://about.gitlab.com/high-availability/)
 
 We recommend having at least [2GB of swap on your server](https://askubuntu.com/a/505344/310789), even if you currently have
 enough available RAM. Having swap will help reduce the chance of errors occurring
 if your available memory changes. We also recommend [configuring the kernel's swappiness setting](https://askubuntu.com/a/103916)
 to a low value like `10` to make the most of your RAM while still having the swap
 available when needed.
+
+Our [Memory Team](https://about.gitlab.com/handbook/engineering/development/enablement/memory/) is actively working to reduce the memory requirement.
 
 NOTE: **Note:** The 25 workers of Sidekiq will show up as separate processes in your process overview (such as `top` or `htop`) but they share the same RAM allocation since Sidekiq is a multithreaded application. Please see the section below about Unicorn workers for information about how many you need of those.
 
@@ -146,8 +148,8 @@ CREATE EXTENSION postgres_fdw;
 
 ## Unicorn Workers
 
-For most instances we recommend using: CPU cores + 1 = unicorn workers.
-So for a machine with 2 cores, 3 unicorn workers is ideal.
+For most instances we recommend using: (CPU cores * 1.5) + 1 = unicorn workers.
+For example a node with 4 cores would have 7 unicorn workers.
 
 For all machines that have 2GB and up we recommend a minimum of three unicorn workers.
 If you have a 1GB machine we recommend to configure only two Unicorn workers to prevent excessive swapping.

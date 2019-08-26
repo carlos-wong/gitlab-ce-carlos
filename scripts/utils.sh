@@ -29,6 +29,8 @@ function setup_db() {
     if [ "$GITLAB_DATABASE" = "mysql" ]; then
         bundle exec rake add_limits_mysql
     fi
+
+    bundle exec rake gitlab:db:setup_ee
 }
 
 function install_api_client_dependencies_with_apk() {

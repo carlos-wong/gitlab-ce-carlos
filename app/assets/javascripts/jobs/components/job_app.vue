@@ -45,6 +45,11 @@ export default {
       required: false,
       default: null,
     },
+    variablesSettingsUrl: {
+      type: String,
+      required: false,
+      default: null,
+    },
     runnerHelpUrl: {
       type: String,
       required: false,
@@ -65,6 +70,10 @@ export default {
       default: null,
     },
     pagePath: {
+      type: String,
+      required: true,
+    },
+    projectPath: {
       type: String,
       required: true,
     },
@@ -253,6 +262,7 @@ export default {
           :quota-used="job.runners.quota.used"
           :quota-limit="job.runners.quota.limit"
           :runners-path="runnerHelpUrl"
+          :project-path="projectPath"
         />
 
         <environments-block
@@ -313,6 +323,9 @@ export default {
           :title="emptyStateTitle"
           :content="emptyStateIllustration.content"
           :action="emptyStateAction"
+          :playable="job.playable"
+          :scheduled="job.scheduled"
+          :variables-settings-url="variablesSettingsUrl"
         />
         <!-- EO empty state -->
 

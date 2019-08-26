@@ -2,7 +2,7 @@
 description: 'Learn how to install, configure, update, and maintain your GitLab instance.'
 ---
 
-# Administrator documentation **(CORE ONLY)**
+# Administrator Docs **(CORE ONLY)**
 
 Learn how to administer your self-managed GitLab instance.
 
@@ -185,3 +185,13 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Debugging tips](troubleshooting/debug.md): Tips to debug problems when things go wrong
 - [Log system](logs.md): Where to look for logs.
 - [Sidekiq Troubleshooting](troubleshooting/sidekiq.md): Debug when Sidekiq appears hung and is not processing jobs.
+- Useful [diagnostics tools](troubleshooting/diagnostics_tools.md) that are sometimes used by the GitLab
+  Support team.
+- [Troubleshooting ElasticSearch](troubleshooting/elasticsearch.md): Tips to troubleshoot ElasticSearch.
+- [Kubernetes troubleshooting](troubleshooting/kubernetes_cheat_sheet.md): Commands and tips useful
+  for troubleshooting Kubernetes-related issues.
+- Useful links from the Support Team:
+  - [GitLab Developer Docs](https://docs.gitlab.com/ee/development/README.html).
+  - [Repairing and recovering broken git repositories](https://git.seveas.net/repairing-and-recovering-broken-git-repositories.html).
+  - [Testing with OpenSSL](https://www.feistyduck.com/library/openssl-cookbook/online/ch-testing-with-openssl.html).
+  - [Strace zine](https://wizardzines.com/zines/strace/).

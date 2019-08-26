@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe "Projects > Settings > Pipelines settings" do
@@ -126,7 +128,7 @@ describe "Projects > Settings > Pipelines settings" do
           end
         end
 
-        context 'when auto devops is turned on group parent level', :nested_groups do
+        context 'when auto devops is turned on group parent level' do
           before do
             group = create(:group, parent: create(:group, :auto_devops_enabled))
             project.update!(namespace: group)

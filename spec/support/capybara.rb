@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rubocop:disable Style/GlobalVars
 require 'capybara/rails'
 require 'capybara/rspec'
@@ -58,6 +60,7 @@ Capybara.javascript_driver = :chrome
 Capybara.default_max_wait_time = timeout
 Capybara.ignore_hidden_elements = true
 Capybara.default_normalize_ws = true
+Capybara.enable_aria_label = true
 
 # Keep only the screenshots generated from the last failing test suite
 Capybara::Screenshot.prune_strategy = :keep_last_run

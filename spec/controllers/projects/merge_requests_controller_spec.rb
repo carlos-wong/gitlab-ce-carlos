@@ -975,10 +975,9 @@ describe Projects::MergeRequestsController do
         environment2 = create(:environment, project: forked)
         create(:deployment, :succeed, environment: environment2, sha: sha, ref: 'master', deployable: build)
 
-        # TODO address the last 11 queries
+        # TODO address the last 5 queries
         # See https://gitlab.com/gitlab-org/gitlab-ce/issues/63952 (5 queries)
-        # And https://gitlab.com/gitlab-org/gitlab-ce/issues/64105 (6 queries)
-        leeway = 11
+        leeway = 5
         expect { get_ci_environments_status }.not_to exceed_all_query_limit(control_count + leeway)
       end
     end
@@ -1209,6 +1208,22 @@ describe Projects::MergeRequestsController do
             get :discussions, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
           end
         end
+      end
+    end
+
+    context do
+      it_behaves_like 'discussions provider' do
+        let!(:author) { create(:user) }
+        let!(:project) { create(:project) }
+
+        let!(:merge_request) { create(:merge_request, source_project: project) }
+
+        let!(:mr_note1) { create(:discussion_note_on_merge_request, noteable: merge_request, project: project) }
+        let!(:mr_note2) { create(:discussion_note_on_merge_request, noteable: merge_request, project: project) }
+
+        let(:requested_iid) { merge_request.iid }
+        let(:expected_discussion_count) { 2 }
+        let(:expected_discussion_ids) { [mr_note1.discussion_id, mr_note2.discussion_id] }
       end
     end
   end

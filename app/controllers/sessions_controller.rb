@@ -13,19 +13,29 @@ class SessionsController < Devise::SessionsController
 
   prepend_before_action :check_initial_setup, only: [:new]
   prepend_before_action :authenticate_with_two_factor,
-    if: :two_factor_enabled?, only: [:create]
+    if: -> { action_name == 'create' && two_factor_enabled? }
   prepend_before_action :check_captcha, only: [:create]
   prepend_before_action :store_redirect_uri, only: [:new]
   prepend_before_action :ldap_servers, only: [:new, :create]
   prepend_before_action :require_no_authentication_without_flash, only: [:new, :create]
-  prepend_before_action :ensure_password_authentication_enabled!, if: :password_based_login?, only: [:create]
+  prepend_before_action :ensure_password_authentication_enabled!, if: -> { action_name == 'create' && password_based_login? }
 
   before_action :auto_sign_in_with_provider, only: [:new]
   before_action :load_recaptcha
 
-  after_action :log_failed_login, only: [:new], if: :failed_login?
-
+  after_action :log_failed_login, if: -> { action_name == 'new' && failed_login? }
   helper_method :captcha_enabled?
+
+  # protect_from_forgery is already prepended in ApplicationController but
+  # authenticate_with_two_factor which signs in the user is prepended before
+  # that here.
+  # We need to make sure CSRF token is verified before authenticating the user
+  # because Devise.clean_up_csrf_token_on_authentication is set to true by
+  # default to avoid CSRF token fixation attacks. Authenticating the user first
+  # would cause the CSRF token to be cleared and then
+  # RequestForgeryProtection#verify_authenticity_token would fail because of
+  # token mismatch.
+  protect_from_forgery with: :exception, prepend: true
 
   CAPTCHA_HEADER = 'X-GitLab-Show-Login-Captcha'.freeze
 

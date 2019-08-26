@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Projects > Settings > User transfers a project', :js do
@@ -68,7 +70,7 @@ describe 'Projects > Settings > User transfers a project', :js do
     end
   end
 
-  context 'when nested groups are available', :nested_groups do
+  context 'when nested groups are available' do
     it 'allows transferring a project to a subgroup' do
       subgroup = create(:group, parent: group)
 

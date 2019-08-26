@@ -21,6 +21,9 @@ module Gitlab
       lib/gitlab/profiler.rb
       lib/gitlab/correlation_id.rb
       lib/gitlab/webpack/dev_server_middleware.rb
+      lib/gitlab/sidekiq_status/
+      lib/gitlab/sidekiq_logging/
+      lib/gitlab/sidekiq_middleware/
     ].freeze
 
     # Takes a URL to profile (can be a fully-qualified URL, or an absolute path)
@@ -166,7 +169,7 @@ module Gitlab
         [model, times.count, times.sum]
       end
 
-      summarised_load_times.sort_by(&:last).reverse.each do |(model, query_count, time)|
+      summarised_load_times.sort_by(&:last).reverse_each do |(model, query_count, time)|
         logger.info("#{model} total (#{query_count}): #{time.round(2)}ms")
       end
     end

@@ -282,6 +282,17 @@ class User < ApplicationRecord
   scope :for_todos, -> (todos) { where(id: todos.select(:user_id)) }
   scope :with_emails, -> { preload(:emails) }
   scope :with_dashboard, -> (dashboard) { where(dashboard: dashboard) }
+  scope :with_public_profile, -> { where(private_profile: false) }
+
+  def self.with_visible_profile(user)
+    return with_public_profile if user.nil?
+
+    if user.admin?
+      all
+    else
+      with_public_profile.or(where(id: user.id))
+    end
+  end
 
   # Limits the users to those that have TODOs, optionally in the given state.
   #
@@ -427,18 +438,20 @@ class User < ApplicationRecord
 
       order = <<~SQL
         CASE
-          WHEN users.name = %{query} THEN 0
-          WHEN users.username = %{query} THEN 1
-          WHEN users.email = %{query} THEN 2
+          WHEN users.name = :query THEN 0
+          WHEN users.username = :query THEN 1
+          WHEN users.email = :query THEN 2
           ELSE 3
         END
       SQL
+
+      sanitized_order_sql = Arel.sql(sanitize_sql_array([order, query: query]))
 
       where(
         fuzzy_arel_match(:name, query, lower_exact_match: true)
           .or(fuzzy_arel_match(:username, query, lower_exact_match: true))
           .or(arel_table[:email].eq(query))
-      ).reorder(order % { query: ApplicationRecord.connection.quote(query) }, :name)
+      ).reorder(sanitized_order_sql, :name)
     end
 
     # Limits the result set to users _not_ in the given query/list of IDs.
@@ -933,7 +946,7 @@ class User < ApplicationRecord
   end
 
   def project_deploy_keys
-    DeployKey.unscoped.in_projects(authorized_projects.pluck(:id)).distinct(:id)
+    DeployKey.in_projects(authorized_projects.select(:id)).distinct(:id)
   end
 
   def highest_role
@@ -941,11 +954,10 @@ class User < ApplicationRecord
   end
 
   def accessible_deploy_keys
-    @accessible_deploy_keys ||= begin
-      key_ids = project_deploy_keys.pluck(:id)
-      key_ids.push(*DeployKey.are_public.pluck(:id))
-      DeployKey.where(id: key_ids)
-    end
+    DeployKey.from_union([
+      DeployKey.where(id: project_deploy_keys.select(:deploy_key_id)),
+      DeployKey.are_public
+    ])
   end
 
   def created_by
@@ -1259,6 +1271,11 @@ class User < ApplicationRecord
     end
   end
 
+  def notification_email_for(notification_group)
+    # Return group-specific email address if present, otherwise return global notification email address
+    notification_group&.notification_email_for(self) || notification_email
+  end
+
   def notification_settings_for(source)
     if notification_settings.loaded?
       notification_settings.find do |notification|
@@ -1486,6 +1503,13 @@ class User < ApplicationRecord
   # override, from Devise::Validatable
   def password_required?
     return false if internal?
+
+    super
+  end
+
+  # override from Devise::Confirmable
+  def confirmation_period_valid?
+    return false if Feature.disabled?(:soft_email_confirmation)
 
     super
   end

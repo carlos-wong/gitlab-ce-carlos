@@ -10,7 +10,6 @@ class Group < Namespace
   include Referable
   include SelectForProjectAuthorization
   include LoadedInGroupList
-  include Descendant
   include GroupDescendant
   include TokenAuthenticatable
   include WithUploads
@@ -44,6 +43,8 @@ class Group < Namespace
 
   has_many :cluster_groups, class_name: 'Clusters::Group'
   has_many :clusters, through: :cluster_groups, class_name: 'Clusters::Cluster'
+
+  has_many :container_repositories, through: :projects
 
   has_many :todos
 
@@ -142,6 +143,12 @@ class Group < Namespace
 
   def notification_settings_for(user, hierarchy_order: nil)
     notification_settings(hierarchy_order: hierarchy_order).where(user: user)
+  end
+
+  def notification_email_for(user)
+    # Finds the closest notification_setting with a `notification_email`
+    notification_settings = notification_settings_for(user, hierarchy_order: :asc)
+    notification_settings.find { |n| n.notification_email.present? }&.notification_email
   end
 
   def to_reference(_from = nil, full: nil)
@@ -382,7 +389,7 @@ class Group < Namespace
     variables = Ci::GroupVariable.where(group: list_of_ids)
     variables = variables.unprotected unless project.protected_for?(ref)
     variables = variables.group_by(&:group_id)
-    list_of_ids.reverse.map { |group| variables[group.id] }.compact.flatten
+    list_of_ids.reverse.flat_map { |group| variables[group.id] }.compact
   end
 
   def group_member(user)
@@ -414,6 +421,10 @@ class Group < Namespace
 
   def project_creation_level
     super || ::Gitlab::CurrentSettings.default_project_creation
+  end
+
+  def subgroup_creation_level
+    super || ::Gitlab::Access::OWNER_SUBGROUP_ACCESS
   end
 
   private

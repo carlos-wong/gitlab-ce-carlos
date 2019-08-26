@@ -6,7 +6,6 @@ last_update: 2019-07-03
 # Pipelines for Merged Results **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/7380) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.10.
-> This feature is disabled by default until we resolve issues with [contention handling](https://gitlab.com/gitlab-org/gitlab-ee/issues/11222), but [can be enabled manually](#enabling-pipelines-for-merged-results).
 
 It's possible for your source and target branches to diverge, which can result
 in the scenario that source branch's pipeline was green, the target's pipeline was green,
@@ -25,8 +24,10 @@ new ref and a pipeline for this ref validates the result prior to merging.
 
 There are some cases where creating a combined ref is not possible or not wanted.
 For example, a source branch that has conflicts with the target branch
-or a merge request that is still in WIP status. In this case, the merge request pipeline falls back to a "detached" state
-and runs on the source branch ref as if it was a regular pipeline.
+or a merge request that is still in WIP status. In this case,
+GitLab doesn't create a merge commit and the pipeline runs on source branch, instead,
+which is a default behavior of [Pipelines for merge requests](../index.md)
+ i.e. `detached` label is shown to the pipelines.
 
 The detached state serves to warn you that you are working in a situation
 subjected to merge problems, and helps to highlight that you should
@@ -42,7 +43,7 @@ Pipelines for merged results require:
 In addition, pipelines for merged results have the following limitations:
 
 - Forking/cross-repo workflows are not currently supported. To follow progress,
-  see [#9713](https://gitlab.com/gitlab-org/gitlab-ee/issues/9713).
+  see [#11934](https://gitlab.com/gitlab-org/gitlab-ee/issues/11934).
 - This feature is not available for
   [fast forward merges](../../../user/project/merge_requests/fast_forward_merge.md) yet.
   To follow progress, see [#58226](https://gitlab.com/gitlab-org/gitlab-ce/issues/58226).
@@ -61,18 +62,32 @@ CAUTION: **Warning:**
 Make sure your `gitlab-ci.yml` file is [configured properly for pipelines for merge requests](../index.md#configuring-pipelines-for-merge-requests),
 otherwise pipelines for merged results won't run and your merge requests will be stuck in an unresolved state.
 
-## Merge Trains **(PREMIUM)**
+## Troubleshooting
 
-Read the [documentation on Merge Trains](merge_trains/index.md).
+### Pipelines for merged results not created even with new change pushed to merge request
 
-<!-- ## Troubleshooting
+Can be caused by some disabled feature flags. Please make sure that
+the following feature flags are enabled on your GitLab instance:
 
-Include any troubleshooting steps that you can foresee. If you know beforehand what issues
-one might have when setting this up, or when something is changed, or on upgrading, it's
-important to describe those, too. Think of things that may go wrong and include them here.
-This is important to minimize requests for support, and to avoid doc comments with
-questions that you know someone might ask.
+- `:ci_use_merge_request_ref`
+- `:merge_ref_auto_sync`
 
-Each scenario can be a third-level heading, e.g. `### Getting error message X`.
-If you have none to add when creating a doc, leave this section in place
-but commented out to help encourage others to add to it in the future. -->
+To check these feature flag values, please ask administrator to execute the following commands:
+
+```shell
+> sudo gitlab-rails console                         # Login to Rails console of GitLab instance.
+> Feature.enabled?(:ci_use_merge_request_ref)       # Check if it's enabled or not.
+> Feature.enable(:ci_use_merge_request_ref)         # Enable the feature flag.
+```
+
+## Using Merge Trains **(PREMIUM)**
+
+By enabling [Pipelines for merged results](#pipelines-for-merged-results-premium),
+GitLab will [automatically display](merge_trains/index.md#how-to-add-a-merge-request-to-a-merge-train)
+a **Start/Add Merge Train button** as the most recommended merge strategy.
+
+Generally, this is a safer option than merging merge requests immediately as your
+merge request will be evaluated with an expected post-merge result before the actual
+merge happens.
+
+For more information, read the [documentation on Merge Trains](merge_trains/index.md).

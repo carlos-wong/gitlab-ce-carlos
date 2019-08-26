@@ -86,7 +86,7 @@ describe GroupsHelper do
     end
   end
 
-  describe 'group_title', :nested_groups do
+  describe 'group_title' do
     let(:group) { create(:group) }
     let(:nested_group) { create(:group, parent: group) }
     let(:deep_nested_group) { create(:group, parent: nested_group) }
@@ -99,7 +99,7 @@ describe GroupsHelper do
   end
 
   # rubocop:disable Layout/SpaceBeforeComma
-  describe '#share_with_group_lock_help_text', :nested_groups do
+  describe '#share_with_group_lock_help_text' do
     let!(:root_group) { create(:group) }
     let!(:subgroup) { create(:group, parent: root_group) }
     let!(:sub_subgroup) { create(:group, parent: subgroup) }
@@ -230,7 +230,7 @@ describe GroupsHelper do
     end
   end
 
-  describe 'parent_group_options', :nested_groups do
+  describe 'parent_group_options' do
     let(:current_user) { create(:user) }
     let(:group) { create(:group, name: 'group') }
     let(:group2) { create(:group, name: 'group2') }
@@ -260,6 +260,46 @@ describe GroupsHelper do
       create(:group, parent: group2)
 
       expect(parent_group_options(group2)).to eq([{ id: group.id, text: group.human_name }].to_json)
+    end
+  end
+
+  describe '#can_disable_group_emails?' do
+    let(:current_user) { create(:user) }
+    let(:group) { create(:group, name: 'group') }
+    let(:subgroup) { create(:group, name: 'subgroup', parent: group) }
+
+    before do
+      allow(helper).to receive(:current_user) { current_user }
+    end
+
+    it 'returns true for the group owner' do
+      allow(helper).to receive(:can?).with(current_user, :set_emails_disabled, group) { true }
+
+      expect(helper.can_disable_group_emails?(group)).to be_truthy
+    end
+
+    it 'returns false for anyone else' do
+      allow(helper).to receive(:can?).with(current_user, :set_emails_disabled, group) { false }
+
+      expect(helper.can_disable_group_emails?(group)).to be_falsey
+    end
+
+    context 'when subgroups' do
+      before do
+        allow(helper).to receive(:can?).with(current_user, :set_emails_disabled, subgroup) { true }
+      end
+
+      it 'returns false if parent group is disabling emails' do
+        allow(group).to receive(:emails_disabled?).and_return(true)
+
+        expect(helper.can_disable_group_emails?(subgroup)).to be_falsey
+      end
+
+      it 'returns true if parent group is not disabling emails' do
+        allow(group).to receive(:emails_disabled?).and_return(false)
+
+        expect(helper.can_disable_group_emails?(subgroup)).to be_truthy
+      end
     end
   end
 end

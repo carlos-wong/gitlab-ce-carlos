@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User browses a job', :js do
@@ -44,6 +46,20 @@ describe 'User browses a job', :js do
       expect(page).to have_content(text_to_show)
 
       first('.js-section-start[data-section="get-sources"]').click
+
+      expect(page).not_to have_content(text_to_hide)
+      expect(page).to have_content(text_to_show)
+    end
+
+    it 'collapses the section header clicked' do
+      wait_for_requests
+      text_to_hide = "Cloning into '/nolith/ci-tests'"
+      text_to_show = 'Waiting for pod'
+
+      expect(page).to have_content(text_to_hide)
+      expect(page).to have_content(text_to_show)
+
+      first('.js-section-header.js-s-get-sources').click
 
       expect(page).not_to have_content(text_to_hide)
       expect(page).to have_content(text_to_show)

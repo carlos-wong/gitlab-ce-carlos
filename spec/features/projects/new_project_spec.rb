@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'New project' do
@@ -62,13 +64,7 @@ describe 'New project' do
         find('#import-project-tab').click
       end
 
-      context 'when using postgres', :postgresql do
-        it { expect(page).to have_link('Manifest file') }
-      end
-
-      context 'when using mysql', :mysql do
-        it { expect(page).not_to have_link('Manifest file') }
-      end
+      it { expect(page).to have_link('Manifest file') }
     end
 
     context 'Visibility level selector', :js do
@@ -300,7 +296,7 @@ describe 'New project' do
         end
       end
 
-      context 'from manifest file', :postgresql do
+      context 'from manifest file' do
         before do
           first('.import_manifest').click
         end

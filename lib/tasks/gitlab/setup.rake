@@ -31,7 +31,6 @@ namespace :gitlab do
     terminate_all_connections unless Rails.env.production?
 
     Rake::Task["db:reset"].invoke
-    Rake::Task["add_limits_mysql"].invoke
     Rake::Task["setup_postgresql"].invoke
     Rake::Task["db:seed_fu"].invoke
   rescue Gitlab::TaskAbortedByUserError
@@ -46,8 +45,6 @@ namespace :gitlab do
   # method terminates all the connections so that a subsequent DROP
   # will work.
   def self.terminate_all_connections
-    return false unless Gitlab::Database.postgresql?
-
     cmd = <<~SQL
     SELECT pg_terminate_backend(pg_stat_activity.pid)
         FROM pg_stat_activity

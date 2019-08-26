@@ -62,6 +62,54 @@ describe ApplicationSettings::UpdateService do
     end
   end
 
+  describe 'updating outbound_local_requests_whitelist' do
+    context 'when params is blank' do
+      let(:params) { {} }
+
+      it 'does not add to whitelist' do
+        expect { subject.execute }.not_to change {
+          application_settings.outbound_local_requests_whitelist
+        }
+      end
+    end
+
+    context 'when param add_to_outbound_local_requests_whitelist contains values' do
+      before do
+        application_settings.outbound_local_requests_whitelist = ['127.0.0.1']
+      end
+
+      let(:params) { { add_to_outbound_local_requests_whitelist: ['example.com', ''] } }
+
+      it 'adds to whitelist' do
+        expect { subject.execute }.to change {
+          application_settings.outbound_local_requests_whitelist
+        }
+
+        expect(application_settings.outbound_local_requests_whitelist).to contain_exactly(
+          '127.0.0.1', 'example.com'
+        )
+      end
+    end
+
+    context 'when param outbound_local_requests_whitelist_raw is passed' do
+      before do
+        application_settings.outbound_local_requests_whitelist = ['127.0.0.1']
+      end
+
+      let(:params) { { outbound_local_requests_whitelist_raw: 'example.com;gitlab.com' } }
+
+      it 'overwrites the existing whitelist' do
+        expect { subject.execute }.to change {
+          application_settings.outbound_local_requests_whitelist
+        }
+
+        expect(application_settings.outbound_local_requests_whitelist).to contain_exactly(
+          'example.com', 'gitlab.com'
+        )
+      end
+    end
+  end
+
   describe 'performance bar settings' do
     using RSpec::Parameterized::TableSyntax
 
@@ -178,6 +226,22 @@ describe ApplicationSettings::UpdateService do
         .not_to receive(:access_allowed?)
 
       described_class.new(application_settings, admin, { home_page_url: 'http://foo.bar' }).execute
+    end
+  end
+
+  context 'when raw_blob_request_limit is passsed' do
+    let(:params) do
+      {
+        raw_blob_request_limit: 600
+      }
+    end
+
+    it 'updates raw_blob_request_limit value' do
+      subject.execute
+
+      application_settings.reload
+
+      expect(application_settings.raw_blob_request_limit).to eq(600)
     end
   end
 end

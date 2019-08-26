@@ -27,6 +27,29 @@ module Gitlab
       end
     end
 
+    def includes_branches?
+      enum_for(:changes_refs).any? do |_oldrev, _newrev, ref|
+        Gitlab::Git.branch_ref?(ref)
+      end
+    end
+
+    def includes_tags?
+      enum_for(:changes_refs).any? do |_oldrev, _newrev, ref|
+        Gitlab::Git.tag_ref?(ref)
+      end
+    end
+
+    def includes_default_branch?
+      # If the branch doesn't have a default branch yet, we presume the
+      # first branch pushed will be the default.
+      return true unless project.default_branch.present?
+
+      enum_for(:changes_refs).any? do |_oldrev, _newrev, ref|
+        Gitlab::Git.branch_ref?(ref) &&
+          Gitlab::Git.branch_name(ref) == project.default_branch
+      end
+    end
+
     private
 
     def deserialize_changes(changes)

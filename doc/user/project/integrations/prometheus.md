@@ -98,7 +98,10 @@ You can view the performance dashboard for an environment by [clicking on the mo
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3799) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.6.
 
-Additional metrics can be monitored by adding them on the Prometheus integration page. Once saved, they will be displayed on the environment performance dashboard.
+Custom metrics can be monitored by adding them on the Prometheus integration page. Once saved, they will be displayed on the environment performance dashboard provided that either:
+
+- A [connected Kubernetes cluster](../clusters/index.md#adding-and-removing-clusters) with the environment scope of `*` is used and [Prometheus installed on the cluster](#enabling-prometheus-integration), or
+- Prometheus is [manually configured](#manual-configuration-of-prometheus).
 
 ![Add New Metric](img/prometheus_add_metric.png)
 
@@ -266,6 +269,12 @@ Note the following properties:
 
 ![single stat panel type](img/prometheus_dashboard_single_stat_panel_type.png)
 
+### Downloading data as CSV
+
+Data from Prometheus charts on the metrics dashboard can be downloaded as CSV. 
+
+![Downloading as CSV](img/download_as_csv.png)
+
 ### Setting up alerts for Prometheus metrics **(ULTIMATE)**
 
 #### Managed Prometheus instances
@@ -323,8 +332,11 @@ Once enabled, an issue will be opened automatically when an alert is triggered w
   - `starts_at`: Alert start time via `startsAt`
   - `full_query`: Alert query extracted from `generatorURL`
   - Optional list of attached annotations extracted from `annotations/*`
+- Alert [GFM](../../markdown.md): GitLab Flavored Markdown from `annotations/gitlab_incident_markdown`
 
-To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template.
+To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template, which will apply to all incidents. To limit quick actions or other information to only specific types of alerts, use the `annotations/gitlab_incident_markdown` field.
+
+Since [version 12.2](https://gitlab.com/gitlab-org/gitlab-ce/issues/63373), GitLab will tag each incident issue with the `incident` label automatically. If the label does not yet exist, it will be created automatically as well.
 
 If the metric exceeds the threshold of the alert for over 5 minutes, an email will be sent to all [Maintainers and Owners](../../permissions.md#project-members-permissions) of the project.
 
@@ -348,6 +360,31 @@ Prometheus server.
 
 ![Merge Request with Performance Impact](img/merge_request_performance.png)
 
+## Embedding metric charts within Gitlab Flavored Markdown
+
+> [Introduced][ce-29691] in GitLab 12.2.
+> Requires [Kubernetes](prometheus_library/kubernetes.md) metrics.
+
+It is possible to display metrics charts within [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm).
+
+To display a metric chart, include a link of the form `https://<root_url>/<project>/environments/<environment_id>/metrics`.
+
+A single chart may also be embedded. You can generate a link to the chart via the dropdown located on the right side of the chart:  
+
+![Generate Link To Chart](img/generate_link_to_chart.png)
+
+The following requirements must be met for the metric to unfurl:
+
+- The `<environment_id>` must correspond to a real environment.
+- Prometheus must be monitoring the environment.
+- The GitLab instance must be configured to receive data from the environment.
+- The user must be allowed access to the monitoring dashboard for the environment ([Reporter or higher](../../permissions.md)).
+- The dashboard must have data within the last 8 hours.
+
+ If all of the above are true, then the metric will unfurl as seen below:
+
+![Embedded Metrics](img/embed_metrics.png)
+
 ## Troubleshooting
 
 If the "No data found" screen continues to appear, it could be due to:
@@ -370,4 +407,5 @@ If the "No data found" screen continues to appear, it could be due to:
 [ci-environment-slug]: ../../../ci/variables/#predefined-environment-variables
 [ce-8935]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/8935
 [ce-10408]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/10408
+[ce-29691]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/29691
 [promgldocs]: ../../../administration/monitoring/prometheus/index.md

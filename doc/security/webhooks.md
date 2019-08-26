@@ -34,15 +34,46 @@ to 127.0.0.1, ::1 and 0.0.0.0, as well as IPv4 10.0.0.0/8, 172.16.0.0/12,
 192.168.0.0/16 and IPv6 site-local (ffc0::/10) addresses won't be allowed.
 
 This behavior can be overridden by enabling the option *"Allow requests to the
-local network from hooks and services"* in the *"Outbound requests"* section
+local network from web hooks and services"* in the *"Outbound requests"* section
 inside the Admin area under **Settings**
 (`/admin/application_settings/network`):
 
-![Outbound requests admin settings](img/outbound_requests_section.png)
+![Outbound requests admin settings](img/outbound_requests_section_v12_2.png)
 
->**Note:**
-*System hooks* are exempt from this protection because they are set up by
-admins.
+NOTE: **Note:**
+*System hooks* are enabled to make requests to local network by default since they are
+set up by administrators. However, you can turn this off by disabling the
+**Allow requests to the local network from system hooks** option.
+
+## Whitelist for local requests
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/44496) in GitLab 12.2
+
+You can allow certain domains and IP addresses to be accessible to both *system hooks*
+and *webhooks* even when local requests are not allowed by adding them to the
+whitelist. Navigate to **Admin Area > Settings > Network** (`/admin/application_settings/network`)
+and expand **Outbound requests**:
+
+![Outbound local requests whitelist](img/whitelist.png)
+
+The whilelist entries can be separated by semicolons, commas or whitespaces
+(including newlines) and be in different formats like hostnames, IP addresses and/or
+IP ranges. IPv6 is supported. Hostnames that contain unicode characters should
+use IDNA encoding.
+
+The whitelist can hold a maximum of 1000 entries. Each entry can be a maximum of
+255 characters.
+
+Example:
+
+```text
+example.com;gitlab.example.com
+127.0.0.1,1:0:0:0:0:0:0:1
+127.0.0.0/8 1:0:0:0:0:0:0:0/124
+```
+
+NOTE: **Note:**
+Wildcards (`*.example.com`) and ports (`127.0.0.1:3000`) are not currently supported.
 
 <!-- ## Troubleshooting
 

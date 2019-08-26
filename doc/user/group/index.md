@@ -78,6 +78,10 @@ Issues and merge requests are part of projects. For a given group, you can view 
 [issues](../project/issues/index.md#issues-list) and [merge requests](../project/merge_requests/index.md#merge-requests-per-group) across all projects in that group,
 together in a single list view.
 
+### Bulk editing issues and merge requests
+
+For details, see [bulk editing issues and merge requests](../group/bulk_editing/index.md).
+
 ## Create a new group
 
 > For a list of words that are not allowed to be used as group names see the
@@ -87,11 +91,11 @@ To create a new Group, either:
 
 - In the top menu, click **Groups** and then **Your Groups**, and click the green button **New group**.
 
-    ![new group from groups page](img/new_group_from_groups.png)
+  ![new group from groups page](img/new_group_from_groups.png)
 
 - Or, in the top menu, expand the `plus` sign and choose **New group**.
 
-    ![new group from elsewhere](img/new_group_from_other_pages.png)
+  ![new group from elsewhere](img/new_group_from_other_pages.png)
 
 Add the following information:
 
@@ -100,15 +104,15 @@ Add the following information:
 1. The **Group name** will automatically populate the URL. Optionally, you can change it.
    This is the name that displays in group views.
    The name can contain only:
-     - Alphanumeric characters
-     - Underscores
-     - Dashes and dots
-     - Spaces
+   - Alphanumeric characters
+   - Underscores
+   - Dashes and dots
+   - Spaces
 1. The **Group URL** is the namespace under which your projects will be hosted.
    The URL can contain only:
-     - Alphanumeric characters
-     - Underscores
-     - Dashes and dots (it cannot start with dashes or end in a dot)
+   - Alphanumeric characters
+   - Underscores
+   - Dashes and dots (it cannot start with dashes or end in a dot)
 1. Optionally, you can add a brief description to tell others
    what this group is about.
 1. Optionally, choose an avatar for your group.
@@ -162,12 +166,12 @@ There are two different ways to add a new project to a group:
 
 - Select a group, and then click **New project**. You can then continue [creating your project](../../gitlab-basics/create-project.md).
 
-    ![New project](img/create_new_project_from_group.png)
+  ![New project](img/create_new_project_from_group.png)
 
 - While you are creating a project, select a group namespace
   you've already created from the dropdown menu.
 
-    ![Select group](img/select_group_dropdown.png)
+  ![Select group](img/select_group_dropdown.png)
 
 ### Default project-creation level
 
@@ -327,7 +331,7 @@ This will disable the option for all users who previously had permissions to
 operate project memberships, so no new users can be added. Furthermore, any
 request to add a new user to a project through API will not be possible.
 
-#### IP access restriction **(ULTIMATE)**
+#### IP access restriction **(ULTIMATE ONLY)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/1985) in
 [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
@@ -345,6 +349,38 @@ content.
 Restriction currently applies to UI, API access is not restricted.
 To avoid accidental lock-out, admins and group owners are are able to access
 the group regardless of the IP restriction.
+
+#### Allowed domain restriction **(PREMIUM ONLY)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/7297) in
+[GitLab Premium](https://about.gitlab.com/pricing/) 12.2.
+
+You can restrict access to groups and their underlying projects by
+allowing only users with email addresses in particular domains to be added to the group.
+
+Add email domains you want to whitelist and users with emails from different 
+domains won't be allowed to be added to this group.
+
+Some domains cannot be restricted. These are the most popular public email domains, such as:
+
+- `gmail.com`
+- `yahoo.com`
+- `hotmail.com`
+- `aol.com`
+- `msn.com`
+- `hotmail.co.uk`
+- `hotmail.fr`
+- `live.com`
+- `outlook.com`
+- `icloud.com`
+
+To enable this feature:
+
+1. Navigate to the group's **Settings > General** page.
+1. Expand the **Permissions, LFS, 2FA** section, and enter domain name into **Restrict membership by email** field.
+1. Click **Save changes**.
+
+This will enable the domain-checking for all new users added to the group from this moment on.
 
 #### Group file templates **(PREMIUM)**
 
@@ -374,6 +410,17 @@ To enable this feature, navigate to the group settings page, expand the
 
 Define project templates at a group level by setting a group as the template source.
 [Learn more about group-level project templates](custom_project_templates.md).
+
+#### Disabling email notifications
+
+You can disable all email notifications related to the group, which also includes
+it's subgroups and projects.
+
+To enable this feature:
+ 
+1. Navigate to the group's **Settings > General** page.
+1. Expand the **Permissions, LFS, 2FA** section, and select **Disable email notifications**.
+1. Click **Save changes**.
 
 ### Advanced settings
 

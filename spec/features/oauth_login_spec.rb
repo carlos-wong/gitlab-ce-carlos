@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'OAuth Login', :js, :allow_forgery_protection do
@@ -34,6 +36,7 @@ describe 'OAuth Login', :js, :allow_forgery_protection do
 
       before do
         stub_omniauth_config(provider)
+        expect(ActiveSession).to receive(:cleanup).with(user).at_least(:once).and_call_original
       end
 
       context 'when two-factor authentication is disabled' do

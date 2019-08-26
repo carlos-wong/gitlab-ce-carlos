@@ -251,15 +251,13 @@ describe Projects::IssuesController do
     end
   end
 
-  describe 'Redirect after sign in' do
+  # This spec runs as a request-style spec in order to invoke the
+  # Rails router. A controller-style spec matches the wrong route, and
+  # session['user_return_to'] becomes incorrect.
+  describe 'Redirect after sign in', type: :request do
     context 'with an AJAX request' do
       it 'does not store the visited URL' do
-        get :show, params: {
-          format: :json,
-          namespace_id: project.namespace,
-          project_id: project,
-          id: issue.iid
-        }, xhr: true
+        get project_issue_path(project, issue), xhr: true
 
         expect(session['user_return_to']).to be_blank
       end
@@ -267,14 +265,9 @@ describe Projects::IssuesController do
 
     context 'without an AJAX request' do
       it 'stores the visited URL' do
-        get :show,
-          params: {
-            namespace_id: project.namespace.to_param,
-            project_id: project,
-            id: issue.iid
-          }
+        get project_issue_path(project, issue)
 
-        expect(session['user_return_to']).to eq("/#{project.namespace.to_param}/#{project.to_param}/issues/#{issue.iid}")
+        expect(session['user_return_to']).to eq(project_issue_path(project, issue))
       end
     end
   end
@@ -1258,6 +1251,28 @@ describe Projects::IssuesController do
       before do
         project.add_developer(user)
         sign_in(user)
+      end
+
+      context do
+        it_behaves_like 'discussions provider' do
+          let!(:author) { create(:user) }
+          let!(:project) { create(:project) }
+
+          let!(:issue) { create(:issue, project: project, author: user) }
+
+          let!(:note_on_issue1) { create(:discussion_note_on_issue, noteable: issue, project: issue.project, author: create(:user)) }
+          let!(:note_on_issue2) { create(:discussion_note_on_issue, noteable: issue, project: issue.project, author: create(:user)) }
+
+          let(:requested_iid) { issue.iid }
+          let(:expected_discussion_count) { 3 }
+          let(:expected_discussion_ids) do
+            [
+              issue.notes.first.discussion_id,
+              note_on_issue1.discussion_id,
+              note_on_issue2.discussion_id
+            ]
+          end
+        end
       end
 
       it 'returns discussion json' do

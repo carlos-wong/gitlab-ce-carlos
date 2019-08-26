@@ -98,13 +98,12 @@ module IssuableActions
     render json: { notice: "#{quantity} #{resource_name.pluralize(quantity)} updated" }
   end
 
-  # rubocop: disable CodeReuse/ActiveRecord
+  # rubocop:disable CodeReuse/ActiveRecord
   def discussions
-    notes = issuable.discussion_notes
-      .inc_relations_for_view
-      .with_notes_filter(notes_filter)
-      .includes(:noteable)
-      .fresh
+    notes = NotesFinder.new(current_user, finder_params_for_issuable).execute
+                .inc_relations_for_view
+                .includes(:noteable)
+                .fresh
 
     if notes_filter != UserPreference::NOTES_FILTERS[:only_comments]
       notes = ResourceEvents::MergeIntoNotesService.new(issuable, current_user).execute(notes)
@@ -117,7 +116,7 @@ module IssuableActions
 
     render json: discussion_serializer.represent(discussions, context: self)
   end
-  # rubocop: enable CodeReuse/ActiveRecord
+  # rubocop:enable CodeReuse/ActiveRecord
 
   private
 
@@ -128,7 +127,8 @@ module IssuableActions
       # GitLab Geo does not expect database UPDATE or INSERT statements to happen
       # on GET requests.
       # This is just a fail-safe in case notes_filter is sent via GET request in GitLab Geo.
-      if Gitlab::Database.read_only?
+      # In some cases, we also force the filter to not be persisted with the `persist_filter` param
+      if Gitlab::Database.read_only? || params[:persist_filter] == 'false'
         notes_filter_param || current_user&.notes_filter_for(issuable)
       else
         notes_filter = current_user&.set_notes_filter(notes_filter_param, issuable) || notes_filter_param
@@ -222,4 +222,13 @@ module IssuableActions
   def parent
     @project || @group # rubocop:disable Gitlab/ModuleWithInstanceVariables
   end
+
+  # rubocop:disable Gitlab/ModuleWithInstanceVariables
+  def finder_params_for_issuable
+    {
+        target: @issuable,
+        notes_filter: notes_filter
+    }.tap { |new_params| new_params[:project] = project if respond_to?(:project, true) }
+  end
+  # rubocop:enable Gitlab/ModuleWithInstanceVariables
 end

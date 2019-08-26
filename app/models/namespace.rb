@@ -172,6 +172,13 @@ class Namespace < ApplicationRecord
     end
   end
 
+  # any ancestor can disable emails for all descendants
+  def emails_disabled?
+    strong_memoize(:emails_disabled) do
+      Feature.enabled?(:emails_disabled, self, default_enabled: true) && self_and_ancestors.where(emails_disabled: true).exists?
+    end
+  end
+
   def lfs_enabled?
     # User namespace will always default to the global setting
     Gitlab.config.lfs.enabled
@@ -332,8 +339,6 @@ class Namespace < ApplicationRecord
   end
 
   def force_share_with_group_lock_on_descendants
-    return unless Group.supports_nested_objects?
-
     # We can't use `descendants.update_all` since Rails will throw away the WITH
     # RECURSIVE statement. We also can't use WHERE EXISTS since we can't use
     # different table aliases, hence we're just using WHERE IN. Since we have a

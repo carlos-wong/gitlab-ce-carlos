@@ -15,16 +15,6 @@ manifest themselves within our code. When designing our tests, take time to revi
 our test design. We can find some helpful heuristics documented in the Handbook in the
 [Test Design](https://about.gitlab.com/handbook/engineering/quality/guidelines/test-engineering/test-design/) section.
 
-## Run tests against MySQL
-
-By default, tests are only run against PostgreSQL, but you can run them on
-demand against MySQL by following one of the following conventions:
-
-| Convention           | Valid example                |
-|:----------------------|:-----------------------------|
-| Include `mysql` in your branch name | `enhance-mysql-support` |
-| Include `[run mysql]` in your commit message   | `Fix MySQL support<br><br>[run mysql]` |
-
 ## Test speed
 
 GitLab has a massive test suite that, without [parallelization], can take hours
@@ -70,6 +60,7 @@ bundle exec rspec spec/[path]/[to]/[spec].rb
 - On `before` and `after` hooks, prefer it scoped to `:context` over `:all`
 - When using `evaluate_script("$('.js-foo').testSomething()")` (or `execute_script`) which acts on a given element,
   use a Capyabara matcher beforehand (e.g. `find('.js-foo')`) to ensure the element actually exists.
+- Use `focus: true` to isolate parts of the specs you want to run.
 
 [four-phase-test]: https://robots.thoughtbot.com/four-phase-test
 

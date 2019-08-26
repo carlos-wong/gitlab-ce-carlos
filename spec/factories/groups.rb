@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :group, class: Group, parent: :namespace do
     sequence(:name) { |n| "group#{n}" }
@@ -44,6 +46,10 @@ FactoryBot.define do
 
     trait :auto_devops_disabled do
       auto_devops_enabled false
+    end
+
+    trait :owner_subgroup_creation_only do
+      subgroup_creation_level ::Gitlab::Access::OWNER_SUBGROUP_ACCESS
     end
   end
 end

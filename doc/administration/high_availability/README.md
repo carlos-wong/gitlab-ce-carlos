@@ -164,25 +164,24 @@ contention due to certain workloads.
 
 #### Reference Architecture
 
-- **Status:** Work-in-progress
 - **Supported Users (approximate):** 10,000
-- **Related Issues:** [gitlab-com/support/support-team-meta#1513](https://gitlab.com/gitlab-com/support/support-team-meta/issues/1513),
- [gitlab-org/quality/team-tasks#110](https://gitlab.com/gitlab-org/quality/team-tasks/issues/110)
+- **Known Issues:** While validating the reference architecture, slow endpoints were discovered and are being investigated. [gitlab-org/gitlab-ce/issues/64335](https://gitlab.com/gitlab-org/gitlab-ce/issues/64335)
 
-The Support and Quality teams are in the process of building and performance testing
-an environment that will support about 10,000 users. The specifications below
-are a work-in-progress representation of the work so far. Quality will be
-certifying this environment in FY20-Q2. The specifications may be adjusted
-prior to certification based on performance testing.
+The Support and Quality teams built, performance tested, and validated an
+environment that supports about 10,000 users. The specifications below are a
+representation of the work so far. The specifications may be adjusted in the
+future based on additional testing and iteration.
 
-- 3 PostgreSQL - 4 CPU, 8GB RAM per node
-- 1 PgBouncer - 2 CPU, 4GB RAM
-- 2 Redis - 2 CPU, 8GB RAM per node
-- 3 Consul/Sentinel - 2 CPU, 2GB RAM per node
-- 4 Sidekiq - 4 CPU, 8GB RAM per node
-- 5 GitLab application nodes - 20 CPU, 64GB RAM per node
-- 1 Gitaly - 20 CPU, 64GB RAM
-- 1 Monitoring node - 4 CPU, 8GB RAM
+NOTE: **Note:** The specifications here were performance tested against a specific coded workload. Your exact needs may be more, depending on your workload. Your workload is influenced by factors such as - but not limited to - how active your users are, how much automation you use, mirroring, and repo/change size.
+
+- 3 PostgreSQL - 4 CPU, 16GiB memory per node
+- 1 PgBouncer - 2 CPU, 4GiB memory
+- 2 Redis - 2 CPU, 8GiB memory per node
+- 3 Consul/Sentinel - 2 CPU, 2GiB memory per node
+- 4 Sidekiq - 4 CPU, 16GiB memory per node
+- 5 GitLab application nodes - 16 CPU, 64GiB memory per node
+- 1 Gitaly - 16 CPU, 64GiB memory
+- 1 Monitoring node - 2 CPU, 8GiB memory, 100GiB local storage
 
 ### Fully Distributed
 

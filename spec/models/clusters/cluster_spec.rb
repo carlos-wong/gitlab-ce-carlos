@@ -38,11 +38,6 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
   it { is_expected.to respond_to :project }
 
-  it do
-    expect(subject.knative_services_finder(subject.project))
-      .to be_instance_of(Clusters::KnativeServicesFinder)
-  end
-
   describe '.enabled' do
     subject { described_class.enabled }
 
@@ -118,26 +113,6 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
       let!(:cluster) { create(:cluster) }
 
       it { is_expected.to include(cluster) }
-    end
-  end
-
-  describe '.missing_kubernetes_namespace' do
-    let!(:cluster) { create(:cluster, :provided_by_gcp, :project) }
-    let(:project) { cluster.project }
-    let(:kubernetes_namespaces) { project.kubernetes_namespaces }
-
-    subject do
-      described_class.joins(:projects).where(projects: { id: project.id }).missing_kubernetes_namespace(kubernetes_namespaces)
-    end
-
-    it { is_expected.to contain_exactly(cluster) }
-
-    context 'kubernetes namespace exists' do
-      before do
-        create(:cluster_kubernetes_namespace, project: project, cluster: cluster)
-      end
-
-      it { is_expected.to be_empty }
     end
   end
 
@@ -342,7 +317,7 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
       end
     end
 
-    context 'when sub-group has configured kubernetes cluster', :nested_groups do
+    context 'when sub-group has configured kubernetes cluster' do
       let(:sub_group_cluster) { create(:cluster, :provided_by_gcp, :group) }
       let(:sub_group) { sub_group_cluster.group }
       let(:project) { create(:project, group: sub_group) }
@@ -423,31 +398,6 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     end
   end
 
-  describe '#all_projects' do
-    let(:project) { create(:project) }
-    let(:cluster) { create(:cluster, projects: [project]) }
-
-    subject { cluster.all_projects }
-
-    context 'project cluster' do
-      it 'returns project' do
-        is_expected.to eq([project])
-      end
-    end
-
-    context 'group cluster' do
-      let(:cluster) { create(:cluster, :group) }
-      let(:group) { cluster.group }
-      let(:project) { create(:project, group: group) }
-      let(:subgroup) { create(:group, parent: group) }
-      let(:subproject) { create(:project, group: subgroup) }
-
-      it 'returns all projects for group' do
-        is_expected.to contain_exactly(project, subproject)
-      end
-    end
-  end
-
   describe '#first_project' do
     subject { cluster.first_project }
 
@@ -496,7 +446,7 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     context 'when applications are created' do
       let!(:helm) { create(:clusters_applications_helm, cluster: cluster) }
       let!(:ingress) { create(:clusters_applications_ingress, cluster: cluster) }
-      let!(:cert_manager) { create(:clusters_applications_cert_managers, cluster: cluster) }
+      let!(:cert_manager) { create(:clusters_applications_cert_manager, cluster: cluster) }
       let!(:prometheus) { create(:clusters_applications_prometheus, cluster: cluster) }
       let!(:runner) { create(:clusters_applications_runner, cluster: cluster) }
       let!(:jupyter) { create(:clusters_applications_jupyter, cluster: cluster) }
@@ -579,60 +529,39 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     end
   end
 
-  describe '#find_or_initialize_kubernetes_namespace_for_project' do
-    let(:cluster) { create(:cluster, :project, :provided_by_gcp) }
-    let(:project) { cluster.projects.first }
+  describe '#kubernetes_namespace_for' do
+    let(:cluster) { create(:cluster, :group) }
+    let(:environment) { create(:environment) }
 
-    subject { cluster.find_or_initialize_kubernetes_namespace_for_project(project) }
+    subject { cluster.kubernetes_namespace_for(environment) }
 
-    context 'kubernetes namespace exists' do
-      context 'with no service account token' do
-        let!(:kubernetes_namespace) { create(:cluster_kubernetes_namespace, project: project, cluster: cluster) }
-
-        it { is_expected.to eq kubernetes_namespace }
-      end
-
-      context 'with a service account token' do
-        let!(:kubernetes_namespace) { create(:cluster_kubernetes_namespace, :with_token, project: project, cluster: cluster) }
-
-        it { is_expected.to eq kubernetes_namespace }
-      end
+    before do
+      expect(Clusters::KubernetesNamespaceFinder).to receive(:new)
+        .with(cluster, project: environment.project, environment_slug: environment.slug)
+        .and_return(double(execute: persisted_namespace))
     end
 
-    context 'kubernetes namespace does not exist' do
-      it 'initializes a new namespace and sets default values' do
-        expect(subject).to be_new_record
-        expect(subject.project).to eq project
-        expect(subject.cluster).to eq cluster
-        expect(subject.namespace).to be_present
-        expect(subject.service_account_name).to be_present
-      end
+    context 'a persisted namespace exists' do
+      let(:persisted_namespace) { create(:cluster_kubernetes_namespace) }
+
+      it { is_expected.to eq persisted_namespace.namespace }
     end
 
-    context 'a custom scope is provided' do
-      let(:scope) { cluster.kubernetes_namespaces.has_service_account_token }
+    context 'no persisted namespace exists' do
+      let(:persisted_namespace) { nil }
+      let(:namespace_generator) { double }
+      let(:default_namespace) { 'a-default-namespace' }
 
-      subject { cluster.find_or_initialize_kubernetes_namespace_for_project(project, scope: scope) }
-
-      context 'kubernetes namespace exists' do
-        context 'with no service account token' do
-          let!(:kubernetes_namespace) { create(:cluster_kubernetes_namespace, project: project, cluster: cluster) }
-
-          it 'initializes a new namespace and sets default values' do
-            expect(subject).to be_new_record
-            expect(subject.project).to eq project
-            expect(subject.cluster).to eq cluster
-            expect(subject.namespace).to be_present
-            expect(subject.service_account_name).to be_present
-          end
-        end
-
-        context 'with a service account token' do
-          let!(:kubernetes_namespace) { create(:cluster_kubernetes_namespace, :with_token, project: project, cluster: cluster) }
-
-          it { is_expected.to eq kubernetes_namespace }
-        end
+      before do
+        expect(Gitlab::Kubernetes::DefaultNamespace).to receive(:new)
+          .with(cluster, project: environment.project)
+          .and_return(namespace_generator)
+        expect(namespace_generator).to receive(:from_environment_slug)
+          .with(environment.slug)
+          .and_return(default_namespace)
       end
+
+      it { is_expected.to eq default_namespace }
     end
   end
 

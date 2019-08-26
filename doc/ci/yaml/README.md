@@ -505,7 +505,7 @@ Feature.enable(:allow_unsafe_ruby_regexp)
 ### `only`/`except` (advanced)
 
 CAUTION: **Warning:**
-This an _alpha_ feature, and it is subject to change at any time without
+This is an _alpha_ feature, and it is subject to change at any time without
 prior notice!
 
 GitLab supports both simple and complex strategies, so it's possible to use an
@@ -1568,7 +1568,7 @@ dashboards.
 The `license_management` report collects [Licenses](../../user/project/merge_requests/license_management.md)
 as artifacts.
 
-The collected License Management report will be uploaded to GitLab as an artifact and will
+The collected License Compliance report will be uploaded to GitLab as an artifact and will
 be automatically shown in merge requests, pipeline view and provide data for security
 dashboards.
 
@@ -1664,6 +1664,84 @@ NOTE: **Note:**
 You can ask your administrator to
 [flip this switch](../../administration/job_artifacts.md#validation-for-dependencies)
 and bring back the old behavior.
+
+### `needs`
+
+> Introduced in GitLab 12.2.
+
+The `needs:` keyword enables executing jobs out-of-order, allowing you to implement
+a [directed acyclic graph](../directed_acyclic_graph/index.md) in your `.gitlab-ci.yml`.
+
+This lets you run some jobs without waiting for other ones, disregarding stage ordering
+so you can have multiple stages running concurrently.
+
+Let's consider the following example:
+
+```yaml
+linux:build:
+  stage: build
+
+mac:build:
+  stage: build
+
+linux:rspec:
+  stage: test
+  needs: [linux:build]
+
+linux:rubocop:
+  stage: test
+  needs: [linux:build]
+
+mac:rspec:
+  stage: test
+  needs: [mac:build]
+
+mac:rubocop:
+  stage: test
+  needs: [mac:build]
+
+production:
+  stage: deploy
+```
+
+This example creates three paths of execution:
+
+- Linux path: the `linux:rspec` and `linux:rubocop` jobs will be run as soon
+  as the `linux:build` job finishes without waiting for `mac:build` to finish.
+
+- macOS path: the `mac:rspec` and `mac:rubocop` jobs will be run as soon
+  as the `mac:build` job finishes, without waiting for `linux:build` to finish.
+
+- The `production` job will be executed as soon as all previous jobs
+  finish; in this case: `linux:build`, `linux:rspec`, `linux:rubocop`,
+  `mac:build`, `mac:rspec`, `mac:rubocop`.
+
+#### Requirements and limitations
+
+1. If `needs:` is set to point to a job that is not instantiated
+   because of `only/except` rules or otherwise does not exist, the
+   job will fail.
+1. Note that one day one of the launch, we are temporarily limiting the 
+   maximum number of jobs that a single job can need in the `needs:` array. Track
+   our [infrastructure issue](https://gitlab.com/gitlab-com/gl-infra/infrastructure/issues/7541)
+   for details on the current limit.
+1. If you use `dependencies:` with `needs:`, it's important that you
+   do not mark a job as having a dependency on something that won't
+   have been run at the time it needs it. It's better to use both
+   keywords in this case so that GitLab handles the ordering appropriately.
+1. It is impossible for now to have `needs: []` (empty needs),
+   the job always needs to depend on something, unless this is the job
+   in the first stage (see [gitlab-ce#65504](https://gitlab.com/gitlab-org/gitlab-ce/issues/65504)).
+1. If `needs:` refers to a job that is marked as `parallel:`.
+   the current job will depend on all parallel jobs created.
+1. `needs:` is similar to `dependencies:` in that needs to use jobs from
+   prior stages, this means that it is impossible to create circular
+   dependencies or depend on jobs in the current stage (see [gitlab-ce#65505](https://gitlab.com/gitlab-org/gitlab-ce/issues/65505)).
+1. Related to the above, stages must be explicitly defined for all jobs
+   that have the keyword `needs:` or are referred to by one.
+1. For self-managed users, the feature must be turned on using the `ci_dag_support`
+   feature flag. The `ci_dag_limit_needs` option, if set, will limit the number of
+   jobs that a single job can need to `50`. If unset, the limit is `5`.
 
 ### `coverage`
 
@@ -1771,17 +1849,40 @@ sequentially from `job_name 1/N` to `job_name N/N`.
 
 For every job, `CI_NODE_INDEX` and `CI_NODE_TOTAL` [environment variables](../variables/README.md#predefined-environment-variables) are set.
 
-A simple example:
+Marking a job to be run in parallel requires only a simple addition to your configuration file:
 
-```yaml
-test:
-  script: rspec
-  parallel: 5
+```diff
+ test:
+   script: rspec
++  parallel: 5
 ```
-
 TIP: **Tip:**
 Parallelize tests suites across parallel jobs.
 Different languages have different tools to facilitate this.
+
+A simple example using [Sempahore Test Boosters](https://github.com/renderedtext/test-boosters) and RSpec to run some Ruby tests:
+
+```ruby
+# Gemfile
+source 'https://rubygems.org'
+
+gem 'rspec'
+gem 'semaphore_test_boosters'
+```
+
+```yaml
+test:
+  parallel: 3
+  script:
+    - bundle
+    - bundle exec rspec_booster --job $CI_NODE_INDEX/$CI_NODE_TOTAL
+```
+
+CAUTION: **Caution:**
+Please be aware that semaphore_test_boosters reports usages statistics to the author.
+
+You can then navigate to the **Jobs** tab of a new pipeline build and see your RSpec
+job split into three separate jobs.
 
 ### `trigger` **(PREMIUM)**
 
@@ -2445,20 +2546,20 @@ There are three possible values: `none`, `normal`, and `recursive`:
 - `normal` means that only the top-level submodules will be included. It is
   equivalent to:
 
-    ```
-    git submodule sync
-    git submodule update --init
-    ```
+  ```
+  git submodule sync
+  git submodule update --init
+  ```
 
 - `recursive` means that all submodules (including submodules of submodules)
   will be included. This feature needs Git v1.8.1 and later. When using a
   GitLab Runner with an executor not based on Docker, make sure the Git version
   meets that requirement. It is equivalent to:
 
-    ```
-    git submodule sync --recursive
-    git submodule update --init --recursive
-    ```
+  ```
+  git submodule sync --recursive
+  git submodule update --init --recursive
+  ```
 
 Note that for this feature to work correctly, the submodules must be configured
 (in `.gitmodules`) with either:

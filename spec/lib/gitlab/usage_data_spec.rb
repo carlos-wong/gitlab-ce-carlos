@@ -24,7 +24,7 @@ describe Gitlab::UsageData do
       create(:cluster, :group, :disabled)
       create(:clusters_applications_helm, :installed, cluster: gcp_cluster)
       create(:clusters_applications_ingress, :installed, cluster: gcp_cluster)
-      create(:clusters_applications_cert_managers, :installed, cluster: gcp_cluster)
+      create(:clusters_applications_cert_manager, :installed, cluster: gcp_cluster)
       create(:clusters_applications_prometheus, :installed, cluster: gcp_cluster)
       create(:clusters_applications_runner, :installed, cluster: gcp_cluster)
       create(:clusters_applications_knative, :installed, cluster: gcp_cluster)
@@ -57,10 +57,25 @@ describe Gitlab::UsageData do
         gitaly
         database
         avg_cycle_analytics
-        web_ide_commits
         influxdb_metrics_enabled
         prometheus_metrics_enabled
+        cycle_analytics_views
       ))
+
+      expect(subject).to include(
+        snippet_create: a_kind_of(Integer),
+        snippet_update: a_kind_of(Integer),
+        snippet_comment: a_kind_of(Integer),
+        wiki_pages_create: a_kind_of(Integer),
+        wiki_pages_update: a_kind_of(Integer),
+        wiki_pages_delete: a_kind_of(Integer),
+        web_ide_views: a_kind_of(Integer),
+        web_ide_commits: a_kind_of(Integer),
+        web_ide_merge_requests: a_kind_of(Integer),
+        navbar_searches: a_kind_of(Integer),
+        cycle_analytics_views: a_kind_of(Integer),
+        source_code_pushes: a_kind_of(Integer)
+      )
     end
 
     it "gathers usage counts" do
@@ -139,11 +154,6 @@ describe Gitlab::UsageData do
       expect(expected_keys - count_data.keys).to be_empty
     end
 
-    it 'does not gather user preferences usage data when the feature is disabled' do
-      stub_feature_flags(group_overview_security_dashboard: false)
-      expect(subject[:counts].keys).not_to include(:user_preferences)
-    end
-
     it 'gathers projects data correctly' do
       count_data = subject[:counts]
 
@@ -179,6 +189,28 @@ describe Gitlab::UsageData do
         .to receive(:count).and_raise(ActiveRecord::StatementInvalid.new(''))
 
       expect { subject }.not_to raise_error
+    end
+  end
+
+  describe '#usage_data_counters' do
+    subject { described_class.usage_data_counters }
+
+    it { is_expected.to all(respond_to :totals) }
+
+    describe 'the results of calling #totals on all objects in the array' do
+      subject { described_class.usage_data_counters.map(&:totals) }
+
+      it do
+        is_expected
+          .to all(be_a Hash)
+          .and all(have_attributes(keys: all(be_a Symbol), values: all(be_a Integer)))
+      end
+    end
+
+    it 'does not have any conflicts' do
+      all_keys = subject.flat_map { |counter| counter.totals.keys }
+
+      expect(all_keys.size).to eq all_keys.to_set.size
     end
   end
 

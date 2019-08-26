@@ -4,13 +4,13 @@ module Gitlab
   module CycleAnalytics
     class BaseEventFetcher
       include BaseQuery
+      include GroupProjectsProvider
 
-      attr_reader :projections, :query, :stage, :order, :project, :options
+      attr_reader :projections, :query, :stage, :order, :options
 
       MAX_EVENTS = 50
 
-      def initialize(project: nil, stage:, options:)
-        @project = project
+      def initialize(stage:, options:)
         @stage = stage
         @options = options
       end
@@ -68,11 +68,11 @@ module Gitlab
       end
 
       def allowed_ids_source
-        { project_id: project.id }
+        group ? { group_id: group.id, include_subgroups: true } : { project_id: project.id }
       end
 
-      def projects
-        [project]
+      def serialization_context
+        {}
       end
     end
   end

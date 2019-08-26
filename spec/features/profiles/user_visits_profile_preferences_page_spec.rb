@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User visits the profile preferences page' do
@@ -36,7 +38,7 @@ describe 'User visits the profile preferences page' do
 
   describe 'User changes their default dashboard', :js do
     it 'creates a flash message' do
-      select 'Starred Projects', from: 'user_dashboard'
+      select2('stars', from: '#user_dashboard')
       click_button 'Save'
 
       wait_for_requests
@@ -45,7 +47,7 @@ describe 'User visits the profile preferences page' do
     end
 
     it 'updates their preference' do
-      select 'Starred Projects', from: 'user_dashboard'
+      select2('stars', from: '#user_dashboard')
       click_button 'Save'
 
       wait_for_requests

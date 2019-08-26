@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Login' do
@@ -93,6 +95,42 @@ describe 'Login' do
     end
   end
 
+  describe 'with an unconfirmed email address' do
+    let!(:user) { create(:user, confirmed_at: nil) }
+    let(:grace_period) { 2.days }
+
+    before do
+      stub_application_setting(send_user_confirmation_email: true)
+      allow(User).to receive(:allow_unconfirmed_access_for).and_return grace_period
+    end
+
+    context 'within the grace period' do
+      it 'allows to login' do
+        expect(authentication_metrics).to increment(:user_authenticated_counter)
+
+        gitlab_sign_in(user)
+
+        expect(page).not_to have_content('You have to confirm your email address before continuing.')
+        expect(page).not_to have_link('Resend confirmation email', href: new_user_confirmation_path)
+      end
+    end
+
+    context 'when the confirmation grace period is expired' do
+      it 'prevents the user from logging in and renders a resend confirmation email link' do
+        travel_to((grace_period + 1.day).from_now) do
+          expect(authentication_metrics)
+            .to increment(:user_unauthenticated_counter)
+            .and increment(:user_session_destroyed_counter).twice
+
+          gitlab_sign_in(user)
+
+          expect(page).to have_content('You have to confirm your email address before continuing.')
+          expect(page).to have_link('Resend confirmation email', href: new_user_confirmation_path)
+        end
+      end
+    end
+  end
+
   describe 'with the ghost user' do
     it 'disallows login' do
       expect(authentication_metrics)
@@ -132,7 +170,6 @@ describe 'Login' do
       it 'does not show a "You are already signed in." error message' do
         expect(authentication_metrics)
           .to increment(:user_authenticated_counter)
-          .and increment(:user_session_override_counter)
           .and increment(:user_two_factor_authenticated_counter)
 
         enter_code(user.current_otp)
@@ -144,7 +181,6 @@ describe 'Login' do
         it 'allows login with valid code' do
           expect(authentication_metrics)
             .to increment(:user_authenticated_counter)
-            .and increment(:user_session_override_counter)
             .and increment(:user_two_factor_authenticated_counter)
 
           enter_code(user.current_otp)
@@ -170,7 +206,6 @@ describe 'Login' do
         it 'allows login with invalid code, then valid code' do
           expect(authentication_metrics)
             .to increment(:user_authenticated_counter)
-            .and increment(:user_session_override_counter)
             .and increment(:user_two_factor_authenticated_counter)
 
           enter_code('foo')
@@ -178,6 +213,15 @@ describe 'Login' do
 
           enter_code(user.current_otp)
           expect(current_path).to eq root_path
+        end
+
+        it 'triggers ActiveSession.cleanup for the user' do
+          expect(authentication_metrics)
+            .to increment(:user_authenticated_counter)
+            .and increment(:user_two_factor_authenticated_counter)
+          expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
+
+          enter_code(user.current_otp)
         end
       end
 
@@ -195,7 +239,6 @@ describe 'Login' do
           it 'allows login' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter)
-              .and increment(:user_session_override_counter)
               .and increment(:user_two_factor_authenticated_counter)
 
             enter_code(codes.sample)
@@ -206,7 +249,6 @@ describe 'Login' do
           it 'invalidates the used code' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter)
-              .and increment(:user_session_override_counter)
               .and increment(:user_two_factor_authenticated_counter)
 
             expect { enter_code(codes.sample) }
@@ -216,7 +258,6 @@ describe 'Login' do
           it 'invalidates backup codes twice in a row' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter).twice
-              .and increment(:user_session_override_counter).twice
               .and increment(:user_two_factor_authenticated_counter).twice
               .and increment(:user_session_destroyed_counter)
 
@@ -229,6 +270,15 @@ describe 'Login' do
 
             expect { enter_code(codes.sample) }
               .to change { user.reload.otp_backup_codes.size }.by(-1)
+          end
+
+          it 'triggers ActiveSession.cleanup for the user' do
+            expect(authentication_metrics)
+              .to increment(:user_authenticated_counter)
+                    .and increment(:user_two_factor_authenticated_counter)
+            expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
+
+            enter_code(codes.sample)
           end
         end
 
@@ -274,7 +324,7 @@ describe 'Login' do
 
           expect(authentication_metrics)
             .to increment(:user_authenticated_counter)
-            .and increment(:user_session_override_counter)
+          expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
 
           sign_in_using_saml!
 
@@ -287,8 +337,8 @@ describe 'Login' do
         it 'shows 2FA prompt after OAuth login' do
           expect(authentication_metrics)
             .to increment(:user_authenticated_counter)
-            .and increment(:user_session_override_counter)
             .and increment(:user_two_factor_authenticated_counter)
+          expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
 
           sign_in_using_saml!
 
@@ -328,6 +378,14 @@ describe 'Login' do
         visit new_user_session_path
 
         expect(page).not_to have_content(I18n.t('devise.failure.already_authenticated'))
+      end
+
+      it 'triggers ActiveSession.cleanup for the user' do
+        expect(authentication_metrics)
+          .to increment(:user_authenticated_counter)
+        expect(ActiveSession).to receive(:cleanup).with(user).once.and_call_original
+
+        gitlab_sign_in(user)
       end
     end
 
@@ -649,7 +707,6 @@ describe 'Login' do
         it 'asks the user to accept the terms' do
           expect(authentication_metrics)
             .to increment(:user_authenticated_counter)
-            .and increment(:user_session_override_counter)
             .and increment(:user_two_factor_authenticated_counter)
 
           visit new_user_session_path
@@ -708,7 +765,6 @@ describe 'Login' do
       it 'asks the user to accept the terms before setting an email' do
         expect(authentication_metrics)
           .to increment(:user_authenticated_counter)
-          .and increment(:user_session_override_counter)
 
         gitlab_sign_in_via('saml', user, 'my-uid')
 
@@ -722,6 +778,41 @@ describe 'Login' do
         click_button 'Update profile settings'
 
         expect(page).to have_content('Profile was successfully updated')
+      end
+    end
+  end
+
+  context 'when sending confirmation email and not yet confirmed' do
+    let!(:user) { create(:user, confirmed_at: nil) }
+    let(:grace_period) { 2.days }
+
+    before do
+      stub_application_setting(send_user_confirmation_email: true)
+      stub_feature_flags(soft_email_confirmation: true)
+      allow(User).to receive(:allow_unconfirmed_access_for).and_return grace_period
+    end
+
+    it 'allows login and shows a flash warning to confirm the email address' do
+      expect(authentication_metrics).to increment(:user_authenticated_counter)
+
+      gitlab_sign_in(user)
+
+      expect(current_path).to eq root_path
+      expect(page).to have_content("Please check your email (#{user.email}) to verify that you own this address.")
+    end
+
+    context "when not having confirmed within Devise's allow_unconfirmed_access_for time" do
+      it 'does not allow login and shows a flash alert to confirm the email address' do
+        travel_to((grace_period + 1.day).from_now) do
+          expect(authentication_metrics)
+            .to increment(:user_unauthenticated_counter)
+            .and increment(:user_session_destroyed_counter).twice
+
+          gitlab_sign_in(user)
+
+          expect(current_path).to eq new_user_session_path
+          expect(page).to have_content('You have to confirm your email address before continuing.')
+        end
       end
     end
   end

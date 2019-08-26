@@ -121,7 +121,22 @@ describe Projects::DestroyService do
     it { expect(Dir.exist?(remove_path)).to be_truthy }
   end
 
-  context 'when flushing caches fail' do
+  context 'when flushing caches fail due to Git errors' do
+    before do
+      allow(project.repository).to receive(:before_delete).and_raise(::Gitlab::Git::CommandError)
+      allow(Gitlab::GitLogger).to receive(:warn).with(
+        class: described_class.name,
+        project_id: project.id,
+        disk_path: project.disk_path,
+        message: 'Gitlab::Git::CommandError').and_call_original
+
+      perform_enqueued_jobs { destroy_project(project, user, {}) }
+    end
+
+    it_behaves_like 'deleting the project'
+  end
+
+  context 'when flushing caches fail due to Redis' do
     before do
       new_user = create(:user)
       project.team.add_user(new_user, Gitlab::Access::DEVELOPER)
@@ -224,6 +239,18 @@ describe Projects::DestroyService do
             .to receive(:delete_tags!).and_raise(RuntimeError)
 
           expect(destroy_project(project, user)).to be false
+        end
+      end
+
+      context 'when registry is disabled' do
+        before do
+          stub_container_registry_config(enabled: false)
+        end
+
+        it 'does not attempting to remove any tags' do
+          expect(Projects::ContainerRepository::DestroyService).not_to receive(:new)
+
+          destroy_project(project, user)
         end
       end
     end

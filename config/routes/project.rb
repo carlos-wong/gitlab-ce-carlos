@@ -170,7 +170,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :recent
           end
         end
+
         resources :releases, only: [:index]
+        resources :starrers, only: [:index]
         resources :forks, only: [:index, :new, :create]
         resources :group_links, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
 
@@ -265,6 +267,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :pipelines
             get :diffs, to: 'merge_requests/diffs#show'
             get :widget, to: 'merge_requests/content#widget'
+            get :cached_widget, to: 'merge_requests/content#cached_widget'
           end
 
           get :diff_for_path, controller: 'merge_requests/diffs'
@@ -474,7 +477,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           # in JSON format, or a request for tag named `latest.json`.
           scope format: false do
             resources :tags, only: [:index, :destroy],
-                             constraints: { id: Gitlab::Regex.container_registry_tag_regex }
+                             constraints: { id: Gitlab::Regex.container_registry_tag_regex } do
+              collection do
+                delete :bulk_destroy
+              end
+            end
           end
         end
       end
@@ -500,6 +507,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :realtime_changes
           post :create_merge_request
           get :discussions, format: :json
+
+          Gitlab.ee do
+            get 'designs(/*vueroute)', to: 'issues#show', as: :designs, format: false
+          end
         end
 
         collection do

@@ -591,15 +591,13 @@ exist, you should see something like:
 
 ### Monitoring environments
 
-> **Notes:**
->
-> - For the monitoring dashboard to appear, you need to:
->   - Enable the [Prometheus integration](../user/project/integrations/prometheus.md).
->   - Configure Prometheus to collect at least one [supported metric](../user/project/integrations/prometheus_library/index.md).
-> - With GitLab 9.2, all deployments to an environment are shown directly on the monitoring dashboard.
-
 If you have enabled [Prometheus for monitoring system and response metrics](../user/project/integrations/prometheus.md),
-you can monitor the behavior of your app running in each environment.
+you can monitor the behavior of your app running in each environment. For the monitoring
+dashboard to appear, you need to Configure Prometheus to collect at least one
+[supported metric](../user/project/integrations/prometheus_library/index.md).
+
+NOTE: **Note:**
+Since GitLab 9.2, all deployments to an environment are shown directly on the monitoring dashboard.
 
 Once configured, GitLab will attempt to retrieve [supported performance metrics](../user/project/integrations/prometheus_library/index.md)
 for any environment that has had a successful deployment. If monitoring data was
@@ -620,6 +618,10 @@ versions of the app, all without leaving GitLab.
 #### Linking to external dashboard
 
 Add a [button to the Monitoring dashboard](../user/project/operations/linking_to_an_external_dashboard.md) linking directly to your existing external dashboards.
+
+#### Embedding metrics in GitLab Flavored Markdown
+
+Metric charts can be embedded within GitLab Flavored Markdown. See [Embedding Metrics within GitLab Flavored Markdown](../user/project/integrations/prometheus.md#embedding-metric-charts-within-gitlab-flavored-markdown) for more details.
 
 ### Web terminals
 
@@ -692,7 +694,7 @@ with `review/` would have that particular variable.
 
 Some GitLab features can behave differently for each environment.
 For example, you can
-[create a secret variable to be injected only into a production environment](variables/README.md#limiting-environment-scopes-of-environment-variables-premium). **(PREMIUM)**
+[create a secret variable to be injected only into a production environment](variables/README.md#limiting-environment-scopes-of-environment-variables).
 
 In most cases, these features use the _environment specs_ mechanism, which offers
 an efficient way to implement scoping within each environment group.

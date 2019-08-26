@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   include EnforcesTwoFactorAuthentication
   include WithPerformanceBar
   include SessionlessAuthentication
+  include ConfirmEmailWarning
 
   before_action :authenticate_user!
   before_action :enforce_terms!, if: :should_enforce_terms?
@@ -116,13 +117,17 @@ class ApplicationController < ActionController::Base
   def render(*args)
     super.tap do
       # Set a header for custom error pages to prevent them from being intercepted by gitlab-workhorse
-      if response.content_type == 'text/html' && (400..599).cover?(response.status)
+      if (400..599).cover?(response.status) && workhorse_excluded_content_types.include?(response.content_type)
         response.headers['X-GitLab-Custom-Error'] = '1'
       end
     end
   end
 
   protected
+
+  def workhorse_excluded_content_types
+    @workhorse_excluded_content_types ||= %w(text/html application/json)
+  end
 
   def append_info_to_payload(payload)
     super
@@ -421,7 +426,7 @@ class ApplicationController < ActionController::Base
   end
 
   def manifest_import_enabled?
-    Group.supports_nested_objects? && Gitlab::CurrentSettings.import_sources.include?('manifest')
+    Gitlab::CurrentSettings.import_sources.include?('manifest')
   end
 
   def phabricator_import_enabled?
@@ -499,14 +504,20 @@ class ApplicationController < ActionController::Base
   end
 
   def stop_impersonation
-    impersonated_user = current_user
-
-    Gitlab::AppLogger.info("User #{impersonator.username} has stopped impersonating #{impersonated_user.username}")
+    log_impersonation_event
 
     warden.set_user(impersonator, scope: :user)
     session[:impersonator_id] = nil
 
     impersonated_user
+  end
+
+  def impersonated_user
+    current_user
+  end
+
+  def log_impersonation_event
+    Gitlab::AppLogger.info("User #{impersonator.username} has stopped impersonating #{impersonated_user.username}")
   end
 
   def impersonator

@@ -109,7 +109,7 @@ export const toggleLineDiscussions = ({ commit }, options) => {
 export const renderFileForDiscussionId = ({ commit, rootState, state }, discussionId) => {
   const discussion = rootState.notes.discussions.find(d => d.id === discussionId);
 
-  if (discussion) {
+  if (discussion && discussion.diff_file) {
     const file = state.diffFiles.find(f => f.file_hash === discussion.diff_file.file_hash);
 
     if (file) {
@@ -183,7 +183,7 @@ export const cancelCommentForm = ({ commit }, { lineCode, fileHash }) => {
 };
 
 export const loadMoreLines = ({ commit }, options) => {
-  const { endpoint, params, lineNumbers, fileHash } = options;
+  const { endpoint, params, lineNumbers, fileHash, isExpandDown, nextLineNumbers } = options;
 
   params.from_merge_request = true;
 
@@ -195,6 +195,8 @@ export const loadMoreLines = ({ commit }, options) => {
       contextLines,
       params,
       fileHash,
+      isExpandDown,
+      nextLineNumbers,
     });
   });
 };

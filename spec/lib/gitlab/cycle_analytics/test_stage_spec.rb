@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'lib/gitlab/cycle_analytics/shared_stage_spec'
 
 describe Gitlab::CycleAnalytics::TestStage do
   let(:stage_name) { :test }
   let(:project) { create(:project) }
-  let(:stage) { described_class.new(project: project, options: { from: 2.days.ago, current_user: project.creator }) }
+  let(:stage) { described_class.new(options: { from: 2.days.ago, current_user: project.creator, project: project }) }
 
   it_behaves_like 'base stage'
 
@@ -36,7 +38,7 @@ describe Gitlab::CycleAnalytics::TestStage do
     end
 
     it 'counts median from issues with metrics' do
-      expect(stage.median).to eq(ISSUES_MEDIAN)
+      expect(stage.project_median).to eq(ISSUES_MEDIAN)
     end
   end
 end

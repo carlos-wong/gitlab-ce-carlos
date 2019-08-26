@@ -4,11 +4,11 @@ module Gitlab
   module CycleAnalytics
     class BaseStage
       include BaseQuery
+      include GroupProjectsProvider
 
-      attr_reader :project, :options
+      attr_reader :options
 
-      def initialize(project: nil, options:)
-        @project = project
+      def initialize(options:)
         @options = options
       end
 
@@ -24,7 +24,7 @@ module Gitlab
         raise NotImplementedError.new("Expected #{self.name} to implement title")
       end
 
-      def median
+      def project_median
         return if project.nil?
 
         BatchLoader.for(project.id).batch(key: name) do |project_ids, loader|
@@ -40,6 +40,10 @@ module Gitlab
             end
           end
         end
+      end
+
+      def group_median
+        median_query(projects.map(&:id))
       end
 
       def median_query(project_ids)
@@ -67,17 +71,12 @@ module Gitlab
       private
 
       def event_fetcher
-        @event_fetcher ||= Gitlab::CycleAnalytics::EventFetcher[name].new(project: project,
-                                                                          stage: name,
+        @event_fetcher ||= Gitlab::CycleAnalytics::EventFetcher[name].new(stage: name,
                                                                           options: event_options)
       end
 
       def event_options
         options.merge(start_time_attrs: start_time_attrs, end_time_attrs: end_time_attrs)
-      end
-
-      def projects
-        [project]
       end
     end
   end

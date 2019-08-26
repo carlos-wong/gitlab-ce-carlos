@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../support/helpers/test_env'
 
 FactoryBot.define do
@@ -321,10 +323,6 @@ FactoryBot.define do
     has_external_issue_tracker true
 
     jira_service
-  end
-
-  factory :kubernetes_project, parent: :project do
-    kubernetes_service
   end
 
   factory :mock_deployment_project, parent: :project do

@@ -5,25 +5,42 @@ namespace :gitlab do
   end
 
   desc "GitLab | Update project templates"
-  task :update_project_templates do
-    include Gitlab::ImportExport::CommandLineUtil
+  task :update_project_templates, [] => :environment do |_task, args|
+    # we need an instance method from Gitlab::ImportExport::CommandLineUtil and don't
+    # want to include it in the task, as this would affect subsequent tasks as well
+    downloader = Class.new do
+      extend Gitlab::ImportExport::CommandLineUtil
+
+      def self.call(uploader, upload_path)
+        download_or_copy_upload(uploader, upload_path)
+      end
+    end
+
+    template_names = args.extras.to_set
 
     if Rails.env.production?
-      puts "This rake task is not meant fo production instances".red
-      exit(1)
+      raise "This rake task is not meant for production instances"
     end
 
     admin = User.find_by(admin: true)
 
     unless admin
-      puts "No admin user could be found".red
-      exit(1)
+      raise "No admin user could be found"
     end
 
-    Gitlab::ProjectTemplate.all.each do |template|
+    tmp_namespace_path = "tmp-project-import-#{Time.now.to_i}"
+    puts "Creating temporary namespace #{tmp_namespace_path}"
+    tmp_namespace = Namespace.create!(owner: admin, name: tmp_namespace_path, path: tmp_namespace_path)
+
+    templates = if template_names.empty?
+                  Gitlab::ProjectTemplate.all
+                else
+                  Gitlab::ProjectTemplate.all.select { |template| template_names.include?(template.name) }
+                end
+
+    templates.each do |template|
       params = {
-        import_url: template.clone_url,
-        namespace_id: admin.namespace.id,
+        namespace_id: tmp_namespace.id,
         path: template.name,
         skip_wiki: true
       }
@@ -32,33 +49,67 @@ namespace :gitlab do
       project = Projects::CreateService.new(admin, params).execute
 
       unless project.persisted?
-        puts project.errors.messages
-        exit(1)
+        raise "Failed to create project: #{project.errors.messages}"
       end
 
-      loop do
-        if project.finished?
-          puts "Import finished for #{template.name}"
-          break
+      uri_encoded_project_path = template.uri_encoded_project_path
+
+      # extract a concrete commit for signing off what we actually downloaded
+      # this way we do the right thing even if the repository gets updated in the meantime
+      get_commits_response = Gitlab::HTTP.get("https://gitlab.com/api/v4/projects/#{uri_encoded_project_path}/repository/commits",
+        query: { page: 1, per_page: 1 }
+      )
+      raise "Failed to retrieve latest commit for template '#{template.name}'" unless get_commits_response.success?
+
+      commit_sha = get_commits_response.parsed_response.dig(0, 'id')
+
+      project_archive_uri = "https://gitlab.com/api/v4/projects/#{uri_encoded_project_path}/repository/archive.tar.gz?sha=#{commit_sha}"
+      commit_message = <<~MSG
+        Initialized from '#{template.title}' project template
+
+        Template repository: #{template.preview}
+        Commit SHA: #{commit_sha}
+      MSG
+
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir(tmpdir) do
+          Gitlab::TaskHelpers.run_command!(['wget', project_archive_uri, '-O', 'archive.tar.gz'])
+          Gitlab::TaskHelpers.run_command!(['tar', 'xf', 'archive.tar.gz'])
+          extracted_project_basename = Dir['*/'].first
+          Dir.chdir(extracted_project_basename) do
+            Gitlab::TaskHelpers.run_command!(%w(git init))
+            Gitlab::TaskHelpers.run_command!(%w(git add .))
+            Gitlab::TaskHelpers.run_command!(['git', 'commit', '--author', 'GitLab <root@localhost>', '--message', commit_message])
+
+            # Hacky workaround to push to the project in a way that works with both GDK and the test environment
+            Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+              Gitlab::TaskHelpers.run_command!(['git', 'remote', 'add', 'origin', "file://#{project.repository.raw.path}"])
+            end
+            Gitlab::TaskHelpers.run_command!(['git', 'push', '-u', 'origin', 'master'])
+          end
         end
-
-        if project.failed?
-          puts "Failed to import from #{project_params[:import_url]}".red
-          exit(1)
-        end
-
-        puts "Waiting for the import to finish"
-
-        sleep(5)
-        project.reset
       end
+
+      project.reset
 
       Projects::ImportExport::ExportService.new(project, admin).execute
-      download_or_copy_upload(project.export_file, template.archive_path)
-      Projects::DestroyService.new(admin, project).execute
+      downloader.call(project.export_file, template.archive_path)
+
+      unless Projects::DestroyService.new(project, admin).execute
+        puts "Failed to destroy project #{template.name} (but namespace will be cleaned up later)"
+      end
+
       puts "Exported #{template.name}".green
     end
-    puts "Done".green
+
+    success = true
+  ensure
+    if tmp_namespace
+      puts "Destroying temporary namespace #{tmp_namespace_path}"
+      tmp_namespace.destroy
+    end
+
+    puts "Done".green if success
   end
 
   def update(template)

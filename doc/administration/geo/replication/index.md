@@ -1,5 +1,11 @@
 # Geo Replication **(PREMIUM ONLY)**
 
+> - Introduced in GitLab Enterprise Edition 8.9.
+> - Using Geo in combination with
+>   [High Availability](../../high_availability/README.md)
+>   is considered **Generally Available** (GA) in
+>   [GitLab Premium](https://about.gitlab.com/pricing/) 10.4.
+
 Geo is the solution for widely distributed development teams.
 
 ## Overview
@@ -8,14 +14,8 @@ Fetching large repositories can take a long time for teams located far from a si
 
 Geo provides local, read-only instances of your GitLab instances, reducing the time it takes to clone and fetch large repositories and speeding up development.
 
-> - Geo is part of [GitLab Premium](https://about.gitlab.com/pricing/#self-managed).
-> - Introduced in GitLab Enterprise Edition 8.9.
-> - We recommend you use:
->   - At least GitLab Enterprise Edition 10.0 for basic Geo features.
->   - The latest version for a better experience.
-> - Make sure that all nodes run the same GitLab version.
-> - Geo requires PostgreSQL 9.6 and Git 2.9, in addition to GitLab's usual [minimum requirements](../../../install/requirements.md).
-> - Using Geo in combination with [High Availability](../../high_availability/README.md) is considered **Generally Available** (GA) in GitLab [GitLab Premium](https://about.gitlab.com/pricing/) 10.4.
+NOTE: **Note:**
+Check the [requirements](#requirements-for-running-geo) carefully before setting up Geo.
 
 For a video introduction to Geo, see [Introduction to GitLab Geo - GitLab Features](https://www.youtube.com/watch?v=-HDLxSjEh6w).
 
@@ -111,6 +111,13 @@ The following are required to run Geo:
   - [Ubuntu](https://www.ubuntu.com) 16.04+
 - PostgreSQL 9.6+ with [FDW](https://www.postgresql.org/docs/9.6/postgres-fdw.html) support and [Streaming Replication](https://wiki.postgresql.org/wiki/Streaming_Replication)
 - Git 2.9+
+- All nodes must run the same GitLab version.
+
+Additionally, check GitLab's [minimum requirements](../../../install/requirements.md),
+and we recommend you use:
+
+- At least GitLab Enterprise Edition 10.0 for basic Geo features.
+- The latest version for a better experience.
 
 ### Firewall rules
 
@@ -239,35 +246,48 @@ This list of limitations only reflects the latest version of GitLab. If you are 
 - Object pools for forked project deduplication work only on the **primary** node, and are duplicated on the **secondary** node.
 - [External merge request diffs](../../merge_request_diffs.md) will not be replicated if they are on-disk, and viewing merge requests will fail. However, external MR diffs in object storage **are** supported. The default configuration (in-database) does work.
 
-### Limitations on replication
+### Limitations on replication/verification
 
-Only the following items are replicated to the **secondary** node:
+The following table lists the GitLab features along with their replication
+and verification status on a **secondary** node.
 
-- All database content. For example, snippets, epics, issues, merge requests, groups, and project metadata.
-- Project repositories.
-- Project wiki repositories.
-- User uploads. For example, attachments to issues, merge requests, epics, and avatars.
-- CI job artifacts and traces.
+You can keep track of the progress to include the missing items in:
+
+- [ee-893](https://gitlab.com/groups/gitlab-org/-/epics/893).
+- [ee-1430](https://gitlab.com/groups/gitlab-org/-/epics/1430).
+
+| Feature | Replicated | Verified |
+|-----------|------------|----------|
+| All database content (e.g. snippets, epics, issues, merge requests, groups, and project metadata)  | Yes | Yes |
+| Project repository | Yes | Yes |
+| Project wiki repository | Yes | Yes |
+| Project designs repository | No | No |
+| Uploads (e.g. attachments to issues, merge requests, epics, and avatars) | Yes | Yes, only on transfer, or manually (1) |
+| LFS Objects | Yes | Yes, only on transfer, or manually (1) |
+| CI job artifacts (other than traces) | Yes | No, only manually (1) |
+| Archived traces | Yes | Yes, only on transfer, or manually (1) |
+| Personal snippets | Yes | Yes |
+| Version-controlled personal snippets ([unsupported](https://gitlab.com/gitlab-org/gitlab-ce/issues/13426)) | No | No |
+| Project snippets | Yes | Yes |
+| Version-controlled project snippets ([unsupported](https://gitlab.com/gitlab-org/gitlab-ce/issues/13426)) | No | No |
+| Object pools for forked project deduplication | No | No |
+| [Server-side Git Hooks](../../custom_hooks.md) | No | No |
+| [Elasticsearch integration](../../../integration/elasticsearch.md) | No | No |
+| [GitLab Pages](../../pages/index.md) | No | No |
+| [Container Registry](../../container_registry.md) ([track progress](https://gitlab.com/gitlab-org/gitlab-ee/issues/2870)) | No | No |
+| [NPM Registry](../../npm_registry.md) | No | No |
+| [Maven Packages](../../maven_packages.md) | No | No |
+| [External merge request diffs](../../merge_request_diffs.md) | No, if they are on-disk | No |
+| Content in object storage ([track progress](https://gitlab.com/groups/gitlab-org/-/epics/1526)) | No | No |
+
+1. The integrity can be verified manually using [Integrity Check Rake Task](../../raketasks/check.md) on both nodes and comparing the output between them.
 
 DANGER: **DANGER**
-Data not on this list is unavailable on the **secondary** node. Failing over without manually replicating data not on this list will cause the data to be **lost**.
-
-### Examples of data not replicated
-
-Take special note that these examples of GitLab features are both:
-
-- Commonly used.
-- **Not** replicated by Geo at present.
-
-Examples include:
-
-- [Elasticsearch integration](../../../integration/elasticsearch.md).
-- [Container Registry](../../container_registry.md). [Object Storage](object_storage.md) can mitigate this.
-- [GitLab Pages](../../pages/index.md).
-- [Mattermost integration](https://docs.gitlab.com/omnibus/gitlab-mattermost/).
-
-CAUTION: **Caution:**
-If you wish to use them on a **secondary** node, or to execute a failover successfully, you will need to replicate their data using some other means.
+Features not on this list, or with **No** in the **Replicated** column,
+are not replicated on the **secondary** node. Failing over without manually
+replicating data from those features will cause the data to be **lost**.
+If you wish to use those features on a **secondary** node, or to execute a failover
+successfully, you must replicate their data using some other means.
 
 ## Frequently Asked Questions
 

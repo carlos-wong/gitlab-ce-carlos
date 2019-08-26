@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'action_dispatch/testing/test_request'
 require 'fileutils'
 
@@ -19,7 +21,7 @@ module JavaScriptFixturesHelpers
   end
 
   def fixture_root_path
-    (Gitlab.ee? ? 'ee/' : '') + 'spec/javascripts/fixtures'
+    'tmp/tests/frontend/fixtures' + (Gitlab.ee? ? '-ee' : '')
   end
 
   # Public: Removes all fixture files from given directory

@@ -1,5 +1,5 @@
 ---
-redirect_from: 'https://docs.gitlab.com/ee/ci/examples/code_climate.html'
+disqus_identifier: 'https://docs.gitlab.com/ee/ci/examples/code_climate.html'
 type: reference, howto
 ---
 
@@ -14,7 +14,7 @@ This example shows how to run Code Quality on your code by using GitLab CI/CD
 and Docker.
 
 First, you need GitLab Runner with
-[docker-in-docker executor](../docker/using_docker_build.md#use-docker-in-docker-executor).
+[docker-in-docker executor](../docker/using_docker_build.md#use-docker-in-docker-workflow-with-docker-executor).
 
 Once you set up the Runner, include the CodeQuality template in your CI config:
 
@@ -33,6 +33,12 @@ TIP: **Tip:**
 For [GitLab Starter][ee] users, this information will be automatically
 extracted and shown right in the merge request widget.
 [Learn more on Code Quality in merge requests](../../user/project/merge_requests/code_quality.md).
+
+CAUTION: **Caution:**
+On self-managed instances, if a malicious actor compromises the Code Quality job
+definition they will be able to execute privileged docker commands on the Runner
+host. Having proper access control policies mitigates this attack vector by
+allowing access only to trusted actors.
 
 ## Previous job definitions
 

@@ -26,26 +26,19 @@ namespace :gitlab do
     task drop_tables: :environment do
       connection = ActiveRecord::Base.connection
 
-      # If MySQL, turn off foreign key checks
-      connection.execute('SET FOREIGN_KEY_CHECKS=0') if Gitlab::Database.mysql?
-
-      # connection.tables is deprecated in MySQLAdapter, but in PostgreSQLAdapter
-      # data_sources returns both views and tables, so use #tables instead
-      tables = Gitlab::Database.mysql? ? connection.data_sources : connection.tables
+      # In PostgreSQLAdapter, data_sources returns both views and tables, so use
+      # #tables instead
+      tables = connection.tables
 
       # Removes the entry from the array
       tables.delete 'schema_migrations'
       # Truncate schema_migrations to ensure migrations re-run
-      connection.execute('TRUNCATE schema_migrations') if connection.data_source_exists? 'schema_migrations'
+      connection.execute('TRUNCATE schema_migrations') if connection.table_exists? 'schema_migrations'
 
       # Drop tables with cascade to avoid dependent table errors
       # PG: http://www.postgresql.org/docs/current/static/ddl-depend.html
-      # MySQL: http://dev.mysql.com/doc/refman/5.7/en/drop-table.html
       # Add `IF EXISTS` because cascade could have already deleted a table.
       tables.each { |t| connection.execute("DROP TABLE IF EXISTS #{connection.quote_table_name(t)} CASCADE") }
-
-      # If MySQL, re-enable foreign key checks
-      connection.execute('SET FOREIGN_KEY_CHECKS=1') if Gitlab::Database.mysql?
     end
 
     desc 'Configures the database by running migrate, or by loading the schema and seeding if needed'
@@ -76,6 +69,14 @@ namespace :gitlab do
         .select { |file| /\A[0-9]+.*\.rb\z/ =~ File.basename(file) }
 
       Gitlab::DowntimeCheck.new.check_and_print(migrations)
+    end
+
+    desc 'Sets up EE specific database functionality'
+
+    if Gitlab.ee?
+      task setup_ee: %w[geo:db:drop geo:db:create geo:db:schema:load geo:db:migrate]
+    else
+      task :setup_ee
     end
   end
 end

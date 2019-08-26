@@ -3,12 +3,12 @@ require 'spec_helper'
 describe AnalyticsIssueSerializer do
   subject do
     described_class
-      .new(project: project, entity: :merge_request)
+      .new(entity: :merge_request)
       .represent(resource)
   end
 
   let(:user) { create(:user) }
-  let(:project) { create(:project) }
+  let(:project) { create(:project, name: 'my project') }
   let(:resource) do
     {
       total_time: "172802.724419",
@@ -16,7 +16,9 @@ describe AnalyticsIssueSerializer do
       iid: "1",
       id: "1",
       created_at: "2016-11-12 15:04:02.948604",
-      author: user
+      author: user,
+      project_path: project.path,
+      namespace_path: project.namespace.route.path
     }
   end
 

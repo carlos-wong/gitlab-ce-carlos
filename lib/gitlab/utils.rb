@@ -22,7 +22,7 @@ module Gitlab
     end
 
     def force_utf8(str)
-      str.force_encoding(Encoding::UTF_8)
+      str.dup.force_encoding(Encoding::UTF_8)
     end
 
     def ensure_utf8_size(str, bytes:)
@@ -130,6 +130,13 @@ module Gitlab
       else
         data
       end
+    end
+
+    def string_to_ip_object(str)
+      return unless str
+
+      IPAddr.new(str)
+    rescue IPAddr::InvalidAddressError
     end
   end
 end

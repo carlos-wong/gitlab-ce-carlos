@@ -7,6 +7,9 @@ class Repository
   REF_KEEP_AROUND = 'keep-around'.freeze
   REF_ENVIRONMENTS = 'environments'.freeze
 
+  ARCHIVE_CACHE_TIME = 60 # Cache archives referred to by a (mutable) ref for 1 minute
+  ARCHIVE_CACHE_TIME_IMMUTABLE = 3600 # Cache archives referred to by an immutable reference for 1 hour
+
   RESERVED_REFS_NAMES = %W[
     heads
     tags
@@ -386,11 +389,15 @@ class Repository
     expire_statistics_caches
   end
 
-  # Runs code after a repository has been created.
-  def after_create
+  def expire_status_cache
     expire_exists_cache
     expire_root_ref_cache
     expire_emptiness_caches
+  end
+
+  # Runs code after a repository has been created.
+  def after_create
+    expire_status_cache
 
     repository_event(:create_repository)
   end
@@ -415,25 +422,29 @@ class Repository
   end
 
   # Runs code before pushing (= creating or removing) a tag.
+  #
+  # Note that this doesn't expire the tags. You may need to call
+  # expire_caches_for_tags or expire_tags_cache.
   def before_push_tag
+    repository_event(:push_tag)
+  end
+
+  def expire_caches_for_tags
     expire_statistics_caches
     expire_emptiness_caches
     expire_tags_cache
-
-    repository_event(:push_tag)
   end
 
   # Runs code before removing a tag.
   def before_remove_tag
-    expire_tags_cache
-    expire_statistics_caches
+    expire_caches_for_tags
 
     repository_event(:remove_tag)
   end
 
   # Runs code after removing a tag.
   def after_remove_tag
-    expire_tags_cache
+    expire_caches_for_tags
   end
 
   # Runs code after the HEAD of a repository is changed.
@@ -457,8 +468,8 @@ class Repository
   end
 
   # Runs code after a new branch has been created.
-  def after_create_branch
-    expire_branches_cache
+  def after_create_branch(expire_cache: true)
+    expire_branches_cache if expire_cache
 
     repository_event(:push_branch)
   end
@@ -471,8 +482,8 @@ class Repository
   end
 
   # Runs code after an existing branch has been removed.
-  def after_remove_branch
-    expire_branches_cache
+  def after_remove_branch(expire_cache: true)
+    expire_branches_cache if expire_cache
   end
 
   def method_missing(msg, *args, &block)

@@ -73,6 +73,8 @@ From there, you can see the following actions:
 - User was added to project and with which [permissions]
 - Permission changes of a user assigned to a project
 - User was removed from project
+- Project export was downloaded
+- Project repository was downloaded
 
 ### Instance events **(PREMIUM ONLY)**
 
@@ -94,6 +96,7 @@ recorded:
 - Changed password
 - Ask for password reset
 - Grant OAuth access
+- Started/stopped user impersonation
 
 It is possible to filter particular actions by choosing an audit data type from
 the filter drop-down. You can further filter by specific group, project or user

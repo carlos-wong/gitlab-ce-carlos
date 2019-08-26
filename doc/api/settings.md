@@ -39,6 +39,7 @@ Example response:
    "session_expire_delay" : 10080,
    "home_page_url" : null,
    "default_snippet_visibility" : "private",
+   "outbound_local_requests_whitelist": [],
    "domain_whitelist" : [],
    "domain_blacklist_enabled" : false,
    "domain_blacklist" : [],
@@ -63,7 +64,10 @@ Example response:
    "performance_bar_allowed_group_id": 42,
    "instance_statistics_visibility_private": false,
    "user_show_add_ssh_key_message": true,
-   "local_markdown_version": 0
+   "local_markdown_version": 0,
+   "allow_local_requests_from_hooks_and_services": true,
+   "allow_local_requests_from_web_hooks_and_services": true,
+   "allow_local_requests_from_system_hooks": false
 }
 ```
 
@@ -113,6 +117,7 @@ Example response:
   "default_project_visibility": "internal",
   "default_snippet_visibility": "private",
   "default_group_visibility": "private",
+  "outbound_local_requests_whitelist": [],
   "domain_whitelist": [],
   "domain_blacklist_enabled" : false,
   "domain_blacklist" : [],
@@ -136,7 +141,10 @@ Example response:
   "user_show_add_ssh_key_message": true,
   "file_template_project_id": 1,
   "local_markdown_version": 0,
-  "geo_node_allowed_ips": "0.0.0.0/0, ::/0"
+  "geo_node_allowed_ips": "0.0.0.0/0, ::/0",
+  "allow_local_requests_from_hooks_and_services": true,
+  "allow_local_requests_from_web_hooks_and_services": true,
+  "allow_local_requests_from_system_hooks": false
 }
 ```
 
@@ -175,7 +183,9 @@ are listed in the descriptions of the relevant settings.
 | `akismet_api_key`                        | string           | required by: `akismet_enabled`       | API key for akismet spam protection. |
 | `akismet_enabled`                        | boolean          | no                                   | (**If enabled, requires:** `akismet_api_key`) Enable or disable akismet spam protection. |
 | `allow_group_owners_to_manage_ldap`      | boolean          | no                                   | **(PREMIUM)** Set to `true` to allow group owners to manage LDAP |
-| `allow_local_requests_from_hooks_and_services` | boolean    | no                                   | Allow requests to the local network from hooks and services. |
+| `allow_local_requests_from_hooks_and_services` | boolean    | no                                   | (Deprecated: Use `allow_local_requests_from_web_hooks_and_services` instead) Allow requests to the local network from hooks and services. |
+| `allow_local_requests_from_web_hooks_and_services` | boolean    | no                                   | Allow requests to the local network from web hooks and services. |
+| `allow_local_requests_from_system_hooks` | boolean    | no                                   | Allow requests to the local network from system hooks. |
 | `authorized_keys_enabled`                | boolean          | no                                   | By default, we write to the `authorized_keys` file to support Git over SSH without additional configuration. GitLab can be optimized to authenticate SSH keys via the database file. Only disable this if you have configured your OpenSSH server to use the AuthorizedKeysCommand. |
 | `auto_devops_domain`                     | string           | no                                   | Specify a domain to use by default for every project's Auto Review Apps and Auto Deploy stages. |
 | `auto_devops_enabled`                    | boolean          | no                                   | Enable Auto DevOps for projects by default. It will automatically build, test, and deploy applications based on a predefined CI/CD configuration. |
@@ -193,6 +203,7 @@ are listed in the descriptions of the relevant settings.
 | `domain_blacklist`                       | array of strings | required by: `domain_blacklist_enabled` | Users with e-mail addresses that match these domain(s) will NOT be able to sign-up. Wildcards allowed. Use separate lines for multiple entries. Ex: `domain.com`, `*.domain.com`. |
 | `domain_blacklist_enabled`               | boolean          | no                                   | (**If enabled, requires:** `domain_blacklist`) Allows blocking sign-ups from emails from specific domains. |
 | `domain_whitelist`                       | array of strings | no                                   | Force people to use only corporate emails for sign-up. Default is `null`, meaning there is no restriction. |
+| `outbound_local_requests_whitelist`      | array of strings | no                                   | Define a list of trusted domains or ip addresses to which local requests are allowed when local requests for hooks and services are disabled.
 | `dsa_key_restriction`                    | integer          | no                                   | The minimum allowed bit length of an uploaded DSA key. Default is `0` (no restriction). `-1` disables DSA keys. |
 | `ecdsa_key_restriction`                  | integer          | no                                   | The minimum allowed curve size (in bits) of an uploaded ECDSA key. Default is `0` (no restriction). `-1` disables ECDSA keys. |
 | `ed25519_key_restriction`                | integer          | no                                   | The minimum allowed curve size (in bits) of an uploaded ED25519 key. Default is `0` (no restriction). `-1` disables ED25519 keys. |
@@ -227,7 +238,7 @@ are listed in the descriptions of the relevant settings.
 | `gravatar_enabled`                       | boolean          | no                                   | Enable Gravatar. |
 | `hashed_storage_enabled`                 | boolean          | no                                   | Create new projects using hashed storage paths: Enable immutable, hash-based paths and repository names to store repositories on disk. This prevents repositories from having to be moved or renamed when the Project URL changes and may improve disk I/O performance. (EXPERIMENTAL) |
 | `help_page_hide_commercial_content`      | boolean          | no                                   | Hide marketing-related entries from help. |
-| `help_page_support_url`                  | string           | no                                   | Alternate support URL for help page. |
+| `help_page_support_url`                  | string           | no                                   | Alternate support URL for help page and help dropdown. |
 | `help_page_text`                         | string           | no                                   | Custom text displayed on the help page. |
 | `help_text`                              | string           | no                                   | **(PREMIUM)** GitLab server administrator information |
 | `hide_third_party_offers`                | boolean          | no                                   | Do not display offers from third parties within GitLab. |
@@ -310,4 +321,8 @@ are listed in the descriptions of the relevant settings.
 | `user_show_add_ssh_key_message`          | boolean          | no                                   | When set to `false` disable the "You won't be able to pull or push project code via SSH" warning shown to users with no uploaded SSH key. |
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `local_markdown_version`                 | integer          | no                                   | Increase this value when any cached markdown should be invalidated. |
+| `snowplow_enabled`                       | boolean          | no                                   | Enable snowplow tracking. |
+| `snowplow_collector_hostname`            | string           | required by: `snowplow_enabled`      | The Snowplow collector hostname. (e.g. `snowplow.trx.gitlab.net`) | 
+| `snowplow_site_id`                       | string           | no                                   | The Snowplow site name / application id. (e.g. `gitlab`) |
+| `snowplow_cookie_domain`                 | string           | no                                   | The Snowplow cookie domain. (e.g. `.gitlab.com`) |
 | `geo_node_allowed_ips`                   | string           | yes                                  | **(PREMIUM)** Comma-separated list of IPs and CIDRs of allowed secondary nodes. For example, `1.1.1.1, 2.2.2.0/24`. |

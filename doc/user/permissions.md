@@ -45,8 +45,10 @@ The following table depicts the various user permission levels in a project.
 | Leave comments                                    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Insights charts **(ULTIMATE)**               | ✓       | ✓          | ✓           | ✓        | ✓      |
 | View approved/blacklisted licenses **(ULTIMATE)** | ✓       | ✓          | ✓           | ✓        | ✓      |
-| View license management reports **(ULTIMATE)**    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View License Compliance reports **(ULTIMATE)**    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Security reports **(ULTIMATE)**              | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View Dependency list **(ULTIMATE)**               | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View [Design Management](project/issues/design_management.md) pages **(PREMIUM)** | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View project code                                 | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | Pull project code                                 | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View GitLab Pages protected by [access control](project/pages/introduction.md#gitlab-pages-access-control-core-only) | ✓       | ✓          | ✓           | ✓        | ✓      |
@@ -63,7 +65,6 @@ The following table depicts the various user permission levels in a project.
 | Lock issue threads                                |         | ✓          | ✓           | ✓        | ✓      |
 | Manage issue tracker                              |         | ✓          | ✓           | ✓        | ✓      |
 | Manage related issues **(STARTER)**               |         | ✓          | ✓           | ✓        | ✓      |
-| Create issue from vulnerability **(ULTIMATE)**    |         | ✓          | ✓           | ✓        | ✓      |
 | Manage labels                                     |         | ✓          | ✓           | ✓        | ✓      |
 | Create code snippets                              |         | ✓          | ✓           | ✓        | ✓      |
 | See a commit status                               |         | ✓          | ✓           | ✓        | ✓      |
@@ -74,6 +75,7 @@ The following table depicts the various user permission levels in a project.
 | View Error Tracking list                          |         | ✓          | ✓           | ✓        | ✓      |
 | Pull from [Maven repository](project/packages/maven_repository.md) or [NPM registry](project/packages/npm_registry.md) **(PREMIUM)** |         | ✓          | ✓           | ✓        | ✓      |
 | Publish to [Maven repository](project/packages/maven_repository.md) or [NPM registry](project/packages/npm_registry.md) **(PREMIUM)** |         |            | ✓           | ✓        | ✓      ||
+| Upload [Design Management](project/issues/design_management.md) files **(PREMIUM)** |         |            | ✓           | ✓        | ✓      |
 | Create new branches                               |         |            | ✓           | ✓        | ✓      |
 | Push to non-protected branches                    |         |            | ✓           | ✓        | ✓      |
 | Force push to non-protected branches              |         |            | ✓           | ✓        | ✓      |
@@ -92,6 +94,8 @@ The following table depicts the various user permission levels in a project.
 | Remove a container registry image                 |         |            | ✓           | ✓        | ✓      |
 | Create/edit/delete project milestones             |         |            | ✓           | ✓        | ✓      |
 | Use security dashboard **(ULTIMATE)**             |         |            | ✓           | ✓        | ✓      |
+| View vulnerabilities in Dependency list **(ULTIMATE)** |    |            | ✓           | ✓        | ✓      |
+| Create issue from vulnerability **(ULTIMATE)**    |         |            | ✓           | ✓        | ✓      |
 | Dismiss vulnerability **(ULTIMATE)**              |         |            | ✓           | ✓        | ✓      |
 | Apply code change suggestions                     |         |            | ✓           | ✓        | ✓      |
 | Create and edit wiki pages                        |         |            | ✓           | ✓        | ✓      |
@@ -122,6 +126,7 @@ The following table depicts the various user permission levels in a project.
 | Transfer project to another namespace             |         |            |             |          | ✓      |
 | Remove project                                    |         |            |             |          | ✓      |
 | Delete issues                                     |         |            |             |          | ✓      |
+| Disable notification emails                       |         |            |             |          | ✓      |
 | Force push to protected branches (*4*)            |         |            |             |          |        |
 | Remove protected branches (*4*)                   |         |            |             |          |        |
 
@@ -157,7 +162,7 @@ to learn more.
 ### Cycle Analytics permissions
 
 Find the current permissions on the Cycle Analytics dashboard on
-the [documentation on Cycle Analytics permissions](project/cycle_analytics.md#permissions).
+the [documentation on Cycle Analytics permissions](analytics/cycle_analytics.md#permissions).
 
 ### Issue Board permissions
 
@@ -209,12 +214,17 @@ group.
 | Create project in group                         |       |          | ✓         | ✓          | ✓     |
 | Create/edit/delete group milestones             |       |          | ✓         | ✓          | ✓     |
 | Enable/disable a dependency proxy **(PREMIUM)** |       |          | ✓         | ✓          | ✓     |
+| Use security dashboard **(ULTIMATE)**           |       |          | ✓         | ✓          | ✓     |
+| Create subgroup                                 |       |          |           | ✓ (1)      | ✓     |
 | Edit group                                      |       |          |           |            | ✓     |
-| Create subgroup                                 |       |          |           |            | ✓     |
 | Manage group members                            |       |          |           |            | ✓     |
 | Remove group                                    |       |          |           |            | ✓     |
 | Delete group epic **(ULTIMATE)**                |       |          |           |            | ✓     |
 | View group Audit Events                         |       |          |           |            | ✓     |
+| Disable notification emails                     |       |          |           |            | ✓     |
+
+- (1): Groups can be set to [allow either Owners or Owners and
+  Maintainers to create subgroups](group/subgroups/index.md#creating-a-subgroup)
 
 ### Subgroup permissions
 
@@ -224,6 +234,19 @@ nested groups if you have membership in one of its parents.
 
 To learn more, read through the documentation on
 [subgroups memberships](group/subgroups/index.md#membership).
+
+## Guest User
+
+When a user is given `Guest` permissions on a project and/or group, and holds no
+higher permission level on any other project or group on the instance, the user
+is considered a guest user by GitLab and will not consume a license seat.
+There is no other specific "guest" designation for newly created users.
+
+If the user is assigned a higher role on any projects or groups, the user will
+take a license seat. If a user creates a project, the user becomes a `Maintainer`
+on the project, resulting in the use of a license seat. To prevent a guest user
+from creating projects, you can edit the user profile to mark the user as
+[External](#external-users-permissions).
 
 ## External users permissions
 

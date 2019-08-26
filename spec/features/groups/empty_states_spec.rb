@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Group empty states' do
@@ -110,7 +112,7 @@ describe 'Group empty states' do
       end
 
       context 'group without a project' do
-        context 'group has a subgroup', :nested_groups do
+        context 'group has a subgroup' do
           let(:subgroup) { create(:group, parent: group) }
           let(:subgroup_project) { create(:project, namespace: subgroup) }
 

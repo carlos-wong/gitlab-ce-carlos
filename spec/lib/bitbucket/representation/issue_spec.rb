@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Bitbucket::Representation::Issue do
@@ -15,7 +17,7 @@ describe Bitbucket::Representation::Issue do
   end
 
   describe '#author' do
-    it { expect(described_class.new({ 'reporter' => { 'username' => 'Ben' } }).author).to eq('Ben') }
+    it { expect(described_class.new({ 'reporter' => { 'nickname' => 'Ben' } }).author).to eq('Ben') }
     it { expect(described_class.new({}).author).to be_nil }
   end
 

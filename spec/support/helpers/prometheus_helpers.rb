@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PrometheusHelpers
   def prometheus_memory_query(environment_slug)
     %{avg(container_memory_usage_bytes{container_name!="POD",environment="#{environment_slug}"}) / 2^20}
@@ -72,6 +74,14 @@ module PrometheusHelpers
 
   def stub_any_prometheus_request
     WebMock.stub_request(:any, /prometheus.example.com/)
+  end
+
+  def stub_any_prometheus_request_with_response(status: 200, headers: {}, body: nil)
+    stub_any_prometheus_request.to_return({
+      status: status,
+      headers: { 'Content-Type' => 'application/json' }.merge(headers),
+      body: body || prometheus_values_body.to_json
+    })
   end
 
   def stub_all_prometheus_requests(environment_slug, body: nil, status: 200)

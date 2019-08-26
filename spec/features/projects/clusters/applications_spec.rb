@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Clusters Applications', :js do
@@ -20,9 +22,8 @@ describe 'Clusters Applications', :js do
       let(:cluster) { create(:cluster, :providing_by_gcp, projects: [project]) }
 
       it 'user is unable to install applications' do
-        page.within('.js-cluster-application-row-helm') do
-          expect(page).to have_css('.js-cluster-application-install-button[disabled]', exact_text: 'Install')
-        end
+        expect(page).not_to have_css('.js-cluster-application-row-helm')
+        expect(page).not_to have_css('.js-cluster-application-install-button')
       end
     end
 
@@ -61,7 +62,8 @@ describe 'Clusters Applications', :js do
 
             Clusters::Cluster.last.application_helm.make_installed!
 
-            expect(page).to have_css('.js-cluster-application-install-button[disabled]', exact_text: 'Installed')
+            expect(page).not_to have_css('.js-cluster-application-install-button')
+            expect(page).to have_css('.js-cluster-application-uninstall-button:not([disabled])', exact_text: 'Uninstall')
           end
 
           expect(page).to have_content('Helm Tiller was successfully installed on your Kubernetes cluster')
@@ -124,7 +126,7 @@ describe 'Clusters Applications', :js do
             it 'shows status transition' do
               page.within('.js-cluster-application-row-knative') do
                 expect(domainname_form_value).to eq('domain.example.org')
-                expect(page).to have_css('.js-cluster-application-install-button', exact_text: 'Installed')
+                expect(page).to have_css('.js-cluster-application-uninstall-button', exact_text: 'Uninstall')
               end
 
               expect(page).to have_content('Knative was successfully installed on your Kubernetes cluster')
@@ -181,7 +183,7 @@ describe 'Clusters Applications', :js do
             Clusters::Cluster.last.application_cert_manager.make_installed!
 
             expect(email_form_value).to eq('new_email@example.org')
-            expect(page).to have_css('.js-cluster-application-install-button', exact_text: 'Installed')
+            expect(page).to have_css('.js-cluster-application-uninstall-button', exact_text: 'Uninstall')
           end
 
           expect(page).to have_content('Cert-Manager was successfully installed on your Kubernetes cluster')

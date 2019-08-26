@@ -1988,6 +1988,7 @@ describe MergeRequest do
       params = {}
       merge_jid = 'hash-123'
 
+      expect(merge_request).to receive(:expire_etag_cache)
       expect(MergeWorker).to receive(:perform_async).with(merge_request.id, user_id, params) do
         merge_jid
       end
@@ -2011,6 +2012,7 @@ describe MergeRequest do
         .with(merge_request.id, user_id)
         .and_return(rebase_jid)
 
+      expect(merge_request).to receive(:expire_etag_cache)
       expect(merge_request).to receive(:lock!).and_call_original
 
       execute
@@ -3013,51 +3015,12 @@ describe MergeRequest do
       subject { merge_request.rebase_in_progress? }
 
       it do
-        # Stub out the legacy gitaly implementation
-        allow(merge_request).to receive(:gitaly_rebase_in_progress?) { false }
-
         allow(Gitlab::SidekiqStatus).to receive(:running?).with(rebase_jid) { jid_valid }
 
         merge_request.rebase_jid = rebase_jid
 
         is_expected.to eq(result)
       end
-    end
-  end
-
-  describe '#gitaly_rebase_in_progress?' do
-    let(:repo_path) do
-      Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-        subject.source_project.repository.path
-      end
-    end
-    let(:rebase_path) { File.join(repo_path, "gitlab-worktree", "rebase-#{subject.id}") }
-
-    before do
-      system(*%W(#{Gitlab.config.git.bin_path} -C #{repo_path} worktree add --detach #{rebase_path} master))
-    end
-
-    it 'returns true when there is a current rebase directory' do
-      expect(subject.rebase_in_progress?).to be_truthy
-    end
-
-    it 'returns false when there is no rebase directory' do
-      FileUtils.rm_rf(rebase_path)
-
-      expect(subject.rebase_in_progress?).to be_falsey
-    end
-
-    it 'returns false when the rebase directory has expired' do
-      time = 20.minutes.ago.to_time
-      File.utime(time, time, rebase_path)
-
-      expect(subject.rebase_in_progress?).to be_falsey
-    end
-
-    it 'returns false when the source project has been removed' do
-      allow(subject).to receive(:source_project).and_return(nil)
-
-      expect(subject.rebase_in_progress?).to be_falsey
     end
   end
 

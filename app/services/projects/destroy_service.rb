@@ -173,6 +173,7 @@ module Projects
     end
 
     def remove_registry_tags
+      return true unless Gitlab.config.registry.enabled
       return false unless remove_legacy_registry_tags
 
       project.container_repositories.find_each do |container_repository|
@@ -210,11 +211,20 @@ module Projects
     end
 
     def flush_caches(project)
-      project.repository.before_delete
+      ignore_git_errors(repo_path) { project.repository.before_delete }
 
-      Repository.new(wiki_path, project, disk_path: repo_path).before_delete
+      ignore_git_errors(wiki_path) { Repository.new(wiki_path, project, disk_path: repo_path).before_delete }
 
       Projects::ForksCountService.new(project).delete_cache
+    end
+
+    # If we get a Gitaly error, the repository may be corrupted. We can
+    # ignore these errors since we're going to trash the repositories
+    # anyway.
+    def ignore_git_errors(disk_path, &block)
+      yield
+    rescue Gitlab::Git::CommandError => e
+      Gitlab::GitLogger.warn(class: self.class.name, project_id: project.id, disk_path: disk_path, message: e.to_s)
     end
   end
 end

@@ -321,6 +321,9 @@ class NotificationService
   end
 
   def decline_project_invite(project_member)
+    # Must always send, regardless of project/namespace configuration since it's a
+    # response to the user's action.
+
     mailer.member_invite_declined_email(
       project_member.real_source_type,
       project_member.project.id,
@@ -351,8 +354,8 @@ class NotificationService
   end
 
   def decline_group_invite(group_member)
-    # always send this one, since it's a response to the user's own
-    # action
+    # Must always send, regardless of project/namespace configuration since it's a
+    # response to the user's action.
 
     mailer.member_invite_declined_email(
       group_member.real_source_type,
@@ -410,6 +413,10 @@ class NotificationService
   end
 
   def pipeline_finished(pipeline, recipients = nil)
+    # Must always check project configuration since recipients could be a list of emails
+    # from the PipelinesEmailService integration.
+    return if pipeline.project.emails_disabled?
+
     email_template = "pipeline_#{pipeline.status}_email"
 
     return unless mailer.respond_to?(email_template)
@@ -418,7 +425,9 @@ class NotificationService
       [pipeline.user], :watch,
       custom_action: :"#{pipeline.status}_pipeline",
       target: pipeline
-    ).map(&:notification_email)
+    ).map do |user|
+      user.notification_email_for(pipeline.project.group)
+    end
 
     if recipients.any?
       mailer.public_send(email_template, pipeline, recipients).deliver_later
@@ -426,6 +435,8 @@ class NotificationService
   end
 
   def autodevops_disabled(pipeline, recipients)
+    return if pipeline.project.emails_disabled?
+
     recipients.each do |recipient|
       mailer.autodevops_disabled_email(pipeline, recipient).deliver_later
     end
@@ -470,10 +481,14 @@ class NotificationService
   end
 
   def repository_cleanup_success(project, user)
+    return if project.emails_disabled?
+
     mailer.send(:repository_cleanup_success_email, project, user).deliver_later
   end
 
   def repository_cleanup_failure(project, user, error)
+    return if project.emails_disabled?
+
     mailer.send(:repository_cleanup_failure_email, project, user, error).deliver_later
   end
 
@@ -593,7 +608,7 @@ class NotificationService
   end
 
   def deliver_access_request_email(recipient, member)
-    mailer.member_access_requested_email(member.real_source_type, member.id, recipient.user.notification_email).deliver_later
+    mailer.member_access_requested_email(member.real_source_type, member.id, recipient.user.id).deliver_later
   end
 
   def fallback_to_group_owners_maintainers?(recipients, member)

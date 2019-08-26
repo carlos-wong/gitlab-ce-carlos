@@ -6,11 +6,12 @@ class Projects::WikisController < Projects::ApplicationController
   include Gitlab::Utils::StrongMemoize
 
   before_action :authorize_read_wiki!
-  before_action :authorize_create_wiki!, only: [:edit, :create, :history]
+  before_action :authorize_create_wiki!, only: [:edit, :create]
   before_action :authorize_admin_wiki!, only: :destroy
   before_action :load_project_wiki
   before_action :load_page, only: [:show, :edit, :update, :history, :destroy]
-  before_action :valid_encoding?, only: [:show, :edit, :update], if: :load_page
+  before_action :valid_encoding?,
+    if: -> { %w[show edit update].include?(action_name) && load_page }
   before_action only: [:edit, :update], unless: :valid_encoding? do
     redirect_to(project_wiki_path(@project, @page))
   end

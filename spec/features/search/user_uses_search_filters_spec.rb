@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User uses search filters', :js do
@@ -20,7 +22,7 @@ describe 'User uses search filters', :js do
 
       wait_for_requests
 
-      page.within('.search-holder') do
+      page.within('.search-page-form') do
         click_link(group.name)
       end
 

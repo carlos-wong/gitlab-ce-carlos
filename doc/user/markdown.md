@@ -136,26 +136,26 @@ Supported formats (named colors are not supported):
 Color written inside backticks will be followed by a color "chip":
 
 ```markdown
-`#F00`
-`#F00A`
-`#FF0000`
-`#FF0000AA`
-`RGB(0,255,0)`
-`RGB(0%,100%,0%)`
-`RGBA(0,255,0,0.3)`
-`HSL(540,70%,50%)`
-`HSLA(540,70%,50%,0.3)`
+`#F00`  
+`#F00A`  
+`#FF0000`  
+`#FF0000AA`  
+`RGB(0,255,0)`  
+`RGB(0%,100%,0%)`  
+`RGBA(0,255,0,0.3)`  
+`HSL(540,70%,50%)`  
+`HSLA(540,70%,50%,0.3)`  
 ```
 
-`#F00`
-`#F00A`
-`#FF0000`
-`#FF0000AA`
-`RGB(0,255,0)`
-`RGB(0%,100%,0%)`
-`RGBA(0,255,0,0.3)`
-`HSL(540,70%,50%)`
-`HSLA(540,70%,50%,0.3)`
+`#F00`  
+`#F00A`  
+`#FF0000`  
+`#FF0000AA`  
+`RGB(0,255,0)`  
+`RGB(0%,100%,0%)`  
+`RGBA(0,255,0,0.3)`  
+`HSL(540,70%,50%)`  
+`HSLA(540,70%,50%,0.3)`  
 
 ### Diagrams and flowcharts using Mermaid
 
@@ -440,6 +440,7 @@ unordered or ordered lists:
   - [ ] Sub-task 1
   - [x] Sub-task 2
   - [ ] Sub-task 3
+
 1. [x] Completed task
 1. [ ] Incomplete task
    1. [ ] Sub-task 1
@@ -451,6 +452,7 @@ unordered or ordered lists:
   - [ ] Sub-task 1
   - [x] Sub-task 2
   - [ ] Sub-task 3
+
 1. [x] Completed task
 1. [ ] Incomplete task
    1. [ ] Sub-task 1
@@ -530,6 +532,10 @@ This snippet links to `<wiki_root>/miscellaneous.md`:
 ```markdown
 [Link to Related Page](/miscellaneous.md)
 ```
+
+### Embedding metrics in GitLab Flavored Markdown
+
+Metric charts can be embedded within GitLab Flavored Markdown. See [Embedding Metrics within GitLab flavored Markdown](../user/project/integrations/prometheus.md#embedding-metric-charts-within-gitlab-flavored-markdown) for more details.
 
 ## Standard markdown and extensions in GitLab
 
@@ -1019,7 +1025,7 @@ after the `</summary>` tag and before the `</details>` tag, as shown in the exam
 
 These details _will_ remain **hidden** until expanded.
 
-    PASTE LOGS HERE
+PASTE LOGS HERE
 
 </details>
 ```
@@ -1031,7 +1037,7 @@ These details _will_ remain **hidden** until expanded.
 
 These details <em>will</em> remain <b>hidden</b> until expanded.
 
-    PASTE LOGS HERE
+PASTE LOGS HERE
 
 </details>
 
@@ -1090,14 +1096,14 @@ A new line due to the previous backslash.
 
 First paragraph.
 Another line in the same paragraph.
-A third line in the same paragraph, but this time ending with two spaces.
+A third line in the same paragraph, but this time ending with two spaces.  
 A new line directly under the first paragraph.
 
 <!-- (Do *NOT* remove the two ending whitespaces in the second line) -->
 <!-- (They are needed for the Markdown text to render correctly on docs.gitlab.com, the backslash works fine inside GitLab itself) -->
 
 Second paragraph.
-Another line, this time ending with a backslash.
+Another line, this time ending with a backslash.  
 A new line due to the previous backslash.
 
 ### Links
@@ -1178,13 +1184,13 @@ GFM will autolink almost any URL you put into your text:
 ### Lists
 
 Ordered and unordered lists can be easily created. Add the number you want the list
-to start with, like `1. ` (with a space) at the start of each line for ordered lists.
+to start with, like `1.`, followed by a space, at the start of each line for ordered lists.
 After the first number, it does not matter what number you use, ordered lists will be
-numbered automatically by vertical order, so repeating `1. ` for all items in the
-same list is common. If you start with a number other than `1. `, it will use that as the first
+numbered automatically by vertical order, so repeating `1.` for all items in the
+same list is common. If you start with a number other than `1.`, it will use that as the first
 number, and count up from there.
 
-Add a `* `, `- ` or `+ ` (with a space) at the start of each line for unordered lists, but
+Add a `*`, `-` or `+`, followed by a space, at the start of each line for unordered lists, but
 you should not use a mix of them.
 
 Examples:
@@ -1199,21 +1205,27 @@ Examples:
 4. And another item.
 
 * Unordered lists can use asterisks
+
 - Or minuses
+
 + Or pluses
 ```
 
+<!-- The "2." and "4." in the example above are changed to "1." below, only to match the standards on docs.gitlab.com -->
+
 1. First ordered list item
-2. Another item
+1. Another item
    - Unordered sub-list.
 1. Actual numbers don't matter, just that it's a number
    1. Ordered sub-list
    1. Next ordered sub-list item
-4. And another item.
+1. And another item.
 
-* Unordered lists can use asterisks
+- Unordered lists can use asterisks
+
 - Or minuses
-+ Or pluses
+
+- Or pluses
 
 ---
 
@@ -1227,14 +1239,14 @@ Example:
 
    Second paragraph of first item.
 
-2. Another item
+1. Another item
 ```
 
 1. First ordered list item
 
    Second paragraph of first item.
 
-2. Another item
+1. Another item
 
 ---
 
@@ -1248,14 +1260,14 @@ Example:
 
   Paragraph of first item.
 
-2. Another item
+1. Another item
 ```
 
 1. First ordered list item
 
   Paragraph of first item.
 
-2. Another item
+1. Another item
 
 ### Superscripts / Subscripts
 

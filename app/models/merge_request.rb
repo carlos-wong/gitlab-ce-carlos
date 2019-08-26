@@ -73,6 +73,7 @@ class MergeRequest < ApplicationRecord
   after_update :clear_memoized_shas
   after_update :reload_diff_if_branch_changed
   after_save :ensure_metrics
+  after_commit :expire_etag_cache
 
   # When this attribute is true some MR validation is ignored
   # It allows us to close or modify broken merge requests
@@ -192,6 +193,7 @@ class MergeRequest < ApplicationRecord
   alias_attribute :project, :target_project
   alias_attribute :project_id, :target_project_id
   alias_attribute :auto_merge_enabled, :merge_when_pipeline_succeeds
+  alias_method :issuing_parent, :target_project
 
   def self.reference_prefix
     '!'
@@ -218,18 +220,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def rebase_in_progress?
-    (rebase_jid.present? && Gitlab::SidekiqStatus.running?(rebase_jid)) ||
-      gitaly_rebase_in_progress?
-  end
-
-  # TODO: remove the Gitaly lookup after v12.1, when rebase_jid will be reliable
-  def gitaly_rebase_in_progress?
-    strong_memoize(:gitaly_rebase_in_progress) do
-      # The source project can be deleted
-      next false unless source_project
-
-      source_project.repository.rebase_in_progress?(id)
-    end
+    rebase_jid.present? && Gitlab::SidekiqStatus.running?(rebase_jid)
   end
 
   # Use this method whenever you need to make sure the head_pipeline is synced with the
@@ -388,6 +379,10 @@ class MergeRequest < ApplicationRecord
   def merge_async(user_id, params)
     jid = MergeWorker.perform_async(id, user_id, params.to_h)
     update_column(:merge_jid, jid)
+
+    # merge_ongoing? depends on merge_jid
+    # expire etag cache since the attribute is changed without triggering callbacks
+    expire_etag_cache
   end
 
   # Set off a rebase asynchronously, atomically updating the `rebase_jid` of
@@ -408,6 +403,10 @@ class MergeRequest < ApplicationRecord
 
       update_column(:rebase_jid, jid)
     end
+
+    # rebase_in_progress? depends on rebase_jid
+    # expire etag cache since the attribute is changed without triggering callbacks
+    expire_etag_cache
   end
 
   def merge_participants
@@ -1247,15 +1246,8 @@ class MergeRequest < ApplicationRecord
   end
 
   def all_commits
-    # MySQL doesn't support LIMIT in a subquery.
-    diffs_relation = if Gitlab::Database.postgresql?
-                       merge_request_diffs.recent
-                     else
-                       merge_request_diffs
-                     end
-
     MergeRequestDiffCommit
-      .where(merge_request_diff: diffs_relation)
+      .where(merge_request_diff: merge_request_diffs.recent)
       .limit(10_000)
   end
 
@@ -1432,5 +1424,12 @@ class MergeRequest < ApplicationRecord
       variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_URL', value: source_project.web_url)
       variables.append(key: 'CI_MERGE_REQUEST_SOURCE_BRANCH_NAME', value: source_branch.to_s)
     end
+  end
+
+  def expire_etag_cache
+    return unless project.namespace
+
+    key = Gitlab::Routing.url_helpers.cached_widget_project_json_merge_request_path(project, self, format: :json)
+    Gitlab::EtagCaching::Store.new.touch(key)
   end
 end

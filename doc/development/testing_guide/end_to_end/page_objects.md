@@ -27,7 +27,7 @@ When someone later changes `t.text_field :login` in the view associated with
 this page to `t.text_field :username` it will generate a different field
 identifier, what would effectively break all tests.
 
-Because we are using `Page::Main::Login.act { sign_in_using_credentials }`
+Because we are using `Page::Main::Login.perform(&:sign_in_using_credentials)`
 everywhere, when we want to sign into GitLab, the page object is the single
 source of truth, and we will need to update `fill_in :user_login`
 to `fill_in :user_username` only in a one place.
@@ -105,7 +105,7 @@ code but **this is deprecated** in favor of the above method for two reasons:
 view 'app/views/my/view.html.haml' do
 
   ### Good ###
- 
+
   # Implicitly require the CSS selector `[data-qa-selector="logout_button"]` to be present in the view
   element :logout_button
 
@@ -152,9 +152,8 @@ Things to note:
 - The name of the element and the qa_selector must match and be snake_cased
 - If the element appears on the page unconditionally, add `required: true` to the element. See
   [Dynamic element validation](dynamic_element_validation.md)
-- You may see `.qa-selector` classes in existing Page Objects.  We should prefer the [`data-qa-selector`](#data-qa-selector-vs-qa-selector) 
+- You may see `.qa-selector` classes in existing Page Objects.  We should prefer the [`data-qa-selector`](#data-qa-selector-vs-qa-selector)
   method of definition over the `.qa-selector` CSS class
-
 
 ### `data-qa-selector` vs `.qa-selector`
 

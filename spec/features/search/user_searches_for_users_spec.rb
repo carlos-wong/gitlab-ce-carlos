@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User searches for users' do
   context 'when on the dashboard' do
-    it 'finds the user' do
+    it 'finds the user', :js do
       create(:user, username: 'gob_bluth', name: 'Gob Bluth')
 
       sign_in(create(:user))
@@ -10,7 +12,7 @@ describe 'User searches for users' do
       visit dashboard_projects_path
 
       fill_in 'search', with: 'gob'
-      click_button 'Go'
+      find('#search').send_keys(:enter)
 
       expect(page).to have_content('Users 1')
 

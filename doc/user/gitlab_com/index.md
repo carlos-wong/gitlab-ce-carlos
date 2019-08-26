@@ -81,13 +81,12 @@ IP based firewall can be configured by looking up all
 
 ## Shared Runners
 
-Shared Runners on GitLab.com run in [autoscale mode] and powered by
-Google Cloud Platform. Autoscaling means reduced
-waiting times to spin up CI/CD jobs, and isolated VMs for each project,
-thus maximizing security.
-They're free to use for public open source projects and limited to 2000 CI
-minutes per month per group for private projects. Read about all
-[GitLab.com plans](https://about.gitlab.com/pricing/).
+Shared Runners on GitLab.com run in [autoscale mode] and powered by Google Cloud Platform.
+Autoscaling means reduced waiting times to spin up CI/CD jobs, and isolated VMs for each project,
+thus maximizing security. They're free to use for public open source projects and limited
+to 2000 CI minutes per month per group for private projects. More minutes
+[can be purchased](../../subscriptions/index.md#extra-shared-runners-pipeline-minutes), if
+needed. Read about all [GitLab.com plans](https://about.gitlab.com/pricing/).
 
 All your CI/CD jobs run on [n1-standard-1 instances](https://cloud.google.com/compute/docs/machine-types) with 3.75GB of RAM, CoreOS and the latest Docker Engine
 installed. Instances provide 1 vCPU and 25GB of HDD disk space. The default
@@ -113,57 +112,6 @@ Below are the shared Runners settings.
 
 The full contents of our `config.toml` are:
 
-**DigitalOcean**
-
-```toml
-concurrent = X
-check_interval = 1
-metrics_server = "X"
-sentry_dsn = "X"
-
-[[runners]]
-  name = "docker-auto-scale"
-  request_concurrency = X
-  url = "https://gitlab.com/"
-  token = "SHARED_RUNNER_TOKEN"
-  executor = "docker+machine"
-  environment = [
-    "DOCKER_DRIVER=overlay2"
-  ]
-  limit = X
-  [runners.docker]
-    image = "ruby:2.5"
-    privileged = true
-  [runners.machine]
-    IdleCount = 20
-    IdleTime = 1800
-    OffPeakPeriods = ["* * * * * sat,sun *"]
-    OffPeakTimezone = "UTC"
-    OffPeakIdleCount = 5
-    OffPeakIdleTime = 1800
-    MaxBuilds = 1
-    MachineName = "srm-%s"
-    MachineDriver = "digitalocean"
-    MachineOptions = [
-      "digitalocean-image=X",
-      "digitalocean-ssh-user=core",
-      "digitalocean-region=nyc1",
-      "digitalocean-size=s-2vcpu-2gb",
-      "digitalocean-private-networking",
-      "digitalocean-tags=shared_runners,gitlab_com",
-      "engine-registry-mirror=http://INTERNAL_IP_OF_OUR_REGISTRY_MIRROR",
-      "digitalocean-access-token=DIGITAL_OCEAN_ACCESS_TOKEN",
-    ]
-  [runners.cache]
-    Type = "s3"
-    BucketName = "runner"
-    Insecure = true
-    Shared = true
-    ServerAddress = "INTERNAL_IP_OF_OUR_CACHE_SERVER"
-    AccessKey = "ACCESS_KEY"
-    SecretKey = "ACCESS_SECRET_KEY"
-```
-
 **Google Cloud Platform**
 
 ```toml
@@ -179,20 +127,25 @@ sentry_dsn = "X"
   token = "SHARED_RUNNER_TOKEN"
   executor = "docker+machine"
   environment = [
-    "DOCKER_DRIVER=overlay2"
+    "DOCKER_DRIVER=overlay2",
+    "DOCKER_TLS_CERTDIR="
   ]
   limit = X
   [runners.docker]
     image = "ruby:2.5"
     privileged = true
+    volumes = [
+      "/certs/client",
+      "/dummy-sys-class-dmi-id:/sys/class/dmi/id:ro" # Make kaniko builds work on GCP.
+    ]
   [runners.machine]
-    IdleCount = 20
-    IdleTime = 1800
+    IdleCount = 50
+    IdleTime = 3600
     OffPeakPeriods = ["* * * * * sat,sun *"]
     OffPeakTimezone = "UTC"
-    OffPeakIdleCount = 5
-    OffPeakIdleTime = 1800
-    MaxBuilds = 1
+    OffPeakIdleCount = 15
+    OffPeakIdleTime = 3600
+    MaxBuilds = 1 # For security reasons we delete the VM after job has finished so it's not reused.
     MachineName = "srm-%s"
     MachineDriver = "google"
     MachineOptions = [
@@ -203,17 +156,18 @@ sentry_dsn = "X"
       "google-tags=gitlab-com,srm",
       "google-use-internal-ip",
       "google-zone=us-east1-d",
+      "engine-opt=mtu=1460", # Set MTU for container interface, for more information check https://gitlab.com/gitlab-org/gitlab-runner/issues/3214#note_82892928
       "google-machine-image=PROJECT/global/images/IMAGE",
-      "engine-registry-mirror=http://INTERNAL_IP_OF_OUR_REGISTRY_MIRROR"
+      "engine-opt=ipv6", # This will create IPv6 interfaces in the containers.
+      "engine-opt=fixed-cidr-v6=fc00::/7",
+      "google-operation-backoff-initial-interval=2" # Custom flag from forked docker-machine, for more information check https://github.com/docker/machine/pull/4600
     ]
   [runners.cache]
-    Type = "s3"
-    BucketName = "runner"
-    Insecure = true
+    Type = "gcs"
     Shared = true
-    ServerAddress = "INTERNAL_IP_OF_OUR_CACHE_SERVER"
-    AccessKey = "ACCESS_KEY"
-    SecretKey = "ACCESS_SECRET_KEY"
+    [runners.cache.gcs]
+      CredentialsFile = "/path/to/file"
+      BucketName = "bucket-name"
 ```
 
 ## Sidekiq
@@ -223,7 +177,7 @@ and the following environment variables:
 
 | Setting                                 | GitLab.com | Default   |
 |--------                                 |----------- |--------   |
-| `SIDEKIQ_MEMORY_KILLER_MAX_RSS`         | `1000000`  | `1000000` |
+| `SIDEKIQ_MEMORY_KILLER_MAX_RSS`         | `1000000`  | `2000000` |
 | `SIDEKIQ_MEMORY_KILLER_SHUTDOWN_SIGNAL` | `SIGKILL`  | -         |
 | `SIDEKIQ_LOG_ARGUMENTS`                 | `1`        | -         |
 
@@ -297,6 +251,82 @@ Web front-ends:
 
 - `memory_limit_min` = 1024MiB
 - `memory_limit_max` = 1280MiB
+
+## GitLab.com-specific rate limits
+
+NOTE: **Note:**
+See [Rate limits](../../security/rate_limits.md) for administrator
+documentation.
+
+IP blocks usually happen when GitLab.com receives unusual traffic from a single
+IP address that the system views as potentially malicious based on rate limit
+settings. After the unusual traffic ceases, the IP address will be automatically
+released depending on the type of block, as described below.
+
+If you receive a `403 Forbidden` error for all requests to GitLab.com, please
+check for any automated processes that may be triggering a block. For
+assistance, contact [GitLab Support](https://support.gitlab.com)
+with details, such as the affected IP address.
+
+### HAProxy API throttle
+
+GitLab.com responds with HTTP status code `429` to API requests that exceed 10
+requests
+per second per IP address.
+
+The following example headers are included for all API requests:
+
+```
+RateLimit-Limit: 600
+RateLimit-Observed: 6
+RateLimit-Remaining: 594
+RateLimit-Reset: 1563325137
+RateLimit-ResetTime: Wed, 17 Jul 2019 00:58:57 GMT
+```
+
+Source:
+
+- Search for `rate_limit_http_rate_per_minute` and `rate_limit_sessions_per_second` in [GitLab.com's current HAProxy settings](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/blob/master/attributes/default.rb).
+
+### Rack Attack initializer
+
+Details of rate limits enforced by [Rack Attack](../../security/rack_attack.md).
+
+#### Protected paths throttle
+
+GitLab.com responds with HTTP status code `429` to POST requests at protected
+paths that exceed 10 requests per **minute** per IP address.
+
+See the source below for which paths are protected. This includes user creation,
+user confirmation, user sign in, and password reset.
+
+This header is included in responses to blocked requests:
+
+```
+Retry-After: 60
+```
+
+Source:
+
+- Search for `rate_limit_requests_per_period`, `rate_limit_period`, and `rack_attack_protected_paths` in [GitLab.com's current Rails app settings](https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/files/gitlab-cookbooks/gitlab/attributes/default.rb).
+
+#### Git and container registry failed authentication ban
+
+GitLab.com responds with HTTP status code 403 for 1 hour, if 30 failed
+authentication requests were received in a 3-minute period from a single IP address.
+
+This applies only to Git requests and container registry (`/jwt/auth`) requests
+(combined).
+
+This limit is reset by requests that authenticate successfully. For example, 29
+failed authentication requests followed by 1 successful request, followed by 29
+more failed authentication requests would not trigger a ban.
+
+No response headers are provided.
+
+### Admin Area settings
+
+GitLab.com does not currently use these settings.
 
 ## GitLab.com at scale
 

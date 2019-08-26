@@ -1,3 +1,7 @@
+---
+type: reference, howto
+---
+
 # GitLab Security Dashboard **(ULTIMATE)**
 
 The Security Dashboard is a good place to get an overview of all the security
@@ -16,9 +20,9 @@ To benefit from the Security Dashboard you must first configure one of the
 The Security Dashboard supports the following reports:
 
 - [Container Scanning](../container_scanning/index.md)
-- [DAST](../dast/index.md)
+- [Dynamic Application Security Testing](../dast/index.md)
 - [Dependency Scanning](../dependency_scanning/index.md)
-- [SAST](../sast/index.md)
+- [Static Application Security Testing](../sast/index.md)
 
 ## Requirements
 
@@ -26,8 +30,8 @@ To use the project or group security dashboard:
 
 1. At least one project inside a group must be configured with at least one of
    the [supported reports](#supported-reports).
-2. The configured jobs must use the [new `reports` syntax](../../../ci/yaml/README.md#artifactsreports).
-3. [GitLab Runner](https://docs.gitlab.com/runner/) 11.5 or newer must be used.
+1. The configured jobs must use the [new `reports` syntax](../../../ci/yaml/README.md#artifactsreports).
+1. [GitLab Runner](https://docs.gitlab.com/runner/) 11.5 or newer must be used.
    If you're using the shared Runners on GitLab.com, this is already the case.
 
 ## Project Security Dashboard
@@ -43,13 +47,13 @@ for your project. Use it to find and fix vulnerabilities affecting the
 ## Group Security Dashboard
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/6709) in
-  [GitLab Ultimate](https://about.gitlab.com/pricing) 11.5.
+> [GitLab Ultimate](https://about.gitlab.com/pricing) 11.5.
 
 The group Security Dashboard gives an overview of the vulnerabilities of all the
 projects in a group and its subgroups.
 
 First, navigate to the Security Dashboard found under your group's
-**Overview > Security Dashboard**.
+**Security** tab.
 
 Once you're on the dashboard, at the top you should see a series of filters for:
 
@@ -58,7 +62,7 @@ Once you're on the dashboard, at the top you should see a series of filters for:
 - Report type
 - Project
 
-![dashboard with action buttons and metrics](img/dashboard.png)
+![dashboard with action buttons and metrics](img/group_security_dashboard.png)
 
 Selecting one or more filters will filter the results in this page.
 The first section is an overview of all the vulnerabilities, grouped by severity.
@@ -102,3 +106,15 @@ That way, reports are created even if no code change happens.
 When using [Auto DevOps](../../../topics/autodevops/index.md), use
 [special environment variables](../../../topics/autodevops/index.md#environment-variables)
 to configure daily security scans.
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

@@ -28,39 +28,39 @@ only 1 parent group. It resembles a directory behavior or a nested items list:
 - Group 1
   - Group 1.1
   - Group 1.2
-      - Group 1.2.1
-      - Group 1.2.2
-          - Group 1.2.2.1
+    - Group 1.2.1
+    - Group 1.2.2
+      - Group 1.2.2.1
 
 In a real world example, imagine maintaining a GNU/Linux distribution with the
 first group being the name of the distribution, and subsequent groups split as follows:
 
 - Organization Group - GNU/Linux distro
   - Category Subgroup - Packages
-      - (project) Package01
-      - (project) Package02
+    - (project) Package01
+    - (project) Package02
   - Category Subgroup - Software
-      - (project) Core
-      - (project) CLI
-      - (project) Android app
-      - (project) iOS app
+    - (project) Core
+    - (project) CLI
+    - (project) Android app
+    - (project) iOS app
   - Category Subgroup - Infra tools
-      - (project) Ansible playbooks
+    - (project) Ansible playbooks
 
 Another example of GitLab as a company would be the following:
 
 - Organization Group - GitLab
   - Category Subgroup - Marketing
-      - (project) Design
-      - (project) General
+    - (project) Design
+    - (project) General
   - Category Subgroup - Software
-      - (project) GitLab CE
-      - (project) GitLab EE
-      - (project) Omnibus GitLab
-      - (project) GitLab Runner
-      - (project) GitLab Pages daemon
+    - (project) GitLab CE
+    - (project) GitLab EE
+    - (project) Omnibus GitLab
+    - (project) GitLab Runner
+    - (project) GitLab Pages daemon
   - Category Subgroup - Infra tools
-      - (project) Chef cookbooks
+    - (project) Chef cookbooks
   - Category Subgroup - Executive team
 
 ---
@@ -74,27 +74,37 @@ structure.
 
 ## Creating a subgroup
 
-NOTE: **Note:**
-You must be an Owner of a group to create a subgroup. For
-more information check the [permissions table](../../permissions.md#group-members-permissions).
-For a list of words that are not allowed to be used as group names see the
+To create a subgroup you must either be an Owner or a Maintainer of the
+group, depending on the group's setting.
+
+By default, groups created in:
+
+- GitLab 12.2 or later allow both Owners and Maintainers to create subgroups.
+- GitLab 12.1 or earlier only allow Owners to create subgroups.
+
+This setting can be for any group by an Owner or Administrator.
+
+For more information check the
+[permissions table](../../permissions.md#group-members-permissions). For a list
+of words that are not allowed to be used as group names see the
 [reserved names](../../reserved_names.md).
-Users can always create subgroups if they are explicitly added as an Owner to
-a parent group, even if group creation is disabled by an administrator in their
-settings.
+
+Users can always create subgroups if they are explicitly added as an Owner (or
+Maintainer, if that setting is enabled) to a parent group, even if group
+creation is disabled by an administrator in their settings.
 
 To create a subgroup:
 
 1. In the group's dashboard expand the **New project** split button, select
    **New subgroup** and click the **New subgroup** button.
 
-    ![Subgroups page](img/create_subgroup_button.png)
+   ![Subgroups page](img/create_subgroup_button.png)
 
 1. Create a new group like you would normally do. Notice that the parent group
    namespace is fixed under **Group path**. The visibility level can differ from
    the parent group.
 
-    ![Subgroups page](img/create_new_group.png)
+   ![Subgroups page](img/create_new_group.png)
 
 1. Click the **Create group** button and you will be taken to the new group's
    dashboard page.

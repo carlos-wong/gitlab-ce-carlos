@@ -44,6 +44,10 @@ export const setFeatureFlags = (
   commit(types.SET_ADDITIONAL_PANEL_TYPES_ENABLED, additionalPanelTypesEnabled);
 };
 
+export const setShowErrorBanner = ({ commit }, enabled) => {
+  commit(types.SET_SHOW_ERROR_BANNER, enabled);
+};
+
 export const requestMetricsDashboard = ({ commit }) => {
   commit(types.REQUEST_METRICS_DATA);
 };
@@ -99,7 +103,9 @@ export const fetchMetricsData = ({ state, dispatch }, params) => {
     })
     .catch(error => {
       dispatch('receiveMetricsDataFailure', error);
-      createFlash(s__('Metrics|There was an error while retrieving metrics'));
+      if (state.setShowErrorBanner) {
+        createFlash(s__('Metrics|There was an error while retrieving metrics'));
+      }
     });
 };
 
@@ -119,7 +125,9 @@ export const fetchDashboard = ({ state, dispatch }, params) => {
     })
     .catch(error => {
       dispatch('receiveMetricsDashboardFailure', error);
-      createFlash(s__('Metrics|There was an error while retrieving metrics'));
+      if (state.setShowErrorBanner) {
+        createFlash(s__('Metrics|There was an error while retrieving metrics'));
+      }
     });
 };
 
@@ -143,7 +151,7 @@ function fetchPrometheusResult(prometheusEndpoint, params) {
  */
 export const fetchPrometheusMetric = ({ commit }, { metric, params }) => {
   const { start, end } = params;
-  const timeDiff = end - start;
+  const timeDiff = (new Date(end) - new Date(start)) / 1000;
 
   const minStep = 60;
   const queryDataPoints = 600;

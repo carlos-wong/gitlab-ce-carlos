@@ -34,6 +34,9 @@ The following metrics are available:
 | filesystem_writable               | Gauge     | 9.4   | Whether or not the filesystem is writable |
 | filesystem_read_latency_seconds   | Gauge     | 9.4   | Read latency of a specific filesystem |
 | filesystem_readable               | Gauge     | 9.4   | Whether or not the filesystem is readable |
+| gitlab_cache_misses_total         | Counter   | 10.2  | Cache read miss |
+| gitlab_cache_operation_duration_seconds | Histogram   | 10.2  | Cache access time |
+| gitlab_cache_operations_total     | Counter   | 12.2  | Cache operations by controller/action |
 | http_requests_total               | Counter   | 9.4   | Rack request count |
 | http_request_duration_seconds     | Histogram | 9.4   | HTTP response time from rack middleware |
 | pipelines_created_total           | Counter   | 9.4   | Counter of pipelines created |
@@ -117,7 +120,6 @@ When Puma is used instead of Unicorn, following metrics are available:
 | puma_workers                                 | Gauge   | 12.0  | Total number of workers |
 | puma_running_workers                         | Gauge   | 12.0  | Number of booted workers |
 | puma_stale_workers                           | Gauge   | 12.0  | Number of old workers |
-| puma_phase                                   | Gauge   | 12.0  | Phase number (increased during phased restarts) |
 | puma_running                                 | Gauge   | 12.0  | Number of running threads |
 | puma_queued_connections                      | Gauge   | 12.0  | Number of connections in that worker's "todo" set waiting for a worker thread |
 | puma_active_connections                      | Gauge   | 12.0  | Number of threads processing a request |

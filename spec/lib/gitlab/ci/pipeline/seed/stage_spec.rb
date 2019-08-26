@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::Ci::Pipeline::Seed::Stage do
   let(:project) { create(:project, :repository) }
   let(:pipeline) { create(:ci_empty_pipeline, project: project) }
+  let(:previous_stages) { [] }
 
   let(:attributes) do
     { name: 'test',
@@ -13,7 +16,7 @@ describe Gitlab::Ci::Pipeline::Seed::Stage do
   end
 
   subject do
-    described_class.new(pipeline, attributes)
+    described_class.new(pipeline, attributes, previous_stages)
   end
 
   describe '#size' do
@@ -104,6 +107,27 @@ describe Gitlab::Ci::Pipeline::Seed::Stage do
       expect(subject.seeds.map(&:attributes)).not_to satisfy do |seeds|
         seeds.any? { |hash| hash.fetch(:name) == 'deploy' }
       end
+    end
+  end
+
+  describe '#seeds_names' do
+    it 'returns all job names' do
+      expect(subject.seeds_names).to contain_exactly(
+        'rspec', 'spinach')
+    end
+
+    it 'returns a set' do
+      expect(subject.seeds_names).to be_a(Set)
+    end
+  end
+
+  describe '#seeds_errors' do
+    it 'returns all errors from seeds' do
+      expect(subject.seeds.first)
+        .to receive(:errors) { ["build error"] }
+
+      expect(subject.errors).to contain_exactly(
+        "build error")
     end
   end
 

@@ -434,12 +434,15 @@ img.emoji {
 
 /** COMMON SIZING CLASSES **/
 .w-0 { width: 0; }
+.w-8em { width: 8em; }
+.w-3rem { width: 3rem; }
 
 .h-12em { height: 12em; }
 
 .mw-460 { max-width: 460px; }
 .mw-6em { max-width: 6em; }
 .mw-70p { max-width: 70%; }
+.mw-90p { max-width: 90%; }
 
 .min-height-0 { min-height: 0; }
 

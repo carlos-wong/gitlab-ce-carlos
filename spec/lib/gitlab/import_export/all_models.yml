@@ -242,6 +242,7 @@ project:
 - cluster_project
 - cluster_ingresses
 - creator
+- cycle_analytics_stages
 - group
 - namespace
 - boards
@@ -277,7 +278,6 @@ project:
 - bugzilla_service
 - gitlab_issue_tracker_service
 - external_wiki_service
-- kubernetes_service
 - mock_ci_service
 - mock_deployment_service
 - mock_monitoring_service
@@ -343,7 +343,6 @@ project:
 - fork_network_member
 - fork_network
 - custom_attributes
-- prometheus_metrics
 - lfs_file_locks
 - project_badges
 - source_of_merge_requests
@@ -470,3 +469,17 @@ incident_management_setting:
 merge_trains:
 - project
 - merge_request
+boards:
+- group
+- lists
+- destroyable_lists
+- milestone
+- board_labels
+- board_assignee
+- assignee
+- labels
+lists:
+- user
+- milestone
+- board
+- label

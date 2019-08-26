@@ -1,13 +1,17 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Admin::RequestsProfilesController' do
+  let(:tmpdir) { Dir.mktmpdir('profiler-test') }
+
   before do
-    FileUtils.mkdir_p(Gitlab::RequestProfiler::PROFILES_DIR)
+    stub_const('Gitlab::RequestProfiler::PROFILES_DIR', tmpdir)
     sign_in(create(:admin))
   end
 
   after do
-    Gitlab::RequestProfiler.remove_all_profiles
+    FileUtils.rm_rf(tmpdir)
   end
 
   describe 'GET /admin/requests_profiles' do
@@ -19,42 +23,103 @@ describe 'Admin::RequestsProfilesController' do
       expect(page).to have_content("X-Profile-Token: #{Gitlab::RequestProfiler.profile_token}")
     end
 
-    it 'lists all available profiles' do
-      time1 = 1.hour.ago
-      time2 = 2.hours.ago
-      time3 = 3.hours.ago
-      profile1 = "|gitlab-org|gitlab-ce_#{time1.to_i}.html"
-      profile2 = "|gitlab-org|gitlab-ce_#{time2.to_i}.html"
-      profile3 = "|gitlab-com|infrastructure_#{time3.to_i}.html"
+    context 'when having multiple profiles' do
+      let(:time1) { 1.hour.ago }
+      let(:time2) { 2.hours.ago }
 
-      FileUtils.touch("#{Gitlab::RequestProfiler::PROFILES_DIR}/#{profile1}")
-      FileUtils.touch("#{Gitlab::RequestProfiler::PROFILES_DIR}/#{profile2}")
-      FileUtils.touch("#{Gitlab::RequestProfiler::PROFILES_DIR}/#{profile3}")
-
-      visit admin_requests_profiles_path
-
-      within('.card', text: '/gitlab-org/gitlab-ce') do
-        expect(page).to have_selector("a[href='#{admin_requests_profile_path(profile1)}']", text: time1.to_s(:long))
-        expect(page).to have_selector("a[href='#{admin_requests_profile_path(profile2)}']", text: time2.to_s(:long))
+      let(:profiles) do
+        [
+          {
+            request_path: '/gitlab-org/gitlab-ce',
+            name: "|gitlab-org|gitlab-ce_#{time1.to_i}_execution.html",
+            created: time1,
+            profile_mode: 'Execution'
+          },
+          {
+            request_path: '/gitlab-org/gitlab-ce',
+            name: "|gitlab-org|gitlab-ce_#{time2.to_i}_execution.html",
+            created: time2,
+            profile_mode: 'Execution'
+          },
+          {
+            request_path: '/gitlab-org/gitlab-ce',
+            name: "|gitlab-org|gitlab-ce_#{time1.to_i}_memory.html",
+            created: time1,
+            profile_mode: 'Memory'
+          },
+          {
+            request_path: '/gitlab-org/gitlab-ce',
+            name: "|gitlab-org|gitlab-ce_#{time2.to_i}_memory.html",
+            created: time2,
+            profile_mode: 'Memory'
+          },
+          {
+            request_path: '/gitlab-org/infrastructure',
+            name: "|gitlab-org|infrastructure_#{time1.to_i}_execution.html",
+            created: time1,
+            profile_mode: 'Execution'
+          },
+          {
+            request_path: '/gitlab-org/infrastructure',
+            name: "|gitlab-org|infrastructure_#{time2.to_i}_memory.html",
+            created: time2,
+            profile_mode: 'Memory'
+          },
+          {
+            request_path: '/gitlab-org/infrastructure',
+            name: "|gitlab-org|infrastructure_#{time2.to_i}.html",
+            created: time2,
+            profile_mode: 'Unknown'
+          }
+        ]
       end
 
-      within('.card', text: '/gitlab-com/infrastructure') do
-        expect(page).to have_selector("a[href='#{admin_requests_profile_path(profile3)}']", text: time3.to_s(:long))
+      before do
+        profiles.each do |profile|
+          FileUtils.touch(File.join(Gitlab::RequestProfiler::PROFILES_DIR, profile[:name]))
+        end
+      end
+
+      it 'lists all available profiles' do
+        visit admin_requests_profiles_path
+
+        profiles.each do |profile|
+          within('.card', text: profile[:request_path]) do
+            expect(page).to have_selector(
+              "a[href='#{admin_requests_profile_path(profile[:name])}']",
+              text: "#{profile[:created].to_s(:long)} #{profile[:profile_mode]}")
+          end
+        end
       end
     end
   end
 
   describe 'GET /admin/requests_profiles/:profile' do
     context 'when a profile exists' do
-      it 'displays the content of the profile' do
-        content = 'This is a request profile'
-        profile = "|gitlab-org|gitlab-ce_#{Time.now.to_i}.html"
-
+      before do
         File.write("#{Gitlab::RequestProfiler::PROFILES_DIR}/#{profile}", content)
+      end
 
-        visit admin_requests_profile_path(profile)
+      context 'when is valid call stack profile' do
+        let(:content) { 'This is a call stack request profile' }
+        let(:profile) { "|gitlab-org|gitlab-ce_#{Time.now.to_i}_execution.html" }
 
-        expect(page).to have_content(content)
+        it 'displays the content' do
+          visit admin_requests_profile_path(profile)
+
+          expect(page).to have_content(content)
+        end
+      end
+
+      context 'when is valid memory profile' do
+        let(:content) { 'This is a memory request profile' }
+        let(:profile) { "|gitlab-org|gitlab-ce_#{Time.now.to_i}_memory.txt" }
+
+        it 'displays the content' do
+          visit admin_requests_profile_path(profile)
+
+          expect(page).to have_content(content)
+        end
       end
     end
 

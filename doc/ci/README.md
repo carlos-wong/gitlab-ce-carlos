@@ -13,6 +13,11 @@ through the [continuous methodologies](introduction/index.md#introduction-to-cic
 - Continuous Delivery (CD)
 - Continuous Deployment (CD)
 
+NOTE: **Out-of-the-box management systems can decrease hours spent on maintaining toolchains by 10% or more.**
+Watch our
+["Mastering continuous software development"](https://about.gitlab.com/webcast/mastering-ci-cd/)
+webcast to learn about continuous methods and how GitLab’s built-in CI can help you simplify and scale software development.
+
 ## Overview
 
 Continuous Integration works by pushing small code chunks to your
@@ -48,6 +53,9 @@ the following documents:
 - [GitLab CI/CD basic workflow](introduction/index.md#basic-cicd-workflow).
 - [Step-by-step guide for writing `.gitlab-ci.yml` for the first time](../user/project/pages/getting_started_part_four.md).
 
+If you're coming over from Jenkins, you can also check out our handy [reference](jenkins/index.md)
+for converting your pipelines.
+
 You can also get started by using one of the
 [`.gitlab-ci.yml` templates](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates)
 available through the UI. You can use them by creating a new file,
@@ -59,11 +67,11 @@ to your needs:
 For a broader overview, see the [CI/CD getting started](quick_start/README.md) guide.
 
 Once you're familiar with how GitLab CI/CD works, see the
-[`. gitlab-ci.yml` full reference](yaml/README.md)
+[`.gitlab-ci.yml` full reference](yaml/README.md)
 for all the attributes you can set and use.
 
 NOTE: **Note:**
-GitLab CI/CD and [shared runners](runners/README.md#shared-specific-and-group-runners) are enabled in GitLab.com and available for all users, limited only to the [user's pipelines quota](../user/admin_area/settings/continuous_integration.md#extra-shared-runners-pipeline-minutes-quota-free-only).
+GitLab CI/CD and [shared runners](runners/README.md#shared-specific-and-group-runners) are enabled in GitLab.com and available for all users, limited only to the [user's pipelines quota](../user/gitlab_com/index.md#shared-runners).
 
 ## Configuration
 
@@ -123,7 +131,7 @@ Its feature set is listed on the table below according to DevOps stages.
 | **Secure** ||
 | [Container Scanning](../user/application_security/container_scanning/index.md) **(ULTIMATE)** | Check your Docker containers for known vulnerabilities.|
 | [Dependency Scanning](../user/application_security/dependency_scanning/index.md) **(ULTIMATE)** | Analyze your dependencies for known vulnerabilities. |
-| [License Management](../user/application_security/license_management/index.md) **(ULTIMATE)** | Search your project dependencies for their licenses. |
+| [License Compliance](../user/application_security/license_management/index.md) **(ULTIMATE)** | Search your project dependencies for their licenses. |
 | [Security Test reports](../user/project/merge_requests/index.md#security-reports-ultimate) **(ULTIMATE)** | Check for app vulnerabilities. |
 
 ## Examples
@@ -155,6 +163,7 @@ for your CI/CD infrastructure:
 
 - [Why we chose GitLab CI for our CI/CD solution](https://about.gitlab.com/2016/10/17/gitlab-ci-oohlala/)
 - [Building our web-app on GitLab CI](https://about.gitlab.com/2016/07/22/building-our-web-app-on-gitlab-ci/)
+- [5 Teams that made the switch to GitLab CI/CD](https://about.gitlab.com/2019/04/25/5-teams-that-made-the-switch-to-gitlab-ci-cd/)
 
 See also the [Why CI/CD?](https://docs.google.com/presentation/d/1OGgk2Tcxbpl7DJaIOzCX4Vqg3dlwfELC3u2jEeCBbDk) presentation.
 

@@ -29,6 +29,21 @@ module Gitlab
       end
     end
 
+    def formatted_count(scope)
+      case scope
+      when 'blobs'
+        blobs_count.to_s
+      when 'notes'
+        formatted_limited_count(limited_notes_count)
+      when 'wiki_blobs'
+        wiki_blobs_count.to_s
+      when 'commits'
+        commits_count.to_s
+      else
+        super
+      end
+    end
+
     def users
       super.where(id: @project.team.members) # rubocop:disable CodeReuse/ActiveRecord
     end
@@ -108,7 +123,7 @@ module Gitlab
 
     # rubocop: disable CodeReuse/ActiveRecord
     def notes_finder(type)
-      NotesFinder.new(project, @current_user, search: query, target_type: type).execute.user.order('updated_at DESC')
+      NotesFinder.new(@current_user, search: query, target_type: type, project: project).execute.user.order('updated_at DESC')
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -134,9 +149,11 @@ module Gitlab
       project.repository.commit(key) if Commit.valid_hash?(key)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def project_ids_relation
-      project
+      Project.where(id: project).select(:id).reorder(nil)
     end
+    # rubocop: enabled CodeReuse/ActiveRecord
 
     def filter_milestones_by_project(milestones)
       return Milestone.none unless Ability.allowed?(@current_user, :read_milestone, @project)

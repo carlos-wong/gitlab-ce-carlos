@@ -38,8 +38,10 @@ module Ci
     has_one :deployment, as: :deployable, class_name: 'Deployment'
     has_many :trace_sections, class_name: 'Ci::BuildTraceSection'
     has_many :trace_chunks, class_name: 'Ci::BuildTraceChunk', foreign_key: :build_id
+    has_many :needs, class_name: 'Ci::BuildNeed', foreign_key: :build_id, inverse_of: :build
 
     has_many :job_artifacts, class_name: 'Ci::JobArtifact', foreign_key: :job_id, dependent: :destroy, inverse_of: :job # rubocop:disable Cop/ActiveRecordDependent
+    has_many :job_variables, class_name: 'Ci::JobVariable', foreign_key: :job_id
 
     Ci::JobArtifact.file_types.each do |key, value|
       has_one :"job_artifacts_#{key}", -> { where(file_type: value) }, class_name: 'Ci::JobArtifact', inverse_of: :job, foreign_key: :job_id
@@ -48,6 +50,8 @@ module Ci
     has_one :runner_session, class_name: 'Ci::BuildRunnerSession', validate: true, inverse_of: :build
 
     accepts_nested_attributes_for :runner_session
+    accepts_nested_attributes_for :job_variables
+    accepts_nested_attributes_for :needs
 
     delegate :url, to: :runner_session, prefix: true, allow_nil: true
     delegate :terminal_specification, to: :runner_session, allow_nil: true
@@ -331,10 +335,10 @@ module Ci
     end
 
     # rubocop: disable CodeReuse/ServiceClass
-    def play(current_user)
+    def play(current_user, job_variables_attributes = nil)
       Ci::PlayBuildService
         .new(project, current_user)
-        .execute(self)
+        .execute(self, job_variables_attributes)
     end
     # rubocop: enable CodeReuse/ServiceClass
 
@@ -380,7 +384,7 @@ module Ci
       return unless has_environment?
 
       strong_memoize(:expanded_environment_name) do
-        ExpandVariables.expand(environment, simple_variables)
+        ExpandVariables.expand(environment, -> { simple_variables })
       end
     end
 
@@ -432,6 +436,7 @@ module Ci
         Gitlab::Ci::Variables::Collection.new
           .concat(persisted_variables)
           .concat(scoped_variables)
+          .concat(job_variables)
           .concat(persisted_environment_variables)
           .to_runner_variables
       end
@@ -529,6 +534,14 @@ module Ci
 
     def has_trace?
       trace.exist?
+    end
+
+    def has_live_trace?
+      trace.live_trace_exist?
+    end
+
+    def has_archived_trace?
+      trace.archived_trace_exist?
     end
 
     def artifacts_file
@@ -702,11 +715,17 @@ module Ci
 
       depended_jobs = depends_on_builds
 
-      return depended_jobs unless options[:dependencies].present?
-
-      depended_jobs.select do |job|
-        options[:dependencies].include?(job.name)
+      # find all jobs that are needed
+      if Feature.enabled?(:ci_dag_support, project, default_enabled: true) && needs.exists?
+        depended_jobs = depended_jobs.where(name: needs.select(:name))
       end
+
+      # find all jobs that are dependent on
+      if options[:dependencies].present?
+        depended_jobs = depended_jobs.where(name: options[:dependencies])
+      end
+
+      depended_jobs
     end
 
     def empty_dependencies?

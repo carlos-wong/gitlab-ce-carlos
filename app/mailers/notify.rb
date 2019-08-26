@@ -71,24 +71,18 @@ class Notify < BaseMailer
     address.format
   end
 
-  # Look up a User by their ID and return their email address
+  # Look up a User's notification email for a particular context.
+  # Can look up by their ID or can accept a User object.
   #
-  # recipient_id       - User ID
+  # recipient          - User object OR a User ID
   # notification_group - The parent group of the notification
   #
   # Returns a String containing the User's email address.
-  def recipient(recipient_id, notification_group = nil)
-    @current_user = User.find(recipient_id)
-    group_notification_email = nil
+  def recipient(recipient, notification_group = nil)
+    user = recipient if recipient.is_a?(User)
+    user ||= User.find(recipient)
 
-    if notification_group
-      notification_settings = notification_group.notification_settings_for(@current_user, hierarchy_order: :asc)
-      group_notification_email = notification_settings.find { |n| n.notification_email.present? }&.notification_email
-    end
-
-    # Return group-specific email address if present, otherwise return global
-    # email address
-    group_notification_email || @current_user.notification_email
+    user.notification_email_for(notification_group)
   end
 
   # Formats arguments into a String suitable for use as an email subject

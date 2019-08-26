@@ -1,15 +1,18 @@
 # GitLab Managed Apps
 
 GitLab provides **GitLab Managed Apps**, a one-click install for various applications which can
-be added directly to your configured cluster. These applications are
-needed for [Review Apps](../../ci/review_apps/index.md) and
-[deployments](../../ci/environments.md) when using [Auto DevOps](../../topics/autodevops/index.md).
+be added directly to your configured cluster.
+
+These applications are needed for [Review Apps](../../ci/review_apps/index.md)
+and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topics/autodevops/index.md).
+
 You can install them after you
-[create a cluster](../project/clusters/index.md#adding-and-creating-a-new-gke-cluster-via-gitlab).
+[create a cluster](../project/clusters/index.md#adding-and-removing-clusters).
 
 ## Installing applications
 
 Applications managed by GitLab will be installed onto the `gitlab-managed-apps` namespace.
+
 This namespace:
 
 - Is different from the namespace used for project deployments.
@@ -19,8 +22,10 @@ This namespace:
 To see a list of available applications to install:
 
 1. For a:
-    - Project-level cluster, navigate to your project's **Operations > Kubernetes**.
-    - Group-level cluster, navigate to your group's **Kubernetes** page.
+   - [Project-level cluster](../project/clusters/index.md),
+     navigate to your project's **Operations > Kubernetes**.
+   - [Group-level cluster](../group/clusters/index.md),
+     navigate to your group's **Kubernetes** page.
 
 Install Helm first as it's used to install other applications.
 
@@ -159,9 +164,9 @@ file.
 When installing JupyterHub onto your Kubernetes cluster, [JupyterLab's Git extension](https://github.com/jupyterlab/jupyterlab-git)
 is automatically provisioned and configured using the authenticated user's:
 
-- Name
-- Email
-- Newly created access token
+- Name.
+- Email.
+- Newly created access token.
 
 JupyterLab's Git extension enables full version control of your notebooks as well as issuance of Git commands within Jupyter.
 Git commands can be issued via the **Git** tab on the left panel or via Jupyter's command line prompt.
@@ -232,8 +237,10 @@ The applications below can be upgraded.
 To upgrade an application:
 
 1. For a:
-    - Project-level cluster, navigate to your project's **Operations > Kubernetes**.
-    - Group-level cluster, navigate to your group's **Kubernetes** page.
+   - [Project-level cluster](../project/clusters/index.md),
+     navigate to your project's **Operations > Kubernetes**.
+   - [Group-level cluster](../group/clusters/index.md),
+     navigate to your group's **Kubernetes** page.
 1. Select your cluster.
 1. If an upgrade is available, the **Upgrade** button is displayed. Click the button to upgrade.
 
@@ -251,16 +258,21 @@ The applications below can be uninstalled.
 
 | Application | GitLab version | Notes |
 | ----------- | -------------- | ----- |
+| Cert-Manager | 12.2+         | The associated private key will be deleted and cannot be restored. Deployed applications will continue to use HTTPS, but certificates will not be renewed. Before uninstalling, you may wish to [back up your configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html) or [revoke your certificates](https://letsencrypt.org/docs/revoking/) |
 | GitLab Runner  | 12.2+         | Any running pipelines will be canceled. |
+| Helm  | 12.2+         | The associated Tiller pod will be deleted and cannot be restored. |
 | Ingress  | 12.1+         | The associated load balancer and IP will be deleted and cannot be restored. Furthermore, it can only be uninstalled if JupyterHub is not installed. |
 | JupyterHub  | 12.1+         | All data not committed to GitLab will be deleted and cannot be restored. |
+| Knative  | 12.1+         | The associated IP will be deleted and cannot be restored. |
 | Prometheus  | 11.11+         | All data will be deleted and cannot be restored. |
 
 To uninstall an application:
 
 1. For a:
-    - Project-level cluster, navigate to your project's **Operations > Kubernetes**.
-    - Group-level cluster, navigate to your group's **Kubernetes** page.
+   - [Project-level cluster](../project/clusters/index.md),
+     navigate to your project's **Operations > Kubernetes**.
+   - [Group-level cluster](../group/clusters/index.md),
+     navigate to your group's **Kubernetes** page.
 1. Select your cluster.
 1. Click the **Uninstall** button for the application.
 

@@ -14,7 +14,7 @@
     .col-sm-12
       = f.text_field :title, class: 'form-control qa-wiki-title-textbox', value: @page.title
       - if @page.persisted?
-        %span.edit-wiki-page-slug-tip
+        %span.d-inline-block.mw-100.prepend-top-5
           = icon('lightbulb-o')
           = s_("WikiEditPageTip|Tip: You can move this page by adding the path to the beginning of the title.")
           = link_to icon('question-circle'), help_page_path('user/project/wiki/index', anchor: 'moving-a-wiki-page'), target: '_blank'
@@ -51,6 +51,6 @@
       .float-right
         = link_to _("Cancel"), project_wiki_path(@project, @page), class: 'btn btn-cancel btn-grouped'
     - else
-      = f.submit s_("Wiki|Create page"), class: 'btn-success btn qa-create-page-button'
+      = f.submit s_("Wiki|Create page"), class: 'btn-success btn qa-create-page-button rspec-create-page-button'
       .float-right
         = link_to _("Cancel"), project_wiki_path(@project, :home), class: 'btn btn-cancel'

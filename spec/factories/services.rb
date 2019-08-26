@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :service do
     project
@@ -14,16 +16,17 @@ FactoryBot.define do
     )
   end
 
-  factory :kubernetes_service do
+  factory :emails_on_push_service do
     project
-    type 'KubernetesService'
+    type 'EmailsOnPushService'
     active true
-    properties({
-      api_url: 'https://kubernetes.example.com',
-      token: 'a' * 40
-    })
-
-    skip_deprecation_validation true
+    push_events true
+    tag_push_events true
+    properties(
+      recipients: 'test@example.com',
+      disable_diffs: true,
+      send_from_committer_email: true
+    )
   end
 
   factory :mock_deployment_service do

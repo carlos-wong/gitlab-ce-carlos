@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Bitbucket::Representation::PullRequest do
@@ -6,7 +8,7 @@ describe Bitbucket::Representation::PullRequest do
   end
 
   describe '#author' do
-    it { expect(described_class.new({ 'author' => { 'username' => 'Ben' } }).author).to eq('Ben') }
+    it { expect(described_class.new({ 'author' => { 'nickname' => 'Ben' } }).author).to eq('Ben') }
     it { expect(described_class.new({}).author).to be_nil }
   end
 

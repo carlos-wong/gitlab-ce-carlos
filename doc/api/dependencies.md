@@ -11,14 +11,14 @@ Every call to this endpoint requires authentication. To perform this call, user 
 ## List project dependencies
 
 Get a list of project dependencies. This API partially mirroring 
-[Dependency List](../user/application_security/dependency_scanning/index.md#dependency-list) feature.
+[Dependency List](../user/application_security/dependency_list/index.md) feature.
 This list can be generated only for [languages and package managers](../user/application_security/dependency_scanning/index.md#supported-languages-and-package-managers)
 supported by Gemnasium. 
 
 ```
 GET /projects/:id/dependencies
-GET /projects/:id/vulnerabilities?package_manger=maven
-GET /projects/:id/vulnerabilities?package_manger=yarn,bundler
+GET /projects/:id/vulnerabilities?package_manager=maven
+GET /projects/:id/vulnerabilities?package_manager=yarn,bundler
 ```
 
 | Attribute     | Type           | Required | Description                                                                                                                                                                 |

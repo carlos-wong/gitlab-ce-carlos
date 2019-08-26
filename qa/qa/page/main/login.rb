@@ -6,7 +6,7 @@ module QA
       class Login < Page::Base
         view 'app/views/devise/passwords/edit.html.haml' do
           element :password_field
-          element :password_confirmation
+          element :password_confirmation_field
           element :change_password_button
         end
 
@@ -52,13 +52,11 @@ module QA
             raise NotImplementedError if Runtime::User.ldap_user? && user&.credentials_given?
 
             if Runtime::User.ldap_user?
-              sign_in_using_ldap_credentials
+              sign_in_using_ldap_credentials(user || Runtime::User)
             else
               sign_in_using_gitlab_credentials(user || Runtime::User)
             end
           end
-
-          Page::Main::Menu.perform(&:has_personal_area?)
         end
 
         def sign_in_using_admin_credentials
@@ -71,6 +69,25 @@ module QA
             set_initial_password_if_present
 
             sign_in_using_gitlab_credentials(admin)
+          end
+
+          Page::Main::Menu.perform(&:has_personal_area?)
+        end
+
+        def sign_in_using_ldap_credentials(user)
+          # Log out if already logged in
+          Page::Main::Menu.perform do |menu|
+            menu.sign_out if menu.has_personal_area?(wait: 0)
+          end
+
+          using_wait_time 0 do
+            set_initial_password_if_present
+
+            switch_to_ldap_tab
+
+            fill_element :username_field, user.ldap_username
+            fill_element :password_field, user.ldap_password
+            click_element :sign_in_button
           end
 
           Page::Main::Menu.perform(&:has_personal_area?)
@@ -133,14 +150,6 @@ module QA
 
         private
 
-        def sign_in_using_ldap_credentials
-          switch_to_ldap_tab
-
-          fill_element :username_field, Runtime::User.ldap_username
-          fill_element :password_field, Runtime::User.ldap_password
-          click_element :sign_in_button
-        end
-
         def sign_in_using_gitlab_credentials(user)
           switch_to_sign_in_tab if has_sign_in_tab?
           switch_to_standard_tab if has_standard_tab?
@@ -154,7 +163,7 @@ module QA
           return unless has_content?('Change your password')
 
           fill_element :password_field, Runtime::User.password
-          fill_element :password_confirmation, Runtime::User.password
+          fill_element :password_confirmation_field, Runtime::User.password
           click_element :change_password_button
         end
       end

@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Git::BranchHooksService do
   include RepoHelpers
+  include ProjectForksHelper
 
   let(:project) { create(:project, :repository) }
   let(:user) { project.creator }
@@ -25,7 +26,7 @@ describe Git::BranchHooksService do
   end
 
   describe "Git Push Data" do
-    subject(:push_data) { service.execute }
+    subject(:push_data) { service.send(:push_data) }
 
     it 'has expected push data attributes' do
       is_expected.to match a_hash_including(
@@ -109,6 +110,7 @@ describe Git::BranchHooksService do
         expect(event.push_event_payload).to be_an_instance_of(PushEventPayload)
         expect(event.push_event_payload.commit_from).to eq(oldrev)
         expect(event.push_event_payload.commit_to).to eq(newrev)
+        expect(event.push_event_payload.commit_title).to eq('Change some files')
         expect(event.push_event_payload.ref).to eq('master')
         expect(event.push_event_payload.commit_count).to eq(1)
       end
@@ -124,6 +126,7 @@ describe Git::BranchHooksService do
         expect(event.push_event_payload).to be_an_instance_of(PushEventPayload)
         expect(event.push_event_payload.commit_from).to be_nil
         expect(event.push_event_payload.commit_to).to eq(newrev)
+        expect(event.push_event_payload.commit_title).to eq('Initial commit')
         expect(event.push_event_payload.ref).to eq('master')
         expect(event.push_event_payload.commit_count).to be > 1
       end
@@ -156,9 +159,13 @@ describe Git::BranchHooksService do
     let(:blank_sha) { Gitlab::Git::BLANK_SHA }
 
     def clears_cache(extended: [])
-      expect(ProjectCacheWorker)
-        .to receive(:perform_async)
-        .with(project.id, extended, %i[commit_count repository_size])
+      expect(service).to receive(:invalidated_file_types).and_return(extended)
+
+      if extended.present?
+        expect(ProjectCacheWorker)
+          .to receive(:perform_async)
+          .with(project.id, extended, [], false)
+      end
 
       service.execute
     end
@@ -266,10 +273,10 @@ describe Git::BranchHooksService do
   end
 
   describe 'Processing commit messages' do
-    # Create 4 commits, 2 of which have references. Limiting to 2 commits, we
-    # expect to see one commit message processor enqueued.
-    let(:commit_ids) do
-      Array.new(4) do |i|
+    # Create 6 commits, 3 of which have references. Limiting to 4 commits, we
+    # expect to see two commit message processors enqueued.
+    let!(:commit_ids) do
+      Array.new(6) do |i|
         message = "Issue #{'#' if i.even?}#{i}"
         project.repository.update_file(
           user, 'README.md', '', message: message, branch_name: branch
@@ -277,18 +284,18 @@ describe Git::BranchHooksService do
       end
     end
 
-    let(:oldrev) { commit_ids.first }
+    let(:oldrev) { project.commit(commit_ids.first).parent_id }
     let(:newrev) { commit_ids.last }
 
     before do
-      stub_const("::Git::BaseHooksService::PROCESS_COMMIT_LIMIT", 2)
+      stub_const("::Git::BaseHooksService::PROCESS_COMMIT_LIMIT", 4)
     end
 
     context 'creating the default branch' do
       let(:oldrev) { Gitlab::Git::BLANK_SHA }
 
       it 'processes a limited number of commit messages' do
-        expect(ProcessCommitWorker).to receive(:perform_async).once
+        expect(ProcessCommitWorker).to receive(:perform_async).twice
 
         service.execute
       end
@@ -296,7 +303,7 @@ describe Git::BranchHooksService do
 
     context 'updating the default branch' do
       it 'processes a limited number of commit messages' do
-        expect(ProcessCommitWorker).to receive(:perform_async).once
+        expect(ProcessCommitWorker).to receive(:perform_async).twice
 
         service.execute
       end
@@ -317,7 +324,7 @@ describe Git::BranchHooksService do
       let(:oldrev) { Gitlab::Git::BLANK_SHA }
 
       it 'processes a limited number of commit messages' do
-        expect(ProcessCommitWorker).to receive(:perform_async).once
+        expect(ProcessCommitWorker).to receive(:perform_async).twice
 
         service.execute
       end
@@ -327,7 +334,7 @@ describe Git::BranchHooksService do
       let(:branch) { 'fix' }
 
       it 'processes a limited number of commit messages' do
-        expect(ProcessCommitWorker).to receive(:perform_async).once
+        expect(ProcessCommitWorker).to receive(:perform_async).twice
 
         service.execute
       end
@@ -341,6 +348,55 @@ describe Git::BranchHooksService do
         expect(ProcessCommitWorker).not_to receive(:perform_async)
 
         service.execute
+      end
+    end
+
+    context 'when the project is forked' do
+      let(:upstream_project) { project }
+      let(:forked_project) { fork_project(upstream_project, user, repository: true) }
+
+      let!(:forked_service) do
+        described_class.new(forked_project, user, oldrev: oldrev, newrev: newrev, ref: ref)
+      end
+
+      context 'when commits already exists in the upstream project' do
+        it 'does not process commit messages' do
+          expect(ProcessCommitWorker).not_to receive(:perform_async)
+
+          forked_service.execute
+        end
+      end
+
+      context 'when a commit does not exist in the upstream repo' do
+        # On top of the existing 6 commits, 3 of which have references,
+        # create 2 more, 1 of which has a reference. Limiting to 4 commits, we
+        # expect to see one commit message processor enqueued.
+        let!(:forked_commit_ids) do
+          Array.new(2) do |i|
+            message = "Issue #{'#' if i.even?}#{i}"
+            forked_project.repository.update_file(
+              user, 'README.md', '', message: message, branch_name: branch
+            )
+          end
+        end
+
+        let(:newrev) { forked_commit_ids.last }
+
+        it 'processes the commit message' do
+          expect(ProcessCommitWorker).to receive(:perform_async).once
+
+          forked_service.execute
+        end
+      end
+
+      context 'when the upstream project no longer exists' do
+        it 'processes the commit messages' do
+          upstream_project.destroy!
+
+          expect(ProcessCommitWorker).to receive(:perform_async).twice
+
+          forked_service.execute
+        end
       end
     end
   end

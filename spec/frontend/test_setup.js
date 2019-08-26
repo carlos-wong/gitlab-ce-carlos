@@ -6,6 +6,7 @@ import { config as testUtilsConfig } from '@vue/test-utils';
 import { initializeTestTimeout } from './helpers/timeout';
 import { loadHTMLFixture, setHTMLFixture } from './helpers/fixtures';
 import { setupManualMocks } from './mocks/mocks_helper';
+import customMatchers from './matchers';
 
 // Expose jQuery so specs using jQuery plugins can be imported nicely.
 // Here is an issue to explore better alternatives:
@@ -67,5 +68,28 @@ Object.entries(jqueryMatchers).forEach(([matcherName, matcherFactory]) => {
   });
 });
 
+expect.extend(customMatchers);
+
 // Tech debt issue TBD
 testUtilsConfig.logModifiedComponents = false;
+
+// Basic stub for MutationObserver
+global.MutationObserver = () => ({
+  disconnect: () => {},
+  observe: () => {},
+});
+
+Object.assign(global, {
+  requestIdleCallback(cb) {
+    const start = Date.now();
+    return setTimeout(() => {
+      cb({
+        didTimeout: false,
+        timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
+      });
+    });
+  },
+  cancelIdleCallback(id) {
+    clearTimeout(id);
+  },
+});

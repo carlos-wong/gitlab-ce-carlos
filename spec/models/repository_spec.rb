@@ -1744,11 +1744,22 @@ describe Repository do
     end
   end
 
-  describe '#before_push_tag' do
+  describe '#expires_caches_for_tags' do
     it 'flushes the cache' do
       expect(repository).to receive(:expire_statistics_caches)
       expect(repository).to receive(:expire_emptiness_caches)
       expect(repository).to receive(:expire_tags_cache)
+
+      repository.expire_caches_for_tags
+    end
+  end
+
+  describe '#before_push_tag' do
+    it 'logs an event' do
+      expect(repository).not_to receive(:expire_statistics_caches)
+      expect(repository).not_to receive(:expire_emptiness_caches)
+      expect(repository).not_to receive(:expire_tags_cache)
+      expect(repository).to receive(:repository_event).with(:push_tag)
 
       repository.before_push_tag
     end
@@ -1781,6 +1792,12 @@ describe Repository do
 
       repository.after_create_branch
     end
+
+    it 'does not expire the branch caches when specified' do
+      expect(repository).not_to receive(:expire_branches_cache)
+
+      repository.after_create_branch(expire_cache: false)
+    end
   end
 
   describe '#after_remove_branch' do
@@ -1789,25 +1806,45 @@ describe Repository do
 
       repository.after_remove_branch
     end
+
+    it 'does not expire the branch caches when specified' do
+      expect(repository).not_to receive(:expire_branches_cache)
+
+      repository.after_remove_branch(expire_cache: false)
+    end
   end
 
   describe '#after_create' do
+    it 'calls expire_status_cache' do
+      expect(repository).to receive(:expire_status_cache)
+
+      repository.after_create
+    end
+
+    it 'logs an event' do
+      expect(repository).to receive(:repository_event).with(:create_repository)
+
+      repository.after_create
+    end
+  end
+
+  describe '#expire_status_cache' do
     it 'flushes the exists cache' do
       expect(repository).to receive(:expire_exists_cache)
 
-      repository.after_create
+      repository.expire_status_cache
     end
 
     it 'flushes the root ref cache' do
       expect(repository).to receive(:expire_root_ref_cache)
 
-      repository.after_create
+      repository.expire_status_cache
     end
 
     it 'flushes the emptiness caches' do
       expect(repository).to receive(:expire_emptiness_caches)
 
-      repository.after_create
+      repository.expire_status_cache
     end
   end
 

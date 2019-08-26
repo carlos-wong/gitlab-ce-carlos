@@ -595,44 +595,6 @@ Remove all previously Jira settings from a project.
 DELETE /projects/:id/services/jira
 ```
 
-## Kubernetes
-
-Kubernetes / OpenShift integration
-
-CAUTION: **Warning:**
-Kubernetes service integration has been deprecated in GitLab 10.3. API service endpoints will continue to work as long as the Kubernetes service is active, however if the service is inactive API endpoints will automatically return a `400 Bad Request`. Read [GitLab 10.3 release post](https://about.gitlab.com/2017/12/22/gitlab-10-3-released/#kubernetes-integration-service) for more information.
-
-### Create/Edit Kubernetes service
-
-Set Kubernetes service for a project.
-
-```
-PUT /projects/:id/services/kubernetes
-```
-
-Parameters:
-
-- `namespace` (**required**) - The Kubernetes namespace to use
-- `api_url` (**required**) - The URL to the Kubernetes cluster API. For example, `https://kubernetes.example.com`
-- `token` (**required**) - The service token to authenticate against the Kubernetes cluster with
-- `ca_pem` (optional) - A custom certificate authority bundle to verify the Kubernetes cluster with (PEM format)
-
-### Delete Kubernetes service
-
-Delete Kubernetes service for a project.
-
-```
-DELETE /projects/:id/services/kubernetes
-```
-
-### Get Kubernetes service settings
-
-Get Kubernetes service settings for a project.
-
-```
-GET /projects/:id/services/kubernetes
-```
-
 ## Slack slash commands
 
 Ability to receive slash commands from a Slack chat instance.
@@ -972,22 +934,28 @@ Parameters:
 | `channel` | string | false | Default channel to use if others are not configured |
 | `notify_only_broken_pipelines` | boolean | false | Send notifications for broken pipelines |
 | `notify_only_default_branch` | boolean | false | Send notifications only for the default branch |
-| `push_events` | boolean | false | Enable notifications for push events |
-| `issues_events` | boolean | false | Enable notifications for issue events |
-| `confidential_issues_events` | boolean | false | Enable notifications for confidential issue events |
-| `merge_requests_events` | boolean | false | Enable notifications for merge request events |
-| `tag_push_events` | boolean | false | Enable notifications for tag push events |
-| `note_events` | boolean | false | Enable notifications for note events |
-| `pipeline_events` | boolean | false | Enable notifications for pipeline events |
-| `wiki_page_events` | boolean | false | Enable notifications for wiki page events |
-| `push_channel` | string | false | The name of the channel to receive push events notifications |
-| `issue_channel` | string | false | The name of the channel to receive issues events notifications |
+| `commit_events` | boolean | false | Enable notifications for commit events |
 | `confidential_issue_channel` | string | false | The name of the channel to receive confidential issues events notifications |
+| `confidential_issues_events` | boolean | false | Enable notifications for confidential issue events |
+| `confidential_note_channel` | string | false | The name of the channel to receive confidential note events notifications |
+| `confidential_note_events` | boolean | false | Enable notifications for confidential note events |
+| `deployment_channel` | string | false | The name of the channel to receive deployment events notifications |
+| `deployment_events` | boolean | false | Enable notifications for deployment events |
+| `issue_channel` | string | false | The name of the channel to receive issues events notifications |
+| `issues_events` | boolean | false | Enable notifications for issue events |
+| `job_events` | boolean | false | Enable notifications for job events |
 | `merge_request_channel` | string | false | The name of the channel to receive merge request events notifications |
+| `merge_requests_events` | boolean | false | Enable notifications for merge request events |
 | `note_channel` | string | false | The name of the channel to receive note events notifications |
-| `tag_push_channel` | string | false | The name of the channel to receive tag push events notifications |
+| `note_events` | boolean | false | Enable notifications for note events |
 | `pipeline_channel` | string | false | The name of the channel to receive pipeline events notifications |
+| `pipeline_events` | boolean | false | Enable notifications for pipeline events |
+| `push_channel` | string | false | The name of the channel to receive push events notifications |
+| `push_events` | boolean | false | Enable notifications for push events |
+| `tag_push_channel` | string | false | The name of the channel to receive tag push events notifications |
+| `tag_push_events` | boolean | false | Enable notifications for tag push events |
 | `wiki_page_channel` | string | false | The name of the channel to receive wiki page events notifications |
+| `wiki_page_events` | boolean | false | Enable notifications for wiki page events |
 
 ### Delete Slack service
 

@@ -82,7 +82,7 @@ describe API::Issues do
       end
     end
 
-    context 'when group has subgroups', :nested_groups do
+    context 'when group has subgroups' do
       let(:subgroup_1) { create(:group, parent: group) }
       let(:subgroup_2) { create(:group, parent: subgroup_1) }
 
@@ -340,6 +340,14 @@ describe API::Issues do
     context 'when user is a group member' do
       before do
         group_project.add_reporter(user)
+      end
+
+      it 'exposes known attributes' do
+        get api(base_url, admin)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response.last.keys).to include(*%w(id iid project_id title description))
+        expect(json_response.last).not_to have_key('subscribed')
       end
 
       it 'returns all group issues (including opened and closed)' do

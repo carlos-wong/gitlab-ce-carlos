@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 
 ALLOWED = [
+  # https://gitlab.com/gitlab-org/gitaly/issues/760
+  'lib/elasticsearch/git/repository.rb',
+
   # Needed to handle repositories that are not in any storage
   'lib/gitlab/bare_repository_import/repository.rb',
 
@@ -10,7 +13,15 @@ ALLOWED = [
   # Reverted Rugged calls due to Gitaly atop NFS performance
   # See https://docs.gitlab.com/ee/development/gitaly.html#legacy-rugged-code.
   'lib/gitlab/git/rugged_impl/',
-  'lib/gitlab/gitaly_client/storage_settings.rb'
+  'lib/gitlab/gitaly_client/storage_settings.rb',
+
+  # Needed for logging
+  'config/initializers/peek.rb',
+  'config/initializers/lograge.rb',
+  'lib/gitlab/grape_logging/loggers/perf_logger.rb',
+  'lib/gitlab/instrumentation_helper.rb',
+  'lib/gitlab/rugged_instrumentation.rb',
+  'lib/peek/views/rugged.rb'
 ].freeze
 
 rugged_lines = IO.popen(%w[git grep -i -n rugged -- app config lib], &:read).lines

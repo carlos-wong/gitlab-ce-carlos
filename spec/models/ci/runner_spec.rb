@@ -146,7 +146,7 @@ describe Ci::Runner do
       expect(described_class.belonging_to_parent_group_of_project(project.id)).to contain_exactly(runner)
     end
 
-    context 'with a parent group with a runner', :nested_groups do
+    context 'with a parent group with a runner' do
       let(:runner) { create(:ci_runner, :group, groups: [parent_group]) }
       let(:project) { create(:project, group: group) }
       let(:group) { create(:group, parent: parent_group) }
@@ -554,7 +554,7 @@ describe Ci::Runner do
     end
 
     def expect_value_in_queues
-      Gitlab::Redis::Queues.with do |redis|
+      Gitlab::Redis::SharedState.with do |redis|
         runner_queue_key = runner.send(:runner_queue_key)
         expect(redis.get(runner_queue_key))
       end
@@ -627,7 +627,7 @@ describe Ci::Runner do
       end
 
       it 'cleans up the queue' do
-        Gitlab::Redis::Queues.with do |redis|
+        Gitlab::Redis::SharedState.with do |redis|
           expect(redis.get(queue_key)).to be_nil
         end
       end

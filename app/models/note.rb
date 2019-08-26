@@ -27,6 +27,10 @@ class Note < ApplicationRecord
       def values
         constants.map {|const| self.const_get(const)}
       end
+
+      def value?(val)
+        values.include?(val)
+      end
     end
   end
 
@@ -292,7 +296,7 @@ class Note < ApplicationRecord
   end
 
   def special_role=(role)
-    raise "Role is undefined, #{role} not found in #{SpecialRole.values}" unless SpecialRole.values.include?(role)
+    raise "Role is undefined, #{role} not found in #{SpecialRole.values}" unless SpecialRole.value?(role)
 
     @special_role = role
   end

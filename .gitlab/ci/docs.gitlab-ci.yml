@@ -15,7 +15,7 @@ review-docs-deploy-manual:
   extends:
     - .review-docs
     - .no-docs-and-no-qa
-  stage: build
+  stage: review
   script:
     - gem install gitlab --no-document
     - ./$SCRIPT_NAME deploy
@@ -28,20 +28,20 @@ review-docs-deploy-manual:
 # Useful to preview the docs changes live.
 review-docs-deploy:
   <<: *review-docs
-  stage: post-test
+  stage: review
   script:
     - gem install gitlab --no-document
     - ./$SCRIPT_NAME deploy
   only:
-    - /(^docs[\/-].*|.*-docs$)/@gitlab-org/gitlab-ce
-    - /(^docs[\/-].*|.*-docs$)/@gitlab-org/gitlab-ee
+    - /(^docs[\/-].+|.+-docs$)/@gitlab-org/gitlab-ce
+    - /(^docs[\/-].+|.+-docs$)/@gitlab-org/gitlab-ee
   except:
     - /(^qa[\/-].*|.*-qa$)/
 
 # Cleanup remote environment of gitlab-docs
 review-docs-cleanup:
   <<: *review-docs
-  stage: post-cleanup
+  stage: review
   environment:
     name: review-docs/$CI_COMMIT_REF_SLUG
     action: stop
@@ -62,7 +62,6 @@ docs lint:
   before_script: []
   script:
     - scripts/lint-doc.sh
-    - scripts/lint-changelog-yaml
     - mv doc/ /tmp/gitlab-docs/content/$DOCS_GITLAB_REPO_SUFFIX
     - cd /tmp/gitlab-docs
     # Lint Markdown

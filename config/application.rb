@@ -22,11 +22,6 @@ module Gitlab
     require_dependency Rails.root.join('lib/gitlab/middleware/read_only')
     require_dependency Rails.root.join('lib/gitlab/middleware/basic_health_check')
 
-    # This needs to be loaded before DB connection is made
-    # to make sure that all connections have NO_ZERO_DATE
-    # setting disabled
-    require_dependency Rails.root.join('lib/mysql_zero_date')
-
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -46,11 +41,6 @@ module Gitlab
                                      #{config.root}/app/models/hooks
                                      #{config.root}/app/models/members
                                      #{config.root}/app/models/project_services
-                                     #{config.root}/app/workers/concerns
-                                     #{config.root}/app/policies/concerns
-                                     #{config.root}/app/services/concerns
-                                     #{config.root}/app/serializers/concerns
-                                     #{config.root}/app/finders/concerns
                                      #{config.root}/app/graphql/resolvers/concerns
                                      #{config.root}/app/graphql/mutations/concerns])
 
@@ -110,10 +100,23 @@ module Gitlab
     # - Sentry DSN (:sentry_dsn)
     # - File content from Web Editor (:content)
     # - Jira shared secret (:sharedSecret)
+    # - Titles, bodies, and descriptions for notes, issues, etc.
     #
-    # NOTE: It is **IMPORTANT** to also update gitlab-workhorse's filter when adding parameters here to not
-    #       introduce another security vulnerability: https://gitlab.com/gitlab-org/gitlab-workhorse/issues/182
-    config.filter_parameters += [/token$/, /password/, /secret/, /key$/, /^note$/, /^text$/]
+    # NOTE: It is **IMPORTANT** to also update labkit's filter when
+    #       adding parameters here to not introduce another security
+    #       vulnerability:
+    #       https://gitlab.com/gitlab-org/labkit/blob/master/mask/matchers.go
+    config.filter_parameters += [
+      /token$/,
+      /password/,
+      /secret/,
+      /key$/,
+      /^body$/,
+      /^description$/,
+      /^note$/,
+      /^text$/,
+      /^title$/
+    ]
     config.filter_parameters += %i(
       certificate
       encrypted_key
@@ -181,6 +184,12 @@ module Gitlab
       config.assets.precompile << "jira_connect.js"
       config.assets.precompile << "pages/jira_connect.css"
     end
+
+    # Import path for EE specific SCSS entry point
+    # In CE it will import a noop file, in EE a functioning file
+    # Order is important, so that the ee file takes precedence:
+    config.assets.paths << "#{config.root}/ee/app/assets/stylesheets/_ee"
+    config.assets.paths << "#{config.root}/app/assets/stylesheets/_ee"
 
     config.assets.paths << "#{config.root}/vendor/assets/javascripts/"
     config.assets.precompile << "snowplow/sp.js"
@@ -276,10 +285,5 @@ module Gitlab
       Gitlab::Routing.add_helpers(project_url_helpers)
       Gitlab::Routing.add_helpers(MilestonesRoutingHelper)
     end
-
-    # This makes generated cookies to be compatible with Rails 5.1 and older
-    # We can remove this when we're confident that there are no issues with the Rails 5.2 upgrade
-    # and we won't need to rollback to older versions
-    config.action_dispatch.use_authenticated_cookie_encryption = false
   end
 end

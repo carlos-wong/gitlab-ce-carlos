@@ -10,7 +10,7 @@ GET /geo_nodes
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/geo_nodes
 ```
 
 Example response:
@@ -27,8 +27,15 @@ Example response:
     "current": true,
     "files_max_capacity": 10,
     "repos_max_capacity": 25,
+    "container_repositories_max_capacity": 10,
     "verification_max_capacity": 100,
-    "clone_protocol": "http"
+    "clone_protocol": "http",
+    "web_edit_url": "https://primary.example.com/admin/geo/nodes/1/edit",
+    "_links": {
+      "self": "https://primary.example.com/api/v4/geo_nodes/1",
+      "status":"https://primary.example.com/api/v4/geo_nodes/1/status",
+      "repair":"https://primary.example.com/api/v4/geo_nodes/1/repair"
+    }
   },
   {
     "id": 2,
@@ -40,8 +47,17 @@ Example response:
     "current": false,
     "files_max_capacity": 10,
     "repos_max_capacity": 25,
+    "container_repositories_max_capacity": 10,
     "verification_max_capacity": 100,
-    "clone_protocol": "http"
+    "sync_object_storage": true,
+    "clone_protocol": "http",
+    "web_edit_url": "https://primary.example.com/admin/geo/nodes/2/edit",
+    "web_geo_projects_url": "https://secondary.example.com/admin/geo/projects",
+    "_links": {
+      "self":"https://primary.example.com/api/v4/geo_nodes/2",
+      "status":"https://primary.example.com/api/v4/geo_nodes/2/status",
+      "repair":"https://primary.example.com/api/v4/geo_nodes/2/repair"
+    }
   }
 ]
 ```
@@ -53,7 +69,7 @@ GET /geo_nodes/:id
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/1
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/geo_nodes/1
 ```
 
 Example response:
@@ -69,8 +85,15 @@ Example response:
   "current": true,
   "files_max_capacity": 10,
   "repos_max_capacity": 25,
+  "container_repositories_max_capacity": 10,
   "verification_max_capacity": 100,
-  "clone_protocol": "http"
+  "clone_protocol": "http",
+  "web_edit_url": "https://primary.example.com/admin/geo/nodes/1/edit",
+  "_links": {
+    "self": "https://primary.example.com/api/v4/geo_nodes/1",
+    "status":"https://primary.example.com/api/v4/geo_nodes/1/status",
+    "repair":"https://primary.example.com/api/v4/geo_nodes/1/repair"
+  }
 }
 ```
 
@@ -84,16 +107,18 @@ _This can only be run against a primary Geo node._
 PUT /geo_nodes/:id
 ```
 
-| Attribute            | Type    | Required  | Description                                                               |
-|----------------------|---------|-----------|---------------------------------------------------------------------------|
-| `id`                 | integer | yes       | The ID of the Geo node.                                                   |
-| `enabled`            | boolean | no        | Flag indicating if the Geo node is enabled.                               |
-| `name`               | string  | yes       | The unique identifier for the Geo node. Must match `geo_node_name` if it is set in gitlab.rb, otherwise it must match `external_url`. |
-| `url`                | string  | yes       | The user-facing URL of the Geo node. |
-| `internal_url`       | string  | no        | The URL defined on the primary node that secondary nodes should use to contact it. Returns `url` if not set.|
-| `files_max_capacity` | integer | no        | Control the maximum concurrency of LFS/attachment backfill for this secondary node. |
-| `repos_max_capacity` | integer | no        | Control the maximum concurrency of repository backfill for this secondary node.     |
-| `verification_max_capacity` | integer | no | Control the maximum concurrency of verification for this node. |
+| Attribute                   | Type    | Required  | Description                                                               |
+|-----------------------------|---------|-----------|---------------------------------------------------------------------------|
+| `id`                        | integer | yes       | The ID of the Geo node.                                                   |
+| `enabled`                   | boolean | no        | Flag indicating if the Geo node is enabled.                               |
+| `name`                      | string  | yes       | The unique identifier for the Geo node. Must match `geo_node_name` if it is set in gitlab.rb, otherwise it must match `external_url`. |
+| `url`                       | string  | yes       | The user-facing URL of the Geo node. |
+| `internal_url`              | string  | no        | The URL defined on the primary node that secondary nodes should use to contact it. Returns `url` if not set.|
+| `files_max_capacity`        | integer | no        | Control the maximum concurrency of LFS/attachment backfill for this secondary node. |
+| `repos_max_capacity`        | integer | no        | Control the maximum concurrency of repository backfill for this secondary node.     |
+| `verification_max_capacity` | integer | no        | Control the maximum concurrency of verification for this node. |
+| `container_repositories_max_capacity` | integer | no | Control the maximum concurrency of container repository sync for this node. |
+| `sync_object_storage`       | boolean | no        | Flag indicating if the secondary Geo node will replicate blobs in Object Storage. |
 
 Example response:
 
@@ -108,8 +133,17 @@ Example response:
   "current": true,
   "files_max_capacity": 10,
   "repos_max_capacity": 25,
+  "container_repositories_max_capacity": 10,
   "verification_max_capacity": 100,
-  "clone_protocol": "http"
+  "sync_object_storage": true,
+  "clone_protocol": "http",
+  "web_edit_url": "https://primary.example.com/admin/geo/nodes/2/edit",
+  "web_geo_projects_url": "https://secondary.example.com/admin/geo/projects",
+  "_links": {
+    "self":"https://primary.example.com/api/v4/geo_nodes/2",
+    "status":"https://primary.example.com/api/v4/geo_nodes/2/status",
+    "repair":"https://primary.example.com/api/v4/geo_nodes/2/repair"
+  }
 }
 ```
 
@@ -151,8 +185,15 @@ Example response:
   "current": true,
   "files_max_capacity": 10,
   "repos_max_capacity": 25,
+  "container_repositories_max_capacity": 10,
   "verification_max_capacity": 100,
-  "clone_protocol": "http"
+  "clone_protocol": "http",
+  "web_edit_url": "https://primary.example.com/admin/geo/nodes/1/edit",
+  "_links": {
+    "self": "https://primary.example.com/api/v4/geo_nodes/1",
+    "status":"https://primary.example.com/api/v4/geo_nodes/1/status",
+    "repair":"https://primary.example.com/api/v4/geo_nodes/1/repair"
+  }
 }
 ```
 
@@ -163,7 +204,7 @@ GET /geo_nodes/status
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/status
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/geo_nodes/status
 ```
 
 Example response:
@@ -192,6 +233,10 @@ Example response:
     "job_artifacts_failed_count": nil,
     "job_artifacts_synced_missing_on_primary_count": 0,
     "job_artifacts_synced_in_percentage": "0.00%",
+    "container_repositories_count": 3,
+    "container_repositories_synced_count": nil,
+    "container_repositories_failed_count": nil,
+    "container_repositories_synced_in_percentage": "0.00%",
     "projects_count": 41,
     "repositories_failed_count": nil,
     "repositories_synced_count": nil,
@@ -255,6 +300,10 @@ Example response:
     "job_artifacts_failed_count": 1,
     "job_artifacts_synced_missing_on_primary_count": 0,
     "job_artifacts_synced_in_percentage": "50.00%",
+    "container_repositories_count": 3,
+    "container_repositories_synced_count": nil,
+    "container_repositories_failed_count": nil,
+    "container_repositories_synced_in_percentage": "0.00%",
     "projects_count": 41,
     "repositories_failed_count": 1,
     "repositories_synced_count": 40,
@@ -306,7 +355,7 @@ GET /geo_nodes/:id/status
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/2/status
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/geo_nodes/2/status
 ```
 
 Example response:
@@ -334,6 +383,10 @@ Example response:
   "job_artifacts_failed_count": 1,
   "job_artifacts_synced_missing_on_primary_count": 0,
   "job_artifacts_synced_in_percentage": "50.00%",
+  "container_repositories_count": 3,
+  "container_repositories_synced_count": nil,
+  "container_repositories_failed_count": nil,
+  "container_repositories_synced_in_percentage": "0.00%",
   "projects_count": 41,
   "repositories_failed_count": 1,
   "repositories_synced_count": 40,
@@ -376,7 +429,7 @@ GET /geo_nodes/current/failures
 This endpoint uses [Pagination](README.md#pagination).
 
 ```bash
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/current/failures
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/geo_nodes/current/failures
 ```
 
 Example response:

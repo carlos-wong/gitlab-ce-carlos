@@ -24,18 +24,21 @@ special searches:
 ## Installing Elasticsearch
 
 Elasticsearch is _not_ included in the Omnibus packages. You will have to
-install it yourself whether you are using the Omnibus package or installed
-GitLab from source. Providing detailed information on installing Elasticsearch
-is out of the scope of this document.
+[install it yourself](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html "Elasticsearch installation documentation")
+whether you are using the Omnibus package or installed GitLab from source.
+Providing detailed information on installing Elasticsearch is out of the scope
+of this document.
+
+NOTE: **Note:**
+Elasticsearch should be installed on a separate server, whether you install
+it yourself or by using the
+[Amazon Elasticsearch](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg.html)
+service. Running Elasticsearch on the same server as GitLab is not recommended
+and it will likely cause performance degradation on the GitLab installation.
 
 Once the data is added to the database or repository and [Elasticsearch is
 enabled in the admin area](#enabling-elasticsearch) the search index will be
-updated automatically. Elasticsearch can be installed on the same machine as
-GitLab or on a separate server, or you can use the [Amazon Elasticsearch](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg.html)
-service.
-
-You can follow the steps as described in the [official web site](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html "Elasticsearch installation documentation") or
-use the packages that are available for your OS.
+updated automatically.
 
 ## Elasticsearch repository indexer (beta)
 
@@ -330,6 +333,10 @@ curl --request PUT localhost:9200/gitlab-production/_settings --data '{
 
 Enable Elasticsearch search in **Admin > Settings > Integrations**. That's it. Enjoy it!
 
+### Index limit
+
+Currently for repository and snippet files, GitLab would only index up to 1 MB of content, in order to avoid indexing timeout.
+
 ## GitLab Elasticsearch Rake Tasks
 
 There are several rake tasks available to you via the command line:
@@ -354,6 +361,8 @@ There are several rake tasks available to you via the command line:
   - Does the same thing as `sudo gitlab-rake gitlab:elastic:create_empty_index`
 - [sudo gitlab-rake gitlab:elastic:index_snippets](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/ee/lib/tasks/gitlab/elastic.rake)
   - Performs an Elasticsearch import that indexes the snippets data.
+- [sudo gitlab-rake gitlab:elastic:projects_not_indexed](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/ee/lib/tasks/gitlab/elastic.rake)
+  - Displays which projects are not indexed.
 
 ### Environment Variables
 
@@ -468,6 +477,10 @@ Here are some common pitfalls and how to overcome them:
 - **The indexing process is taking a very long time**
 
   The more data present in your GitLab instance, the longer the indexing process takes.
+
+- **There are some projects that weren't indexed, but we don't know which ones**
+
+  You can run `sudo gitlab-rake gitlab:elastic:projects_not_indexed` to display projects that aren't indexed.
 
 - **No new data is added to the Elasticsearch index when I push code**
 

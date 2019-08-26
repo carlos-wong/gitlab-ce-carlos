@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :cluster, class: Clusters::Cluster do
     user
     name 'test-cluster'
     cluster_type :project_type
     managed true
+    namespace_per_environment true
+
+    factory :cluster_for_group, traits: [:provided_by_gcp, :group]
 
     trait :instance do
       cluster_type { Clusters::Cluster.cluster_types[:instance_type] }
@@ -23,6 +28,10 @@ FactoryBot.define do
       before(:create) do |cluster, evalutor|
         cluster.groups << create(:group) unless cluster.groups.present?
       end
+    end
+
+    trait :namespace_per_environment_disabled do
+      namespace_per_environment false
     end
 
     trait :provided_by_user do

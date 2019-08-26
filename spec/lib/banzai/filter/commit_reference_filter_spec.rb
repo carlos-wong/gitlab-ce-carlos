@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Banzai::Filter::CommitReferenceFilter do
@@ -102,6 +104,17 @@ describe Banzai::Filter::CommitReferenceFilter do
         doc = reference_filter("See #{reference}", noteable: noteable)
 
         expect(doc.css('a').first[:href]).to eq(url)
+      end
+
+      context "a doc with many (29) strings that could be SHAs" do
+        let!(:oids) { noteable.commits.collect(&:id) }
+
+        it 'makes only a single request to Gitaly' do
+          expect(Gitlab::GitalyClient).to receive(:allow_n_plus_1_calls).exactly(0).times
+          expect(Gitlab::Git::Commit).to receive(:batch_by_oid).once.and_call_original
+
+          reference_filter("A big list of SHAs #{oids.join(", ")}", noteable: noteable)
+        end
       end
     end
   end

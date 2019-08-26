@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe BitbucketServer::Client do
@@ -55,6 +57,17 @@ describe BitbucketServer::Client do
       expect(BitbucketServer::Paginator).to receive(:new).with(anything, path, :repo, page_offset: 10, limit: 25)
 
       subject.repos(page_offset: 10, limit: 25)
+    end
+
+    context 'when filter param is passed' do
+      let(:filter) { 'test' }
+      let(:expected_path) { "#{path}?name=#{filter}" }
+
+      it 'requests a collection with filter applied' do
+        expect(BitbucketServer::Paginator).to receive(:new).with(anything, expected_path, :repo, page_offset: 0, limit: nil)
+
+        subject.repos(filter: filter)
+      end
     end
   end
 

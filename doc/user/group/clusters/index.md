@@ -5,7 +5,6 @@ type: reference
 # Group-level Kubernetes clusters
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/34758) in GitLab 11.6.
-> Group Cluster integration is currently in [Beta](https://about.gitlab.com/handbook/product/#alpha-beta-ga).
 
 ## Overview
 
@@ -87,7 +86,7 @@ The domain should have a wildcard DNS configured to the Ingress IP address.
 When adding more than one Kubernetes cluster to your project, you need to differentiate
 them with an environment scope. The environment scope associates clusters with
 [environments](../../../ci/environments.md) similar to how the
-[environment-specific variables](../../../ci/variables/README.md#limiting-environment-scopes-of-environment-variables-premium)
+[environment-specific variables](../../../ci/variables/README.md#limiting-environment-scopes-of-environment-variables)
 work.
 
 While evaluating which environment matches the environment scope of a
@@ -137,6 +136,13 @@ The result will then be:
 - The Project cluster will be used for the `test` job.
 - The Staging cluster will be used for the `deploy to staging` job.
 - The Production cluster will be used for the `deploy to production` job.
+
+## Security of Runners
+
+For important information about securely configuring GitLab Runners, see
+[Security of
+Runners](../../project/clusters/index.md#security-of-gitlab-runners)
+documentation for project-level clusters.
 
 <!-- ## Troubleshooting
 

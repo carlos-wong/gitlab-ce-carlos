@@ -28,8 +28,8 @@ describe('Suggestion Diff component', () => {
     wrapper.destroy();
   });
 
-  const findApplyButton = () => wrapper.find('.qa-apply-btn');
-  const findHeader = () => wrapper.find('.qa-suggestion-diff-header');
+  const findApplyButton = () => wrapper.find('.js-apply-btn');
+  const findHeader = () => wrapper.find('.js-suggestion-diff-header');
   const findHelpButton = () => wrapper.find('.js-help-btn');
   const findLoading = () => wrapper.find(GlLoadingIcon);
 
@@ -73,7 +73,10 @@ describe('Suggestion Diff component', () => {
     });
 
     it('emits apply', () => {
-      expect(wrapper.emittedByOrder()).toEqual([{ name: 'apply', args: [expect.any(Function)] }]);
+      expect(wrapper.emittedByOrder()).toContainEqual({
+        name: 'apply',
+        args: [expect.any(Function)],
+      });
     });
 
     it('hides apply button', () => {

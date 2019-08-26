@@ -6,6 +6,7 @@ const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
 const CompressionPlugin = require('compression-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ROOT_PATH = path.resolve(__dirname, '..');
 const CACHE_PATH = process.env.WEBPACK_CACHE_PATH || path.join(ROOT_PATH, 'tmp/cache');
@@ -89,6 +90,12 @@ const alias = {
 
   // the following resolves files which are different between CE and EE
   ee_else_ce: path.join(ROOT_PATH, 'app/assets/javascripts'),
+
+  // override loader path for icons.svg so we do not duplicate this asset
+  '@gitlab/svgs/dist/icons.svg': path.join(
+    ROOT_PATH,
+    'app/assets/javascripts/lib/utils/icons_path.js',
+  ),
 };
 
 if (IS_EE) {
@@ -157,7 +164,15 @@ module.exports = {
         loader: 'graphql-tag/loader',
       },
       {
+        test: /icons\.svg$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[hash:8].[ext]',
+        },
+      },
+      {
         test: /\.svg$/,
+        exclude: /icons\.svg$/,
         loader: 'raw-loader',
       },
       {
@@ -277,6 +292,13 @@ module.exports = {
         );
       }
     }),
+
+    new CopyWebpackPlugin([
+      {
+        from: path.join(ROOT_PATH, 'node_modules/pdfjs-dist/cmaps/'),
+        to: path.join(ROOT_PATH, 'public/assets/webpack/cmaps/'),
+      },
+    ]),
 
     // compression can require a lot of compute time and is disabled in CI
     IS_PRODUCTION && !NO_COMPRESSION && new CompressionPlugin(),

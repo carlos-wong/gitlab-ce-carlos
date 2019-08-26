@@ -55,6 +55,10 @@ module Gitlab
         @name = @relative_path.split("/").last
       end
 
+      def to_s
+        "<#{self.class.name}: #{self.gl_project_path}>"
+      end
+
       def ==(other)
         other.is_a?(self.class) && [storage, relative_path] == [other.storage, other.relative_path]
       end
@@ -873,13 +877,13 @@ module Gitlab
       def multi_action(
         user, branch_name:, message:, actions:,
         author_email: nil, author_name: nil,
-        start_branch_name: nil, start_repository: self,
+        start_branch_name: nil, start_sha: nil, start_repository: self,
         force: false)
 
         wrapped_gitaly_errors do
           gitaly_operation_client.user_commit_files(user, branch_name,
               message, actions, author_email, author_name,
-              start_branch_name, start_repository, force)
+              start_branch_name, start_repository, force, start_sha)
         end
       end
       # rubocop:enable Metrics/ParameterLists

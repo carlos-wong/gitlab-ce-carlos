@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :upload do
     model { build(:project) }
@@ -54,10 +56,7 @@ FactoryBot.define do
     end
 
     trait :attachment_upload do
-      transient do
-        mount_point :attachment
-      end
-
+      mount_point :attachment
       model { build(:note) }
       uploader "AttachmentUploader"
     end

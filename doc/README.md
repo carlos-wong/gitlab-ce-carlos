@@ -9,7 +9,7 @@ description: 'Learn how to use and administer GitLab, the most scalable Git-base
 </div>
 <!-- the div above will not display on the docs site but will display on /help -->
 
-# GitLab Documentation
+# GitLab Docs
 
 Welcome to [GitLab](https://about.gitlab.com/) Documentation.
 
@@ -25,7 +25,7 @@ No matter how you use GitLab, we have documentation for you.
 | [**User Documentation**](user/index.md)<br/>Discover features and concepts for GitLab users.                                               | [**Administrator documentation**](administration/index.md)<br/>Everything GitLab self-managed administrators need to know. |
 | [**Contributing to GitLab**](#contributing-to-gitlab)<br/>At GitLab, everyone can contribute!                                              | [**New to Git and GitLab?**](#new-to-git-and-gitlab)<br/>We have resources to get you started.                             |
 | [**Building an integration with GitLab?**](#building-an-integration-with-gitlab)<br/>Consult our automation and integration documentation. | [**Coming to GitLab from another platform?**](#coming-to-gitlab-from-another-platform)<br/>Consult our handy guides.       |
-| [**Install GitLab**](https://about.gitlab.com/install/)<br/>Installation options for different platforms.                                  | [**Subscribe to GitLab**](#subscribe-to-gitlab)<br/>Get access to more features.                                           |
+| [**Install GitLab**](https://about.gitlab.com/install/)<br/>Installation options for different platforms.                                  | [**Customers**](subscriptions/index.md)<br/>Information for new and existing customers.                                    |
 | [**Update GitLab**](update/README.md)<br/>Update your GitLab self-managed instance to the latest version.                                  | [**GitLab Releases**](https://about.gitlab.com/releases/)<br/>What's new in GitLab.                                        |
 
 ## Popular Documentation
@@ -38,7 +38,7 @@ Have a look at some of our most popular documentation resources:
 | [GitLab CI/CD examples](ci/examples/README.md)                  | Get up to speed quickly with common CI/CD scenarios.             |
 | [GitLab Container Registry](user/project/container_registry.md) | Host containers within GitLab.                                   |
 | [GitLab Pages](user/project/pages/index.md)                     | Host static websites for your projects with GitLab.              |
-| [GitLab.com settings](user/gitlab_com/index.md)                 | Settings for [GitLab.com](#gitlabcom).                           |
+| [GitLab.com settings](user/gitlab_com/index.md)                 | Settings for GitLab.com.                                         |
 | [Kubernetes integration](user/project/clusters/index.md)        | Use GitLab with Kubernetes.                                      |
 | [SSH authentication](ssh/README.md)                             | Secure your network communications.                              |
 | [Using Docker images](ci/docker/using_docker_images.md)         | Build and test your applications with Docker.                    |
@@ -279,7 +279,7 @@ The following documentation relates to the DevOps **Release** stage:
 | [Canary Deployments](user/project/canary_deployments.md) **(PREMIUM)**                                                              | Employ a popular CI strategy where a small portion of the fleet is updated to the new version first.                                  |
 | [Deploy Boards](user/project/deploy_boards.md) **(PREMIUM)**                                                                        | View the current health and status of each CI environment running on Kubernetes, displaying the status of the pods in the deployment. |
 | [Environments and deployments](ci/environments.md)                                                                                  | With environments, you can control the continuous deployment of your software within GitLab.                                          |
-| [Environment-specific variables](ci/variables/README.md#limiting-environment-scopes-of-environment-variables-premium) **(PREMIUM)** | Limit scope of variables to specific environments.                                                                                    |
+| [Environment-specific variables](ci/variables/README.md#limiting-environment-scopes-of-environment-variables) | Limit scope of variables to specific environments.                                                                                    |
 | [GitLab CI/CD](ci/README.md)                                                                                                        | Explore the features and capabilities of Continuous Deployment and Delivery with GitLab.                                              |
 | [GitLab Pages](user/project/pages/index.md)                                                                                         | Build, test, and deploy a static site directly from GitLab.                                                                           |
 | [Protected Runners](ci/runners/README.md#protected-runners)                                                                         | Select Runners to only pick jobs for protected branches and tags.                                                                     |
@@ -302,7 +302,7 @@ The following documentation relates to the DevOps **Configure** stage:
 | Configure Topics                                                                                                                   | Description                                                               |
 |:-----------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------|
 | [Auto DevOps](topics/autodevops/index.md)                                                                                          | Automatically employ a complete DevOps lifecycle.                         |
-| [Easy creation of Kubernetes<br/>clusters on GKE](user/project/clusters/index.md#adding-and-creating-a-new-gke-cluster-via-gitlab) | Use Google Kubernetes Engine and GitLab.                                  |
+| [Create Kubernetes clusters on GKE](user/project/clusters/index.md#add-new-gke-cluster) | Use Google Kubernetes Engine and GitLab.                                  |
 | [Executable Runbooks](user/project/clusters/runbooks/index.md)                                                                     | Documented procedures that explain how to carry out particular processes. |
 | [GitLab ChatOps](ci/chatops/README.md)                                                                                             | Interact with CI/CD jobs through chat services.                           |
 | [Installing Applications](user/project/clusters/index.md#installing-applications)                                                  | Deploy Helm, Ingress, and Prometheus on Kubernetes.                       |
@@ -354,96 +354,13 @@ The following documentation relates to the DevOps **Secure** stage:
 | Secure Topics                                                                                         | Description                                                            |
 |:------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------|
 | [Container Scanning](user/application_security/container_scanning/index.md) **(ULTIMATE)**            | Use Clair to scan docker images for known vulnerabilities.             |
+| [Dependency List](user/application_security/dependency_list/index.md) **(ULTIMATE)**                  | View your project's dependencies and their known vulnerabilities.      |
 | [Dependency Scanning](user/application_security/dependency_scanning/index.md) **(ULTIMATE)**          | Analyze your dependencies for known vulnerabilities.                   |
 | [Dynamic Application Security Testing (DAST)](user/application_security/dast/index.md) **(ULTIMATE)** | Analyze running web applications for known vulnerabilities.            |
 | [Group Security Dashboard](user/application_security/security_dashboard/index.md) **(ULTIMATE)**      | View vulnerabilities in all the projects in a group and its subgroups. |
-| [License Management](user/application_security/license_management/index.md) **(ULTIMATE)**            | Search your project's dependencies for their licenses.                 |
+| [License Compliance](user/application_security/license_management/index.md) **(ULTIMATE)**            | Search your project's dependencies for their licenses.                 |
 | [Project Security Dashboard](user/application_security/security_dashboard/index.md) **(ULTIMATE)**    | View the latest security reports for your project.                     |
 | [Static Application Security Testing (SAST)](user/application_security/sast/index.md) **(ULTIMATE)**  | Analyze source code for known vulnerabilities.                         |
-
-## Subscribe to GitLab
-
-There are two ways to use GitLab:
-
-- [GitLab self-managed](#gitlab-self-managed): Install, administer, and maintain your own GitLab instance.
-- [GitLab.com](#gitlabcom): GitLab's SaaS offering. You don't need to install anything to use GitLab.com,
-  you only need to [sign up](https://gitlab.com/users/sign_in) and start using GitLab straight away.
-
-For more information on managing your subscription and [Customers Portal](https://customers.gitlab.com) account, please see [Getting Started with Subscriptions](getting-started/subscription.md).
-
-The following sections outline tiers and features within GitLab self-managed and GitLab.com.
-
-<div align="right">
-  <a type="button" class="btn btn-default" href="#overview">
-    Back to Overview <i class="fa fa-angle-double-up" aria-hidden="true"></i>
-  </a>
-</div>
-
-### GitLab self-managed
-
-With GitLab self-managed, you deploy your own GitLab instance on-premises or on a cloud of your choice.
-GitLab self-managed is available for [free and with paid subscriptions](https://about.gitlab.com/pricing/#self-managed) in the following tiers:
-
-| Tier     | Includes                                       |
-|:---------|:-----------------------------------------------|
-| Core     | Core features.                                 |
-| Starter  | Core and Starter features.                     |
-| Premium  | Core, Starter, and Premium features.           |
-| Ultimate | Core, Starter, Premium, and Ultimate features. |
-
-The following resources are available for more information on GitLab self-managed:
-
-- [Feature comparison](https://about.gitlab.com/pricing/self-managed/feature-comparison/), for information on what features are available at each tier.
-- [GitLab pricing page](https://about.gitlab.com/pricing/#self-managed), for subscription information and a free trial.
-- Our [product marketing page](https://about.gitlab.com/handbook/marketing/product-marketing/), for additional information including:
-  - How [different tiers are licensed](https://about.gitlab.com/handbook/marketing/product-marketing/#tiers).
-  - The different [GitLab distributions](https://about.gitlab.com/handbook/marketing/product-marketing/#distributions).
-
-<div align="right">
-  <a type="button" class="btn btn-default" href="#overview">
-    Back to Overview <i class="fa fa-angle-double-up" aria-hidden="true"></i>
-  </a>
-</div>
-
-### GitLab.com
-
-GitLab.com is hosted, managed, and administered by GitLab, Inc., with
-[free and paid subscriptions](https://about.gitlab.com/pricing/) for individuals
-and teams in the following tiers:
-
-| Tier   | Includes same features available in                 |
-|:-------|:----------------------------------------------------|
-| Free   | [Core](#gitlab-self-managed) self-managed tier.     |
-| Bronze | [Starter](#gitlab-self-managed) self-managed tier.  |
-| Silver | [Premium](#gitlab-self-managed) self-managed tier.  |
-| Gold   | [Ultimate](#gitlab-self-managed) self-managed tier. |
-
-GitLab.com subscriptions grant access
-to the same features available in GitLab self-managed, **except
-[administration](administration/index.md) tools and settings**.
-
-GitLab.com allows you to apply your subscription to a group or your personal user.
-
-When applied to a **group**, the group, all subgroups, and all projects under the selected group on GitLab.com will have the features of the associated plan. It is recommended to go with a group plan when managing projects and users of an organization.
-
-When associated with a **personal userspace** instead, all projects will have features with the subscription applied, but as it is not a group, group features will not be available.
-
-TIP: **Tip:**
-To support the open source community and encourage the development of open source projects, GitLab grants access to **Gold** features for all GitLab.com **public** projects, regardless of the subscription.
-
-The following resources are available for more information on GitLab.com:
-
-- [Feature comparison](https://about.gitlab.com/pricing/gitlab-com/feature-comparison/), for information on what features are available at each tier.
-- [GitLab pricing page](https://about.gitlab.com/pricing/), for subscription information and a free trial.
-- Our [product marketing page](https://about.gitlab.com/handbook/marketing/product-marketing/), for additional information including:
-  - How [different tiers are licensed](https://about.gitlab.com/handbook/marketing/product-marketing/#tiers).
-  - The different [GitLab distributions](https://about.gitlab.com/handbook/marketing/product-marketing/#distributions).
-
-<div align="right">
-  <a type="button" class="btn btn-default" href="#overview">
-    Back to Overview <i class="fa fa-angle-double-up" aria-hidden="true"></i>
-  </a>
-</div>
 
 ## New to Git and GitLab?
 

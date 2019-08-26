@@ -25,6 +25,9 @@ describe API::Settings, 'Settings' do
       expect(json_response['ed25519_key_restriction']).to eq(0)
       expect(json_response['performance_bar_allowed_group_id']).to be_nil
       expect(json_response['instance_statistics_visibility_private']).to be(false)
+      expect(json_response['allow_local_requests_from_hooks_and_services']).to be(false)
+      expect(json_response['allow_local_requests_from_web_hooks_and_services']).to be(false)
+      expect(json_response['allow_local_requests_from_system_hooks']).to be(true)
       expect(json_response).not_to have_key('performance_bar_allowed_group_path')
       expect(json_response).not_to have_key('performance_bar_enabled')
     end
@@ -67,7 +70,9 @@ describe API::Settings, 'Settings' do
             instance_statistics_visibility_private: true,
             diff_max_patch_bytes: 150_000,
             default_branch_protection: ::Gitlab::Access::PROTECTION_DEV_CAN_MERGE,
-            local_markdown_version: 3
+            local_markdown_version: 3,
+            allow_local_requests_from_web_hooks_and_services: true,
+            allow_local_requests_from_system_hooks: false
           }
 
         expect(response).to have_gitlab_http_status(200)
@@ -95,6 +100,8 @@ describe API::Settings, 'Settings' do
         expect(json_response['diff_max_patch_bytes']).to eq(150_000)
         expect(json_response['default_branch_protection']).to eq(Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
         expect(json_response['local_markdown_version']).to eq(3)
+        expect(json_response['allow_local_requests_from_web_hooks_and_services']).to eq(true)
+        expect(json_response['allow_local_requests_from_system_hooks']).to eq(false)
       end
     end
 
@@ -117,6 +124,14 @@ describe API::Settings, 'Settings' do
       expect(json_response['performance_bar_allowed_group_id']).to be_nil
     end
 
+    it 'supports legacy allow_local_requests_from_hooks_and_services' do
+      put api("/application/settings", admin),
+          params: { allow_local_requests_from_hooks_and_services: true }
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(json_response['allow_local_requests_from_hooks_and_services']).to eq(true)
+    end
+
     context 'external policy classification settings' do
       let(:settings) do
         {
@@ -129,6 +144,7 @@ describe API::Settings, 'Settings' do
           external_auth_client_key_pass: "5iveL!fe"
         }
       end
+
       let(:attribute_names) { settings.keys.map(&:to_s) }
 
       it 'includes the attributes in the API' do
@@ -146,6 +162,56 @@ describe API::Settings, 'Settings' do
         expect(response).to have_gitlab_http_status(200)
         settings.each do |attribute, value|
           expect(ApplicationSetting.current.public_send(attribute)).to eq(value)
+        end
+      end
+    end
+
+    context "snowplow tracking settings" do
+      let(:settings) do
+        {
+          snowplow_collector_hostname: "snowplow.example.com",
+          snowplow_cookie_domain: ".example.com",
+          snowplow_enabled: true,
+          snowplow_site_id: "site_id"
+        }
+      end
+
+      let(:attribute_names) { settings.keys.map(&:to_s) }
+
+      it "includes the attributes in the API" do
+        get api("/application/settings", admin)
+
+        expect(response).to have_gitlab_http_status(200)
+        attribute_names.each do |attribute|
+          expect(json_response.keys).to include(attribute)
+        end
+      end
+
+      it "allows updating the settings" do
+        put api("/application/settings", admin), params: settings
+
+        expect(response).to have_gitlab_http_status(200)
+        settings.each do |attribute, value|
+          expect(ApplicationSetting.current.public_send(attribute)).to eq(value)
+        end
+      end
+
+      context "missing snowplow_collector_hostname value when snowplow_enabled is true" do
+        it "returns a blank parameter error message" do
+          put api("/application/settings", admin), params: { snowplow_enabled: true }
+
+          expect(response).to have_gitlab_http_status(400)
+          expect(json_response["error"]).to eq("snowplow_collector_hostname is missing")
+        end
+
+        it "handles validation errors" do
+          put api("/application/settings", admin), params: settings.merge({
+            snowplow_collector_hostname: nil
+          })
+
+          expect(response).to have_gitlab_http_status(400)
+          message = json_response["message"]
+          expect(message["snowplow_collector_hostname"]).to include("can't be blank")
         end
       end
     end

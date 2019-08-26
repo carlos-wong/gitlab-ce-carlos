@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # These helpers allow you to manipulate with notes.
 #
 # Usage:
@@ -18,6 +20,14 @@ module Spec
                 fill_in("note[note]", with: text)
                 find(".js-comment-submit-button").click
               end
+            end
+          end
+
+          def edit_note(note_text_to_edit, new_note_text)
+            page.within('#notes-list li.note', text: note_text_to_edit) do
+              find('.js-note-edit').click
+              fill_in('note[note]', with: new_note_text)
+              find('.js-comment-button').click
             end
           end
 

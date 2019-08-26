@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Multi-file editor new directory', :js do
@@ -47,7 +49,9 @@ describe 'Multi-file editor new directory', :js do
 
     fill_in('commit-message', with: 'commit message ide')
 
-    click_button('Commit')
+    page.within '.multi-file-commit-form' do
+      click_button('Commit')
+    end
 
     find('.js-ide-edit-mode').click
 

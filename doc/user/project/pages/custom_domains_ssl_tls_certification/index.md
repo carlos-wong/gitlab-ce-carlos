@@ -1,7 +1,7 @@
 ---
 last_updated: 2019-07-04
 type: reference, howto
-redirect_from: 'https://docs.gitlab.com/ee/user/project/pages/getting_started_part_three.html'
+disqus_identifier: 'https://docs.gitlab.com/ee/user/project/pages/getting_started_part_three.html'
 ---
 
 # Custom domains and SSL/TLS Certificates
@@ -191,14 +191,14 @@ can use the following setup:
 1. In Cloudflare, create a DNS `TXT` record to verify your domain.
 1. In GitLab, verify your domain.
 1. In Cloudflare, create a DNS `CNAME` record pointing `www` to `domain.com`.
-1. In Cloudflare, add a Page Rule pointing `www.domain,com` to `domain.com`:
-    - Navigate to your domain's dashboard and click **Page Rules**
-      on the top nav.
-    - Click **Create Page Rule**.
-    - Enter the domain `www.domain.com` and click **+ Add a Setting**.
-    - From the dropdown menu, choose **Forwarding URL**, then select the
-      status code **301 - Permanent Redirect**.
-    - Enter the destination URL `https://domain.com`.
+1. In Cloudflare, add a Page Rule pointing `www.domain.com` to `domain.com`:
+   - Navigate to your domain's dashboard and click **Page Rules**
+     on the top nav.
+   - Click **Create Page Rule**.
+   - Enter the domain `www.domain.com` and click **+ Add a Setting**.
+   - From the dropdown menu, choose **Forwarding URL**, then select the
+     status code **301 - Permanent Redirect**.
+   - Enter the destination URL `https://domain.com`.
 
 ## Adding an SSL/TLS certificate to Pages
 
@@ -262,7 +262,6 @@ To enable this setting:
 
 1. Navigate to your project's **Settings > Pages**.
 1. Tick the checkbox **Force HTTPS (requires valid certificates)**.
-
 
 <!-- ## Troubleshooting
 

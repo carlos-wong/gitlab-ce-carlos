@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 shared_examples 'handle uploads' do
   let(:user)  { create(:user) }
   let(:jpg)   { fixture_file_upload('spec/fixtures/rails_sample.jpg', 'image/jpg') }
@@ -72,6 +74,16 @@ shared_examples 'handle uploads' do
     before do
       expect(FileUploader).to receive(:generate_secret).and_return(secret)
       UploadService.new(model, jpg, uploader_class).execute
+    end
+
+    context 'when accessing a specific upload via different model' do
+      it 'responds with status 404' do
+        params.merge!(other_params)
+
+        show_upload
+
+        expect(response).to have_gitlab_http_status(404)
+      end
     end
 
     context "when the model is public" do

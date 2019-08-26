@@ -1,8 +1,9 @@
-import { comment, login, collapseButton } from '../components';
+import { comment, login, mrForm } from '../components';
+import { localStorage, COMMENT_BOX, LOGIN, MR_ID, STORAGE_MR_ID, STORAGE_TOKEN } from '../shared';
 
 const state = {
   browser: '',
-  href: '',
+  usingGracefulStorage: '',
   innerWidth: '',
   innerHeight: '',
   mergeRequestId: '',
@@ -23,11 +24,31 @@ const getBrowserId = sUsrAg => {
   return aKeys[nIdx];
 };
 
+const nextView = (appState, form = 'none') => {
+  const formsList = {
+    [COMMENT_BOX]: currentState => (currentState.token ? mrForm : login),
+    [LOGIN]: currentState => (currentState.mergeRequestId ? comment(currentState) : mrForm),
+    [MR_ID]: currentState => (currentState.token ? comment(currentState) : login),
+    none: currentState => {
+      if (!currentState.token) {
+        return login;
+      }
+
+      if (currentState.token && !currentState.mergeRequestId) {
+        return mrForm;
+      }
+
+      return comment(currentState);
+    },
+  };
+
+  return formsList[form](appState);
+};
+
 const initializeState = (wind, doc) => {
   const {
     innerWidth,
     innerHeight,
-    location: { href },
     navigator: { platform, userAgent },
   } = wind;
 
@@ -39,7 +60,6 @@ const initializeState = (wind, doc) => {
   // This mutates our default state object above. It's weird but it makes the linter happy.
   Object.assign(state, {
     browser,
-    href,
     innerWidth,
     innerHeight,
     mergeRequestId,
@@ -49,30 +69,27 @@ const initializeState = (wind, doc) => {
     projectPath,
     userAgent,
   });
+
+  return state;
 };
 
-function getInitialView({ localStorage }) {
-  const loginView = {
-    content: login,
-    toggleButton: collapseButton,
-  };
+const getInitialView = () => {
+  const token = localStorage.getItem(STORAGE_TOKEN);
+  const mrId = localStorage.getItem(STORAGE_MR_ID);
 
-  const commentView = {
-    content: comment,
-    toggleButton: collapseButton,
-  };
-
-  try {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      state.token = token;
-      return commentView;
-    }
-    return loginView;
-  } catch (err) {
-    return loginView;
+  if (token) {
+    state.token = token;
   }
-}
 
-export { initializeState, getInitialView, state };
+  if (mrId) {
+    state.mergeRequestId = mrId;
+  }
+
+  return nextView(state);
+};
+
+const setUsingGracefulStorageFlag = flag => {
+  state.usingGracefulStorage = !flag;
+};
+
+export { initializeState, getInitialView, nextView, setUsingGracefulStorageFlag, state };

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::Database::Count::TablesampleCountStrategy do
@@ -12,7 +14,7 @@ describe Gitlab::Database::Count::TablesampleCountStrategy do
 
   subject { strategy.count }
 
-  describe '#count', :postgresql do
+  describe '#count' do
     let(:estimates) do
       {
         Project => threshold + 1,
@@ -54,24 +56,6 @@ describe Gitlab::Database::Count::TablesampleCountStrategy do
 
         expect(subject).to eq({})
       end
-    end
-  end
-
-  describe '.enabled?' do
-    before do
-      stub_feature_flags(tablesample_counts: true)
-    end
-
-    it 'is enabled for PostgreSQL' do
-      allow(Gitlab::Database).to receive(:postgresql?).and_return(true)
-
-      expect(described_class.enabled?).to be_truthy
-    end
-
-    it 'is disabled for MySQL' do
-      allow(Gitlab::Database).to receive(:postgresql?).and_return(false)
-
-      expect(described_class.enabled?).to be_falsey
     end
   end
 end

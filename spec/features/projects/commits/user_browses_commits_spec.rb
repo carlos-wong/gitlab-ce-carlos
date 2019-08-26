@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User browses commits' do
@@ -13,7 +15,7 @@ describe 'User browses commits' do
   it 'renders commit' do
     visit project_commit_path(project, sample_commit.id)
 
-    expect(page).to have_content(sample_commit.message.gsub!(/\s+/, ' '))
+    expect(page).to have_content(sample_commit.message.gsub(/\s+/, ' '))
       .and have_content("Showing #{sample_commit.files_changed_count} changed files")
       .and have_content('Side-by-side')
   end

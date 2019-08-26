@@ -62,7 +62,7 @@ You can only register a shared Runner if you are an admin of the GitLab instance
 
 1. Grab the shared-Runner token on the `admin/runners` page
 
-    ![Shared Runners admin area](img/shared_runners_admin.png)
+   ![Shared Runners admin area](img/shared_runners_admin.png)
 
 1. [Register the Runner][register]
 
@@ -88,7 +88,7 @@ visit the project you want to make the Runner work for in GitLab:
 
 ## Registering a group Runner
 
-Creating a group Runner requires Maintainer permissions for the group. To create a
+Creating a group Runner requires Owner permissions for the group. To create a
 group Runner visit the group you want to make the Runner work for in GitLab:
 
 1. Go to **Settings > CI/CD** to obtain the token
@@ -124,9 +124,9 @@ To lock/unlock a Runner:
 
 ## Assigning a Runner to another project
 
-If you are Maintainer on a project where a specific Runner is assigned to, and the
+If you are an Owner on a project where a specific Runner is assigned to, and the
 Runner is not [locked only to that project](#locking-a-specific-runner-from-being-enabled-for-other-projects),
-you can enable the Runner also on any other project where you have Maintainer permissions.
+you can enable the Runner also on any other project where you have Owner permissions.
 
 To enable/disable a Runner in your project:
 
@@ -250,7 +250,7 @@ When you [register a Runner][register], its default behavior is to **only pick**
 [tagged jobs](../yaml/README.md#tags).
 
 NOTE: **Note:**
-Maintainer [permissions](../../user/permissions.md) are required to change the
+Owner [permissions](../../user/permissions.md) are required to change the
 Runner settings.
 
 To make a Runner pick untagged jobs:
@@ -319,21 +319,21 @@ How this feature will work:
 1. You set the _maximum job timeout_ for a Runner to 24 hours
 1. You set the _CI/CD Timeout_ for a project to **2 hours**
 1. You start a job
-1. The job, if running longer, will be timeouted after **2 hours**
+1. The job, if running longer, will be timed out after **2 hours**
 
 **Example 2 - Runner timeout not configured**
 
 1. You remove the _maximum job timeout_ configuration from a Runner
 1. You set the _CI/CD Timeout_ for a project to **2 hours**
 1. You start a job
-1. The job, if running longer, will be timeouted after **2 hours**
+1. The job, if running longer, will be timed out after **2 hours**
 
 **Example 3 - Runner timeout smaller than project timeout**
 
 1. You set the _maximum job timeout_ for a Runner to **30 minutes**
 1. You set the _CI/CD Timeout_ for a project to 2 hours
 1. You start a job
-1. The job, if running longer, will be timeouted after **30 minutes**
+1. The job, if running longer, will be timed out after **30 minutes**
 
 ### Be careful with sensitive information
 
@@ -373,12 +373,12 @@ attacker.
 
 To reset the token:
 
-1. Go to **Settings > CI/CD** for a specified Project
-1. Expand the **General pipelines settings** section
-1. Find the **Runner token** form field and click the **Reveal value** button
-1. Delete the value and save the form
+1. Go to **Settings > CI/CD** for a specified Project.
+1. Expand the **General pipelines settings** section.
+1. Find the **Runner token** form field and click the **Reveal value** button.
+1. Delete the value and save the form.
 1. After the page is refreshed, expand the **Runners settings** section
-    and check the registration token - it should be changed
+   and check the registration token - it should be changed.
 
 From now on the old token is not valid anymore and will not allow to register
 a new Runner to the project. If you are using any tools to provision and

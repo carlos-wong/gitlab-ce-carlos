@@ -63,7 +63,7 @@ module Git
     end
 
     def branch_create_hooks
-      project.repository.after_create_branch
+      project.repository.after_create_branch(expire_cache: false)
       project.after_create_default_branch if default_branch?
     end
 
@@ -78,13 +78,21 @@ module Git
     end
 
     def branch_remove_hooks
-      project.repository.after_remove_branch
+      project.repository.after_remove_branch(expire_cache: false)
     end
 
     # Schedules processing of commit messages
     def enqueue_process_commit_messages
-      limited_commits.each do |commit|
-        next unless commit.matches_cross_reference_regex?
+      referencing_commits = limited_commits.select(&:matches_cross_reference_regex?)
+
+      upstream_commit_ids = upstream_commit_ids(referencing_commits)
+
+      referencing_commits.each do |commit|
+        # Avoid reprocessing commits that already exist upstream if the project
+        # is a fork. This will prevent duplicated/superfluous system notes on
+        # mentionables referenced by a commit that is pushed to the upstream,
+        # that is then also pushed to forks when these get synced by users.
+        next if upstream_commit_ids.include?(commit.id)
 
         ProcessCommitWorker.perform_async(
           project.id,
@@ -141,6 +149,19 @@ module Git
 
     def branch_name
       strong_memoize(:branch_name) { Gitlab::Git.ref_name(params[:ref]) }
+    end
+
+    def upstream_commit_ids(commits)
+      set = Set.new
+
+      upstream_project = project.fork_source
+      if upstream_project
+        upstream_project
+          .commits_by(oids: commits.map(&:id))
+          .each { |commit| set << commit.id }
+      end
+
+      set
     end
   end
 end

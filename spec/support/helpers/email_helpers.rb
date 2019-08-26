@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EmailHelpers
   def sent_to_user(user, recipients: email_recipients)
     recipients.count { |to| to == user.notification_email }
@@ -29,6 +31,10 @@ module EmailHelpers
     expect(ActionMailer::Base.deliveries).to be_empty
   end
 
+  def should_email_anyone
+    expect(ActionMailer::Base.deliveries).not_to be_empty
+  end
+
   def email_recipients(kind: :to)
     ActionMailer::Base.deliveries.flat_map(&kind)
   end
@@ -37,19 +43,8 @@ module EmailHelpers
     ActionMailer::Base.deliveries.find { |d| d.to.include?(user.notification_email) }
   end
 
-  def have_referable_subject(referable, include_project: true, include_group: false, reply: false)
-    context = []
-
-    context << referable.project.name if include_project && referable.project
-    context << referable.project.group.name if include_group && referable.project.group
-
-    prefix =
-      if context.any?
-        context.join(' | ') + ' | '
-      else
-        ''
-      end
-
+  def have_referable_subject(referable, include_project: true, reply: false)
+    prefix = (include_project && referable.project ? "#{referable.project.name} | " : '').freeze
     prefix = "Re: #{prefix}" if reply
 
     suffix = "#{referable.title} (#{referable.to_reference})"

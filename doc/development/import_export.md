@@ -19,6 +19,7 @@ Project.find_by_full_path('group/project').import_state.slice(:jid, :status, :la
 grep JID /var/log/gitlab/sidekiq/current
 grep "Import/Export error" /var/log/gitlab/sidekiq/current
 grep "Import/Export backtrace" /var/log/gitlab/sidekiq/current
+tail /var/log/gitlab/gitlab-rails/importer.log
 ```
 
 ## Troubleshooting performance issues
@@ -229,8 +230,8 @@ meaning that we want to bump the version up in the next version (or patch releas
 For example:
 
 1. Add rename to `RelationRenameService` in X.Y
-2. Remove it from `RelationRenameService` in X.Y + 1
-3. Bump Import/Export version in X.Y + 1
+1. Remove it from `RelationRenameService` in X.Y + 1
+1. Bump Import/Export version in X.Y + 1
 
 ```ruby
 module Gitlab

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Projects > Settings > Repository settings' do
@@ -248,11 +250,11 @@ describe 'Projects > Settings > Repository settings' do
 
       visit project_settings_repository_path(project)
 
-      mirror = find('.qa-mirrored-repository-row')
+      mirror = find('.rspec-mirrored-repository-row')
 
-      expect(mirror).to have_selector('.qa-delete-mirror')
-      expect(mirror).to have_selector('.qa-disabled-mirror-badge')
-      expect(mirror).not_to have_selector('.qa-update-now-button')
+      expect(mirror).to have_selector('.rspec-delete-mirror')
+      expect(mirror).to have_selector('.rspec-disabled-mirror-badge')
+      expect(mirror).not_to have_selector('.rspec-update-now-button')
     end
   end
 end

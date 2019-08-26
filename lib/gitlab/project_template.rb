@@ -13,11 +13,23 @@ module Gitlab
     end
 
     def archive_path
-      Rails.root.join("vendor/project_templates/#{name}.tar.gz")
+      self.class.archive_directory.join(archive_filename)
+    end
+
+    def archive_filename
+      "#{name}.tar.gz"
     end
 
     def clone_url
-      "https://gitlab.com/gitlab-org/project-templates/#{name}.git"
+      "#{preview}.git"
+    end
+
+    def project_path
+      URI.parse(preview).path.sub(%r{\A/}, '')
+    end
+
+    def uri_encoded_project_path
+      ERB::Util.url_encode(project_path)
     end
 
     def ==(other)
@@ -54,7 +66,7 @@ module Gitlab
       end
 
       def archive_directory
-        Rails.root.join("vendor_directory/project_templates")
+        Rails.root.join("vendor/project_templates")
       end
     end
   end

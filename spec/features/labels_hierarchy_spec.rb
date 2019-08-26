@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
-describe 'Labels Hierarchy', :js, :nested_groups do
+describe 'Labels Hierarchy', :js do
   include FilteredSearchHelpers
 
   let!(:user) { create(:user) }

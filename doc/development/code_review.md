@@ -62,6 +62,7 @@ from teams other than your own.
    **approved by a [backend maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab-ce_maintainers_backend)**.
 1. If your merge request includes database migrations or changes to expensive queries [^2], it must be
    **approved by a [database maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab-ce_maintainers_database)**.
+   Read the [database review guidelines](database_review.md) for more details.
 1. If your merge request includes frontend changes [^1], it must be
    **approved by a [frontend maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab-ce_maintainers_frontend)**.
 1. If your merge request includes UX changes [^1], it must be
@@ -341,8 +342,7 @@ Enterprise Edition instance. This has some implications:
       - [Background migrations](background_migrations.md) run in Sidekiq, and
         should only be done for migrations that would take an extreme amount of
         time at GitLab.com scale.
-1. **Sidekiq workers**
-   [cannot change in a backwards-incompatible way](sidekiq_style_guide.md#removing-or-renaming-queues):
+1. **Sidekiq workers** [cannot change in a backwards-incompatible way](sidekiq_style_guide.md#removing-or-renaming-queues):
    1. Sidekiq queues are not drained before a deploy happens, so there will be
       workers in the queue from the previous version of GitLab.
    1. If you need to change a method signature, try to do so across two releases,
@@ -364,6 +364,31 @@ Enterprise Edition instance. This has some implications:
       [added to Omnibus](https://docs.gitlab.com/omnibus/settings/gitlab.yml.html#adding-a-new-setting-to-gitlab-yml).
 1. **Filesystem access** can be slow, so try to avoid
    [shared files](shared_files.md) when an alternative solution is available.
+
+## Examples
+
+How code reviews are conducted can surprise new contributors. Here are some examples of code reviews that should help to orient you as to what to expect.
+
+**["Modify `DiffNote` to reuse it for Designs"](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/13703):**
+It contained everything from nitpicks around newlines to reasoning
+about what versions for designs are, how we should compare them
+if there was no previous version of a certain file (parent vs.
+blank `sha` vs empty tree).
+
+**["Support multi-line suggestions"](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/25211)**:
+The MR itself consists of a collaboration between FE and BE,
+and documenting comments from the author for the reviewer.
+There's some nitpicks, some questions for information, and
+towards the end, a security vulnerability.
+
+**["Allow multiple repositories per project"](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/10251)**:
+ZJ referred to the other projects (workhorse) this might impact,
+suggested some improvements for consistency. And James' comments
+helped us with overall code quality (using delegation, `&.` those
+types of things), and making the code more robust.
+
+**["Support multiple assignees for merge requests"](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/10161)**:
+A  good example of collaboration on an MR touching multiple parts of the codebase. Nick pointed out interesting edge cases, James Lopes also joined in raising concerns on import/export feature.
 
 ### Credits
 

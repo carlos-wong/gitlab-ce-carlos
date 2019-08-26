@@ -1,5 +1,4 @@
 <script>
-import $ from 'jquery';
 import { glEmojiTag } from '~/emoji';
 
 import detailedMetric from './detailed_metric.vue';
@@ -28,23 +27,27 @@ export default {
       type: String,
       required: true,
     },
-    profileUrl: {
-      type: String,
-      required: true,
-    },
   },
   detailedMetrics: [
-    { metric: 'pg', header: s__('PerformanceBar|SQL queries'), details: 'queries', keys: ['sql'] },
+    {
+      metric: 'active-record',
+      title: 'pg',
+      header: s__('PerformanceBar|SQL queries'),
+      keys: ['sql'],
+    },
     {
       metric: 'gitaly',
       header: s__('PerformanceBar|Gitaly calls'),
-      details: 'details',
       keys: ['feature', 'request'],
     },
     {
+      metric: 'rugged',
+      header: s__('PerformanceBar|Rugged calls'),
+      keys: ['feature', 'args'],
+    },
+    {
       metric: 'redis',
-      header: 'Redis calls',
-      details: 'details',
+      header: s__('PerformanceBar|Redis calls'),
       keys: ['cmd'],
     },
   ],
@@ -66,9 +69,6 @@ export default {
     initialRequest() {
       return this.currentRequestId === this.requestId;
     },
-    lineProfileModal() {
-      return $('#modal-peek-line-profile');
-    },
     hasHost() {
       return this.currentRequest && this.currentRequest.details && this.currentRequest.details.host;
     },
@@ -76,16 +76,11 @@ export default {
       if (this.hasHost && this.currentRequest.details.host.canary) {
         return glEmojiTag('baby_chick');
       }
-
       return '';
     },
   },
   mounted() {
     this.currentRequest = this.requestId;
-
-    if (this.lineProfileModal.length) {
-      this.lineProfileModal.modal('toggle');
-    }
   },
   methods: {
     changeCurrentRequest(newRequestId) {
@@ -112,27 +107,10 @@ export default {
         :key="metric.metric"
         :current-request="currentRequest"
         :metric="metric.metric"
+        :title="metric.title"
         :header="metric.header"
-        :details="metric.details"
         :keys="metric.keys"
       />
-      <div v-if="initialRequest" id="peek-view-rblineprof" class="view">
-        <button
-          v-if="lineProfileModal.length"
-          class="btn-link btn-blank"
-          data-toggle="modal"
-          data-target="#modal-peek-line-profile"
-        >
-          {{ s__('PerformanceBar|profile') }}
-        </button>
-        <a v-else :href="profileUrl">{{ s__('PerformanceBar|profile') }}</a>
-      </div>
-      <div id="peek-view-gc" class="view">
-        <span v-if="currentRequest.details" class="bold">
-          <span title="Invoke Time">{{ currentRequest.details.gc.gc_time }}</span
-          >ms / <span title="Invoke Count">{{ currentRequest.details.gc.invokes }}</span> gc
-        </span>
-      </div>
       <div
         v-if="currentRequest.details && currentRequest.details.tracing"
         id="peek-view-trace"

@@ -128,7 +128,7 @@ describe Issuable do
       expect(build_issuable(milestone.id).milestone_available?).to be_truthy
     end
 
-    it 'returns true with a milestone from the the parent of the issue project group', :nested_groups do
+    it 'returns true with a milestone from the the parent of the issue project group' do
       parent = create(:group)
       group.update(parent: parent)
       milestone = create(:milestone, group: parent)
@@ -771,6 +771,27 @@ describe Issuable do
         expect(merged_mr).to be
         expect(first_time_contributor_issue).not_to be_first_contribution
         expect(contributor_issue).not_to be_first_contribution
+      end
+    end
+  end
+
+  describe '#supports_milestone?' do
+    let(:group)   { create(:group) }
+    let(:project) { create(:project, group: group) }
+
+    context "for issues" do
+      let(:issue) { build(:issue, project: project) }
+
+      it 'returns true' do
+        expect(issue.supports_milestone?).to be_truthy
+      end
+    end
+
+    context "for merge requests" do
+      let(:merge_request) { build(:merge_request, target_project: project, source_project: project) }
+
+      it 'returns true' do
+        expect(merge_request.supports_milestone?).to be_truthy
       end
     end
   end

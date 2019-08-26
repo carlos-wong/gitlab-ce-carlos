@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :ci_bridge, class: Ci::Bridge do
     name 'bridge'
@@ -6,7 +8,7 @@ FactoryBot.define do
     ref 'master'
     tag false
     created_at 'Di 29. Okt 09:50:00 CET 2013'
-    status :success
+    status :created
 
     pipeline factory: :ci_pipeline
 
@@ -15,6 +17,7 @@ FactoryBot.define do
     end
 
     transient { downstream nil }
+    transient { upstream nil }
 
     after(:build) do |bridge, evaluator|
       bridge.project ||= bridge.pipeline.project
@@ -22,6 +25,12 @@ FactoryBot.define do
       if evaluator.downstream.present?
         bridge.options = bridge.options.to_h.merge(
           trigger: { project: evaluator.downstream.full_path }
+        )
+      end
+
+      if evaluator.upstream.present?
+        bridge.options = bridge.options.to_h.merge(
+          bridge_needs: { pipeline: evaluator.upstream.full_path }
         )
       end
     end

@@ -18,9 +18,11 @@ class ProjectsController < Projects::ApplicationController
   before_action :redirect_git_extension, only: [:show]
   before_action :project, except: [:index, :new, :create, :resolve]
   before_action :repository, except: [:index, :new, :create, :resolve]
-  before_action :assign_ref_vars, only: [:show], if: :repo_exists?
-  before_action :tree, only: [:show], if: [:repo_exists?, :project_view_files?]
-  before_action :lfs_blob_ids, only: [:show], if: [:repo_exists?, :project_view_files?]
+  before_action :assign_ref_vars, if: -> { action_name == 'show' && repo_exists? }
+  before_action :tree,
+    if: -> { action_name == 'show' && repo_exists? && project_view_files? }
+  before_action :lfs_blob_ids,
+    if: -> { action_name == 'show' && repo_exists? && project_view_files? }
   before_action :project_export_enabled, only: [:export, :download_export, :remove_export, :generate_new_export]
   before_action :present_project, only: [:edit]
   before_action :authorize_download_code!, only: [:refs]
@@ -282,6 +284,18 @@ class ProjectsController < Projects::ApplicationController
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
+  def resolve
+    @project = Project.find(params[:id])
+
+    if can?(current_user, :read_project, @project)
+      redirect_to @project
+    else
+      render_404
+    end
+  end
+
+  private
+
   # Render project landing depending of which features are available
   # So if page is not available in the list it renders the next page
   #
@@ -347,6 +361,7 @@ class ProjectsController < Projects::ApplicationController
       :container_registry_enabled,
       :default_branch,
       :description,
+      :emails_disabled,
       :external_authorization_classification_label,
       :import_url,
       :issues_tracker,
@@ -450,15 +465,5 @@ class ProjectsController < Projects::ApplicationController
 
   def present_project
     @project = @project.present(current_user: current_user)
-  end
-
-  def resolve
-    @project = Project.find(params[:id])
-
-    if can?(current_user, :read_project, @project)
-      redirect_to @project
-    else
-      render_404
-    end
   end
 end

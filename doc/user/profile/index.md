@@ -1,7 +1,12 @@
+---
+type: index, howto
+---
+
 # User account
 
-When signed into their GitLab account, users can customize their
-experience according to the best approach to their cases.
+Each GitLab account has a user profile, and settings. Your [profile](#user-profile)
+contains information about you, and your GitLab activity. Your [settings](#profile-settings)
+allow you to customize some aspects of GitLab to suit yourself.
 
 ## Signing in
 
@@ -10,8 +15,10 @@ See the [authentication topic](../../topics/authentication/index.md) for more de
 
 ## User profile
 
-Your profile is available from the up-right corner menu bar (user's avatar) > **Profile**,
-or from `https://example.gitlab.com/username`.
+To access your profile:
+
+1. Click on your avatar.
+1. Select **Profile**.
 
 On your profile page, you will see the following information:
 
@@ -20,12 +27,15 @@ On your profile page, you will see the following information:
 - Groups: [groups](../group/index.md) you're a member of
 - Contributed projects: [projects](../project/index.md) you contributed to
 - Personal projects: your personal projects (respecting the project's visibility level)
+- Starred projects: projects you starred
 - Snippets: your personal code [snippets](../snippets.md#personal-snippets)
 
 ## Profile settings
 
-You can edit your account settings by navigating from the up-right corner menu bar
-(user's avatar) > **Settings**, or visiting `https://example.gitlab.com/profile`.
+To access your profile settings:
+
+1. Click on your avatar.
+1. Select **Settings**.
 
 From there, you can:
 
@@ -56,8 +66,8 @@ before proceeding.
 To change your `username`:
 
 1. Navigate to your [profile's](#profile-settings) **Settings > Account**.
-1. Enter a new username under "Change username".
-1. Hit **Update username**.
+1. Enter a new username under **Change username**.
+1. Click **Update username**.
 
 CAUTION: **Caution:**
 It is currently not possible to change your username if it contains a
@@ -82,16 +92,20 @@ The following information will be hidden from the user profile page (`https://gi
 - Groups tab
 - Contributed projects tab
 - Personal projects tab
+- Starred projects tab
 - Snippets tab
 
 To enable private profile:
 
-1. Navigate to your personal [profile settings](#profile-settings).
-1. Check the "Private profile" option.
-1. Hit **Update profile settings**.
+1. Click your avatar.
+1. Select **Profile**.
+1. Click **Edit profile** (pencil icon).
+1. Check the **Private profile** option in the **Main settings** section.
+1. Click **Update profile settings**.
 
 NOTE: **Note:**
-You and GitLab admins can see your the abovementioned information on your profile even if it is private.
+All your profile information can be seen by yourself, and GitLab admins, even if
+the **Private profile** option is enabled.
 
 ## Add details of external accounts
 
@@ -99,9 +113,15 @@ GitLab allows you to add links to certain other external accounts you might have
 
 To add links to other accounts:
 
-1. Navigate to your **User Settings > Profile**.
-1. In the **Main settings** section, locate and fill out fields for links to external accounts like Skype and Twitter.
-1. Click the **Update profile settings** button.
+1. Click your avatar.
+1. Select **Profile**.
+1. Click **Edit profile** (pencil icon).
+1. Complete the desired fields for external accounts, in the **Main settings**
+   section:
+   - Skype
+   - Twitter
+   - LinkedIn
+1. Click **Update profile settings**.
 
 ## Private contributions
 
@@ -111,9 +131,11 @@ Enabling private contributions will include contributions to private projects, i
 
 To enable private contributions:
 
-1. Navigate to your personal [profile settings](#profile-settings).
-1. Check the "Private contributions" option.
-1. Hit **Update profile settings**.
+1. Click on your avatar.
+1. Select **Profile**.
+1. Click **Edit profile** (pencil icon).
+1. Check the **Private contributions** option.
+1. Click **Update profile settings**.
 
 ## Current status
 
@@ -124,22 +146,24 @@ This may be helpful when you are out of office or otherwise not available.
 Other users can then take your status into consideration when responding to your issues or assigning work to you.
 Please be aware that your status is publicly visible even if your [profile is private](#private-profile).
 
+Status messages are restricted to 100 characters of plain text.
+They may however contain emoji codes such as `I'm on vacation :palm_tree:`.
+
 To set your current status:
 
-1. Open the user menu in the top-right corner of the navigation bar.
-1. Hit **Set status**, or **Edit status** if you have already set a status.
-1. Set the emoji and/or status message to your liking.
-1. Hit **Set status**. Alternatively, you can also hit **Remove status** to remove your user status entirely.
+1. Click your avatar.
+1. Click **Set status**, or **Edit status** if you have already set a status.
+1. Set the desired emoji and/or status message.
+1. Click **Set status**. Alternatively, you can click **Remove status** to remove your user status entirely.
 
 or
 
-1. Navigate to your personal [profile settings](#profile-settings).
-1. In the text field below `Your status`, enter your status message.
-1. Select an emoji from the dropdown if you like.
-1. Hit **Update profile settings**.
-
-Status messages are restricted to 100 characters of plain text.
-They may however contain emoji codes such as `I'm on vacation :palm_tree:`.
+1. Click your avatar.
+1. Select **Profile**.
+1. Click **Edit profile** (pencil icon).
+1. Enter your status message in the **Your status** text field.
+1. Click **Add status emoji** (smiley face), and select the desired emoji.
+1. Click **Update profile settings**.
 
 You can also set your current status [using the API](../../api/users.md#user-status).
 
@@ -147,39 +171,42 @@ You can also set your current status [using the API](../../api/users.md#user-sta
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/21598) in GitLab 11.4.
 
-A commit email, is the email that will be displayed in every Git-related action done through the
-GitLab interface.
+A commit email is an email address displayed in every Git-related action carried out through the GitLab interface.
 
-You are able to select from the list of your own verified emails which email you want to use as the commit email.
+Any of your own verified email addresses can be used as the commit email.
 
-To change it:
+To change your commit email:
 
-1. Open the user menu in the top-right corner of the navigation bar.
-1. Hit **Commit email** selection box.
+1. Click your avatar.
+1. Select **Profile**.
+1. Click **Edit profile** (pencil icon).
+1. Click **Commit email** dropdown.
 1. Select any of the verified emails.
-1. Hit **Update profile settings**.
+1. Click **Update profile settings**.
 
 ### Private commit email
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22560) in GitLab 11.5.
 
 GitLab provides the user with an automatically generated private commit email option,
-which allows the user to not make their email information public.
+which allows the user to keep their email information private.
 
 To enable this option:
 
-1. Open the user menu in the top-right corner of the navigation bar.
-1. Hit **Commit email** selection box.
+1. Click your avatar.
+1. Select **Profile**.
+1. Click **Edit profile** (pencil icon).
+1. Click **Commit email** dropdown.
 1. Select **Use a private email** option.
-1. Hit **Update profile settings**.
+1. Click **Update profile settings**.
 
 Once this option is enabled, every Git-related action will be performed using the private commit email.
 
-In order to stay fully annonymous, you can also copy this private commit email
+To stay fully anonymous, you can also copy this private commit email
 and configure it on your local machine using the following command:
 
-```
-git config --global user.email "YOUR_PRIVATE_COMMIT_EMAIL"
+```sh
+git config --global user.email <your email address>
 ```
 
 ## Troubleshooting
@@ -202,3 +229,15 @@ to get you a new `_gitlab_session` and keep you signed in through browser restar
 
 After your `remember_user_token` expires and your `_gitlab_session` is cleared/expired,
 you will be asked to sign in again to verify your identity (which is for security reasons).
+
+<!-- ## Troubleshooting
+
+Include any troubleshooting steps that you can foresee. If you know beforehand what issues
+one might have when setting this up, or when something is changed, or on upgrading, it's
+important to describe those, too. Think of things that may go wrong and include them here.
+This is important to minimize requests for support, and to avoid doc comments with
+questions that you know someone might ask.
+
+Each scenario can be a third-level heading, e.g. `### Getting error message X`.
+If you have none to add when creating a doc, leave this section in place
+but commented out to help encourage others to add to it in the future. -->

@@ -37,7 +37,7 @@
                 %span.project-name<
                   = project.name
 
-          %span.metadata-info.visibility-icon.append-right-10.prepend-top-8.has-tooltip{ data: { container: 'body', placement: 'top' }, title: visibility_icon_description(project) }
+          %span.metadata-info.visibility-icon.append-right-10.prepend-top-8.text-secondary.has-tooltip{ data: { container: 'body', placement: 'top' }, title: visibility_icon_description(project) }
             = visibility_level_icon(project.visibility_level, fw: true)
 
           - if explore_projects_tab? && project.repository.license
@@ -63,7 +63,9 @@
           - if project.archived
             %span.d-flex.icon-wrapper.badge.badge-warning archived
           - if stars
-            %span.d-flex.align-items-center.icon-wrapper.stars.has-tooltip{ data: { container: 'body', placement: 'top' }, title: _('Stars') }
+            = link_to project_starrers_path(project),
+                class: "d-flex align-items-center icon-wrapper stars has-tooltip",
+                title: _('Stars'), data: { container: 'body', placement: 'top' } do
               = sprite_icon('star', size: 14, css_class: 'append-right-4')
               = number_with_delimiter(project.star_count)
           - if forks
@@ -89,4 +91,6 @@
             %span.icon-wrapper.pipeline-status
               = render 'ci/status/icon', status: project.commit.last_pipeline.detailed_status(current_user), type: 'commit', tooltip_placement: 'top', path: pipeline_path
         .updated-note
-          %span #{_('Updated')} #{updated_tooltip}
+          %span
+            = _('Updated')
+            = updated_tooltip

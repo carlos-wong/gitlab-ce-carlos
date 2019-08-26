@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Group' do
@@ -105,7 +107,7 @@ describe 'Group' do
     end
   end
 
-  describe 'create a nested group', :nested_groups, :js do
+  describe 'create a nested group', :js do
     let(:group) { create(:group, path: 'foo') }
 
     context 'as admin' do
@@ -231,7 +233,7 @@ describe 'Group' do
     end
   end
 
-  describe 'group page with nested groups', :nested_groups, :js do
+  describe 'group page with nested groups', :js do
     let!(:group) { create(:group) }
     let!(:nested_group) { create(:group, parent: group) }
     let!(:project) { create(:project, namespace: group) }

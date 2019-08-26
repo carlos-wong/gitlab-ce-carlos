@@ -76,9 +76,28 @@ describe Git::BranchPushService, services: true do
       stub_ci_pipeline_to_return_yaml_file
     end
 
+    it 'creates a pipeline with the right parameters' do
+      expect(Ci::CreatePipelineService)
+        .to receive(:new)
+        .with(project,
+              user,
+              {
+                before: oldrev,
+                after: newrev,
+                ref: ref,
+                checkout_sha: SeedRepo::Commit::ID,
+                push_options: {}
+              }).and_call_original
+
+      subject
+    end
+
     it "creates a new pipeline" do
       expect { subject }.to change { Ci::Pipeline.count }
-      expect(Ci::Pipeline.last).to be_push
+
+      pipeline = Ci::Pipeline.last
+      expect(pipeline).to be_push
+      expect(Gitlab::Git::BRANCH_REF_PREFIX + pipeline.ref).to eq(ref)
     end
   end
 
@@ -123,6 +142,10 @@ describe Git::BranchPushService, services: true do
 
   describe "Webhooks" do
     context "execute webhooks" do
+      before do
+        create(:project_hook, push_events: true, project: project)
+      end
+
       it "when pushing a branch for the first time" do
         expect(project).to receive(:execute_hooks)
         expect(project.default_branch).to eq("master")

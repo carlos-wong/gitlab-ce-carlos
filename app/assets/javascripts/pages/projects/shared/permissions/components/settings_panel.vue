@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable @gitlab/vue-i18n/no-bare-strings */
 import settingsMixin from 'ee_else_ce/pages/projects/shared/permissions/mixins/settings_pannel_mixin';
 import { __ } from '~/locale';
 import projectFeatureSetting from './project_feature_setting.vue';
@@ -26,6 +27,11 @@ export default {
     currentSettings: {
       type: Object,
       required: true,
+    },
+    canDisableEmails: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     canChangeVisibilityLevel: {
       type: Boolean,
@@ -103,6 +109,7 @@ export default {
       lfsEnabled: true,
       requestAccessEnabled: true,
       highlightChangesClass: false,
+      emailsDisabled: false,
     };
 
     return { ...defaults, ...this.currentSettings };
@@ -340,5 +347,14 @@ export default {
         />
       </project-setting-row>
     </div>
+    <project-setting-row v-if="canDisableEmails" class="mb-3">
+      <label class="js-emails-disabled">
+        <input :value="emailsDisabled" type="hidden" name="project[emails_disabled]" />
+        <input v-model="emailsDisabled" type="checkbox" /> {{ __('Disable email notifications') }}
+      </label>
+      <span class="form-text text-muted">{{
+        __('This setting will override user notification preferences for all project members.')
+      }}</span>
+    </project-setting-row>
   </div>
 </template>

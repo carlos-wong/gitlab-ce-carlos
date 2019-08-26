@@ -31,7 +31,7 @@ class JiraService < IssueTrackerService
 
   # {PROJECT-KEY}-{NUMBER} Examples: JIRA-1, PROJECT-1
   def self.reference_pattern(only_long: true)
-    @reference_pattern ||= /(?<issue>\b([A-Z][A-Z0-9_]+-)\d+)/
+    @reference_pattern ||= /(?<issue>\b#{Gitlab::Regex.jira_issue_key_regex})/
   end
 
   def initialize_properties
@@ -54,7 +54,7 @@ class JiraService < IssueTrackerService
       username: self.username,
       password: self.password,
       site: URI.join(url, '/').to_s, # Intended to find the root
-      context_path: url.path.chomp('/'),
+      context_path: url.path,
       auth_type: :basic,
       read_timeout: 120,
       use_cookies: true,
@@ -101,6 +101,12 @@ class JiraService < IssueTrackerService
 
   def new_issue_url
     "#{url}/secure/CreateIssue.jspa"
+  end
+
+  alias_method :original_url, :url
+
+  def url
+    original_url&.chomp('/')
   end
 
   def execute(push)

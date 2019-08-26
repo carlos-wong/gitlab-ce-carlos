@@ -7,7 +7,8 @@
   except:
     refs:
       - master
-      - /(^docs[\/-].*|.*-docs$)/
+      - /^\d+-\d+-auto-deploy-\d+$/
+      - /(^docs[\/-].+|.+-docs$)/
 
 .review-schedules-only: &review-schedules-only
   only:
@@ -20,7 +21,7 @@
   except:
     refs:
       - tags
-      - /(^docs[\/-].*|.*-docs$)/
+      - /(^docs[\/-].+|.+-docs$)/
 
 .review-base: &review-base
   extends: .dedicated-runner
@@ -49,7 +50,7 @@ build-qa-image:
   <<: *review-docker
   stage: test
   script:
-    - time docker build --cache-from ${LATEST_QA_IMAGE} --tag ${QA_IMAGE} ./qa/
+    - time docker build --cache-from ${LATEST_QA_IMAGE} --tag ${QA_IMAGE} --file ./qa/Dockerfile ./
     - echo "${CI_JOB_TOKEN}" | docker login --username gitlab-ci-token --password-stdin ${CI_REGISTRY}
     - time docker push ${QA_IMAGE}
 
@@ -101,8 +102,7 @@ schedule:review-build-cng:
     - install_tiller
     - install_external_dns
     - download_chart
-    - deploy || display_deployment_debug
-    - wait_for_review_app_to_be_accessible
+    - deploy || (display_deployment_debug && exit 1)
     - add_license
   artifacts:
     paths: [review_app_url.txt]
@@ -117,17 +117,21 @@ schedule:review-deploy:
   <<: *review-schedules-only
 
 review-stop:
-  <<: *review-base
+  <<: *review-only
+  extends: .single-script-job-dedicated-runner
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
   stage: review
   when: manual
   allow_failure: true
   variables:
-    GIT_DEPTH: "1"
+    SCRIPT_NAME: review_apps/review-apps.sh
   environment:
     <<: *review-environment
     action: stop
   script:
-    - source scripts/review_apps/review-apps.sh
+    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/scripts/utils.sh
+    - source utils.sh
+    - source $(basename $SCRIPT_NAME)
     - delete
 
 .review-qa-base: &review-qa-base
@@ -261,6 +265,7 @@ danger-review:
   except:
     refs:
       - master
+      - /^\d+-\d+-auto-deploy-\d+$/
       - /^[\d-]+-stable(-ee)?$/
     variables:
       - $CI_COMMIT_REF_NAME =~ /^ce-to-ee-.*/

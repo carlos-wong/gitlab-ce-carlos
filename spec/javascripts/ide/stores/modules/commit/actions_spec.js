@@ -245,7 +245,7 @@ describe('IDE commit module actions', () => {
           master: {
             workingReference: '1',
             commit: {
-              short_id: TEST_COMMIT_SHA,
+              id: TEST_COMMIT_SHA,
             },
           },
         },
@@ -411,7 +411,7 @@ describe('IDE commit module actions', () => {
               expect(visitUrl).toHaveBeenCalledWith(
                 `webUrl/merge_requests/new?merge_request[source_branch]=${
                   store.getters['commit/placeholderBranchName']
-                }&merge_request[target_branch]=master`,
+                }&merge_request[target_branch]=master&nav_source=webide`,
               );
 
               done();

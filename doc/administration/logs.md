@@ -151,11 +151,15 @@ etc. For example:
 {"severity":"ERROR","time":"2018-11-23T15:42:11.647Z","exception":"Kubeclient::HttpError","error_code":null,"service":"Clusters::Applications::InstallService","app_id":2,"project_ids":[19],"group_ids":[],"message":"SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)"}
 ```
 
-## `githost.log`
+## `git_json.log`
 
-This file lives in `/var/log/gitlab/gitlab-rails/githost.log` for
-Omnibus GitLab packages or in `/home/git/gitlab/log/githost.log` for
+This file lives in `/var/log/gitlab/gitlab-rails/git_json.log` for
+Omnibus GitLab packages or in `/home/git/gitlab/log/git_json.log` for
 installations from source.
+
+NOTE: **Note:**
+After 12.2, this file was renamed from `githost.log` to
+`git_json.log` and stored in JSON format.
 
 GitLab has to interact with Git repositories but in some rare cases
 something can go wrong and in this case you will know what exactly
@@ -163,10 +167,13 @@ happened. This log file contains all failed requests from GitLab to Git
 repositories. In the majority of cases this file will be useful for developers
 only. For example:
 
-```
-December 03, 2014 13:20 -> ERROR -> Command failed [1]: /usr/bin/git --git-dir=/Users/vsizov/gitlab-development-kit/gitlab/tmp/tests/gitlab-satellites/group184/gitlabhq/.git --work-tree=/Users/vsizov/gitlab-development-kit/gitlab/tmp/tests/gitlab-satellites/group184/gitlabhq merge --no-ff -mMerge branch 'feature_conflict' into 'feature' source/feature_conflict
-
-error: failed to push some refs to '/Users/vsizov/gitlab-development-kit/repositories/gitlabhq/gitlab_git.git'
+```json
+{
+   "severity":"ERROR",
+   "time":"2019-07-19T22:16:12.528Z",
+   "correlation_id":"FeGxww5Hj64",
+   "message":"Command failed [1]: /usr/bin/git --git-dir=/Users/vsizov/gitlab-development-kit/gitlab/tmp/tests/gitlab-satellites/group184/gitlabhq/.git --work-tree=/Users/vsizov/gitlab-development-kit/gitlab/tmp/tests/gitlab-satellites/group184/gitlabhq merge --no-ff -mMerge branch 'feature_conflict' into 'feature' source/feature_conflict\n\nerror: failed to push some refs to '/Users/vsizov/gitlab-development-kit/repositories/gitlabhq/gitlab_git.git'"
+}
 ```
 
 ## `audit_json.log`
@@ -236,7 +243,7 @@ I, [2015-02-13T06:17:00.679433 #9291]  INFO -- : Moving existing hooks directory
 
 User clone/fetch activity using ssh transport appears in this log as `executing git command <gitaly-upload-pack...`.
 
-## `unicorn\_stderr.log`
+## `unicorn_stderr.log`
 
 This file lives in `/var/log/gitlab/unicorn/unicorn_stderr.log` for
 Omnibus GitLab packages or in `/home/git/gitlab/log/unicorn_stderr.log` for
@@ -277,16 +284,16 @@ Introduced in GitLab 11.3. This file lives in `/var/log/gitlab/gitlab-rails/impo
 Omnibus GitLab packages or in `/home/git/gitlab/log/importer.log` for
 installations from source.
 
-Currently it logs the progress of project imports from the Bitbucket Server
-importer. Future importers may use this file.
-
-## `auth.log`
+## `auth.log`
 
 Introduced in GitLab 12.0. This file lives in `/var/log/gitlab/gitlab-rails/auth.log` for
 Omnibus GitLab packages or in `/home/git/gitlab/log/auth.log` for
 installations from source.
 
-It logs information whenever [Rack Attack] registers an abusive request.
+This log records:
+
+- Information whenever [Rack Attack] registers an abusive request.
+- Requests over the [Rate Limit] on raw endpoints.
 
 NOTE: **Note:**
 From [%12.1](https://gitlab.com/gitlab-org/gitlab-ce/issues/62756), user id and username are available on this log.
@@ -304,6 +311,12 @@ GraphQL queries are recorded in that file. For example:
 ```json
 {"query_string":"query IntrospectionQuery{__schema {queryType { name },mutationType { name }}}...(etc)","variables":{"a":1,"b":2},"complexity":181,"depth":1,"duration":7}
 ```
+
+## `migrations.log`
+
+Introduced in GitLab 12.3. This file lives in `/var/log/gitlab/gitlab-rails/migrations.log` for
+Omnibus GitLab packages or in `/home/git/gitlab/log/migrations.log` for
+installations from source.
 
 ## Reconfigure Logs
 
@@ -324,3 +337,4 @@ installations from source.
 
 [repocheck]: repository_checks.md
 [Rack Attack]: ../security/rack_attack.md
+[Rate Limit]: ../user/admin_area/settings/rate_limits_on_raw_endpoints.md

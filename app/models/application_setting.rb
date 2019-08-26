@@ -10,6 +10,8 @@ class ApplicationSetting < ApplicationRecord
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
 
+  belongs_to :instance_administration_project, class_name: "Project"
+
   # Include here so it can override methods from
   # `add_authentication_token_field`
   # We don't prepend for now because otherwise we'll need to
@@ -40,6 +42,11 @@ class ApplicationSetting < ApplicationRecord
   chronic_duration_attr_writer :archive_builds_in_human_readable, :archive_builds_in_seconds
 
   validates :uuid, presence: true
+
+  validates :outbound_local_requests_whitelist,
+            length: { maximum: 1_000, message: N_('is too long (maximum is 1000 entries)') },
+            allow_nil: false,
+            qualified_domain_array: true
 
   validates :session_expire_delay,
             presence: true,
@@ -91,6 +98,11 @@ class ApplicationSetting < ApplicationRecord
   validates :plantuml_url,
             presence: true,
             if: :plantuml_enabled
+
+  validates :snowplow_collector_hostname,
+            presence: true,
+            hostname: true,
+            if: :snowplow_enabled
 
   validates :max_attachment_size,
             presence: true,

@@ -42,6 +42,9 @@ class PostReceive
     user = identify_user(post_received)
     return false unless user
 
+    # We only need to expire certain caches once per push
+    expire_caches(post_received)
+
     post_received.enum_for(:changes_refs).with_index do |(oldrev, newrev, ref), index|
       service_klass =
         if Gitlab::Git.tag_ref?(ref)
@@ -69,9 +72,34 @@ class PostReceive
     after_project_changes_hooks(post_received, user, refs.to_a, changes)
   end
 
+  # Expire the project, branch, and tag cache once per push. Schedule an
+  # update for the repository size and commit count if necessary.
+  def expire_caches(post_received)
+    project = post_received.project
+
+    project.repository.expire_status_cache if project.empty_repo?
+    project.repository.expire_branches_cache if post_received.includes_branches?
+    project.repository.expire_caches_for_tags if post_received.includes_tags?
+
+    enqueue_repository_cache_update(post_received)
+  end
+
+  def enqueue_repository_cache_update(post_received)
+    stats_to_invalidate = [:repository_size]
+    stats_to_invalidate << :commit_count if post_received.includes_default_branch?
+
+    ProjectCacheWorker.perform_async(
+      post_received.project.id,
+      [],
+      stats_to_invalidate,
+      true
+    )
+  end
+
   def after_project_changes_hooks(post_received, user, refs, changes)
     hook_data = Gitlab::DataBuilder::Repository.update(post_received.project, user, changes, refs)
     SystemHooksService.new.execute_hooks(hook_data, :repository_update_hooks)
+    Gitlab::UsageDataCounters::SourceCodeCounter.count(:pushes)
   end
 
   def process_wiki_changes(post_received)

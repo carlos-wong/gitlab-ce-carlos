@@ -222,6 +222,20 @@ describe AutocompleteController do
         expect(response_user_ids).to contain_exactly(non_member.id)
       end
     end
+
+    context 'merge_request_iid parameter included' do
+      before do
+        sign_in(user)
+      end
+
+      it 'includes can_merge option to users' do
+        merge_request = create(:merge_request, source_project: project)
+
+        get(:users, params: { merge_request_iid: merge_request.iid, project_id: project.id })
+
+        expect(json_response.first).to have_key('can_merge')
+      end
+    end
   end
 
   context 'GET projects' do
@@ -291,28 +305,6 @@ describe AutocompleteController do
         it 'returns projects' do
           expect(json_response).to be_kind_of(Array)
           expect(json_response.size).to eq(Kaminari.config.default_per_page)
-        end
-      end
-    end
-
-    context 'authorized projects with offset' do
-      before do
-        authorized_project2 = create(:project)
-        authorized_project3 = create(:project)
-
-        authorized_project.add_maintainer(user)
-        authorized_project2.add_maintainer(user)
-        authorized_project3.add_maintainer(user)
-      end
-
-      describe 'GET #projects with project ID and offset_id' do
-        before do
-          get(:projects, params: { project_id: project.id, offset_id: authorized_project.id })
-        end
-
-        it 'returns projects' do
-          expect(json_response).to be_kind_of(Array)
-          expect(json_response.size).to eq 2 # Of a total of 3
         end
       end
     end

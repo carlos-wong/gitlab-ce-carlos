@@ -7,7 +7,7 @@ RSpec.shared_context 'GroupPolicy context' do
   let(:maintainer) { create(:user) }
   let(:owner) { create(:user) }
   let(:admin) { create(:admin) }
-  let(:group) { create(:group, :private) }
+  let(:group) { create(:group, :private, :owner_subgroup_creation_only) }
 
   let(:guest_permissions) do
     %i[
@@ -16,7 +16,7 @@ RSpec.shared_context 'GroupPolicy context' do
       read_group_merge_requests
    ]
   end
-  let(:reporter_permissions) { [:admin_label] }
+  let(:reporter_permissions) { %i[admin_label read_container_image] }
   let(:developer_permissions) { [:admin_milestone] }
   let(:maintainer_permissions) do
     %i[
@@ -31,7 +31,7 @@ RSpec.shared_context 'GroupPolicy context' do
       :admin_group_member,
       :change_visibility_level,
       :set_note_created_at,
-      (Gitlab::Database.postgresql? ? :create_subgroup : nil)
+      :create_subgroup
     ].compact
   end
 

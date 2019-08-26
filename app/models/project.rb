@@ -162,7 +162,6 @@ class Project < ApplicationRecord
   has_one :bugzilla_service
   has_one :gitlab_issue_tracker_service, inverse_of: :project
   has_one :external_wiki_service
-  has_one :kubernetes_service, inverse_of: :project
   has_one :prometheus_service, inverse_of: :project
   has_one :mock_ci_service
   has_one :mock_deployment_service
@@ -214,7 +213,7 @@ class Project < ApplicationRecord
     as: :source, class_name: 'ProjectMember', dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
   has_many :members_and_requesters, as: :source, class_name: 'ProjectMember'
 
-  has_many :deploy_keys_projects
+  has_many :deploy_keys_projects, inverse_of: :project
   has_many :deploy_keys, through: :deploy_keys_projects
   has_many :users_star_projects
   has_many :starrers, through: :users_star_projects, source: :user
@@ -284,6 +283,7 @@ class Project < ApplicationRecord
   has_one :ci_cd_settings, class_name: 'ProjectCiCdSetting', inverse_of: :project, autosave: true, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :remote_mirrors, inverse_of: :project
+  has_many :cycle_analytics_stages, class_name: 'Analytics::CycleAnalytics::ProjectStage'
 
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
@@ -357,6 +357,7 @@ class Project < ApplicationRecord
   scope :sorted_by_activity, -> { reorder(Arel.sql("GREATEST(COALESCE(last_activity_at, '1970-01-01'), COALESCE(last_repository_updated_at, '1970-01-01')) DESC")) }
   scope :sorted_by_stars_desc, -> { reorder(star_count: :desc) }
   scope :sorted_by_stars_asc, -> { reorder(star_count: :asc) }
+  scope :sorted_by_name_asc_limited, ->(limit) { reorder(name: :asc).limit(limit) }
 
   scope :in_namespace, ->(namespace_ids) { where(namespace_id: namespace_ids) }
   scope :personal, ->(user) { where(namespace_id: user.namespace_id) }
@@ -414,12 +415,6 @@ class Project < ApplicationRecord
     .where(project_ci_cd_settings: { group_runners_enabled: true })
   end
 
-  scope :missing_kubernetes_namespace, -> (kubernetes_namespaces) do
-    subquery = kubernetes_namespaces.select('1').where('clusters_kubernetes_namespaces.project_id = projects.id')
-
-    where('NOT EXISTS (?)', subquery)
-  end
-
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
   chronic_duration_attr :build_timeout_human_readable, :build_timeout,
@@ -439,22 +434,6 @@ class Project < ApplicationRecord
   # id - The ID of the project to retrieve.
   def self.find_without_deleted(id)
     without_deleted.find_by_id(id)
-  end
-
-  # Paginates a collection using a `WHERE id < ?` condition.
-  #
-  # before - A project ID to use for filtering out projects with an equal or
-  #      greater ID. If no ID is given, all projects are included.
-  #
-  # limit - The maximum number of rows to include.
-  def self.paginate_in_descending_order_using_id(
-    before: nil,
-    limit: Kaminari.config.default_per_page
-  )
-    relation = order_id_desc.limit(limit)
-    relation = relation.where('projects.id < ?', before) if before
-
-    relation
   end
 
   def self.eager_load_namespace_and_owner
@@ -653,6 +632,13 @@ class Project < ApplicationRecord
 
   alias_method :ancestors, :ancestors_upto
 
+  def emails_disabled?
+    strong_memoize(:emails_disabled) do
+      # disabling in the namespace overrides the project setting
+      Feature.enabled?(:emails_disabled, self, default_enabled: true) && (super || namespace.emails_disabled?)
+    end
+  end
+
   def lfs_enabled?
     return namespace.lfs_enabled? if self[:lfs_enabled].nil?
 
@@ -734,16 +720,27 @@ class Project < ApplicationRecord
     repository.commits_by(oids: oids)
   end
 
-  # ref can't be HEAD, can only be branch/tag name or SHA
-  def latest_successful_build_for(job_name, ref = default_branch)
-    latest_pipeline = ci_pipelines.latest_successful_for(ref)
+  # ref can't be HEAD, can only be branch/tag name
+  def latest_successful_build_for_ref(job_name, ref = default_branch)
+    return unless ref
+
+    latest_pipeline = ci_pipelines.latest_successful_for_ref(ref)
     return unless latest_pipeline
 
     latest_pipeline.builds.latest.with_artifacts_archive.find_by(name: job_name)
   end
 
-  def latest_successful_build_for!(job_name, ref = default_branch)
-    latest_successful_build_for(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
+  def latest_successful_build_for_sha(job_name, sha)
+    return unless sha
+
+    latest_pipeline = ci_pipelines.latest_successful_for_sha(sha)
+    return unless latest_pipeline
+
+    latest_pipeline.builds.latest.with_artifacts_archive.find_by(name: job_name)
+  end
+
+  def latest_successful_build_for_ref!(job_name, ref = default_branch)
+    latest_successful_build_for_ref(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
   end
 
   def merge_base_commit(first_commit_id, second_commit_id)
@@ -1241,6 +1238,14 @@ class Project < ApplicationRecord
     end
   end
 
+  def has_active_hooks?(hooks_scope = :push_hooks)
+    hooks.hooks_for(hooks_scope).any? || SystemHook.hooks_for(hooks_scope).any?
+  end
+
+  def has_active_services?(hooks_scope = :push_hooks)
+    services.public_send(hooks_scope).any? # rubocop:disable GitlabSecurity/PublicSend
+  end
+
   def valid_repo?
     repository.exists?
   rescue
@@ -1496,12 +1501,19 @@ class Project < ApplicationRecord
     !namespace.share_with_group_lock
   end
 
-  def pipeline_for(ref, sha = nil)
+  def pipeline_for(ref, sha = nil, id = nil)
     sha ||= commit(ref).try(:sha)
-
     return unless sha
 
-    ci_pipelines.order(id: :desc).find_by(sha: sha, ref: ref)
+    if id.present?
+      pipelines_for(ref, sha).find_by(id: id)
+    else
+      pipelines_for(ref, sha).take
+    end
+  end
+
+  def pipelines_for(ref, sha)
+    ci_pipelines.order(id: :desc).where(sha: sha, ref: ref)
   end
 
   def latest_successful_pipeline_for_default_branch
@@ -1510,12 +1522,12 @@ class Project < ApplicationRecord
     end
 
     @latest_successful_pipeline_for_default_branch =
-      ci_pipelines.latest_successful_for(default_branch)
+      ci_pipelines.latest_successful_for_ref(default_branch)
   end
 
   def latest_successful_pipeline_for(ref = nil)
     if ref && ref != default_branch
-      ci_pipelines.latest_successful_for(ref)
+      ci_pipelines.latest_successful_for_ref(ref)
     else
       latest_successful_pipeline_for_default_branch
     end
@@ -1831,11 +1843,16 @@ class Project < ApplicationRecord
   end
 
   def ci_variables_for(ref:, environment: nil)
-    # EE would use the environment
-    if protected_for?(ref)
-      variables
+    result = if protected_for?(ref)
+               variables
+             else
+               variables.unprotected
+             end
+
+    if environment
+      result.on_environment(environment)
     else
-      variables.unprotected
+      result.where(environment_scope: '*')
     end
   end
 
@@ -1858,8 +1875,12 @@ class Project < ApplicationRecord
     end
   end
 
-  def deployment_variables(environment: nil)
-    deployment_platform(environment: environment)&.predefined_variables(project: self) || []
+  def deployment_variables(environment:)
+    platform = deployment_platform(environment: environment)
+
+    return [] unless platform.present?
+
+    platform.predefined_variables(project: self, environment_name: environment)
   end
 
   def auto_devops_variables

@@ -46,6 +46,16 @@ module Gitlab
         ee? ? 'gitlab-ee' : 'gitlab-ce'
       end
 
+      def markdown_list(items)
+        list = items.map { |item| "* `#{item}`" }.join("\n")
+
+        if items.size > 10
+          "\n<details>\n\n#{list}\n\n</details>\n"
+        else
+          list
+        end
+      end
+
       # @return [Hash<String,Array<String>>]
       def changes_by_category
         all_changed_files.each_with_object(Hash.new { |h, k| h[k] = [] }) do |file, hash|
@@ -103,7 +113,7 @@ module Gitlab
           yarn\.lock
         )\z}x => :frontend,
 
-        %r{\A(ee/)?db/} => :database,
+        %r{\A(ee/)?db/(?!fixtures)[^/]+} => :database,
         %r{\A(ee/)?lib/gitlab/(database|background_migration|sql|github_import)(/|\.rb)} => :database,
         %r{\A(app/models/project_authorization|app/services/users/refresh_authorized_projects_service)(/|\.rb)} => :database,
         %r{\Arubocop/cop/migration(/|\.rb)} => :database,
@@ -131,6 +141,22 @@ module Gitlab
 
       def new_teammates(usernames)
         usernames.map { |u| Gitlab::Danger::Teammate.new('username' => u) }
+      end
+
+      def missing_database_labels(current_mr_labels)
+        labels = if has_database_scoped_labels?(current_mr_labels)
+                   ['database']
+                 else
+                   ['database', 'database::review pending']
+                 end
+
+        labels - current_mr_labels
+      end
+
+      private
+
+      def has_database_scoped_labels?(current_mr_labels)
+        current_mr_labels.any? { |label| label.start_with?('database::') }
       end
     end
   end

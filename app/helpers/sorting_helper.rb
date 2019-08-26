@@ -167,6 +167,15 @@ module SortingHelper
     }
   end
 
+  def starrers_sort_options_hash
+    {
+      sort_value_name => sort_title_name,
+      sort_value_name_desc => sort_title_name_desc,
+      sort_value_recently_created => sort_title_recently_starred,
+      sort_value_oldest_created => sort_title_oldest_starred
+    }
+  end
+
   def sortable_item(item, path, sorted_by)
     link_to item, path, class: sorted_by == item ? 'is-active' : ''
   end
@@ -210,7 +219,7 @@ module SortingHelper
   end
 
   def sort_direction_button(reverse_url, reverse_sort, sort_value)
-    link_class = 'btn btn-default has-tooltip reverse-sort-btn qa-reverse-sort'
+    link_class = 'btn btn-default has-tooltip reverse-sort-btn qa-reverse-sort rspec-reverse-sort'
     icon = sort_direction_icon(sort_value)
     url = reverse_url
 
@@ -327,6 +336,10 @@ module SortingHelper
     s_('SortOptions|Oldest sign in')
   end
 
+  def sort_title_oldest_starred
+    s_('SortOptions|Oldest starred')
+  end
+
   def sort_title_oldest_updated
     s_('SortOptions|Oldest updated')
   end
@@ -345,6 +358,10 @@ module SortingHelper
 
   def sort_title_recently_signin
     s_('SortOptions|Recent sign in')
+  end
+
+  def sort_title_recently_starred
+    s_('SortOptions|Recently starred')
   end
 
   def sort_title_recently_updated

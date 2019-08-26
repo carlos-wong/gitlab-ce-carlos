@@ -12,7 +12,7 @@ public access directory (`/public` under your GitLab instance), like at [https:/
 
 ### Public projects
 
-Public projects can be cloned **without any** authentication.
+Public projects can be cloned **without any** authentication over https.
 
 They will be listed in the public access directory (`/public`) for all users.
 
@@ -37,7 +37,7 @@ visibility setting keep this setting. You can read more about the change in the
 
 ### Private projects
 
-Private projects can only be cloned and viewed by project members.
+Private projects can only be cloned and viewed by project members (except for guests).
 
 They will appear in the public access directory (`/public`) for project members only.
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Copy as GFM', :js do
@@ -416,8 +418,8 @@ describe 'Copy as GFM', :js do
 
         html = <<~HTML
           <div class="md-suggestion">
-            <div class="md-suggestion-header border-bottom-0 mt-2 qa-suggestion-diff-header">
-              <div class="qa-suggestion-diff-header font-weight-bold">
+            <div class="md-suggestion-header border-bottom-0 mt-2 qa-suggestion-diff-header js-suggestion-diff-header">
+              <div class="qa-suggestion-diff-header js-suggestion-diff-header font-weight-bold">
                 Suggested change
                 <a href="/gitlab/help/user/discussions/index.md#suggest-changes" aria-label="Help" class="js-help-btn">
                   <svg aria-hidden="true" class="s16 ic-question-o link-highlight">
@@ -426,7 +428,7 @@ describe 'Copy as GFM', :js do
                 </a>
               </div>
               <!---->
-              <button type="button" class="btn qa-apply-btn">Apply suggestion</button>
+              <button type="button" class="btn qa-apply-btn js-apply-btn">Apply suggestion</button>
             </div>
             <table class="mb-3 md-suggestion-diff js-syntax-highlight code white">
               <tbody>
@@ -796,7 +798,7 @@ describe 'Copy as GFM', :js do
       context 'selecting one word of text' do
         it 'copies as inline code' do
           verify(
-            '.line[id="LC27"] .s2',
+            '.line[id="LC27"] .nl',
 
             '`"bio"`'
           )

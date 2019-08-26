@@ -125,9 +125,24 @@
     padding-left: $gl-padding-8;
   }
 
-  .section-header ~ .section.line {
-    margin-left: $gl-padding;
-    display: block;
+  .section-start {
+    display: inline;
+  }
+
+  .section-start,
+  .section-header {
+    &:hover {
+      cursor: pointer;
+
+      &::after {
+        content: '';
+        background-color: rgba($white-light, 0.2);
+        left: 0;
+        right: 0;
+        position: absolute;
+        height: $job-log-highlight-height;
+      }
+    }
   }
 }
 

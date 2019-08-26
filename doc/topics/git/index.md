@@ -48,6 +48,7 @@ The following are resources about version control concepts:
 
 The following resources may help you become more efficient at using Git:
 
+- [Useful Git commands](useful_git_commands.md) collected by the GitLab support team.
 - [Git Tips & Tricks](https://about.gitlab.com/2016/12/08/git-tips-and-tricks/)
 - [Eight Tips to help you work better with Git](https://about.gitlab.com/2015/02/19/8-tips-to-help-you-work-better-with-git/)
 
@@ -71,6 +72,7 @@ The following are advanced topics for those who want to get the most out of Git:
 - [Custom Git Hooks](../../administration/custom_hooks.md)
 - [Git Attributes](../../user/project/git_attributes.md)
 - Git Submodules: [Using Git submodules with GitLab CI](../../ci/git_submodules.md#using-git-submodules-with-gitlab-ci)
+- [Partial Clone](partial_clone.md)
 
 ## API
 
@@ -82,6 +84,8 @@ Git-related queries from GitLab.
 The following relate to Git Large File Storage:
 
 - [Getting Started with Git LFS](https://about.gitlab.com/2017/01/30/getting-started-with-git-lfs-tutorial/)
-- [GitLab Git LFS documentation](../../workflow/lfs/manage_large_binaries_with_git_lfs.md)
+- [Migrate an existing Git repo with Git LFS](migrate_to_git_lfs/index.md)
+- [GitLab Git LFS user documentation](../../workflow/lfs/manage_large_binaries_with_git_lfs.md)
+- [GitLab Git LFS admin documentation](../../workflow/lfs/lfs_administration.md)
 - [Git-Annex to Git-LFS migration guide](../../workflow/lfs/migrate_from_git_annex_to_git_lfs.md)
 - [Towards a production quality open source Git LFS server](https://about.gitlab.com/2015/08/13/towards-a-production-quality-open-source-git-lfs-server/)

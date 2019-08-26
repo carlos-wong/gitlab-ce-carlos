@@ -94,7 +94,10 @@ This means that the value of the variable will be hidden in job logs,
 though it must match certain requirements to do so:
 
 - The value must be in a single line.
-- The value must only consist of characters from the Base64 alphabet, defined in [RFC4648](https://tools.ietf.org/html/rfc4648).
+- The value must only consist of characters from the Base64 alphabet (RFC4648).
+
+  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-ce/issues/63043)
+  and newer, `@` and `:` are also valid values.
 - The value must be at least 8 characters long.
 - The value must not use variables.
 
@@ -370,8 +373,11 @@ variables take precedence over those defined in `.gitlab-ci.yml`.
 ## Unsupported variables
 
 There are cases where some variables cannot be used in the context of a
-`.gitlab-ci.yml` definition (for example under `script`). Read more
-about which variables are [not supported](where_variables_can_be_used.md).
+`.gitlab-ci.yml` definition (for example under `script`). Read more about which variables are [not supported](where_variables_can_be_used.md).
+
+## Where variables can be used
+
+Click [here](where_variables_can_be_used.md) for a section that describes where and how the different types of variables can be used.
 
 ## Advanced use
 
@@ -390,7 +396,7 @@ Protected variables can be added by going to your project's
 
 Once you set them, they will be available for all subsequent pipelines.
 
-### Limiting environment scopes of environment variables **(PREMIUM)**
+### Limiting environment scopes of environment variables
 
 You can limit the environment scope of a variable by
 [defining which environments][envs] it can be available for.
@@ -481,81 +487,86 @@ Below you can find supported syntax reference:
 
 1. Equality matching using a string
 
-    > Example: `$VARIABLE == "some value"`
+   Examples:
 
-    > Example: `$VARIABLE != "some value"` (introduced in GitLab 11.11)
+   - `$VARIABLE == "some value"`
+   - `$VARIABLE != "some value"` (introduced in GitLab 11.11)
 
-    You can use equality operator `==` or `!=` to compare a variable content to a
-    string. We support both, double quotes and single quotes to define a string
-    value, so both `$VARIABLE == "some value"` and `$VARIABLE == 'some value'`
-    are supported. `"some value" == $VARIABLE` is correct too.
+   You can use equality operator `==` or `!=` to compare a variable content to a
+   string. We support both, double quotes and single quotes to define a string
+   value, so both `$VARIABLE == "some value"` and `$VARIABLE == 'some value'`
+   are supported. `"some value" == $VARIABLE` is correct too.
 
 1. Checking for an undefined value
 
-    > Example: `$VARIABLE == null`
+   Examples:
 
-    > Example: `$VARIABLE != null` (introduced in GitLab 11.11)
+   - `$VARIABLE == null`
+   - `$VARIABLE != null` (introduced in GitLab 11.11)
 
-    It sometimes happens that you want to check whether a variable is defined
-    or not. To do that, you can compare a variable to `null` keyword, like
-    `$VARIABLE == null`. This expression is going to evaluate to truth if
-    variable is not defined when `==` is used, or to falsey if `!=` is used.
+   It sometimes happens that you want to check whether a variable is defined
+   or not. To do that, you can compare a variable to `null` keyword, like
+   `$VARIABLE == null`. This expression is going to evaluate to truth if
+   variable is not defined when `==` is used, or to falsey if `!=` is used.
 
 1. Checking for an empty variable
 
-    > Example: `$VARIABLE == ""`
+   Examples:
 
-    > Example: `$VARIABLE != ""` (introduced in GitLab 11.11)
+   - `$VARIABLE == ""`
+   - `$VARIABLE != ""` (introduced in GitLab 11.11)
 
-    If you want to check whether a variable is defined, but is empty, you can
-    simply compare it against an empty string, like `$VAR == ''` or non-empty
-    string `$VARIABLE != ""`.
+   If you want to check whether a variable is defined, but is empty, you can
+   simply compare it against an empty string, like `$VAR == ''` or non-empty
+   string `$VARIABLE != ""`.
 
 1. Comparing two variables
 
-    > Example: `$VARIABLE_1 == $VARIABLE_2`
+   Examples:
 
-    > Example: `$VARIABLE_1 != $VARIABLE_2` (introduced in GitLab 11.11)
+   - `$VARIABLE_1 == $VARIABLE_2`
+   - `$VARIABLE_1 != $VARIABLE_2` (introduced in GitLab 11.11)
 
-    It is possible to compare two variables. This is going to compare values
-    of these variables.
+   It is possible to compare two variables. This is going to compare values
+   of these variables.
 
 1. Variable presence check
 
-    > Example: `$STAGING`
+   Example: `$STAGING`
 
-    If you only want to create a job when there is some variable present,
-    which means that it is defined and non-empty, you can simply use
-    variable name as an expression, like `$STAGING`. If `$STAGING` variable
-    is defined, and is non empty, expression will evaluate to truth.
-    `$STAGING` value needs to a string, with length higher than zero.
-    Variable that contains only whitespace characters is not an empty variable.
+   If you only want to create a job when there is some variable present,
+   which means that it is defined and non-empty, you can simply use
+   variable name as an expression, like `$STAGING`. If `$STAGING` variable
+   is defined, and is non empty, expression will evaluate to truth.
+   `$STAGING` value needs to a string, with length higher than zero.
+   Variable that contains only whitespace characters is not an empty variable.
 
 1. Pattern matching (introduced in GitLab 11.0)
 
-    > Example: `$VARIABLE =~ /^content.*/`
+   Examples:
 
-    > Example: `$VARIABLE_1 !~ /^content.*/` (introduced in GitLab 11.11)
+   - `$VARIABLE =~ /^content.*/`
+   - `$VARIABLE_1 !~ /^content.*/` (introduced in GitLab 11.11)
 
-    It is possible perform pattern matching against a variable and regular
-    expression. Expression like this evaluates to truth if matches are found
-    when using `=~`. It evaluates to truth if matches are not found when `!~` is used.
+   It is possible perform pattern matching against a variable and regular
+   expression. Expression like this evaluates to truth if matches are found
+   when using `=~`. It evaluates to truth if matches are not found when `!~` is used.
 
-    Pattern matching is case-sensitive by default. Use `i` flag modifier, like
-    `/pattern/i` to make a pattern case-insensitive.
+   Pattern matching is case-sensitive by default. Use `i` flag modifier, like
+   `/pattern/i` to make a pattern case-insensitive.
 
 1. Conjunction / Disjunction ([introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27925) in GitLab 12.0)
 
-    > Example: `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 == "something"`
+   Examples:
 
-    > Example: `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 =~ /thing$/ && $VARIABLE3`
+   - `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 == "something"`
+   - `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 =~ /thing$/ && $VARIABLE3`
+   - `$VARIABLE1 =~ /^content.*/ || $VARIABLE2 =~ /thing$/ && $VARIABLE3`
 
-    > Example: `$VARIABLE1 =~ /^content.*/ || $VARIABLE2 =~ /thing$/ && $VARIABLE3`
-
-    It is possible to join multiple conditions using `&&` or `||`. Any of the otherwise
-    supported syntax may be used in a conjunctive or disjunctive statement.
-    Precedence of operators follows standard Ruby 2.5 operation
-    [precedence](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html).
+   It is possible to join multiple conditions using `&&` or `||`. Any of the otherwise
+   supported syntax may be used in a conjunctive or disjunctive statement.
+   Precedence of operators follows standard Ruby 2.5 operation
+   [precedence](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html).
 
 ## Debug tracing
 

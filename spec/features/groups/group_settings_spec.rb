@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Edit group settings' do
@@ -85,6 +87,14 @@ describe 'Edit group settings' do
     end
   end
 
+  describe 'subgroup creation level menu' do
+    it 'shows the selection menu' do
+      visit edit_group_path(group)
+
+      expect(page).to have_content('Allowed to create subgroups')
+    end
+  end
+
   describe 'edit group avatar' do
     before do
       visit edit_group_path(group)
@@ -113,7 +123,7 @@ describe 'Edit group settings' do
       expect(find(:css, '.group-root-path').text).to eq(root_url)
     end
 
-    it 'has a parent group URL label for a subgroup group', :postgresql do
+    it 'has a parent group URL label for a subgroup group' do
       subgroup = create(:group, parent: group)
 
       visit edit_group_path(subgroup)

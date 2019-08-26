@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require Rails.root.join('ee', 'spec', 'db', 'schema_support') if Gitlab.ee?
 
 describe 'Database schema' do
   let(:connection) { ActiveRecord::Base.connection }
   let(:tables) { connection.tables }
 
   # Use if you are certain that this column should not have a foreign key
+  # EE: edit the ee/spec/db/schema_support.rb
   IGNORED_FK_COLUMNS = {
     abuse_reports: %w[reporter_id user_id],
     application_settings: %w[performance_bar_allowed_group_id slack_app_id snowplow_site_id],
@@ -25,7 +27,7 @@ describe 'Database schema' do
     cluster_providers_gcp: %w[gcp_project_id operation_id],
     deploy_keys_projects: %w[deploy_key_id],
     deployments: %w[deployable_id environment_id user_id],
-    draft_notes: %w[discussion_id],
+    draft_notes: %w[discussion_id commit_id],
     emails: %w[user_id],
     events: %w[target_id],
     epics: %w[updated_by_id last_edited_by_id start_date_sourcing_milestone_id due_date_sourcing_milestone_id],

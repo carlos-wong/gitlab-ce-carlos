@@ -1,4 +1,4 @@
-import { commitActionTypes } from '../constants';
+import { commitActionTypes, FILE_VIEW_MODE_EDITOR } from '../constants';
 
 export const dataStructure = () => ({
   id: '',
@@ -43,7 +43,7 @@ export const dataStructure = () => ({
   editorColumn: 1,
   fileLanguage: '',
   eol: '',
-  viewMode: 'editor',
+  viewMode: FILE_VIEW_MODE_EDITOR,
   previewMode: null,
   size: 0,
   parentPath: null,
@@ -155,11 +155,11 @@ export const createCommitPayload = ({
     last_commit_id:
       newBranch || f.deleted || f.prevPath || f.replaces ? undefined : f.lastCommitSha,
   })),
-  start_sha: newBranch ? rootGetters.lastCommit.short_id : undefined,
+  start_sha: newBranch ? rootGetters.lastCommit.id : undefined,
 });
 
 export const createNewMergeRequestUrl = (projectUrl, source, target) =>
-  `${projectUrl}/merge_requests/new?merge_request[source_branch]=${source}&merge_request[target_branch]=${target}`;
+  `${projectUrl}/merge_requests/new?merge_request[source_branch]=${source}&merge_request[target_branch]=${target}&nav_source=webide`;
 
 const sortTreesByTypeAndName = (a, b) => {
   if (a.type === 'tree' && b.type === 'blob') {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rspec/mocks'
 require 'toml-rb'
 
@@ -130,7 +132,7 @@ module TestEnv
   # Keeps gitlab-shell and gitlab-test
   def clean_test_path
     Dir[TMP_TEST_PATH].each do |entry|
-      unless File.basename(entry) =~ /\A(gitaly|gitlab-(shell|test|test_bare|test-fork|test-fork_bare))\z/
+      unless test_dirs.include?(File.basename(entry))
         FileUtils.rm_rf(entry)
       end
     end
@@ -139,14 +141,6 @@ module TestEnv
     FileUtils.mkdir_p(backup_path)
     FileUtils.mkdir_p(pages_path)
     FileUtils.mkdir_p(artifacts_path)
-  end
-
-  def clean_gitlab_test_path
-    Dir[TMP_TEST_PATH].each do |entry|
-      unless test_dirs.include?(File.basename(entry))
-        FileUtils.rm_rf(entry)
-      end
-    end
   end
 
   def setup_gitlab_shell
@@ -324,6 +318,7 @@ module TestEnv
   # These are directories that should be preserved at cleanup time
   def test_dirs
     @test_dirs ||= %w[
+      frontend
       gitaly
       gitlab-shell
       gitlab-test
@@ -368,10 +363,7 @@ module TestEnv
     # Try to reset without fetching to avoid using the network.
     unless reset.call
       raise 'Could not fetch test seed repository.' unless system(*%W(#{Gitlab.config.git.bin_path} -C #{repo_path} fetch origin))
-
-      # Before we used Git clone's --mirror option, bare repos could end up
-      # with missing refs, clearing them and retrying should fix the issue.
-      clean_gitlab_test_path && init unless reset.call
+      raise "Could not update test seed repository, please delete #{repo_path} and try again" unless reset.call
     end
   end
 

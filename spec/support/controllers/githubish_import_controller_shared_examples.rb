@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Specifications for behavior common to all objects with an email attribute.
 # Takes a list of email-format attributes and requires:
 # - subject { "the object with a attribute= setter"  }
@@ -321,7 +323,7 @@ shared_examples 'a GitHub-ish import controller: POST create' do
       end
     end
 
-    context 'user has chosen an existing nested namespace and name for the project', :postgresql do
+    context 'user has chosen an existing nested namespace and name for the project' do
       let(:parent_namespace) { create(:group, name: 'foo') }
       let(:nested_namespace) { create(:group, name: 'bar', parent: parent_namespace) }
       let(:test_name) { 'test_name' }
@@ -340,7 +342,7 @@ shared_examples 'a GitHub-ish import controller: POST create' do
       end
     end
 
-    context 'user has chosen a non-existent nested namespaces and name for the project', :postgresql do
+    context 'user has chosen a non-existent nested namespaces and name for the project' do
       let(:test_name) { 'test_name' }
 
       it 'takes the selected namespace and name' do
@@ -371,7 +373,7 @@ shared_examples 'a GitHub-ish import controller: POST create' do
       end
     end
 
-    context 'user has chosen existent and non-existent nested namespaces and name for the project', :postgresql do
+    context 'user has chosen existent and non-existent nested namespaces and name for the project' do
       let(:test_name) { 'test_name' }
       let!(:parent_namespace) { create(:group, name: 'foo') }
 

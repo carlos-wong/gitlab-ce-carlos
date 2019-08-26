@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::CurrentSettings do
@@ -9,6 +11,16 @@ describe Gitlab::CurrentSettings do
     before do
       create(:application_setting)
       described_class.current_application_settings # warm the cache
+    end
+  end
+
+  describe '.expire_current_application_settings', :use_clean_rails_memory_store_caching, :request_store do
+    include_context 'with settings in cache'
+
+    it 'expires the cache' do
+      described_class.expire_current_application_settings
+
+      expect(ActiveRecord::QueryRecorder.new { described_class.current_application_settings }.count).not_to eq(0)
     end
   end
 

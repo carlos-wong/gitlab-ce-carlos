@@ -48,6 +48,9 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 quality_level = Quality::TestLevel.new
 
 RSpec.configure do |config|
+  config.filter_run focus: true
+  config.run_all_when_everything_filtered = true
+
   config.use_transactional_fixtures = true
   config.use_instantiated_fixtures  = false
   config.fixture_path = Rails.root
@@ -105,6 +108,7 @@ RSpec.configure do |config|
   config.include Rails.application.routes.url_helpers, type: :routing
   config.include PolicyHelpers, type: :policy
   config.include MemoryUsageHelper
+  config.include ExpectRequestWithStatus, type: :request
 
   if ENV['CI']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -147,9 +151,9 @@ RSpec.configure do |config|
     Gitlab::ThreadMemoryCache.cache_backend.clear
   end
 
-  config.around(:example, :quarantine) do
+  config.around(:example, :quarantine) do |example|
     # Skip tests in quarantine unless we explicitly focus on them.
-    skip('In quarantine') unless config.inclusion_filter[:quarantine]
+    example.run if config.inclusion_filter[:quarantine]
   end
 
   config.before(:example, :request_store) do
@@ -256,18 +260,6 @@ RSpec.configure do |config|
     schema_migrate_up!
 
     Gitlab::CurrentSettings.clear_in_memory_application_settings!
-  end
-
-  config.around(:each, :nested_groups) do |example|
-    example.run if Group.supports_nested_objects?
-  end
-
-  config.around(:each, :postgresql) do |example|
-    example.run if Gitlab::Database.postgresql?
-  end
-
-  config.around(:each, :mysql) do |example|
-    example.run if Gitlab::Database.mysql?
   end
 
   # This makes sure the `ApplicationController#can?` method is stubbed with the

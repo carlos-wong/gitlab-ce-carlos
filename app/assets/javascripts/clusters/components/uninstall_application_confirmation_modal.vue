@@ -2,18 +2,23 @@
 import { GlModal } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import trackUninstallButtonClickMixin from 'ee_else_ce/clusters/mixins/track_uninstall_button_click';
-import { INGRESS, CERT_MANAGER, PROMETHEUS, RUNNER, KNATIVE, JUPYTER } from '../constants';
+import { HELM, INGRESS, CERT_MANAGER, PROMETHEUS, RUNNER, KNATIVE, JUPYTER } from '../constants';
 
 const CUSTOM_APP_WARNING_TEXT = {
+  [HELM]: s__(
+    'ClusterIntegration|The associated Tiller pod will be deleted and cannot be restored.',
+  ),
   [INGRESS]: s__(
     'ClusterIntegration|The associated load balancer and IP will be deleted and cannot be restored.',
   ),
   [CERT_MANAGER]: s__(
-    'ClusterIntegration|The associated certifcate will be deleted and cannot be restored.',
+    'ClusterIntegration|The associated private key will be deleted and cannot be restored.',
   ),
   [PROMETHEUS]: s__('ClusterIntegration|All data will be deleted and cannot be restored.'),
   [RUNNER]: s__('ClusterIntegration|Any running pipelines will be canceled.'),
-  [KNATIVE]: s__('ClusterIntegration|The associated IP will be deleted and cannot be restored.'),
+  [KNATIVE]: s__(
+    'ClusterIntegration|The associated IP and all deployed services will be deleted and cannot be restored. Uninstalling Knative will also remove Istio from your cluster. This will not effect any other applications.',
+  ),
   [JUPYTER]: s__(
     'ClusterIntegration|All data not committed to GitLab will be deleted and cannot be restored.',
   ),
