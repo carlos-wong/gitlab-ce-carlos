@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_15_093949) do
+ActiveRecord::Schema.define(version: 2019_08_16_151221) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -272,12 +272,18 @@ ActiveRecord::Schema.define(version: 2019_08_15_093949) do
     t.boolean "lock_memberships_to_ldap", default: false, null: false
     t.boolean "time_tracking_limit_to_hours", default: false, null: false
     t.string "grafana_url", default: "/-/grafana", null: false
+    t.boolean "login_recaptcha_protection_enabled", default: false, null: false
     t.string "outbound_local_requests_whitelist", limit: 255, default: [], null: false, array: true
     t.integer "raw_blob_request_limit", default: 300, null: false
     t.boolean "allow_local_requests_from_web_hooks_and_services", default: false, null: false
     t.boolean "allow_local_requests_from_system_hooks", default: true, null: false
     t.bigint "instance_administration_project_id"
     t.string "snowplow_collector_hostname"
+    t.boolean "asset_proxy_enabled", default: false, null: false
+    t.string "asset_proxy_url"
+    t.text "asset_proxy_whitelist"
+    t.text "encrypted_asset_proxy_secret_key"
+    t.string "encrypted_asset_proxy_secret_key_iv"
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -2500,6 +2506,7 @@ ActiveRecord::Schema.define(version: 2019_08_15_093949) do
     t.string "title"
     t.integer "active_pipelines_limit"
     t.integer "pipeline_size_limit"
+    t.integer "active_jobs_limit", default: 0
     t.index ["name"], name: "index_plans_on_name"
   end
 
