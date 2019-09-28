@@ -5,9 +5,8 @@ type: reference, howto
 # Protected Branches
 
 [Permissions](../permissions.md) in GitLab are fundamentally defined around the
-idea of having read or write permission to the repository and branches. To
-prevent people from messing with history or pushing code without review, we've
-created protected branches.
+idea of having read or write permission to the repository and branches. To impose
+further restrictions on certain branches, they can be protected.
 
 ## Overview
 
@@ -15,7 +14,7 @@ By default, a protected branch does four simple things:
 
 - It prevents its creation, if not already created, from everybody except users
   with Maintainer permission.
-- It prevents pushes from everybody except users with Maintainer permission.
+- It prevents pushes from everybody except users with **Allowed** permission.
 - It prevents **anyone** from force pushing to the branch.
 - It prevents **anyone** from deleting the branch.
 
@@ -34,11 +33,11 @@ that the `master` branch is protected by default.
 1. From the **Branch** dropdown menu, select the branch you want to protect and
    click **Protect**. In the screenshot below, we chose the `develop` branch.
 
-   ![Protected branches page](img/protected_branches_page.png)
+   ![Protected branches page](img/protected_branches_page_v12_3.png)
 
 1. Once done, the protected branch will appear in the "Protected branches" list.
 
-   ![Protected branches list](img/protected_branches_list.png)
+   ![Protected branches list](img/protected_branches_list_v12_3.png)
 
 ## Using the Allowed to merge and Allowed to push settings
 
@@ -65,7 +64,7 @@ You can set the "Allowed to push" and "Allowed to merge" options while creating
 a protected branch or afterwards by selecting the option you want from the
 dropdown list in the "Already protected" area.
 
-![Developers can push](img/protected_branches_devs_can_push.png)
+![Developers can push](img/protected_branches_devs_can_push_v12_3.png)
 
 If you don't choose any of those options while creating a protected branch,
 they are set to "Maintainers" by default.
@@ -113,7 +112,7 @@ all matching branches:
 
 ## Creating a protected branch
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53361) in GitLab 11.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/53361) in GitLab 11.9.
 
 When a protected branch or wildcard protected branches are set to
 [**No one** is **Allowed to push**](#using-the-allowed-to-merge-and-allowed-to-push-settings),
@@ -163,7 +162,7 @@ for details about the pipelines security model.
 
 **11.9**
 
-- [Allow protected branches to be created](https://gitlab.com/gitlab-org/gitlab-ce/issues/53361) by Developers (and users with higher permission levels) through the API and the user interface.
+- [Allow protected branches to be created](https://gitlab.com/gitlab-org/gitlab-foss/issues/53361) by Developers (and users with higher permission levels) through the API and the user interface.
 
 **9.2**
 
@@ -178,10 +177,10 @@ for details about the pipelines security model.
 - Allow developers to merge into a protected branch without having push access [gitlab-org/gitlab-ce!4892][ce-4892]
 - Allow specifying protected branches using wildcards [gitlab-org/gitlab-ce!4665][ce-4665]
 
-[ce-4665]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/4665 "Allow specifying protected branches using wildcards"
-[ce-4892]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/4892 "Allow developers to merge into a protected branch without having push access"
-[ce-5081]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/5081 "Allow creating protected branches that can't be pushed to"
-[ce-21393]: https://gitlab.com/gitlab-org/gitlab-ce/issues/21393
+[ce-4665]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/4665 "Allow specifying protected branches using wildcards"
+[ce-4892]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/4892 "Allow developers to merge into a protected branch without having push access"
+[ce-5081]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5081 "Allow creating protected branches that can't be pushed to"
+[ce-21393]: https://gitlab.com/gitlab-org/gitlab-foss/issues/21393
 [perm]: ../permissions.md
 [ee]: https://about.gitlab.com/pricing/
 

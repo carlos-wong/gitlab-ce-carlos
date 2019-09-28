@@ -28,7 +28,7 @@ Rails.application.routes.draw do
   end
 
   # This prefixless path is required because Jira gets confused if we set it up with a path
-  # More information: https://gitlab.com/gitlab-org/gitlab-ee/issues/6752
+  # More information: https://gitlab.com/gitlab-org/gitlab/issues/6752
   scope path: '/login/oauth', controller: 'oauth/jira/authorizations', as: :oauth_jira do
     Gitlab.ee do
       get :authorize, action: :new
@@ -67,7 +67,7 @@ Rails.application.routes.draw do
   get 'health_check(/:checks)' => 'health_check#index', as: :health_check
 
   scope path: '-' do
-    # '/-/health' implemented by BasicHealthMiddleware
+    # '/-/health' implemented by BasicHealthCheck middleware
     get 'liveness' => 'health#liveness'
     get 'readiness' => 'health#readiness'
     resources :metrics, only: [:index]
@@ -107,12 +107,17 @@ Rails.application.routes.draw do
     draw :instance_statistics
 
     Gitlab.ee do
+      draw :security
       draw :smartcard
       draw :jira_connect
+      draw :username
+      draw :trial
+      draw :trial_registration
+      draw :country
     end
 
     Gitlab.ee do
-      constraints(::Constraints::FeatureConstrainer.new(:analytics)) do
+      constraints(-> (*) { Gitlab::Analytics.any_features_enabled? }) do
         draw :analytics
       end
     end
@@ -138,6 +143,8 @@ Rails.application.routes.draw do
       member do
         Gitlab.ee do
           get :metrics, format: :json
+          get :metrics_dashboard
+          get :'/prometheus/api/v1/*proxy_path', to: 'clusters#prometheus_proxy', as: :prometheus_api
         end
 
         scope :applications do

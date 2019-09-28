@@ -24,7 +24,7 @@ and steps below.
   (`*.gitlab.io`, for GitLab.com).
 - A custom domain name `example.com` or subdomain `subdomain.example.com`.
 - Access to your domain's server control panel to set up DNS records:
-  - A DNS A or CNAME record poiting your domain to GitLab Pages server.
+  - A DNS A or CNAME record pointing your domain to GitLab Pages server.
   - A DNS TXT record to verify your domain's ownership.
 
 ### Steps
@@ -249,7 +249,7 @@ Sublime Text, Atom, Dreamweaver, Brackets, etc).
 
 ## Force HTTPS for GitLab Pages websites
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/28857) in GitLab 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/28857) in GitLab 10.7.
 
 To make your website's visitors even more secure, you can choose to
 force HTTPS for GitLab Pages. By doing so, all attempts to visit your

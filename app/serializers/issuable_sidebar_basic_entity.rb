@@ -4,6 +4,7 @@ class IssuableSidebarBasicEntity < Grape::Entity
   include RequestAwareEntity
 
   expose :id
+  expose :iid
   expose :type do |issuable|
     issuable.to_ability_name
   end
@@ -108,3 +109,5 @@ class IssuableSidebarBasicEntity < Grape::Entity
     request.current_user
   end
 end
+
+IssuableSidebarBasicEntity.prepend_if_ee('EE::IssuableSidebarBasicEntity')

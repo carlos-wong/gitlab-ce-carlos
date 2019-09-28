@@ -6,15 +6,16 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
   before_action :set_application_setting
   before_action :whitelist_query_limiting, only: [:usage_data]
 
-  VALID_SETTING_PANELS = %w(show integrations repository templates
+  VALID_SETTING_PANELS = %w(general integrations repository templates
                             ci_cd reporting metrics_and_profiling
                             network geo preferences).freeze
 
-  def show
+  VALID_SETTING_PANELS.each do |action|
+    define_method(action) { perform_update if submitted? }
   end
 
-  (VALID_SETTING_PANELS - %w(show)).each do |action|
-    define_method(action) { perform_update if submitted? }
+  def show
+    render :general
   end
 
   def update
@@ -68,7 +69,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
   end
 
   def whitelist_query_limiting
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/63107')
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/63107')
   end
 
   def application_setting_params
@@ -85,7 +86,10 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
 
     params[:application_setting][:import_sources]&.delete("")
     params[:application_setting][:restricted_visibility_levels]&.delete("")
+    # TODO Remove domain_blacklist_raw in APIv5 (See https://gitlab.com/gitlab-org/gitlab-foss/issues/67204)
     params.delete(:domain_blacklist_raw) if params[:domain_blacklist_file]
+    params.delete(:domain_blacklist_raw) if params[:domain_blacklist]
+    params.delete(:domain_whitelist_raw) if params[:domain_whitelist]
 
     params.require(:application_setting).permit(
       visible_application_setting_attributes
@@ -141,8 +145,10 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
   end
 
   def render_update_error
-    action = VALID_SETTING_PANELS.include?(action_name) ? action_name : :show
+    action = VALID_SETTING_PANELS.include?(action_name) ? action_name : :general
 
     render action
   end
 end
+
+Admin::ApplicationSettingsController.prepend_if_ee('EE::Admin::ApplicationSettingsController')

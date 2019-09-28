@@ -30,6 +30,21 @@ describe Boards::ListsController do
       expect(json_response.length).to eq 3
     end
 
+    it 'avoids n+1 queries when serializing lists' do
+      list_1 = create(:list, board: board)
+      list_1.update_preferences_for(user, { collapsed: true })
+
+      control_count = ActiveRecord::QueryRecorder.new { read_board_list user: user, board: board }.count
+
+      list_2 = create(:list, board: board)
+      list_2.update_preferences_for(user, { collapsed: true })
+
+      list_3 = create(:list, board: board)
+      list_3.update_preferences_for(user, { collapsed: true })
+
+      expect { read_board_list user: user, board: board }.not_to exceed_query_limit(control_count)
+    end
+
     context 'with unauthorized user' do
       let(:unauth_user) { create(:user) }
 
@@ -147,10 +162,44 @@ describe Boards::ListsController do
     end
 
     context 'with unauthorized user' do
-      it 'returns a forbidden 403 response' do
+      it 'returns a 422 unprocessable entity response' do
         move user: guest, board: board, list: planning, position: 6
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(422)
+      end
+    end
+
+    context 'with collapsed preference' do
+      it 'saves collapsed preference for user' do
+        save_setting user: user, board: board, list: planning, setting: { collapsed: true }
+
+        expect(planning.preferences_for(user).collapsed).to eq(true)
+        expect(response).to have_gitlab_http_status(200)
+      end
+
+      it 'saves not collapsed preference for user' do
+        save_setting user: user, board: board, list: planning, setting: { collapsed: false }
+
+        expect(planning.preferences_for(user).collapsed).to eq(false)
+        expect(response).to have_gitlab_http_status(200)
+      end
+    end
+
+    context 'with a list_type other than :label' do
+      let!(:closed) { create(:closed_list, board: board, position: 2) }
+
+      it 'saves collapsed preference for user' do
+        save_setting user: user, board: board, list: closed, setting: { collapsed: true }
+
+        expect(closed.preferences_for(user).collapsed).to eq(true)
+        expect(response).to have_gitlab_http_status(200)
+      end
+
+      it 'saves not collapsed preference for user' do
+        save_setting user: user, board: board, list: closed, setting: { collapsed: false }
+
+        expect(closed.preferences_for(user).collapsed).to eq(false)
+        expect(response).to have_gitlab_http_status(200)
       end
     end
 
@@ -162,6 +211,19 @@ describe Boards::ListsController do
                  board_id: board.to_param,
                  id: list.to_param,
                  list: { position: position },
+                 format: :json }
+
+      patch :update, params: params, as: :json
+    end
+
+    def save_setting(user:, board:, list:, setting: {})
+      sign_in(user)
+
+      params = { namespace_id: project.namespace.to_param,
+                 project_id: project,
+                 board_id: board.to_param,
+                 id: list.to_param,
+                 list: setting,
                  format: :json }
 
       patch :update, params: params, as: :json

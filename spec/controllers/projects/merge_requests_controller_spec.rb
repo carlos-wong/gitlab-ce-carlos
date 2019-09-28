@@ -57,7 +57,7 @@ describe Projects::MergeRequestsController do
 
           go(format: :html)
 
-          expect(response).to be_success
+          expect(response).to be_successful
         end
       end
 
@@ -66,7 +66,7 @@ describe Projects::MergeRequestsController do
 
         go(format: :html)
 
-        expect(response).to be_success
+        expect(response).to be_successful
       end
 
       context "that is invalid" do
@@ -75,7 +75,41 @@ describe Projects::MergeRequestsController do
         it "renders merge request page" do
           go(format: :html)
 
-          expect(response).to be_success
+          expect(response).to be_successful
+        end
+      end
+
+      context 'when project has moved' do
+        let(:new_project) { create(:project) }
+
+        before do
+          project.route.destroy
+          new_project.redirect_routes.create!(path: project.full_path)
+          new_project.add_developer(user)
+        end
+
+        it 'redirects from an old merge request correctly' do
+          get :show,
+              params: {
+                namespace_id: project.namespace,
+                project_id: project,
+                id: merge_request
+              }
+
+          expect(response).to redirect_to(project_merge_request_path(new_project, merge_request))
+          expect(response).to have_gitlab_http_status(302)
+        end
+
+        it 'redirects from an old merge request commits correctly' do
+          get :commits,
+              params: {
+                namespace_id: project.namespace,
+                project_id: project,
+                id: merge_request
+              }
+
+          expect(response).to redirect_to(commits_project_merge_request_path(new_project, merge_request))
+          expect(response).to have_gitlab_http_status(302)
         end
       end
     end
@@ -124,7 +158,7 @@ describe Projects::MergeRequestsController do
         it "renders merge request page" do
           go(format: :json)
 
-          expect(response).to be_success
+          expect(response).to be_successful
         end
       end
     end
@@ -573,16 +607,34 @@ describe Projects::MergeRequestsController do
       end
 
       it "deletes the merge request" do
-        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid, destroy_confirm: true }
 
         expect(response).to have_gitlab_http_status(302)
         expect(controller).to set_flash[:notice].to(/The merge request was successfully deleted\./)
       end
 
+      it "prevents deletion if destroy_confirm is not set" do
+        expect(Gitlab::Sentry).to receive(:track_acceptable_exception).and_call_original
+
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
+
+        expect(response).to have_gitlab_http_status(302)
+        expect(controller).to set_flash[:notice].to('Destroy confirmation not provided for merge request')
+      end
+
+      it "prevents deletion in JSON format if destroy_confirm is not set" do
+        expect(Gitlab::Sentry).to receive(:track_acceptable_exception).and_call_original
+
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid, format: 'json' }
+
+        expect(response).to have_gitlab_http_status(422)
+        expect(json_response).to eq({ 'errors' => 'Destroy confirmation not provided for merge request' })
+      end
+
       it 'delegates the update of the todos count cache to TodoService' do
         expect_any_instance_of(TodoService).to receive(:destroy_target).with(merge_request).once
 
-        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid, destroy_confirm: true }
       end
     end
   end
@@ -1003,7 +1055,7 @@ describe Projects::MergeRequestsController do
       end
 
       # we're trying to reduce the overall number of queries for this method.
-      # set a hard limit for now. https://gitlab.com/gitlab-org/gitlab-ce/issues/52287
+      # set a hard limit for now. https://gitlab.com/gitlab-org/gitlab-foss/issues/52287
       it 'keeps queries in check' do
         control_count = ActiveRecord::QueryRecorder.new { get_ci_environments_status }.count
 
@@ -1020,7 +1072,7 @@ describe Projects::MergeRequestsController do
         create(:deployment, :succeed, environment: environment2, sha: sha, ref: 'master', deployable: build)
 
         # TODO address the last 5 queries
-        # See https://gitlab.com/gitlab-org/gitlab-ce/issues/63952 (5 queries)
+        # See https://gitlab.com/gitlab-org/gitlab-foss/issues/63952 (5 queries)
         leeway = 5
         expect { get_ci_environments_status }.not_to exceed_all_query_limit(control_count + leeway)
       end
@@ -1237,7 +1289,7 @@ describe Projects::MergeRequestsController do
             expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
               note_diff_file = commit_diff_note.note_diff_file
 
-              expect(collection).to receive(:load_highlight).with([note_diff_file.id]).and_call_original
+              expect(collection).to receive(:load_highlight).and_call_original
               expect(collection).to receive(:find_by_id).with(note_diff_file.id).and_call_original
             end
 
@@ -1254,7 +1306,7 @@ describe Projects::MergeRequestsController do
             expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
               note_diff_file = diff_note.note_diff_file
 
-              expect(collection).to receive(:load_highlight).with([note_diff_file.id]).and_call_original
+              expect(collection).to receive(:load_highlight).and_call_original
               expect(collection).to receive(:find_by_id).with(note_diff_file.id).and_call_original
             end
 
@@ -1267,7 +1319,7 @@ describe Projects::MergeRequestsController do
             expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
               note_diff_file = diff_note.note_diff_file
 
-              expect(collection).to receive(:load_highlight).with([]).and_call_original
+              expect(collection).to receive(:load_highlight).and_call_original
               expect(collection).to receive(:find_by_id).with(note_diff_file.id).and_call_original
             end
 

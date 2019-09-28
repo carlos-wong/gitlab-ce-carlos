@@ -4,7 +4,7 @@
 - page_title @page.human_title, _("Wiki")
 - add_to_breadcrumbs _("Wiki"), project_wiki_path(@project, :home)
 
-.wiki-page-header.top-area.has-sidebar-toggle
+.wiki-page-header.top-area.has-sidebar-toggle.flex-column.flex-lg-row
   %button.btn.btn-default.sidebar-toggle.js-sidebar-wiki-toggle{ role: "button", type: "button" }
     = icon('angle-double-left')
 
@@ -15,7 +15,7 @@
         = (_("Last edited by %{name}") % { name: "<strong>#{@page.last_version.author_name}</strong>" }).html_safe
         #{time_ago_with_tooltip(@page.last_version.authored_date)}
 
-  .nav-controls
+  .nav-controls.pb-md-3.pb-lg-0
     = render 'main_links'
 
 - if @page.historical?
@@ -26,7 +26,7 @@
     = (s_("WikiHistoricalPage|You can view the %{most_recent_link} or browse the %{history_link}.") % { most_recent_link: most_recent_link, history_link: history_link }).html_safe
 
 .prepend-top-default.append-bottom-default
-  .md.md-file{ class: ('use-csslab' if Feature.enabled?(:csslab)) }
+  .md.md-file{ data: { qa_selector: 'wiki_page_content' } }
     = render_wiki_content(@page)
 
 = render 'sidebar'

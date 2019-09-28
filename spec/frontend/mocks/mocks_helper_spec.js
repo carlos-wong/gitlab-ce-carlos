@@ -1,4 +1,4 @@
-/* eslint-disable global-require, promise/catch-or-return */
+/* eslint-disable global-require */
 
 import path from 'path';
 
@@ -46,7 +46,9 @@ describe('mocks_helper.js', () => {
     readdir.sync.mockReturnValue([]);
     setupManualMocks();
 
-    readdir.mock.calls.forEach(call => {
+    const readdirSpy = readdir.sync;
+    expect(readdirSpy).toHaveBeenCalled();
+    readdirSpy.mock.calls.forEach(call => {
       expect(call[1].deep).toBeLessThan(100);
     });
   });
@@ -124,9 +126,8 @@ describe('mocks_helper.js', () => {
     it('survives jest.isolateModules()', done => {
       jest.isolateModules(() => {
         const axios2 = require('~/lib/utils/axios_utils').default;
-        expect(axios2.get('http://gitlab.com'))
-          .rejects.toThrow('Unexpected unmocked request')
-          .then(done);
+        expect(axios2.isMock).toBe(true);
+        done();
       });
     });
 

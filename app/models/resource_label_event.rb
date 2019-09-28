@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# This model is not used yet, it will be used for:
-# https://gitlab.com/gitlab-org/gitlab-ce/issues/48483
 class ResourceLabelEvent < ApplicationRecord
   include Importable
   include Gitlab::Utils::StrongMemoize
@@ -125,3 +123,5 @@ class ResourceLabelEvent < ApplicationRecord
     [self.class.name, created_at, user_id]
   end
 end
+
+ResourceLabelEvent.prepend_if_ee('EE::ResourceLabelEvent')

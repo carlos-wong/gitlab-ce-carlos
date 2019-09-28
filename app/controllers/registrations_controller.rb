@@ -20,6 +20,7 @@ class RegistrationsController < Devise::RegistrationsController
 
     super do |new_user|
       persist_accepted_terms_if_required(new_user)
+      yield new_user if block_given?
     end
   rescue Gitlab::Access::AccessDeniedError
     redirect_to(new_user_session_path)
@@ -123,7 +124,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def whitelist_query_limiting
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42380')
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42380')
   end
 
   def ensure_terms_accepted
@@ -144,3 +145,5 @@ class RegistrationsController < Devise::RegistrationsController
     stored_location_for(user) || dashboard_projects_path
   end
 end
+
+RegistrationsController.prepend_if_ee('EE::RegistrationsController')

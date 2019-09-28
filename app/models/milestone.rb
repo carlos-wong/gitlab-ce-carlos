@@ -16,7 +16,10 @@ class Milestone < ApplicationRecord
   include Referable
   include StripAttribute
   include Milestoneish
+  include FromUnion
   include Gitlab::SQL::Pattern
+
+  prepend_if_ee('::EE::Milestone') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
   cache_markdown_field :title, pipeline: :single_line
   cache_markdown_field :description
@@ -24,13 +27,16 @@ class Milestone < ApplicationRecord
   belongs_to :project
   belongs_to :group
 
+  has_many :milestone_releases
+  has_many :releases, through: :milestone_releases
+
   has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.milestones&.maximum(:iid) }
   has_internal_id :iid, scope: :group, init: ->(s) { s&.group&.milestones&.maximum(:iid) }
 
   has_many :issues
   has_many :labels, -> { distinct.reorder('labels.title') }, through: :issues
   has_many :merge_requests
-  has_many :events, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   scope :of_projects, ->(ids) { where(project_id: ids) }
   scope :of_groups, ->(ids) { where(group_id: ids) }
@@ -59,6 +65,7 @@ class Milestone < ApplicationRecord
   validate :milestone_type_check
   validate :start_date_should_be_less_than_due_date, if: proc { |m| m.start_date.present? && m.due_date.present? }
   validate :dates_within_4_digits
+  validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(",") }
 
   strip_attributes :title
 
@@ -208,8 +215,8 @@ class Milestone < ApplicationRecord
   #
   #   Milestone.first.to_reference                           # => "%1"
   #   Milestone.first.to_reference(format: :name)            # => "%\"goal\""
-  #   Milestone.first.to_reference(cross_namespace_project)  # => "gitlab-org/gitlab-ce%1"
-  #   Milestone.first.to_reference(same_namespace_project)   # => "gitlab-ce%1"
+  #   Milestone.first.to_reference(cross_namespace_project)  # => "gitlab-org/gitlab-foss%1"
+  #   Milestone.first.to_reference(same_namespace_project)   # => "gitlab-foss%1"
   #
   def to_reference(from = nil, format: :name, full: false)
     format_reference = milestone_format_reference(format)
@@ -253,6 +260,7 @@ class Milestone < ApplicationRecord
   def parent
     group || project
   end
+  alias_method :resource_parent, :parent
 
   def group_milestone?
     group_id.present?

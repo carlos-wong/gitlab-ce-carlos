@@ -27,11 +27,12 @@ class Issue < ApplicationRecord
 
   belongs_to :project
   belongs_to :moved_to, class_name: 'Issue'
+  belongs_to :duplicated_to, class_name: 'Issue'
   belongs_to :closed_by, class_name: 'User'
 
   has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.issues&.maximum(:iid) }
 
-  has_many :events, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :merge_requests_closing_issues,
     class_name: 'MergeRequestsClosingIssues',
@@ -128,11 +129,10 @@ class Issue < ApplicationRecord
 
   def self.sort_by_attribute(method, excluded_labels: [])
     case method.to_s
-    when 'closest_future_date' then order_closest_future_date
-    when 'due_date'            then order_due_date_asc
-    when 'due_date_asc'        then order_due_date_asc
-    when 'due_date_desc'       then order_due_date_desc
-    when 'relative_position'   then order_relative_position_asc.with_order_id_desc
+    when 'closest_future_date', 'closest_future_date_asc' then order_closest_future_date
+    when 'due_date', 'due_date_asc'                       then order_due_date_asc
+    when 'due_date_desc'                                  then order_due_date_desc
+    when 'relative_position', 'relative_position_asc'     then order_relative_position_asc.with_order_id_desc
     else
       super
     end
@@ -179,7 +179,11 @@ class Issue < ApplicationRecord
   end
 
   def moved?
-    !moved_to.nil?
+    !moved_to_id.nil?
+  end
+
+  def duplicated?
+    !duplicated_to_id.nil?
   end
 
   def can_move?(user, to_project = nil)
@@ -294,3 +298,5 @@ class Issue < ApplicationRecord
     Gitlab::EtagCaching::Store.new.touch(key)
   end
 end
+
+Issue.prepend_if_ee('EE::Issue')

@@ -8,7 +8,7 @@ module MergeRequests
       @params_issue_iid = params.delete(:issue_iid)
       self.merge_request = MergeRequest.new
       # TODO: this should handle all quick actions that don't have side effects
-      # https://gitlab.com/gitlab-org/gitlab-ce/issues/53658
+      # https://gitlab.com/gitlab-org/gitlab-foss/issues/53658
       merge_quick_actions_into_params!(merge_request, only: [:target_branch])
       merge_request.merge_params['force_remove_source_branch'] = params.delete(:force_remove_source_branch) if params.has_key?(:force_remove_source_branch)
 
@@ -18,10 +18,23 @@ module MergeRequests
       merge_request.target_project = find_target_project
 
       filter_params(merge_request)
+
+      # merge_request.assign_attributes(...) below is a Rails
+      # method that only work if all the params it is passed have
+      # corresponding fields in the database. As there are no fields
+      # in the database for :add_label_ids and :remove_label_ids, we
+      # need to remove them from the params before the call to
+      # merge_request.assign_attributes(...)
+      #
+      # IssuableBaseService#process_label_ids takes care
+      # of the removal.
+      params[:label_ids] = process_label_ids(params, extra_label_ids: merge_request.label_ids.to_a)
+
       merge_request.assign_attributes(params.to_h.compact)
 
       merge_request.compare_commits = []
-      merge_request.target_branch = find_target_branch
+      set_merge_request_target_branch
+
       merge_request.can_be_created = projects_and_branches_valid?
 
       # compare branches only if branches are valid, otherwise
@@ -81,8 +94,12 @@ module MergeRequests
       project_from_params
     end
 
-    def find_target_branch
-      target_branch || target_project.default_branch
+    def set_merge_request_target_branch
+      if source_branch_default? && !target_branch_specified?
+        merge_request.target_branch = nil
+      else
+        merge_request.target_branch ||= target_project.default_branch
+      end
     end
 
     def source_branch_specified?
@@ -137,7 +154,15 @@ module MergeRequests
     end
 
     def same_source_and_target?
-      source_project == target_project && target_branch == source_branch
+      same_source_and_target_project? && target_branch == source_branch
+    end
+
+    def source_branch_default?
+      same_source_and_target_project? && source_branch == target_project.default_branch
+    end
+
+    def same_source_and_target_project?
+      source_project == target_project
     end
 
     def source_branch_exists?
@@ -239,3 +264,5 @@ module MergeRequests
     end
   end
 end
+
+MergeRequests::BuildService.prepend_if_ee('EE::MergeRequests::BuildService')

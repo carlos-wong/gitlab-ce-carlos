@@ -16,7 +16,9 @@ module Types
                 :create_deployment, :push_to_delete_protected_branch,
                 :admin_wiki, :admin_project, :update_pages,
                 :admin_remote_mirror, :create_label, :update_wiki, :destroy_wiki,
-                :create_pages, :destroy_pages, :read_pages_content
+                :create_pages, :destroy_pages, :read_pages_content, :admin_operations
     end
   end
 end
+
+Types::PermissionTypes::Project.prepend_if_ee('EE::Types::PermissionTypes::Project')

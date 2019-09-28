@@ -2,7 +2,7 @@
 type: reference, howto
 ---
 
-# Abuse reports
+# Abuse reports **(CORE ONLY)**
 
 View and resolve abuse reports from GitLab users.
 
@@ -44,7 +44,7 @@ Blocking a user:
 - Changes the **Block user** button to a disabled **Already blocked** button.
 
 The user will be notified with the
-[following message](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/app/workers/email_receiver_worker.rb#L38):
+[following message](https://gitlab.com/gitlab-org/gitlab/blob/master/app/workers/email_receiver_worker.rb#L38):
 
 ```text
 Your account has been blocked. If you believe this is in error, contact a staff member.

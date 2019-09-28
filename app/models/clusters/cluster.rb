@@ -10,18 +10,18 @@ module Clusters
     self.table_name = 'clusters'
 
     PROJECT_ONLY_APPLICATIONS = {
-      Applications::Jupyter.application_name => Applications::Jupyter,
-      Applications::Knative.application_name => Applications::Knative
     }.freeze
     APPLICATIONS = {
       Applications::Helm.application_name => Applications::Helm,
       Applications::Ingress.application_name => Applications::Ingress,
       Applications::CertManager.application_name => Applications::CertManager,
+      Applications::Prometheus.application_name => Applications::Prometheus,
       Applications::Runner.application_name => Applications::Runner,
-      Applications::Prometheus.application_name => Applications::Prometheus
+      Applications::Jupyter.application_name => Applications::Jupyter,
+      Applications::Knative.application_name => Applications::Knative
     }.merge(PROJECT_ONLY_APPLICATIONS).freeze
-    DEFAULT_ENVIRONMENT = '*'.freeze
-    KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'.freeze
+    DEFAULT_ENVIRONMENT = '*'
+    KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'
 
     belongs_to :user
 
@@ -37,13 +37,18 @@ module Clusters
 
     has_one :platform_kubernetes, class_name: 'Clusters::Platforms::Kubernetes', inverse_of: :cluster, autosave: true
 
-    has_one :application_helm, class_name: 'Clusters::Applications::Helm'
-    has_one :application_ingress, class_name: 'Clusters::Applications::Ingress'
-    has_one :application_cert_manager, class_name: 'Clusters::Applications::CertManager'
-    has_one :application_prometheus, class_name: 'Clusters::Applications::Prometheus'
-    has_one :application_runner, class_name: 'Clusters::Applications::Runner'
-    has_one :application_jupyter, class_name: 'Clusters::Applications::Jupyter'
-    has_one :application_knative, class_name: 'Clusters::Applications::Knative'
+    def self.has_one_cluster_application(name) # rubocop:disable Naming/PredicateName
+      application = APPLICATIONS[name.to_s]
+      has_one application.association_name, class_name: application.to_s # rubocop:disable Rails/ReflectionClassName
+    end
+
+    has_one_cluster_application :helm
+    has_one_cluster_application :ingress
+    has_one_cluster_application :cert_manager
+    has_one_cluster_application :prometheus
+    has_one_cluster_application :runner
+    has_one_cluster_application :jupyter
+    has_one_cluster_application :knative
 
     has_many :kubernetes_namespaces
 
@@ -127,15 +132,9 @@ module Clusters
     end
 
     def applications
-      [
-        application_helm || build_application_helm,
-        application_ingress || build_application_ingress,
-        application_cert_manager || build_application_cert_manager,
-        application_prometheus || build_application_prometheus,
-        application_runner || build_application_runner,
-        application_jupyter || build_application_jupyter,
-        application_knative || build_application_knative
-      ]
+      APPLICATIONS.values.map do |application_class|
+        public_send(application_class.association_name) || public_send("build_#{application_class.association_name}") # rubocop:disable GitlabSecurity/PublicSend
+      end
     end
 
     def provider
@@ -235,7 +234,7 @@ module Clusters
     # as the AUTO_DEVOPS_DOMAIN is needed for CI_ENVIRONMENT_URL
     #
     # This method should is scheduled to be removed on
-    # https://gitlab.com/gitlab-org/gitlab-ce/issues/56959
+    # https://gitlab.com/gitlab-org/gitlab-foss/issues/56959
     def legacy_auto_devops_domain
       if project_type?
         project&.auto_devops&.domain.presence ||
@@ -268,3 +267,5 @@ module Clusters
     end
   end
 end
+
+Clusters::Cluster.prepend_if_ee('EE::Clusters::Cluster')

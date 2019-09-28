@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require 'spec_helper'
 
 # These are written as feature specs because they cover more specific test scenarios
 # than the ones described on spec/services/notes/create_service_spec.rb for quick actions,
@@ -42,5 +42,6 @@ describe 'Issues > User uses quick actions', :js do
 
     it_behaves_like 'create_merge_request quick action'
     it_behaves_like 'move quick action'
+    it_behaves_like 'zoom quick actions'
   end
 end

@@ -1,6 +1,6 @@
 # Instrumenting Ruby Code
 
-GitLab Performance Monitoring allows instrumenting of both methods and custom
+[GitLab Performance Monitoring](../administration/monitoring/performance/index.md) allows instrumenting of both methods and custom
 blocks of Ruby code. Method instrumentation is the primary form of
 instrumentation with block-based instrumentation only being used when we want to
 drill down to specific regions of code within a method.
@@ -81,9 +81,7 @@ If you're using Pry you can use the `$` command to display the source code of a
 method (along with its source location), this is easier than running the above
 Ruby code. In case of the above snippet you'd run the following:
 
-```
-$ Banzai::Renderer.render
-```
+- `$ Banzai::Renderer.render`
 
 This will print out something along the lines of:
 

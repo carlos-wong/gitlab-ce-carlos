@@ -14,6 +14,7 @@ issues:
 - todos
 - user_agent_detail
 - moved_to
+- duplicated_to
 - events
 - merge_requests_closing_issues
 - metrics
@@ -23,9 +24,11 @@ issues:
 - epic_issue
 - epic
 - designs
+- design_versions
 events:
 - author
 - project
+- group
 - target
 - push_event_payload
 notes:
@@ -62,6 +65,8 @@ milestone:
 - participants
 - events
 - boards
+- milestone_releases
+- releases
 snippets:
 - author
 - project
@@ -72,6 +77,8 @@ releases:
 - author
 - project
 - links
+- milestone_releases
+- milestones
 links:
 - release
 project_members:
@@ -121,6 +128,8 @@ merge_requests:
 - blocks_as_blockee
 - blocking_merge_requests
 - blocked_merge_requests
+external_pull_requests:
+- project
 merge_request_diff:
 - merge_request
 - merge_request_diff_commits
@@ -150,6 +159,7 @@ ci_pipelines:
 - pipeline_schedule
 - merge_requests_as_head_pipeline
 - merge_request
+- external_pull_request
 - deployments
 - environments
 - chat_data
@@ -367,6 +377,7 @@ project:
 - index_status
 - feature_usage
 - approval_rules
+- approval_merge_request_rules
 - approvers
 - approver_users
 - pages_domains
@@ -397,6 +408,7 @@ project:
 - merge_trains
 - designs
 - project_aliases
+- external_pull_requests
 award_emoji:
 - awardable
 - user
@@ -483,3 +495,7 @@ lists:
 - milestone
 - board
 - label
+- list_user_preferences
+milestone_releases:
+- milestone
+- release

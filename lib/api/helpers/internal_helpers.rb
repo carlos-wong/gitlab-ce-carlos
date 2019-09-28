@@ -17,6 +17,18 @@ module API
         @project # rubocop:disable Gitlab/ModuleWithInstanceVariables
       end
 
+      def access_checker_for(actor, protocol)
+        access_checker_klass.new(actor.key_or_user, project, protocol,
+          authentication_abilities: ssh_authentication_abilities,
+          namespace_path: namespace_path,
+          project_path: project_path,
+          redirected_path: redirected_path)
+      end
+
+      def access_checker_klass
+        repo_type.access_checker_class
+      end
+
       def ssh_authentication_abilities
         [
           :read_project,
@@ -44,9 +56,7 @@ module API
       end
 
       def process_mr_push_options(push_options, project, user, changes)
-        output = {}
-
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/61359')
+        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/61359')
 
         service = ::MergeRequests::PushOptionsHandlerService.new(
           project,
@@ -56,15 +66,13 @@ module API
         ).execute
 
         if service.errors.present?
-          output[:warnings] = push_options_warning(service.errors.join("\n\n"))
+          push_options_warning(service.errors.join("\n\n"))
         end
-
-        output
       end
 
       def push_options_warning(warning)
         options = Array.wrap(params[:push_options]).map { |p| "'#{p}'" }.join(' ')
-        "Error encountered with push options #{options}: #{warning}"
+        "WARNINGS:\nError encountered with push options #{options}: #{warning}"
       end
 
       def redis_ping

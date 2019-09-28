@@ -54,11 +54,32 @@ describe Milestone do
         expect(milestone.errors[:due_date]).to include("date must not be after 9999-12-31")
       end
     end
+
+    describe 'milestone_releases' do
+      let(:milestone) { build(:milestone, project: project) }
+
+      context 'when it is tied to a release for another project' do
+        it 'creates a validation error' do
+          other_project = create(:project)
+          milestone.releases << build(:release, project: other_project)
+          expect(milestone).not_to be_valid
+        end
+      end
+
+      context 'when it is tied to a release for the same project' do
+        it 'is valid' do
+          milestone.releases << build(:release, project: project)
+          expect(milestone).to be_valid
+        end
+      end
+    end
   end
 
   describe "Associations" do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to have_many(:issues) }
+    it { is_expected.to have_many(:releases) }
+    it { is_expected.to have_many(:milestone_releases) }
   end
 
   let(:project) { create(:project, :public) }
@@ -509,9 +530,9 @@ describe Milestone do
   describe '.link_reference_pattern' do
     subject { described_class.link_reference_pattern }
 
-    it { is_expected.to match("#{Gitlab.config.gitlab.url}/gitlab-org/gitlab-ce/milestones/123") }
-    it { is_expected.to match("#{Gitlab.config.gitlab.url}/gitlab-org/gitlab-ce/-/milestones/123") }
-    it { is_expected.not_to match("#{Gitlab.config.gitlab.url}/gitlab-org/gitlab-ce/issues/123") }
+    it { is_expected.to match("#{Gitlab.config.gitlab.url}/gitlab-org/gitlab-foss/milestones/123") }
+    it { is_expected.to match("#{Gitlab.config.gitlab.url}/gitlab-org/gitlab-foss/-/milestones/123") }
+    it { is_expected.not_to match("#{Gitlab.config.gitlab.url}/gitlab-org/gitlab-foss/issues/123") }
     it { is_expected.not_to match("gitlab-org/gitlab-ce/milestones/123") }
   end
 end

@@ -23,7 +23,7 @@ module ObjectStorage
     end
   end
 
-  TMP_UPLOAD_PATH = 'tmp/uploads'.freeze
+  TMP_UPLOAD_PATH = 'tmp/uploads'
 
   module Store
     LOCAL = 1
@@ -136,6 +136,8 @@ module ObjectStorage
 
     included do |base|
       base.include(ObjectStorage)
+
+      include_if_ee('::EE::ObjectStorage::Concern') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       after :migrate, :delete_migrated_file
     end

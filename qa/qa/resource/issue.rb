@@ -3,7 +3,7 @@
 module QA
   module Resource
     class Issue < Base
-      attr_writer :description
+      attr_writer :description, :milestone, :weight
 
       attribute :project do
         Project.fabricate! do |resource|
@@ -25,7 +25,7 @@ module QA
 
         Page::Project::Show.perform(&:go_to_new_issue)
 
-        Page::Project::Issue::New.perform do |page|
+        Page::Project::Issue::New.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.add_title(@title)
           page.add_description(@description)
           page.create_new_issue
@@ -44,7 +44,10 @@ module QA
         {
           labels: labels,
           title: title
-        }
+        }.tap do |hash|
+          hash[:milestone_id] = @milestone.id if @milestone
+          hash[:weight] = @weight if @weight
+        end
       end
     end
   end

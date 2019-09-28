@@ -54,18 +54,20 @@ module QA
     autoload :MergeRequestFromFork, 'qa/resource/merge_request_from_fork'
     autoload :DeployKey, 'qa/resource/deploy_key'
     autoload :DeployToken, 'qa/resource/deploy_token'
-    autoload :Branch, 'qa/resource/branch'
+    autoload :ProtectedBranch, 'qa/resource/protected_branch'
     autoload :CiVariable, 'qa/resource/ci_variable'
     autoload :Runner, 'qa/resource/runner'
     autoload :PersonalAccessToken, 'qa/resource/personal_access_token'
     autoload :KubernetesCluster, 'qa/resource/kubernetes_cluster'
     autoload :User, 'qa/resource/user'
     autoload :ProjectMilestone, 'qa/resource/project_milestone'
+    autoload :Members, 'qa/resource/members'
     autoload :Wiki, 'qa/resource/wiki'
     autoload :File, 'qa/resource/file'
     autoload :Fork, 'qa/resource/fork'
     autoload :SSHKey, 'qa/resource/ssh_key'
     autoload :Snippet, 'qa/resource/snippet'
+    autoload :ProjectMember, 'qa/resource/project_member'
 
     module Events
       autoload :Base, 'qa/resource/events/base'
@@ -73,6 +75,7 @@ module QA
     end
 
     module Repository
+      autoload :Commit, 'qa/resource/repository/commit'
       autoload :Push, 'qa/resource/repository/push'
       autoload :ProjectPush, 'qa/resource/repository/project_push'
       autoload :WikiPush, 'qa/resource/repository/wiki_push'
@@ -160,6 +163,16 @@ module QA
     module Group
       autoload :New, 'qa/page/group/new'
       autoload :Show, 'qa/page/group/show'
+      autoload :Menu, 'qa/page/group/menu'
+
+      module SubMenus
+        autoload :Common, 'qa/page/group/sub_menus/common'
+        autoload :Members, 'qa/page/group/sub_menus/members'
+      end
+
+      module Settings
+        autoload :General, 'qa/page/group/settings/general'
+      end
     end
 
     module File
@@ -207,6 +220,7 @@ module QA
         autoload :Main, 'qa/page/project/settings/main'
         autoload :Repository, 'qa/page/project/settings/repository'
         autoload :CICD, 'qa/page/project/settings/ci_cd'
+        autoload :AutoDevops, 'qa/page/project/settings/auto_devops'
         autoload :DeployKeys, 'qa/page/project/settings/deploy_keys'
         autoload :DeployTokens, 'qa/page/project/settings/deploy_tokens'
         autoload :ProtectedBranches, 'qa/page/project/settings/protected_branches'
@@ -215,6 +229,7 @@ module QA
         autoload :MergeRequest, 'qa/page/project/settings/merge_request'
         autoload :Members, 'qa/page/project/settings/members'
         autoload :MirroringRepositories, 'qa/page/project/settings/mirroring_repositories'
+        autoload :VisibilityFeaturesPermissions, 'qa/page/project/settings/visibility_features_permissions'
       end
 
       module SubMenus
@@ -260,6 +275,7 @@ module QA
         autoload :Edit, 'qa/page/project/wiki/edit'
         autoload :New, 'qa/page/project/wiki/new'
         autoload :Show, 'qa/page/project/wiki/show'
+        autoload :GitAccess, 'qa/page/project/wiki/git_access'
       end
 
       module WebIDE
@@ -271,6 +287,7 @@ module QA
       autoload :Menu, 'qa/page/profile/menu'
       autoload :PersonalAccessTokens, 'qa/page/profile/personal_access_tokens'
       autoload :SSHKeys, 'qa/page/profile/ssh_keys'
+      autoload :TwoFactorAuth, 'qa/page/profile/two_factor_auth'
     end
 
     module Issuable
@@ -303,8 +320,10 @@ module QA
         autoload :Repository, 'qa/page/admin/settings/repository'
         autoload :General, 'qa/page/admin/settings/general'
         autoload :MetricsAndProfiling, 'qa/page/admin/settings/metrics_and_profiling'
+        autoload :Network, 'qa/page/admin/settings/network'
 
         module Component
+          autoload :IpLimits, 'qa/page/admin/settings/component/ip_limits'
           autoload :RepositoryStorage, 'qa/page/admin/settings/component/repository_storage'
           autoload :AccountAndLimit, 'qa/page/admin/settings/component/account_and_limit'
           autoload :PerformanceBar, 'qa/page/admin/settings/component/performance_bar'
@@ -339,6 +358,10 @@ module QA
       module Issuable
         autoload :Common, 'qa/page/component/issuable/common'
       end
+
+      module WebIDE
+        autoload :Alert, 'qa/page/component/web_ide/alert'
+      end
     end
   end
 
@@ -359,6 +382,13 @@ module QA
     autoload :KubernetesCluster, 'qa/service/kubernetes_cluster'
     autoload :Omnibus, 'qa/service/omnibus'
     autoload :Runner, 'qa/service/runner'
+
+    module ClusterProvider
+      autoload :Base, 'qa/service/cluster_provider/base'
+      autoload :Gcloud, 'qa/service/cluster_provider/gcloud'
+      autoload :Minikube, 'qa/service/cluster_provider/minikube'
+      autoload :K3d, 'qa/service/cluster_provider/k3d'
+    end
   end
 
   ##

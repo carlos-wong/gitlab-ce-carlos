@@ -7,17 +7,15 @@ require 'uri'
 
 module Gitlab
   class Workhorse
-    SEND_DATA_HEADER = 'Gitlab-Workhorse-Send-Data'.freeze
-    VERSION_FILE = 'GITLAB_WORKHORSE_VERSION'.freeze
-    INTERNAL_API_CONTENT_TYPE = 'application/vnd.gitlab-workhorse+json'.freeze
-    INTERNAL_API_REQUEST_HEADER = 'Gitlab-Workhorse-Api-Request'.freeze
-    NOTIFICATION_CHANNEL = 'workhorse:notifications'.freeze
+    SEND_DATA_HEADER = 'Gitlab-Workhorse-Send-Data'
+    VERSION_FILE = 'GITLAB_WORKHORSE_VERSION'
+    INTERNAL_API_CONTENT_TYPE = 'application/vnd.gitlab-workhorse+json'
+    INTERNAL_API_REQUEST_HEADER = 'Gitlab-Workhorse-Api-Request'
+    NOTIFICATION_CHANNEL = 'workhorse:notifications'
     ALLOWED_GIT_HTTP_ACTIONS = %w[git_receive_pack git_upload_pack info_refs].freeze
-    DETECT_HEADER = 'Gitlab-Workhorse-Detect-Content-Type'.freeze
+    DETECT_HEADER = 'Gitlab-Workhorse-Detect-Content-Type'
 
-    # Supposedly the effective key size for HMAC-SHA256 is 256 bits, i.e. 32
-    # bytes https://tools.ietf.org/html/rfc4868#section-2.6
-    SECRET_LENGTH = 32
+    include JwtAuthenticatable
 
     class << self
       def git_http_ok(repository, repo_type, user, action, show_all_refs: false)
@@ -34,7 +32,8 @@ module Gitlab
           GitConfigOptions: [],
           GitalyServer: {
             address: Gitlab::GitalyClient.address(project.repository_storage),
-            token: Gitlab::GitalyClient.token(project.repository_storage)
+            token: Gitlab::GitalyClient.token(project.repository_storage),
+            features: Feature::Gitaly.server_feature_flags
           }
         }
 
@@ -186,34 +185,12 @@ module Gitlab
         path.readable? ? path.read.chomp : 'unknown'
       end
 
-      def secret
-        @secret ||= begin
-          bytes = Base64.strict_decode64(File.read(secret_path).chomp)
-          raise "#{secret_path} does not contain #{SECRET_LENGTH} bytes" if bytes.length != SECRET_LENGTH
-
-          bytes
-        end
-      end
-
-      def write_secret
-        bytes = SecureRandom.random_bytes(SECRET_LENGTH)
-        File.open(secret_path, 'w:BINARY', 0600) do |f|
-          f.chmod(0600) # If the file already existed, the '0600' passed to 'open' above was a no-op.
-          f.write(Base64.strict_encode64(bytes))
-        end
-      end
-
       def verify_api_request!(request_headers)
         decode_jwt(request_headers[INTERNAL_API_REQUEST_HEADER])
       end
 
       def decode_jwt(encoded_message)
-        JWT.decode(
-          encoded_message,
-          secret,
-          true,
-          { iss: 'gitlab-workhorse', verify_iss: true, algorithm: 'HS256' }
-        )
+        decode_jwt_for_issuer('gitlab-workhorse', encoded_message)
       end
 
       def secret_path
@@ -250,7 +227,8 @@ module Gitlab
       def gitaly_server_hash(repository)
         {
           address: Gitlab::GitalyClient.address(repository.project.repository_storage),
-          token: Gitlab::GitalyClient.token(repository.project.repository_storage)
+          token: Gitlab::GitalyClient.token(repository.project.repository_storage),
+          features: Feature::Gitaly.server_feature_flags
         }
       end
 

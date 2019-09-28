@@ -1,7 +1,6 @@
 # PlantUML & GitLab
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/8537) in
-> GitLab 8.16.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/8537) in GitLab 8.16.
 
 When [PlantUML](http://plantuml.com) integration is enabled and configured in
 GitLab we are able to create simple diagrams in AsciiDoc and Markdown documents
@@ -55,6 +54,21 @@ http://localhost:8080/plantuml
 
 you can change these defaults by editing the `/etc/tomcat7/server.xml` file.
 
+### Making local PlantUML accessible using custom GitLab setup
+
+The PlantUML server runs locally on your server, so it is not accessible
+externally. As such, it is necessary to catch external PlantUML calls and
+redirect them to the local server.
+
+The idea is to redirect each call to `https://gitlab.example.com/-/plantuml/`
+to the local PlantUML server `http://localhost:8080/plantuml`.
+
+To enable the redirection, add the following line in `/etc/gitlab/gitlab.rb`:
+
+```ruby
+nginx['custom_gitlab_server_config'] = "location /-/plantuml { \n    proxy_cache off; \n    proxy_pass  http://127.0.0.1:8080; \n}\n"
+```
+
 ## GitLab
 
 You need to enable PlantUML integration from Settings under Admin Area. To do
@@ -63,7 +77,7 @@ that, login with an Admin account and do following:
 - In GitLab, go to **Admin Area > Settings > Integrations**.
 - Expand the **PlantUML** section.
 - Check **Enable PlantUML** checkbox.
-- Set the PlantUML instance as **PlantUML URL**.
+- Set the PlantUML instance as `https://gitlab.example.com/-/plantuml/`.
 
 ## Creating Diagrams
 

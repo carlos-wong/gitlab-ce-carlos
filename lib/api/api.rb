@@ -18,7 +18,7 @@ module API
                   formatter: Gitlab::GrapeLogging::Formatters::LogrageWithTimestamp.new,
                   include: [
                     GrapeLogging::Loggers::FilterParameters.new(LOG_FILTERS),
-                    GrapeLogging::Loggers::ClientEnv.new,
+                    Gitlab::GrapeLogging::Loggers::ClientEnvLogger.new,
                     Gitlab::GrapeLogging::Loggers::RouteLogger.new,
                     Gitlab::GrapeLogging::Loggers::UserLogger.new,
                     Gitlab::GrapeLogging::Loggers::QueueDurationLogger.new,
@@ -118,7 +118,8 @@ module API
     mount ::API::GroupContainerRepositories
     mount ::API::GroupVariables
     mount ::API::ImportGithub
-    mount ::API::Internal
+    mount ::API::Internal::Base
+    mount ::API::Internal::Pages
     mount ::API::Issues
     mount ::API::JobArtifacts
     mount ::API::Jobs
@@ -161,6 +162,7 @@ module API
     mount ::API::Settings
     mount ::API::SidekiqMetrics
     mount ::API::Snippets
+    mount ::API::Statistics
     mount ::API::Submodules
     mount ::API::Subscriptions
     mount ::API::Suggestions
@@ -180,3 +182,5 @@ module API
     end
   end
 end
+
+API::API.prepend_if_ee('::EE::API::API')

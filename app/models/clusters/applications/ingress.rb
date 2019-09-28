@@ -3,7 +3,7 @@
 module Clusters
   module Applications
     class Ingress < ApplicationRecord
-      VERSION = '1.1.2'.freeze
+      VERSION = '1.1.2'
 
       self.table_name = 'clusters_applications_ingress'
 
@@ -33,6 +33,10 @@ module Clusters
 
       def chart
         'stable/nginx-ingress'
+      end
+
+      def values
+        content_values.to_yaml
       end
 
       def allowed_to_uninstall?
@@ -66,6 +70,23 @@ module Clusters
       end
 
       private
+
+      def specification
+        return {} unless Feature.enabled?(:ingress_modsecurity)
+
+        {
+          "controller" => {
+            "config" => {
+              "enable-modsecurity" => "true",
+              "enable-owasp-modsecurity-crs" => "true"
+            }
+          }
+        }
+      end
+
+      def content_values
+        YAML.load_file(chart_values_file).deep_merge!(specification)
+      end
 
       def application_jupyter_nil_or_installable?
         cluster.application_jupyter.nil? || cluster.application_jupyter&.installable?

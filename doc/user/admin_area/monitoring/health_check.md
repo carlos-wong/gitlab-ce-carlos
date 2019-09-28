@@ -2,7 +2,7 @@
 type: concepts, howto
 ---
 
-# Health Check
+# Health Check **(CORE ONLY)**
 
 > - Liveness and readiness probes were [introduced][ce-10416] in GitLab 9.1.
 > - The `health_check` endpoint was [introduced][ce-3888] in GitLab 8.8 and was
@@ -21,28 +21,63 @@ traffic until the system is ready or restart the container as needed.
 To access monitoring resources, the requesting client IP needs to be included in a whitelist.
 For details, see [how to add IPs to a whitelist for the monitoring endpoints](../../../administration/monitoring/ip_whitelist.md).
 
-## Using the endpoints
+## Using the endpoints locally
 
 With default whitelist settings, the probes can be accessed from localhost using the following URLs:
 
-- `http://localhost/-/health`
-- `http://localhost/-/readiness`
-- `http://localhost/-/liveness`
+```text
+GET http://localhost/-/health
+```
 
-The first endpoint, `health`, only checks whether the application server is running. It does not verify the database or other services are running. A successful response will return a 200 status code with the following message:
+```text
+GET http://localhost/-/readiness
+```
+
+```text
+GET http://localhost/-/liveness
+```
+
+## Health
+
+Checks whether the application server is running. It does not verify the database or other services are running.
+
+```text
+GET /-/health
+```
+
+Example request:
+
+```sh
+curl 'https://gitlab.example.com/-/health'
+```
+
+Example response:
 
 ```text
 GitLab OK
 ```
 
-The readiness and liveness probes will provide a report of system health in JSON format.
+## Readiness
 
-`readiness` probe example output:
+The readiness probe checks whether the Gitlab instance is ready to use. It checks the dependent services (Database, Redis, Gitaly etc.) and gives a status for each.
+
+```text
+GET /-/readiness
+```
+
+Example request:
+
+```sh
+curl 'https://gitlab.example.com/-/readiness'
+```
+
+Example response:
 
 ```json
 {
    "db_check":{
-      "status":"ok"
+      "status":"failed",
+      "message": "unexpected Db check result: 0"
    },
    "redis_check":{
       "status":"ok"
@@ -65,7 +100,23 @@ The readiness and liveness probes will provide a report of system health in JSON
    }
 ```
 
-`liveness` probe example output:
+## Liveness
+
+The liveness probe checks whether the application server is alive. Unlike the [`health`](#health) check, this check hits the database.
+
+```text
+GET /-/liveness
+```
+
+Example request:
+
+```sh
+curl 'https://gitlab.example.com/-/liveness'
+```
+
+Example response:
+
+On success, the endpoint will return a valid successful HTTP status code, and a response like below.
 
 ```json
 {
@@ -90,10 +141,7 @@ The readiness and liveness probes will provide a report of system health in JSON
 }
 ```
 
-## Status
-
-On failure, the endpoint will return a `500` HTTP status code. On success, the endpoint
-will return a valid successful HTTP status code, and a `success` message.
+On failure, the endpoint will return a `500` HTTP status code.
 
 ## Access token (Deprecated)
 
@@ -124,8 +172,8 @@ Each scenario can be a third-level heading, e.g. `### Getting error message X`.
 If you have none to add when creating a doc, leave this section in place
 but commented out to help encourage others to add to it in the future. -->
 
-[ce-10416]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/10416
-[ce-3888]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/3888
+[ce-10416]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/10416
+[ce-3888]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/3888
 [pingdom]: https://www.pingdom.com
 [nagios-health]: https://nagios-plugins.org/doc/man/check_http.html
 [newrelic-health]: https://docs.newrelic.com/docs/alerts/alert-policies/downtime-alerts/availability-monitoring

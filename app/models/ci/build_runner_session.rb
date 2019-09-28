@@ -6,7 +6,7 @@ module Ci
   class BuildRunnerSession < ApplicationRecord
     extend Gitlab::Ci::Model
 
-    TERMINAL_SUBPROTOCOL = 'terminal.gitlab.com'.freeze
+    TERMINAL_SUBPROTOCOL = 'terminal.gitlab.com'
 
     self.table_name = 'ci_builds_runner_session'
 
@@ -37,3 +37,5 @@ module Ci
     end
   end
 end
+
+Ci::BuildRunnerSession.prepend_if_ee('EE::Ci::BuildRunnerSession')

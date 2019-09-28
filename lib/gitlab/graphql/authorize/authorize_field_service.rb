@@ -54,14 +54,14 @@ module Gitlab
             # The field is a built-in/scalar type, or a list of scalars
             # authorize using the parent's object
             parent_typed_object.object
-          elsif resolved_type.respond_to?(:object)
-            # The field is a type representing a single object, we'll authorize
-            # against the object directly
-            resolved_type.object
           elsif @field.connection? || resolved_type.is_a?(Array)
             # The field is a connection or a list of non-built-in types, we'll
             # authorize each element when rendering
             nil
+          elsif resolved_type.respond_to?(:object)
+            # The field is a type representing a single object, we'll authorize
+            # against the object directly
+            resolved_type.object
           else
             # Resolved type is a single object that might not be loaded yet by
             # the batchloader, we'll authorize that
@@ -74,9 +74,9 @@ module Gitlab
             # Authorizing fields representing scalars, or a simple field with an object
             resolved_type if allowed_access?(current_user, authorizing_object)
           elsif @field.connection?
-            # A connection with pagination, modify the visible nodes in on the
+            # A connection with pagination, modify the visible nodes on the
             # connection type in place
-            resolved_type.edge_nodes.to_a.keep_if { |node| allowed_access?(current_user, node) }
+            resolved_type.object.edge_nodes.to_a.keep_if { |node| allowed_access?(current_user, node) }
             resolved_type
           elsif resolved_type.is_a? Array
             # A simple list of rendered types  each object being an object to authorize

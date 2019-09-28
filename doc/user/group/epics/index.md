@@ -4,7 +4,7 @@ type: reference, howto
 
 # Epics **(ULTIMATE)**
 
-> Introduced in [GitLab Ultimate][ee] 10.2.
+> Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.2.
 
 Epics let you manage your portfolio of projects more efficiently and with less
 effort by tracking groups of issues that share a theme, across projects and
@@ -53,7 +53,7 @@ the issue or the epic is automatically removed from the previous epic.
 
 ## Multi-level child epics
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/8333) in GitLab Ultimate 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8333) in GitLab Ultimate 11.7.
 
 Much like adding issues to an epic, an epic can have multiple child epics with
 the maximum depth being 5. To add a child epic:
@@ -85,7 +85,7 @@ the re-calculation will happen immediately to set a new dynamic date.
 
 ## Roadmap in epics
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/7327) in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7327) in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.10.
 
 If your epic contains one or more [child epics](#multi-level-child-epics) which
 have a [start or due date](#start-date-and-due-date), then you can see a
@@ -116,7 +116,7 @@ To apply labels across multiple epics:
 ## Deleting an epic
 
 NOTE: **Note:**
-To delete an epic, you need to be an [Owner][permissions] of a group/subgroup.
+To delete an epic, you need to be an [Owner](../../permissions.md#group-members-permissions) of a group/subgroup.
 
 When inside a single epic view, click the **Delete** button to delete the epic.
 A modal will pop-up to confirm your action.
@@ -150,11 +150,11 @@ link in the issue sidebar.
 
 ## Promoting an issue to an epic
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3777) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3777) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
 
 If you have [permissions](../../permissions.md) to close an issue and create an
 epic in the parent group, you can promote an issue to an epic with the `/promote`
-[quick action](../../project/quick_actions.md#quick-actions-for-epics-ultimate).
+[quick action](../../project/quick_actions.md#quick-actions-for-issues-merge-requests-and-epics).
 Only issues from projects that are in groups can be promoted.
 
 When the quick action is executed:
@@ -171,7 +171,7 @@ The following issue metadata will be copied to the epic:
 
 ## Searching for an epic from epics list page
 
-> Introduced in [GitLab Ultimate][ee] 10.5.
+> Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.5.
 
 You can search for an epic from the list of epics using filtered search bar (similar to
 that of Issues and Merge requests) based on following parameters:
@@ -210,10 +210,7 @@ Note that for a given group, the visibility of all projects must be the same as
 the group, or less restrictive. That means if you have access to a group's epic,
 then you already have access to its projects' issues.
 
-You may also consult the [group permissions table][permissions].
-
-[ee]: https://about.gitlab.com/pricing/
-[permissions]: ../../permissions.md#group-members-permissions
+You may also consult the [group permissions table](../../permissions.md#group-members-permissions).
 
 ## Thread
 

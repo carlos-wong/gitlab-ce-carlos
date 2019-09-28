@@ -22,7 +22,7 @@ The project description also partially supports [standard markdown](../../markdo
 
 ### Sharing and permissions
 
-Set up your project's access, [visibility](../../../public_access/public_access.md), and enable [Container Registry](../container_registry.md) for your projects:
+Set up your project's access, [visibility](../../../public_access/public_access.md), and enable [Container Registry](../../packages/container_registry/index.md) for your projects:
 
 ![projects sharing permissions](img/sharing_and_permissions_settings.png)
 
@@ -32,9 +32,11 @@ links will be missing from the sidebar UI.
 You can still access them with direct links if you can access Merge Requests. This is deliberate, if you can see
 Issues or Merge Requests, both of which use Labels and Milestones, then you shouldn't be denied access to Labels and Milestones pages.
 
+Project [Snippets](../../snippets.md) are enabled by default.
+
 #### Disabling email notifications
 
-You can disable all email notifications related to the project by selecting the 
+You can disable all email notifications related to the project by selecting the
 **Disable email notifications** checkbox.  Only the project owner is allowed to change
 this setting.
 

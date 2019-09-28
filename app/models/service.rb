@@ -107,6 +107,13 @@ class Service < ApplicationRecord
     []
   end
 
+  # Expose a list of fields in the JSON endpoint.
+  #
+  # This list is used in `Service#as_json(only: json_fields)`.
+  def json_fields
+    %w(active)
+  end
+
   def test_data(project, user)
     Gitlab::DataBuilder::Push.build_sample(project, user)
   end
@@ -174,7 +181,7 @@ class Service < ApplicationRecord
   # Also keep track of updated properties in a similar way as ActiveModel::Dirty
   def self.prop_accessor(*args)
     args.each do |arg|
-      class_eval %{
+      class_eval <<~RUBY, __FILE__, __LINE__ + 1
         unless method_defined?(arg)
           def #{arg}
             properties['#{arg}']
@@ -198,7 +205,7 @@ class Service < ApplicationRecord
         def #{arg}_was
           updated_properties['#{arg}']
         end
-      }
+      RUBY
     end
   end
 
@@ -209,12 +216,12 @@ class Service < ApplicationRecord
     self.prop_accessor(*args)
 
     args.each do |arg|
-      class_eval %{
+      class_eval <<~RUBY, __FILE__, __LINE__ + 1
         def #{arg}?
           # '!!' is used because nil or empty string is converted to nil
           !!ActiveRecord::Type::Boolean.new.cast(#{arg})
         end
-      }
+      RUBY
     end
   end
 
@@ -345,3 +352,5 @@ class Service < ApplicationRecord
     activated? && !importing?
   end
 end
+
+Service.prepend_if_ee('EE::Service')

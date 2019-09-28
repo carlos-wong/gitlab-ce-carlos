@@ -17,7 +17,7 @@ When you create a project in GitLab, you'll have access to a large number of
 
 - [Issue tracker](issues/index.md): Discuss implementations with your team within issues
   - [Issue Boards](issue_board.md): Organize and prioritize your workflow
-  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **(STARTER)**
+  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards): Allow your teams to create their own workflows (Issue Boards) for the same project
 - [Repositories](repository/index.md): Host your code in a fully
   integrated platform
   - [Branches](repository/branches/index.md): use Git branching strategies to
@@ -34,7 +34,7 @@ When you create a project in GitLab, you'll have access to a large number of
 
 - [Issue tracker](issues/index.md): Discuss implementations with your team within issues
   - [Issue Boards](issue_board.md): Organize and prioritize your workflow
-  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **(STARTER)**
+  - [Multiple Issue Boards](issue_board.md#multiple-issue-boards): Allow your teams to create their own workflows (Issue Boards) for the same project
 - [Merge Requests](merge_requests/index.md): Apply your branching
   strategy and get reviewed by your team
   - [Merge Request Approvals](merge_requests/merge_request_approvals.md): Ask for approval before
@@ -60,7 +60,7 @@ When you create a project in GitLab, you'll have access to a large number of
 **GitLab CI/CD:**
 
 - [GitLab CI/CD](../../ci/README.md): GitLab's built-in [Continuous Integration, Delivery, and Deployment](https://about.gitlab.com/2016/08/05/continuous-integration-delivery-and-deployment-with-gitlab/) tool
-  - [Container Registry](container_registry.md): Build and push Docker
+  - [Container Registry](../packages/container_registry/index.md): Build and push Docker
   images out-of-the-box
   - [Auto Deploy](../../ci/autodeploy/index.md): Configure GitLab CI/CD
   to automatically set up your app's deployment
@@ -95,10 +95,10 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Releases](releases/index.md): a way to track deliverables in your project as snapshot in time of
   the source, build output, and other metadata or artifacts
   associated with a released version of your code.
-- [Maven packages](packages/maven_repository.md): your private Maven repository in GitLab. **(PREMIUM)**
-- [NPM packages](packages/npm_registry.md): your private NPM package registry in GitLab. **(PREMIUM)**
+- [Maven packages](../packages/maven_repository/index.md): your private Maven repository in GitLab. **(PREMIUM)**
+- [NPM packages](../packages/npm_registry/index.md): your private NPM package registry in GitLab. **(PREMIUM)**
 - [Code owners](code_owners.md): specify code owners for certain files **(STARTER)**
-- [License Compliance](../application_security/license_management/index.md): approve and blacklist licenses for projects. **(ULTIMATE)**
+- [License Compliance](../application_security/license_compliance/index.md): approve and blacklist licenses for projects. **(ULTIMATE)**
 - [Dependency List](../application_security/dependency_list/index.md): view project dependencies. **(ULTIMATE)**
 
 ### Project integrations
@@ -192,14 +192,14 @@ password <personal_access_token>
 
 ## Access project page with project ID
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53671) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/53671) in GitLab 11.8.
 
 To quickly access a project from the GitLab UI using the project ID,
 visit the `/projects/:id` URL in your browser or other tool accessing the project.
 
 ## Project aliases **(PREMIUM ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
 
 When migrating repositories to GitLab and they are being accessed by other systems,
 it's very useful to be able to access them using the same name especially when
@@ -215,7 +215,7 @@ Follow the [Project Aliases API documentation](../../api/project_aliases.md) for
 more details.
 
 Once an alias has been created for a project (e.g., an alias `gitlab-ce` for the
-project `https://gitlab.com/gitlab-org/gitlab-ce`), the repository can be cloned
+project `https://gitlab.com/gitlab-org/gitlab-foss`), the repository can be cloned
 using the alias (e.g `git clone git@gitlab.com:gitlab-ce.git` instead of
 `git clone git@gitlab.com:gitlab-org/gitlab-ce.git`).
 

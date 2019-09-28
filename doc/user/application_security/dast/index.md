@@ -4,7 +4,7 @@ type: reference, howto
 
 # Dynamic Application Security Testing (DAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/4348)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4348)
 in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
 
 NOTE: **4 of the top 6 attacks were application based.**
@@ -64,7 +64,7 @@ To run a DAST job, you need GitLab Runner with the
 
 For GitLab 11.9 and later, to enable DAST, you must
 [include](../../../ci/yaml/README.md#includetemplate) the
-[`DAST.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/lib/gitlab/ci/templates/Security/DAST.gitlab-ci.yml)
+[`DAST.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/DAST.gitlab-ci.yml)
 that's provided as a part of your GitLab installation.
 For GitLab versions earlier than 11.9, you can copy and use the job as defined
 in that template.
@@ -83,6 +83,8 @@ There are two ways to define the URL to be scanned by DAST:
 
 - Set the `DAST_WEBSITE` [variable](../../../ci/yaml/README.md#variables).
 - Add it in an `environment_url.txt` file at the root of your project.
+
+If both values are set, the `DAST_WEBSITE` value will take precedence.
 
 The included template will create a `dast` job in your CI/CD pipeline and scan
 your project's source code for possible vulnerabilities.
@@ -130,11 +132,120 @@ variables:
   DAST_FULL_SCAN_ENABLED: "true"
 ```
 
+#### Domain validation
+
+The DAST job can be run anywhere, which means you can accidentally hit live web servers
+and potentially damage them. You could even take down your production environment.
+For that reason, you should use domain validation.
+
+Domain validation is not required by default. It can be required by setting the [environment variable](#available-variables) `DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED` to true.
+
+```yaml
+include:
+  template: DAST.gitlab-ci.yml
+
+variables:
+  DAST_FULL_SCAN_ENABLED: "true"
+  DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED: "true"
+```
+
+Since ZAP full scan actively attacks the target application, DAST sends a ping to the target (normally defined in `DAST_WEBSITE` or `environment_url.txt`) beforehand.
+
+If `DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED` is false or unset, the scan will _proceed_ unless the response to the ping
+includes a `Gitlab-DAST-Permission` header with a value of `deny`.
+
+If `DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED` is true, the scan will _exit_ unless the response to the ping
+includes a `Gitlab-DAST-Permission` header with a value of `allow`.
+
+Here are some examples of adding the `Gitlab-DAST-Permission` header to a response in Rails, Django, and Node (with Express).
+
+##### Ruby on Rails
+
+Here's how you would add a [custom header in Ruby on Rails](https://guides.rubyonrails.org/action_controller_overview.html#setting-custom-headers):
+
+```ruby
+class DastWebsiteTargetController < ActionController::Base
+  def dast_website_target
+    response.headers['Gitlab-DAST-Permission'] = 'allow'
+
+    head :ok
+  end
+end
+```
+
+##### Django
+
+Here's how you would add a [custom header in Django](https://docs.djangoproject.com/en/2.2/ref/request-response/#setting-header-fields):
+
+```python
+class DastWebsiteTargetView(View):
+    def head(self, *args, **kwargs):
+      response = HttpResponse()
+      response['Gitlab-Dast-Permission'] = 'allow'
+
+      return response
+```
+
+##### Node (with Express)
+
+Here's how you would add a [custom header in Node (with Express)](http://expressjs.com/en/5x/api.html#res.append):
+
+```javascript
+app.get('/dast-website-target', function(req, res) {
+  res.append('Gitlab-DAST-Permission', 'allow')
+  res.send('Respond to DAST ping')
+})
+```
+
+##### Domain validation header via a proxy
+
+It's also possible to add the `Gitlab-DAST-Permission` header via a proxy.
+
+###### NGINX
+
+The following config allows NGINX to act as a reverse proxy and add the `Gitlab-DAST-Permission` [header](http://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header):
+
+```
+# default.conf
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_pass http://test-application;
+        add_header Gitlab-DAST-Permission allow;
+    }
+}
+```
+
+###### Apache
+
+Apache can also be used as a [reverse proxy](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html)
+to add the Gitlab-DAST-Permission [header](https://httpd.apache.org/docs/current/mod/mod_headers.html).
+
+To do so, add the following lines to `httpd.conf`:
+
+```
+# httpd.conf
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_connect_module modules/mod_proxy_connect.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+
+<VirtualHost *:80>
+  ProxyPass "/" "http://test-application.com/"
+  ProxyPassReverse "/" "http://test-application.com/"
+  Header set Gitlab-DAST-Permission "allow"
+</VirtualHost>
+```
+
+[This snippet](https://gitlab.com/gitlab-org/security-products/dast/snippets/1894732) contains a complete `httpd.conf` file
+configured to act as a remote proxy and add the `Gitlab-DAST-Permission` header.
+
 ### Customizing the DAST settings
 
 The DAST settings can be changed through environment variables by using the
 [`variables`](../../../ci/yaml/README.md#variables) parameter in `.gitlab-ci.yml`.
-These variables are documented in the [DAST README](https://gitlab.com/gitlab-org/security-products/dast#settings).
+These variables are documented in [available variables](#available-variables).
 
 For example:
 
@@ -192,11 +303,12 @@ variable value.
 | `DAST_AUTH_EXCLUDE_URLS` | no | The URLs to skip during the authenticated scan; comma-separated, no spaces in between. |
 | `DAST_TARGET_AVAILABILITY_TIMEOUT` | no | Time limit in seconds to wait for target availability. Scan is attempted nevertheless if it runs out. Integer. Defaults to `60`. |
 | `DAST_FULL_SCAN_ENABLED` | no | Switches the tool to execute [ZAP Full Scan](https://github.com/zaproxy/zaproxy/wiki/ZAP-Full-Scan) instead of [ZAP Baseline Scan](https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan). Boolean. `true`, `True`, or `1` are considered as true value, otherwise false. Defaults to `false`. |
+| `DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED` | no | Requires [domain validation](#domain-validation) when running DAST full scans. Boolean. `true`, `True`, or `1` are considered as true value, otherwise false. Defaults to `false`. |
 
 ## Security Dashboard
 
 The Security Dashboard is a good place to get an overview of all the security
-vulnerabilities in your groups and projects. Read more about the
+vulnerabilities in your groups, projects and pipelines. Read more about the
 [Security Dashboard](../security_dashboard/index.md).
 
 ## Interacting with the vulnerabilities

@@ -99,6 +99,7 @@ describe Project do
     it { is_expected.to have_many(:project_deploy_tokens) }
     it { is_expected.to have_many(:deploy_tokens).through(:project_deploy_tokens) }
     it { is_expected.to have_many(:cycle_analytics_stages) }
+    it { is_expected.to have_many(:external_pull_requests) }
 
     it 'has an inverse relationship with merge requests' do
       expect(described_class.reflect_on_association(:merge_requests).has_inverse?).to eq(:target_project)
@@ -2023,6 +2024,43 @@ describe Project do
       subject { project.latest_successful_build_for_ref(build.name, project.default_branch) }
 
       it { is_expected.to eq(build) }
+    end
+  end
+
+  describe '#latest_pipeline_for_ref' do
+    let(:project) { create(:project, :repository) }
+    let(:second_branch) { project.repository.branches[2] }
+
+    let!(:pipeline_for_default_branch) do
+      create(:ci_empty_pipeline, project: project, sha: project.commit.id,
+                                 ref: project.default_branch)
+    end
+    let!(:pipeline_for_second_branch) do
+      create(:ci_empty_pipeline, project: project, sha: second_branch.target,
+                                 ref: second_branch.name)
+    end
+
+    before do
+      create(:ci_empty_pipeline, project: project, sha: project.commit.parent.id,
+                                 ref: project.default_branch)
+    end
+
+    context 'default repository branch' do
+      subject { project.latest_pipeline_for_ref(project.default_branch) }
+
+      it { is_expected.to eq(pipeline_for_default_branch) }
+    end
+
+    context 'provided ref' do
+      subject { project.latest_pipeline_for_ref(second_branch.name) }
+
+      it { is_expected.to eq(pipeline_for_second_branch) }
+    end
+
+    context 'bad ref' do
+      subject { project.latest_pipeline_for_ref(SecureRandom.uuid) }
+
+      it { is_expected.to be_nil }
     end
   end
 
@@ -4877,35 +4915,22 @@ describe Project do
 
   describe '#git_objects_poolable?' do
     subject { project }
-
-    context 'when the feature flag is turned off' do
-      before do
-        stub_feature_flags(object_pools: false)
-      end
-
-      let(:project) { create(:project, :repository, :public) }
+    context 'when not using hashed storage' do
+      let(:project) { create(:project, :legacy_storage, :public, :repository) }
 
       it { is_expected.not_to be_git_objects_poolable }
     end
 
-    context 'when the feature flag is enabled' do
-      context 'when not using hashed storage' do
-        let(:project) { create(:project, :legacy_storage, :public, :repository) }
+    context 'when the project is not public' do
+      let(:project) { create(:project, :private) }
 
-        it { is_expected.not_to be_git_objects_poolable }
-      end
+      it { is_expected.not_to be_git_objects_poolable }
+    end
 
-      context 'when the project is not public' do
-        let(:project) { create(:project, :private) }
+    context 'when objects are poolable' do
+      let(:project) { create(:project, :repository, :public) }
 
-        it { is_expected.not_to be_git_objects_poolable }
-      end
-
-      context 'when objects are poolable' do
-        let(:project) { create(:project, :repository, :public) }
-
-        it { is_expected.to be_git_objects_poolable }
-      end
+      it { is_expected.to be_git_objects_poolable }
     end
   end
 
@@ -5001,6 +5026,37 @@ describe Project do
       subject = create(:project, :repository, pool_repository: pool)
 
       expect(subject.has_pool_repository?).to be true
+    end
+  end
+
+  describe '#access_request_approvers_to_be_notified' do
+    it 'returns a maximum of ten, active, non_requested maintainers of the project in recent_sign_in descending order' do
+      group = create(:group, :public)
+      project = create(:project, group: group)
+
+      users = create_list(:user, 12, :with_sign_ins)
+      active_maintainers = users.map do |user|
+        create(:project_member, :maintainer, user: user)
+      end
+
+      create(:project_member, :maintainer, :blocked, project: project)
+      create(:project_member, :developer, project: project)
+      create(:project_member, :access_request, :maintainer, project: project)
+
+      active_maintainers_in_recent_sign_in_desc_order = project.members_and_requesters.where(id: active_maintainers).order_recent_sign_in.limit(10)
+
+      expect(project.access_request_approvers_to_be_notified).to eq(active_maintainers_in_recent_sign_in_desc_order)
+    end
+  end
+
+  describe '#pages_lookup_path' do
+    let(:pages_domain) { build(:pages_domain) }
+    let(:project) { build(:project) }
+
+    it 'returns instance of Pages::LookupPath' do
+      expect(Pages::LookupPath).to receive(:new).with(project, domain: pages_domain).and_call_original
+
+      expect(project.pages_lookup_path(domain: pages_domain)).to be_a(Pages::LookupPath)
     end
   end
 

@@ -4,6 +4,7 @@ module Gitlab
   module Checks
     class DiffCheck < BaseChecker
       include Gitlab::Utils::StrongMemoize
+      prepend_if_ee('EE::Gitlab::Checks::DiffCheck') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       LOG_MESSAGES = {
         validate_file_paths: "Validating diffs' file paths...",
@@ -61,7 +62,7 @@ module Gitlab
 
       def process_commits
         logger.log_timed(LOG_MESSAGES[:diff_content_check]) do
-          # n+1: https://gitlab.com/gitlab-org/gitlab-ee/issues/3593
+          # n+1: https://gitlab.com/gitlab-org/gitlab/issues/3593
           ::Gitlab::GitalyClient.allow_n_plus_1_calls do
             commits.each do |commit|
               logger.check_timeout_reached

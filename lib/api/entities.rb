@@ -216,7 +216,7 @@ module API
         # Preloading tags, should be done with using only `:tags`,
         # as `:tags` are defined as: `has_many :tags, through: :taggings`
         # N+1 is solved then by using `subject.tags.map(&:name)`
-        # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/20555
+        # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/20555
         projects_relation.preload(:project_feature, :route)
                          .preload(:import_state, :tags)
                          .preload(:auto_devops)
@@ -322,7 +322,7 @@ module API
         # Preloading tags, should be done with using only `:tags`,
         # as `:tags` are defined as: `has_many :tags, through: :taggings`
         # N+1 is solved then by using `subject.tags.map(&:name)`
-        # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/20555
+        # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/20555
         super(projects_relation).preload(:group)
                                 .preload(:ci_cd_settings)
                                 .preload(:auto_devops)
@@ -400,6 +400,7 @@ module API
     end
 
     class GroupDetail < Group
+      expose :runners_token, if: lambda { |group, options| options[:user_can_admin_group] }
       expose :projects, using: Entities::Project do |group, options|
         projects = GroupProjectsFinder.new(
           group: group,
@@ -737,7 +738,7 @@ module API
 
       # Ideally we should deprecate `MergeRequest#merge_status` exposure and
       # use `MergeRequest#mergeable?` instead (boolean).
-      # See https://gitlab.com/gitlab-org/gitlab-ce/issues/42344 for more
+      # See https://gitlab.com/gitlab-org/gitlab-foss/issues/42344 for more
       # information.
       expose :merge_status do |merge_request|
         merge_request.check_mergeability
@@ -978,7 +979,9 @@ module API
       expose :created_at
 
       def todo_target_class(target_type)
-        ::API::Entities.const_get(target_type)
+        # false as second argument prevents looking up in module hierarchy
+        # see also https://gitlab.com/gitlab-org/gitlab-foss/issues/59719
+        ::API::Entities.const_get(target_type, false)
       end
     end
 
@@ -1042,7 +1045,12 @@ module API
       expose :job_events
       # Expose serialized properties
       expose :properties do |service, options|
-        service.properties.slice(*service.api_field_names)
+        # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+        if service.data_fields_present?
+          service.data_fields.as_json.slice(*service.api_field_names)
+        else
+          service.properties.slice(*service.api_field_names)
+        end
       end
     end
 
@@ -1167,6 +1175,55 @@ module API
       expose :message, :starts_at, :ends_at, :color, :font
     end
 
+    class ApplicationStatistics < Grape::Entity
+      include ActionView::Helpers::NumberHelper
+      include CountHelper
+
+      expose :forks do |counts|
+        approximate_fork_count_with_delimiters(counts)
+      end
+
+      expose :issues do |counts|
+        approximate_count_with_delimiters(counts, ::Issue)
+      end
+
+      expose :merge_requests do |counts|
+        approximate_count_with_delimiters(counts, ::MergeRequest)
+      end
+
+      expose :notes do |counts|
+        approximate_count_with_delimiters(counts, ::Note)
+      end
+
+      expose :snippets do |counts|
+        approximate_count_with_delimiters(counts, ::Snippet)
+      end
+
+      expose :ssh_keys do |counts|
+        approximate_count_with_delimiters(counts, ::Key)
+      end
+
+      expose :milestones do |counts|
+        approximate_count_with_delimiters(counts, ::Milestone)
+      end
+
+      expose :users do |counts|
+        approximate_count_with_delimiters(counts, ::User)
+      end
+
+      expose :projects do |counts|
+        approximate_count_with_delimiters(counts, ::Project)
+      end
+
+      expose :groups do |counts|
+        approximate_count_with_delimiters(counts, ::Group)
+      end
+
+      expose :active_users do |_|
+        number_with_delimiter(::User.active.count)
+      end
+    end
+
     class ApplicationSetting < Grape::Entity
       def self.exposed_attributes
         attributes = ::ApplicationSettingsHelper.visible_attributes
@@ -1229,6 +1286,7 @@ module API
       expose :author, using: Entities::UserBasic, if: -> (release, _) { release.author.present? }
       expose :commit, using: Entities::Commit, if: lambda { |_, _| can_download_code? }
       expose :upcoming_release?, as: :upcoming_release
+      expose :milestones, using: Entities::Milestone, if: -> (release, _) { release.milestones.present? }
 
       expose :assets do
         expose :assets_count, as: :count do |release, _|
@@ -1260,6 +1318,10 @@ module API
         options[:project].releases.find_by(tag: repo_tag.name)
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      expose :protected do |repo_tag, options|
+        ::ProtectedTag.protected?(options[:project], repo_tag.name)
+      end
     end
 
     class Runner < Grape::Entity
@@ -1708,5 +1770,35 @@ module API
     class ClusterGroup < Cluster
       expose :group, using: Entities::BasicGroupDetails
     end
+
+    module InternalPostReceive
+      class Message < Grape::Entity
+        expose :message
+        expose :type
+      end
+
+      class Response < Grape::Entity
+        expose :messages, using: Message
+        expose :reference_counter_decreased
+      end
+    end
   end
 end
+
+# rubocop: disable Cop/InjectEnterpriseEditionModule
+::API::Entities::ApplicationSetting.prepend_if_ee('EE::API::Entities::ApplicationSetting')
+::API::Entities::Board.prepend_if_ee('EE::API::Entities::Board')
+::API::Entities::Group.prepend_if_ee('EE::API::Entities::Group', with_descendants: true)
+::API::Entities::GroupDetail.prepend_if_ee('EE::API::Entities::GroupDetail')
+::API::Entities::IssueBasic.prepend_if_ee('EE::API::Entities::IssueBasic', with_descendants: true)
+::API::Entities::Issue.prepend_if_ee('EE::API::Entities::Issue')
+::API::Entities::List.prepend_if_ee('EE::API::Entities::List')
+::API::Entities::MergeRequestBasic.prepend_if_ee('EE::API::Entities::MergeRequestBasic', with_descendants: true)
+::API::Entities::Namespace.prepend_if_ee('EE::API::Entities::Namespace')
+::API::Entities::Project.prepend_if_ee('EE::API::Entities::Project', with_descendants: true)
+::API::Entities::ProtectedRefAccess.prepend_if_ee('EE::API::Entities::ProtectedRefAccess')
+::API::Entities::UserPublic.prepend_if_ee('EE::API::Entities::UserPublic', with_descendants: true)
+::API::Entities::Todo.prepend_if_ee('EE::API::Entities::Todo')
+::API::Entities::ProtectedBranch.prepend_if_ee('EE::API::Entities::ProtectedBranch')
+::API::Entities::Identity.prepend_if_ee('EE::API::Entities::Identity')
+::API::Entities::UserWithAdmin.prepend_if_ee('EE::API::Entities::UserWithAdmin', with_descendants: true)

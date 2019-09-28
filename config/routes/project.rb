@@ -1,5 +1,11 @@
 resources :projects, only: [:index, :new, :create]
 
+Gitlab.ee do
+  scope "/-/push_from_secondary/:geo_node_id" do
+    draw :git_http
+  end
+end
+
 draw :git_http
 
 get '/projects/:id' => 'projects#resolve'
@@ -233,8 +239,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :merge_requests, concerns: :awardable, except: [:new, :create], constraints: { id: /\d+/ } do
+      resources :merge_requests, concerns: :awardable, except: [:new, :create, :show], constraints: { id: /\d+/ } do
         member do
+          get :show # Insert this first to ensure redirections using merge_requests#show match this route
           get :commit_change_content
           post :merge
           post :cancel_auto_merge
@@ -359,6 +366,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         collection do
           resource :pipelines_settings, path: 'settings', only: [:show, :update]
           get :charts
+          scope '(*ref)', constraints: { ref: Gitlab::PathRegex.git_reference_regex } do
+            get :latest, action: :show, defaults: { latest: true }
+          end
         end
 
         member do
@@ -509,7 +519,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :discussions, format: :json
 
           Gitlab.ee do
-            get 'designs(/*vueroute)', to: 'issues#show', as: :designs, format: false
+            get 'designs(/*vueroute)', to: 'issues#designs', as: :designs, format: false
           end
         end
 

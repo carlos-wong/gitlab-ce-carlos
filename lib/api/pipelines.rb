@@ -4,7 +4,7 @@ module API
   class Pipelines < Grape::API
     include PaginationParams
 
-    before { authenticate! }
+    before { authenticate_non_get! }
 
     params do
       requires :id, type: String, desc: 'The project ID'
@@ -32,6 +32,7 @@ module API
       end
       get ':id/pipelines' do
         authorize! :read_pipeline, user_project
+        authorize! :read_build, user_project
 
         pipelines = PipelinesFinder.new(user_project, current_user, params).execute
         present paginate(pipelines), with: Entities::PipelineBasic
@@ -45,9 +46,8 @@ module API
         requires :ref, type: String, desc: 'Reference'
         optional :variables, Array, desc: 'Array of variables available in the pipeline'
       end
-      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/pipeline' do
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42124')
+        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42124')
 
         authorize! :create_pipeline, user_project
 
@@ -66,7 +66,19 @@ module API
           render_validation_error!(new_pipeline)
         end
       end
-      # rubocop: enable CodeReuse/ActiveRecord
+
+      desc 'Gets a the latest pipeline for the project branch' do
+        detail 'This feature was introduced in GitLab 12.3'
+        success Entities::Pipeline
+      end
+      params do
+        optional :ref, type: String, desc: 'branch ref of pipeline'
+      end
+      get ':id/pipelines/latest' do
+        authorize! :read_pipeline, latest_pipeline
+
+        present latest_pipeline, with: Entities::Pipeline
+      end
 
       desc 'Gets a specific pipeline for the project' do
         detail 'This feature was introduced in GitLab 8.11'
@@ -143,7 +155,15 @@ module API
 
     helpers do
       def pipeline
-        @pipeline ||= user_project.ci_pipelines.find(params[:pipeline_id])
+        strong_memoize(:pipeline) do
+          user_project.ci_pipelines.find(params[:pipeline_id])
+        end
+      end
+
+      def latest_pipeline
+        strong_memoize(:latest_pipeline) do
+          user_project.latest_pipeline_for_ref(params[:ref])
+        end
       end
     end
   end

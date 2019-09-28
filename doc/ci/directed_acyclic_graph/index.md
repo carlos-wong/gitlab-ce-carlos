@@ -4,7 +4,7 @@ type: reference
 
 # Directed Acyclic Graph
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/47063) in GitLab 12.2 (enabled by `ci_dag_support` feature flag).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/47063) in GitLab 12.2 (enabled by `ci_dag_support` feature flag).
 
 A [directed acyclic graph](https://www.techopedia.com/definition/5739/directed-acyclic-graph-dag) can be
 used in the context of a CI/CD pipeline to build relationships between jobs such that
@@ -36,7 +36,7 @@ It has a pipeline that looks like the following:
 | ----- | ---- | ------ |
 | build_a | test_a | deploy_a |
 | build_b | test_b | deploy_b |
-| build_c | test_c | deploy_c | 
+| build_c | test_c | deploy_c |
 | build_d | test_d | deploy_d |
 
 Using a DAG, you can relate the `_a` jobs to each other separately from the `_b` jobs,
@@ -65,7 +65,7 @@ as quickly as possible.
 Relationships are defined between jobs using the [`needs:` keyword](../yaml/README.md#needs).
 
 Note that `needs:` also works with the [parallel](../yaml/README.md#parallel) keyword,
-giving your powerful options for parallelization within your pipeline.
+giving you powerful options for parallelization within your pipeline.
 
 ## Limitations
 

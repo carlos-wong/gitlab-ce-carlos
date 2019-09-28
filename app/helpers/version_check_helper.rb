@@ -19,6 +19,8 @@ module VersionCheckHelper
   end
 
   def source_code_project
-    'gitlab-ce'
+    'gitlab-foss'
   end
 end
+
+VersionCheckHelper.prepend_if_ee('EE::VersionCheckHelper')

@@ -28,7 +28,7 @@ describe Gitlab::Danger::Teammate do
     end
 
     context 'when labels contain Create and the category is test' do
-      let(:labels) { ['Create'] }
+      let(:labels) { ['devops::create'] }
 
       context 'when role is Test Automation Engineer, Create' do
         let(:role) { 'Test Automation Engineer, Create' }
@@ -50,11 +50,31 @@ describe Gitlab::Danger::Teammate do
         end
       end
 
+      context 'when role is Test Automation Engineer' do
+        let(:role) { 'Test Automation Engineer' }
+
+        it '#reviewer? returns false' do
+          expect(subject.reviewer?(project, :test, labels)).to be_falsey
+        end
+      end
+
       context 'when role is Test Automation Engineer, Manage' do
         let(:role) { 'Test Automation Engineer, Manage' }
 
         it '#reviewer? returns false' do
           expect(subject.reviewer?(project, :test, labels)).to be_falsey
+        end
+      end
+
+      context 'when role is Backend Engineer, Engineering Productivity' do
+        let(:role) { 'Backend Engineer, Engineering Productivity' }
+
+        it '#reviewer? returns true' do
+          expect(subject.reviewer?(project, :engineering_productivity, labels)).to be_truthy
+        end
+
+        it '#maintainer? returns false' do
+          expect(subject.maintainer?(project, :engineering_productivity, labels)).to be_falsey
         end
       end
     end

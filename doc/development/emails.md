@@ -5,6 +5,10 @@
 To view rendered emails "sent" in your development instance, visit
 [`/rails/letter_opener`](http://localhost:3000/rails/letter_opener).
 
+Please note that [S/MIME signed](../administration/smime_signing_email.md) emails
+[cannot be currently previewed](https://github.com/fgrehm/letter_opener_web/issues/96) with
+`letter_opener`.
+
 ## Mailer previews
 
 Rails provides a way to preview our mailer templates in HTML and plaintext using
@@ -15,7 +19,7 @@ The previews live in [`app/mailers/previews`][previews] and can be viewed at
 
 See the [Rails guides] for more info.
 
-[previews]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/app/mailers/previews
+[previews]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/app/mailers/previews
 [Rails guides]: http://guides.rubyonrails.org/action_mailer_basics.html#previewing-emails
 
 ## Incoming email

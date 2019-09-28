@@ -296,6 +296,7 @@ class ProjectPolicy < BasePolicy
     enable :destroy_release
     enable :destroy_artifacts
     enable :daily_statistics
+    enable :admin_operations
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
@@ -504,6 +505,8 @@ class ProjectPolicy < BasePolicy
   end
 
   def feature_available?(feature)
+    return false unless project.project_feature
+
     case project.project_feature.access_level(feature)
     when ProjectFeature::DISABLED
       false
@@ -518,3 +521,5 @@ class ProjectPolicy < BasePolicy
     @subject
   end
 end
+
+ProjectPolicy.prepend_if_ee('EE::ProjectPolicy')

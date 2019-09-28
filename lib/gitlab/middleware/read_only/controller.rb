@@ -4,10 +4,12 @@ module Gitlab
   module Middleware
     class ReadOnly
       class Controller
+        prepend_if_ee('EE::Gitlab::Middleware::ReadOnly::Controller') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
         DISALLOWED_METHODS = %w(POST PATCH PUT DELETE).freeze
-        APPLICATION_JSON = 'application/json'.freeze
+        APPLICATION_JSON = 'application/json'
         APPLICATION_JSON_TYPES = %W{#{APPLICATION_JSON} application/vnd.git-lfs+json}.freeze
-        ERROR_MESSAGE = 'You cannot perform write operations on a read-only instance'.freeze
+        ERROR_MESSAGE = 'You cannot perform write operations on a read-only instance'
 
         WHITELISTED_GIT_ROUTES = {
           'projects/git_http' => %w{git_upload_pack git_receive_pack}

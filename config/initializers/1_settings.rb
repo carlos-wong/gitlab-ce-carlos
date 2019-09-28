@@ -1,5 +1,6 @@
 require_relative '../settings'
 require_relative '../object_store_settings'
+require_relative '../smime_signature_settings'
 
 # Default settings
 Settings['ldap'] ||= Settingslogic.new({})
@@ -77,12 +78,14 @@ Gitlab.ee do
   Settings.smartcard['enabled'] = false if Settings.smartcard['enabled'].nil?
   Settings.smartcard['client_certificate_required_port'] = 3444 if Settings.smartcard['client_certificate_required_port'].nil?
   Settings.smartcard['required_for_git_access'] = false if Settings.smartcard['required_for_git_access'].nil?
+  Settings.smartcard['san_extensions'] = false if Settings.smartcard['san_extensions'].nil?
 end
 
 Settings['omniauth'] ||= Settingslogic.new({})
 Settings.omniauth['enabled'] = true if Settings.omniauth['enabled'].nil?
 Settings.omniauth['auto_sign_in_with_provider'] = false if Settings.omniauth['auto_sign_in_with_provider'].nil?
 Settings.omniauth['allow_single_sign_on'] = false if Settings.omniauth['allow_single_sign_on'].nil?
+Settings.omniauth['allow_bypass_two_factor'] = false if Settings.omniauth['allow_bypass_two_factor'].nil?
 Settings.omniauth['external_providers'] = [] if Settings.omniauth['external_providers'].nil?
 Settings.omniauth['block_auto_created_users'] = true if Settings.omniauth['block_auto_created_users'].nil?
 Settings.omniauth['auto_link_ldap_user'] = false if Settings.omniauth['auto_link_ldap_user'].nil?
@@ -171,6 +174,7 @@ Settings.gitlab['email_from'] ||= ENV['GITLAB_EMAIL_FROM'] || "gitlab@#{Settings
 Settings.gitlab['email_display_name'] ||= ENV['GITLAB_EMAIL_DISPLAY_NAME'] || 'GitLab'
 Settings.gitlab['email_reply_to'] ||= ENV['GITLAB_EMAIL_REPLY_TO'] || "noreply@#{Settings.gitlab.host}"
 Settings.gitlab['email_subject_suffix'] ||= ENV['GITLAB_EMAIL_SUBJECT_SUFFIX'] || ""
+Settings.gitlab['email_smime'] = SmimeSignatureSettings.parse(Settings.gitlab['email_smime'])
 Settings.gitlab['base_url']   ||= Settings.__send__(:build_base_gitlab_url)
 Settings.gitlab['url']        ||= Settings.__send__(:build_gitlab_url)
 Settings.gitlab['user']       ||= 'git'
@@ -289,6 +293,7 @@ Settings.pages['artifacts_server']  ||= Settings.pages['enabled'] if Settings.pa
 
 Settings.pages['admin'] ||= Settingslogic.new({})
 Settings.pages.admin['certificate'] ||= ''
+Settings.pages['secret_file'] ||= Rails.root.join('.gitlab_pages_shared_secret')
 
 #
 # Geo
@@ -512,7 +517,7 @@ Settings['sidekiq']['log_format'] ||= 'default'
 Settings['gitlab_shell'] ||= Settingslogic.new({})
 Settings.gitlab_shell['path']           = Settings.absolute(Settings.gitlab_shell['path'] || Settings.gitlab['user_home'] + '/gitlab-shell/')
 Settings.gitlab_shell['hooks_path']     = :deprecated_use_gitlab_shell_path_instead
-Settings.gitlab_shell['authorized_keys_file'] ||= nil
+Settings.gitlab_shell['authorized_keys_file'] ||= File.join(Dir.home, '.ssh', 'authorized_keys')
 Settings.gitlab_shell['secret_file'] ||= Rails.root.join('.gitlab_shell_secret')
 Settings.gitlab_shell['receive_pack']   = true if Settings.gitlab_shell['receive_pack'].nil?
 Settings.gitlab_shell['upload_pack']    = true if Settings.gitlab_shell['upload_pack'].nil?

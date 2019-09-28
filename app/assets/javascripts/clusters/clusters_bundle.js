@@ -14,6 +14,8 @@ import ClustersStore from './stores/clusters_store';
 import Applications from './components/applications.vue';
 import setupToggleButtons from '../toggle_buttons';
 
+const Environments = () => import('ee_component/clusters/components/environments.vue');
+
 Vue.use(GlToast);
 
 /**
@@ -37,6 +39,7 @@ export default class Clusters {
       updateKnativePath,
       installPrometheusPath,
       managePrometheusPath,
+      clusterEnvironmentsPath,
       hasRbac,
       clusterType,
       clusterStatus,
@@ -44,6 +47,9 @@ export default class Clusters {
       helpPath,
       ingressHelpPath,
       ingressDnsHelpPath,
+      environmentsHelpPath,
+      clustersHelpPath,
+      deployBoardsHelpPath,
       clusterId,
     } = document.querySelector('.js-edit-cluster-form').dataset;
 
@@ -52,7 +58,14 @@ export default class Clusters {
     this.clusterBannerDismissedKey = `cluster_${this.clusterId}_banner_dismissed`;
 
     this.store = new ClustersStore();
-    this.store.setHelpPaths(helpPath, ingressHelpPath, ingressDnsHelpPath);
+    this.store.setHelpPaths(
+      helpPath,
+      ingressHelpPath,
+      ingressDnsHelpPath,
+      environmentsHelpPath,
+      clustersHelpPath,
+      deployBoardsHelpPath,
+    );
     this.store.setManagePrometheusPath(managePrometheusPath);
     this.store.updateStatus(clusterStatus);
     this.store.updateStatusReason(clusterStatusReason);
@@ -67,6 +80,7 @@ export default class Clusters {
       installJupyterEndpoint: installJupyterPath,
       installKnativeEndpoint: installKnativePath,
       updateKnativeEndpoint: updateKnativePath,
+      clusterEnvironmentsEndpoint: clusterEnvironmentsPath,
     });
 
     this.installApplication = this.installApplication.bind(this);
@@ -95,12 +109,27 @@ export default class Clusters {
       setupToggleButtons(toggleButtonsContainer);
     }
     this.initApplications(clusterType);
+    this.initEnvironments();
+
+    if (clusterEnvironmentsPath && this.environments) {
+      this.store.toggleFetchEnvironments(true);
+
+      this.initPolling(
+        'fetchClusterEnvironments',
+        data => this.handleClusterEnvironmentsSuccess(data),
+        () => this.handleEnvironmentsPollError(),
+      );
+    }
 
     this.updateContainer(null, this.store.state.status, this.store.state.statusReason);
 
     this.addListeners();
-    if (statusPath) {
-      this.initPolling();
+    if (statusPath && !this.environments) {
+      this.initPolling(
+        'fetchClusterStatus',
+        data => this.handleClusterStatusSuccess(data),
+        () => this.handlePollError(),
+      );
     }
   }
 
@@ -129,6 +158,40 @@ export default class Clusters {
         });
       },
     });
+  }
+
+  initEnvironments() {
+    const { store } = this;
+    const el = document.querySelector('#js-cluster-environments');
+
+    if (!el) {
+      return;
+    }
+
+    this.environments = new Vue({
+      el,
+      data() {
+        return {
+          state: store.state,
+        };
+      },
+      render(createElement) {
+        return createElement(Environments, {
+          props: {
+            isFetching: this.state.fetchingEnvironments,
+            environments: this.state.environments,
+            environmentsHelpPath: this.state.environmentsHelpPath,
+            clustersHelpPath: this.state.clustersHelpPath,
+            deployBoardsHelpPath: this.state.deployBoardsHelpPath,
+          },
+        });
+      },
+    });
+  }
+
+  handleClusterEnvironmentsSuccess(data) {
+    this.store.toggleFetchEnvironments(false);
+    this.store.updateEnvironments(data.data);
   }
 
   static initDismissableCallout() {
@@ -164,21 +227,16 @@ export default class Clusters {
     eventHub.$off('uninstallApplication');
   }
 
-  initPolling() {
+  initPolling(method, successCallback, errorCallback) {
     this.poll = new Poll({
       resource: this.service,
-      method: 'fetchData',
-      successCallback: data => this.handleSuccess(data),
-      errorCallback: () => Clusters.handleError(),
+      method,
+      successCallback,
+      errorCallback,
     });
 
     if (!Visibility.hidden()) {
       this.poll.makeRequest();
-    } else {
-      this.service
-        .fetchData()
-        .then(data => this.handleSuccess(data))
-        .catch(() => Clusters.handleError());
     }
 
     Visibility.change(() => {
@@ -190,11 +248,21 @@ export default class Clusters {
     });
   }
 
+  handlePollError() {
+    this.constructor.handleError();
+  }
+
+  handleEnvironmentsPollError() {
+    this.store.toggleFetchEnvironments(false);
+
+    this.handlePollError();
+  }
+
   static handleError() {
     Flash(s__('ClusterIntegration|Something went wrong on our end.'));
   }
 
-  handleSuccess(data) {
+  handleClusterStatusSuccess(data) {
     const prevStatus = this.store.state.status;
     const prevApplicationMap = Object.assign({}, this.store.state.applications);
 
@@ -388,6 +456,10 @@ export default class Clusters {
 
     if (this.poll) {
       this.poll.stop();
+    }
+
+    if (this.environments) {
+      this.environments.$destroy();
     }
 
     this.applications.$destroy();

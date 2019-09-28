@@ -38,8 +38,17 @@ module Gitlab
         ENV['CI_PROJECT_NAME'] == 'gitlab-ee' || File.exist?('../../CHANGELOG-EE.md')
       end
 
+      def gitlab_helper
+        # Unfortunately the following does not work:
+        # - respond_to?(:gitlab)
+        # - respond_to?(:gitlab, true)
+        gitlab
+      rescue NoMethodError
+        nil
+      end
+
       def release_automation?
-        gitlab.mr_author == RELEASE_TOOLS_BOT
+        gitlab_helper&.mr_author == RELEASE_TOOLS_BOT
       end
 
       def project_name
@@ -83,7 +92,8 @@ module Gitlab
         docs: "~Documentation", # Docs are reviewed along DevOps stages, so don't need roulette for now.
         none: "",
         qa: "~QA",
-        test: "~test for `spec/features/*`"
+        test: "~test for `spec/features/*`",
+        engineering_productivity: "Engineering Productivity for CI config review"
       }.freeze
       CATEGORIES = {
         %r{\Adoc/} => :none, # To reinstate roulette for documentation, set to `:docs`.
@@ -110,7 +120,8 @@ module Gitlab
           karma\.config\.js |
           webpack\.config\.js |
           package\.json |
-          yarn\.lock
+          yarn\.lock |
+          \.gitlab/ci/frontend\.gitlab-ci\.yml
         )\z}x => :frontend,
 
         %r{\A(ee/)?db/(?!fixtures)[^/]+} => :database,
@@ -124,8 +135,10 @@ module Gitlab
         %r{\A(ee/)?spec/(?!javascripts|frontend)[^/]+} => :backend,
         %r{\A(ee/)?vendor/(?!assets)[^/]+} => :backend,
         %r{\A(ee/)?vendor/(languages\.yml|licenses\.csv)\z} => :backend,
-        %r{\A(Dangerfile|Gemfile|Gemfile.lock|Procfile|Rakefile|\.gitlab-ci\.yml)\z} => :backend,
+        %r{\A(\.gitlab-ci\.yml\z|\.gitlab\/ci)} => :engineering_productivity,
+        %r{\A(Dangerfile|Gemfile|Gemfile.lock|Procfile|Rakefile)\z} => :backend,
         %r{\A[A-Z_]+_VERSION\z} => :backend,
+        %r{\A\.rubocop(_todo)?\.yml\z} => :backend,
 
         %r{\A(ee/)?qa/} => :qa,
 

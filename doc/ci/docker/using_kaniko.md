@@ -4,7 +4,7 @@ type: howto
 
 # Building images with kaniko and GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/45512) in GitLab 11.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/45512) in GitLab 11.2.
 Requires GitLab Runner 11.2 and above.
 
 [kaniko](https://github.com/GoogleContainerTools/kaniko) is a tool to build
@@ -43,7 +43,7 @@ few important details:
 In the following example, kaniko is used to:
 
 1. Build a Docker image.
-1. Then push it to [GitLab Container Registry](../../user/project/container_registry.md).
+1. Then push it to [GitLab Container Registry](../../user/packages/container_registry/index.md).
 
 The job will run only when a tag is pushed. A `config.json` file is created under
 `/kaniko/.docker` with the needed GitLab Container Registry credentials taken from the

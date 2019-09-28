@@ -1,14 +1,14 @@
 # Adding a system message to every page
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5023) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.7.
-> [Added](https://gitlab.com/gitlab-org/gitlab-ce/issues/55057) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5023) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.7.
+> [Added](https://gitlab.com/gitlab-org/gitlab-foss/issues/55057) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.9.
 
 Navigate to the **Admin** area and go to the **Appearance** page.
 
 Under **System header and footer** insert your header message and/or footer message.
 Both background and font color of the header and footer are customizable.
 
-You can also apply the header and footer messages to gitlab emails,
+You can also apply the header and footer messages to GitLab emails,
 by checking the **Enable header and footer in emails** checkbox.
 Note that color settings will only be applied within the app interface and not to emails
 

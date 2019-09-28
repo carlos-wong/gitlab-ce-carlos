@@ -396,6 +396,27 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         expect(project.lfs_enabled).to be_falsey
       end
+
+      it 'overrides project feature access levels' do
+        access_level_keys = project.project_feature.attributes.keys.select { |a| a =~ /_access_level/ }
+
+        # `pages_access_level` is not included, since it is not available in the public API
+        # and has a dependency on project's visibility level
+        # see ProjectFeature model
+        access_level_keys.delete('pages_access_level')
+
+        disabled_access_levels = Hash[access_level_keys.collect { |item| [item, 'disabled'] }]
+
+        project.create_import_data(data: { override_params: disabled_access_levels })
+
+        restored_project_json
+
+        aggregate_failures do
+          access_level_keys.each do |key|
+            expect(project.public_send(key)).to eq(ProjectFeature::DISABLED)
+          end
+        end
+      end
     end
 
     context 'with a project that has a group' do
@@ -489,6 +510,24 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(project.milestones.count).to eq(2)
         expect(Milestone.find_by_title('Another milestone').iid).to eq(1)
         expect(Milestone.find_by_title('Group-level milestone').iid).to eq(2)
+      end
+    end
+
+    context 'with external authorization classification labels' do
+      it 'converts empty external classification authorization labels to nil' do
+        project.create_import_data(data: { override_params: { external_authorization_classification_label: "" } })
+
+        restored_project_json
+
+        expect(project.external_authorization_classification_label).to be_nil
+      end
+
+      it 'preserves valid external classification authorization labels' do
+        project.create_import_data(data: { override_params: { external_authorization_classification_label: "foobar" } })
+
+        restored_project_json
+
+        expect(project.external_authorization_classification_label).to eq("foobar")
       end
     end
   end

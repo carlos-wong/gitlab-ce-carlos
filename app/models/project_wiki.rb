@@ -85,6 +85,10 @@ class ProjectWiki
     list_pages(limit: 1).empty?
   end
 
+  def exists?
+    !empty?
+  end
+
   # Lists wiki pages of the repository.
   #
   # limit - max number of pages returned by the method.
@@ -221,3 +225,5 @@ class ProjectWiki
     @project.touch(:last_activity_at, :last_repository_updated_at)
   end
 end
+
+ProjectWiki.prepend_if_ee('EE::ProjectWiki')

@@ -2,6 +2,7 @@
 
 class LfsObject < ApplicationRecord
   include AfterCommitQueue
+  include EachBatch
   include ObjectStorage::BackgroundMove
 
   has_many :lfs_objects_projects, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -41,3 +42,5 @@ class LfsObject < ApplicationRecord
     Digest::SHA256.file(path).hexdigest
   end
 end
+
+LfsObject.prepend_if_ee('EE::LfsObject')

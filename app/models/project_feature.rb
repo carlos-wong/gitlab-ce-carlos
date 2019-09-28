@@ -129,6 +129,10 @@ class ProjectFeature < ApplicationRecord
     pages_access_level == PUBLIC || pages_access_level == ENABLED && project.public?
   end
 
+  def private_pages?
+    !public_pages?
+  end
+
   private
 
   # Validates builds and merge requests access level
@@ -176,3 +180,5 @@ class ProjectFeature < ApplicationRecord
     project.team.member?(user, ProjectFeature.required_minimum_access_level(feature))
   end
 end
+
+ProjectFeature.prepend_if_ee('EE::ProjectFeature')

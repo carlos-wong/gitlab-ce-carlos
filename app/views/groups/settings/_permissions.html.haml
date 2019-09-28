@@ -14,7 +14,7 @@
           %span.d-block
             - group_link = link_to @group.name, group_path(@group)
             = s_('GroupSettings|Prevent sharing a project within %{group} with other groups').html_safe % { group: group_link }
-          %span.descr.text-muted= share_with_group_lock_help_text(@group)
+          %span.js-descr.text-muted= share_with_group_lock_help_text(@group)
 
     .form-group.append-bottom-default
       .form-check
@@ -31,4 +31,4 @@
     = render 'groups/settings/two_factor_auth', f: f
     = render_if_exists 'groups/member_lock_setting', f: f, group: @group
 
-  = f.submit _('Save changes'), class: 'btn btn-success prepend-top-default js-dirty-submit'
+  = f.submit _('Save changes'), class: 'btn btn-success prepend-top-default js-dirty-submit', data: { qa_selector: 'save_permissions_changes_button' }

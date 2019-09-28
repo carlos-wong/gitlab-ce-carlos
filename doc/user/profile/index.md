@@ -8,6 +8,10 @@ Each GitLab account has a user profile, and settings. Your [profile](#user-profi
 contains information about you, and your GitLab activity. Your [settings](#profile-settings)
 allow you to customize some aspects of GitLab to suit yourself.
 
+## Creating users
+
+There are several ways to create users on GitLab. See the [creating users documentation](account/create_accounts.md) for more details.
+
 ## Signing in
 
 There are several ways to sign into your GitLab account.
@@ -71,7 +75,7 @@ To change your `username`:
 
 CAUTION: **Caution:**
 It is currently not possible to change your username if it contains a
-project with [Container Registry](../project/container_registry.md) tags,
+project with [Container Registry](../packages/container_registry/index.md) tags,
 because the project cannot be moved.
 
 TIP: **Tip:**
@@ -125,7 +129,7 @@ To add links to other accounts:
 
 ## Private contributions
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/14078) in GitLab 11.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/14078) in GitLab 11.3.
 
 Enabling private contributions will include contributions to private projects, in the user contribution calendar graph and user recent activity.
 
@@ -169,7 +173,7 @@ You can also set your current status [using the API](../../api/users.md#user-sta
 
 ## Commit email
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/21598) in GitLab 11.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/21598) in GitLab 11.4.
 
 A commit email is an email address displayed in every Git-related action carried out through the GitLab interface.
 
@@ -186,7 +190,7 @@ To change your commit email:
 
 ### Private commit email
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22560) in GitLab 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22560) in GitLab 11.5.
 
 GitLab provides the user with an automatically generated private commit email option,
 which allows the user to keep their email information private.

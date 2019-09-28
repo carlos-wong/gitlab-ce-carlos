@@ -244,7 +244,6 @@ module TestEnv
     FileUtils.mkdir_p(target_repo_path)
     FileUtils.cp_r("#{File.expand_path(bare_repo)}/.", target_repo_path)
     FileUtils.chmod_R 0755, target_repo_path
-    set_repo_refs(target_repo_path, refs)
   end
 
   def create_bare_repository(path)
@@ -419,3 +418,8 @@ module TestEnv
     true
   end
 end
+
+require_relative('../../../ee/spec/support/helpers/ee/test_env') if Gitlab.ee?
+
+::TestEnv.prepend_if_ee('::EE::TestEnv')
+::TestEnv.extend_if_ee('::EE::TestEnv')

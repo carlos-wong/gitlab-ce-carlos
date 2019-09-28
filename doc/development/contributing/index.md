@@ -16,7 +16,7 @@ abbreviation.
 To get an overview of GitLab community membership including those that would be reviewing or merging your contributions, please visit [the community roles page](community_roles.md).
 
 If you want to know how the GitLab [core team]
-operates please see [the GitLab contributing process](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/PROCESS.md).
+operates please see [the GitLab contributing process](https://gitlab.com/gitlab-org/gitlab/blob/master/PROCESS.md).
 
 [GitLab Inc engineers should refer to the engineering workflow document](https://about.gitlab.com/handbook/engineering/workflow/)
 
@@ -65,7 +65,7 @@ Sign up for the mailing list, answer GitLab questions on StackOverflow or
 respond in the IRC channel. You can also sign up on [CodeTriage][codetriage] to help with
 the remaining issues on the GitHub issue tracker.
 
-## I want to contribute!
+## I want to contribute
 
 If you want to contribute to GitLab,
 [issues with the `Accepting merge requests` label](issue_workflow.md#label-for-community-contributors)
@@ -93,26 +93,20 @@ When submitting code to GitLab, you may feel that your contribution requires the
 
 When your code contains more than 500 changes, any major breaking changes, or an external library, `@mention` a maintainer in the merge request. If you are not sure who to mention, the reviewer will add one early in the merge request process.
 
-## Issues
+## Issues workflow
 
-This [documentation](issue_workflow.md) outlines the current issue process.
+This [documentation](issue_workflow.md) outlines the current issue workflow:
 
-- [Type labels](issue_workflow.md#type-labels)
-- [Subject labels](issue_workflow.md#subject-labels)
-- [Team labels](issue_workflow.md#team-labels)
-- [Release Scoping labels](issue_workflow.md#release-scoping-labels)
-- [Priority labels](issue_workflow.md#priority-labels)
-- [Severity labels](issue_workflow.md#severity-labels)
-- [Label for community contributors](issue_workflow.md#label-for-community-contributors)
-- [Issue triaging](issue_workflow.md#issue-triaging)
-- [Feature proposals](issue_workflow.md#feature-proposals)
 - [Issue tracker guidelines](issue_workflow.md#issue-tracker-guidelines)
+- [Issue triaging](issue_workflow.md#issue-triaging)
+- [Labels](issue_workflow.md#labels)
+- [Feature proposals](issue_workflow.md#feature-proposals)
 - [Issue weight](issue_workflow.md#issue-weight)
 - [Regression issues](issue_workflow.md#regression-issues)
 - [Technical and UX debt](issue_workflow.md#technical-and-ux-debt)
-- [Stewardship](issue_workflow.md#stewardship)
+- [Technical debt in follow-up issues](issue_workflow.md#technical-debt-in-follow-up-issues)
 
-## Merge requests
+## Merge requests workflow
 
 This [documentation](merge_request_workflow.md) outlines the current merge request process.
 

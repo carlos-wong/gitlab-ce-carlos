@@ -16,7 +16,7 @@ class BroadcastMessage < ApplicationRecord
   default_value_for :color, '#E75E40'
   default_value_for :font,  '#FFFFFF'
 
-  CACHE_KEY = 'broadcast_message_current_json'.freeze
+  CACHE_KEY = 'broadcast_message_current_json'
 
   after_commit :flush_redis_cache
 
@@ -76,3 +76,5 @@ class BroadcastMessage < ApplicationRecord
     self.class.cache.expire(CACHE_KEY)
   end
 end
+
+BroadcastMessage.prepend_if_ee('EE::BroadcastMessage')

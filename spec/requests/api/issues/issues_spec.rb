@@ -427,9 +427,12 @@ describe API::Issues do
         context 'with labeled issues' do
           let(:label_b) { create(:label, title: 'foo', project: project) }
           let(:label_c) { create(:label, title: 'bar', project: project) }
+          let(:issue2) { create(:issue, author: user, project: project) }
 
           before do
+            create(:label_link, label: label, target: issue2)
             create(:label_link, label: label_b, target: issue)
+            create(:label_link, label: label_b, target: issue2)
             create(:label_link, label: label_c, target: issue)
 
             get api('/issues', user), params: params
@@ -497,46 +500,74 @@ describe API::Issues do
         end
       end
 
-      it 'returns an empty array if no issue matches milestone' do
-        get api("/issues?milestone=#{empty_milestone.title}", user)
+      context 'filter by milestone' do
+        it 'returns an empty array if no issue matches milestone' do
+          get api("/issues?milestone=#{empty_milestone.title}", user)
 
-        expect_paginated_array_response([])
-      end
+          expect_paginated_array_response([])
+        end
 
-      it 'returns an empty array if milestone does not exist' do
-        get api('/issues?milestone=foo', user)
+        it 'returns an empty array if milestone does not exist' do
+          get api('/issues?milestone=foo', user)
 
-        expect_paginated_array_response([])
-      end
+          expect_paginated_array_response([])
+        end
 
-      it 'returns an array of issues in given milestone' do
-        get api("/issues?milestone=#{milestone.title}", user)
+        it 'returns an array of issues in given milestone' do
+          get api("/issues?milestone=#{milestone.title}", user)
 
-        expect_paginated_array_response([issue.id, closed_issue.id])
-      end
+          expect_paginated_array_response([issue.id, closed_issue.id])
+        end
 
-      it 'returns an array of issues in given milestone_title param' do
-        get api("/issues?milestone_title=#{milestone.title}", user)
+        it 'returns an array of issues in given milestone_title param' do
+          get api("/issues?milestone_title=#{milestone.title}", user)
 
-        expect_paginated_array_response([issue.id, closed_issue.id])
-      end
+          expect_paginated_array_response([issue.id, closed_issue.id])
+        end
 
-      it 'returns an array of issues matching state in milestone' do
-        get api("/issues?milestone=#{milestone.title}&state=closed", user)
+        it 'returns an array of issues matching state in milestone' do
+          get api("/issues?milestone=#{milestone.title}&state=closed", user)
 
-        expect_paginated_array_response(closed_issue.id)
-      end
+          expect_paginated_array_response(closed_issue.id)
+        end
 
-      it 'returns an array of issues with no milestone' do
-        get api("/issues?milestone=#{no_milestone_title}", author)
+        it 'returns an array of issues with no milestone' do
+          get api("/issues?milestone=#{no_milestone_title}", author)
 
-        expect_paginated_array_response(confidential_issue.id)
-      end
+          expect_paginated_array_response(confidential_issue.id)
+        end
 
-      it 'returns an array of issues with no milestone using milestone_title param' do
-        get api("/issues?milestone_title=#{no_milestone_title}", author)
+        it 'returns an array of issues with no milestone using milestone_title param' do
+          get api("/issues?milestone_title=#{no_milestone_title}", author)
 
-        expect_paginated_array_response(confidential_issue.id)
+          expect_paginated_array_response(confidential_issue.id)
+        end
+
+        context 'negated' do
+          it 'returns all issues if milestone does not exist' do
+            get api('/issues?not[milestone]=foo', user)
+
+            expect_paginated_array_response([issue.id, closed_issue.id])
+          end
+
+          it 'returns all issues that do not belong to a milestone but have a milestone' do
+            get api("/issues?not[milestone]=#{empty_milestone.title}", user)
+
+            expect_paginated_array_response([issue.id, closed_issue.id])
+          end
+
+          it 'returns an array of issues with any milestone' do
+            get api("/issues?not[milestone]=#{no_milestone_title}", user)
+
+            expect_paginated_array_response([issue.id, closed_issue.id])
+          end
+
+          it 'returns an array of issues matching state not in milestone' do
+            get api("/issues?not[milestone]=#{empty_milestone.title}&state=closed", user)
+
+            expect_paginated_array_response(closed_issue.id)
+          end
+        end
       end
 
       it 'returns an array of issues found by iids' do
@@ -605,6 +636,22 @@ describe API::Issues do
         issue.touch(:updated_at)
 
         expect_paginated_array_response([closed_issue.id, issue.id])
+      end
+
+      context 'with issues list sort options' do
+        it 'accepts only predefined order by params' do
+          API::Helpers::IssuesHelpers.sort_options.each do |sort_opt|
+            get api('/issues', user), params: { order_by: sort_opt, sort: 'asc' }
+            expect(response).to have_gitlab_http_status(200)
+          end
+        end
+
+        it 'fails to sort with non predefined options' do
+          %w(milestone title abracadabra).each do |sort_opt|
+            get api('/issues', user), params: { order_by: sort_opt, sort: 'asc' }
+            expect(response).to have_gitlab_http_status(400)
+          end
+        end
       end
 
       it 'matches V4 response schema' do

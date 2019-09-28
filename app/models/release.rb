@@ -12,6 +12,9 @@ class Release < ApplicationRecord
 
   has_many :links, class_name: 'Releases::Link'
 
+  has_many :milestone_releases
+  has_many :milestones, through: :milestone_releases
+
   default_value_for :released_at, allows_nil: false do
     Time.zone.now
   end
@@ -20,6 +23,7 @@ class Release < ApplicationRecord
 
   validates :description, :project, :tag, presence: true
   validates :name, presence: true, on: :create
+  validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(",") }
 
   scope :sorted, -> { order(released_at: :desc) }
 

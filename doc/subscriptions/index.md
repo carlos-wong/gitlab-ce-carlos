@@ -115,7 +115,7 @@ To subscribe to GitLab through a self-managed installation:
 
 1. [Install](https://about.gitlab.com/install/) GitLab.
 1. Complete the installation with
-   [administration tasks](https://docs.gitlab.com/ee/administration/).
+   [administration tasks](../administration/index.md).
 1. Select the **Starter**, **Premium**, or **Ultimate** self-managed plan
    through the [GitLab Subscription Manager](https://customers.gitlab.com/).
 1. Apply your license file. After purchase, a license file is sent to the email
@@ -275,7 +275,7 @@ However, depending on the tier and feature, your data may become inaccessible.
 
 Please note that some features may not behave as expected if a graceful
 fallback is not currently implemented. For example,
-[environment specific variables not being passed](https://gitlab.com/gitlab-org/gitlab-ce/issues/52825).
+[environment specific variables not being passed](https://gitlab.com/gitlab-org/gitlab-foss/issues/52825).
 
 If you renew or upgrade, your data will again be accessible.
 
@@ -296,9 +296,9 @@ topics covering the use and administration of GitLab.
 We also encourage all users to search our project trackers for known issues and
 existing feature requests in:
 
-- [GitLab CE](https://gitlab.com/gitlab-org/gitlab-ce/issues/) for features
+- [GitLab CE](https://gitlab.com/gitlab-org/gitlab-foss/issues/) for features
   included in all tiers.
-- [GitLab EE](https://gitlab.com/gitlab-org/gitlab-ee/issues/) for paid-tier
+- [GitLab EE](https://gitlab.com/gitlab-org/gitlab/issues/) for paid-tier
   features.
 
 These issues are the best avenue for getting updates on specific product plans

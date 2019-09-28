@@ -47,6 +47,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
         @noteable = @merge_request
         @commits_count = @merge_request.commits_count
         @issuable_sidebar = serializer.represent(@merge_request, serializer: 'sidebar')
+        @current_user_data = UserSerializer.new(project: @project).represent(current_user, {}, MergeRequestUserEntity).to_json
+        @show_whitespace_default = current_user.nil? || current_user.show_whitespace_in_diffs
 
         set_pipeline_variables
 
@@ -209,7 +211,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def discussions
-    merge_request.preload_discussions_diff_highlight
+    merge_request.discussions_diffs.load_highlight
 
     super
   end
@@ -220,7 +222,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   alias_method :issuable, :merge_request
   alias_method :awardable, :merge_request
 
-  def issuable_sorting_field
+  def sorting_field
     MergeRequest::SORTING_PREFERENCE_FIELD
   end
 
@@ -274,7 +276,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     if auto_merge_requested?
       if merge_request.auto_merge_enabled?
         # TODO: We should have a dedicated endpoint for updating merge params.
-        #       See https://gitlab.com/gitlab-org/gitlab-ce/issues/63130.
+        #       See https://gitlab.com/gitlab-org/gitlab-foss/issues/63130.
         AutoMergeService.new(project, current_user, merge_params).update(merge_request)
       else
         AutoMergeService.new(project, current_user, merge_params)
@@ -326,8 +328,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def whitelist_query_limiting
-    # Also see https://gitlab.com/gitlab-org/gitlab-ce/issues/42441
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42438')
+    # Also see https://gitlab.com/gitlab-org/gitlab-foss/issues/42441
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42438')
   end
 
   def reports_response(report_comparison)
@@ -350,3 +352,5 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     return render_404 unless can?(current_user, :read_build, merge_request.actual_head_pipeline)
   end
 end
+
+Projects::MergeRequestsController.prepend_if_ee('EE::Projects::MergeRequestsController')

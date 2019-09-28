@@ -53,7 +53,7 @@ between v3 and v4; please read the [v3 to v4 documentation](v3_to_v4.md)
 ### Current status
 
 Currently only API version v4 is available. Version v3 was removed in
-[GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-ce/issues/36819).
+[GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/36819).
 
 ## Basic usage
 
@@ -157,8 +157,8 @@ for example, without needing to explicitly pass an access token.
 With a few API endpoints you can use a [GitLab CI job token](../user/project/new_ci_build_permissions_model.md#job-token)
 to authenticate with the API:
 
-* [Get job artifacts](jobs.md#get-job-artifacts)
-* [Pipeline triggers](pipeline_triggers.md)
+- [Get job artifacts](jobs.md#get-job-artifacts)
+- [Pipeline triggers](pipeline_triggers.md)
 
 ### Impersonation tokens
 
@@ -180,7 +180,7 @@ Impersonation tokens are used exactly like regular personal access tokens, and c
 
 #### Disable impersonation
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/40385) in GitLab
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/40385) in GitLab
 11.6.
 
 By default, impersonation is enabled. To disable impersonation:
@@ -377,7 +377,7 @@ Additional pagination headers are also sent back.
 
 CAUTION: **Caution:**
 For performance reasons since
-[GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/23931)
+[GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/23931)
 and **behind the `api_kaminari_count_with_limit`
 [feature flag](../development/feature_flags.md)**, if the number of resources is
 more than 10,000, the `X-Total` and `X-Total-Pages` headers as well as the
@@ -396,7 +396,7 @@ GET /api/v4/projects/diaspora%2Fdiaspora
 
 NOTE: **Note:**
 A project's **path** is not necessarily the same as its **name**.  A
-project's path can found in the project's URL or in the project's settings
+project's path can be found in the project's URL or in the project's settings
 under **General > Advanced > Change path**.
 
 ## Branches and tags name encoding
@@ -422,7 +422,7 @@ We can call the API with `array` and `hash` types parameters as shown below:
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
 -d "import_sources[]=github" \
 -d "import_sources[]=bitbucket" \
-"https://gitlab.example.com/api/v4/some_endpoint
+https://gitlab.example.com/api/v4/some_endpoint
 ```
 
 ### `hash`
@@ -573,8 +573,8 @@ specifically used by GitLab.com, see
 [GitLab.com-specific rate limits](../user/gitlab_com/index.md#gitlabcom-specific-rate-limits).
 
 [GitLab website]: https://about.gitlab.com/applications/#api-clients "Clients using the GitLab API"
-[lib-api-url]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/api/api.rb
-[ce-3749]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/3749
-[ce-5951]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/5951
-[ce-9099]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/9099
+[lib-api-url]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/api/api.rb
+[ce-3749]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/3749
+[ce-5951]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5951
+[ce-9099]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/9099
 [pat]: ../user/profile/personal_access_tokens.md

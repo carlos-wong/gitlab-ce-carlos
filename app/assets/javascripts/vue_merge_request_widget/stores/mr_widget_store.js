@@ -3,7 +3,7 @@ import _ from 'underscore';
 import getStateKey from 'ee_else_ce/vue_merge_request_widget/stores/get_state_key';
 import { stateKey } from './state_maps';
 import { formatDate } from '../../lib/utils/datetime_utility';
-import { ATMTWPS_MERGE_STRATEGY, MT_MERGE_STRATEGY, MWPS_MERGE_STRATEGY } from '../constants';
+import { MTWPS_MERGE_STRATEGY, MT_MERGE_STRATEGY, MWPS_MERGE_STRATEGY } from '../constants';
 
 export default class MergeRequestStore {
   constructor(data) {
@@ -87,9 +87,6 @@ export default class MergeRequestStore {
     this.allowCollaboration = data.allow_collaboration;
     this.sourceProjectId = data.source_project_id;
     this.targetProjectId = data.target_project_id;
-    this.mergePipelinesEnabled = Boolean(data.merge_pipelines_enabled);
-    this.mergeTrainsCount = data.merge_trains_count || 0;
-    this.mergeTrainIndex = data.merge_train_index;
 
     // CI related
     this.hasCI = data.has_ci;
@@ -220,8 +217,8 @@ export default class MergeRequestStore {
   }
 
   static getPreferredAutoMergeStrategy(availableAutoMergeStrategies) {
-    if (_.includes(availableAutoMergeStrategies, ATMTWPS_MERGE_STRATEGY)) {
-      return ATMTWPS_MERGE_STRATEGY;
+    if (_.includes(availableAutoMergeStrategies, MTWPS_MERGE_STRATEGY)) {
+      return MTWPS_MERGE_STRATEGY;
     } else if (_.includes(availableAutoMergeStrategies, MT_MERGE_STRATEGY)) {
       return MT_MERGE_STRATEGY;
     } else if (_.includes(availableAutoMergeStrategies, MWPS_MERGE_STRATEGY)) {

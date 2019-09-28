@@ -3,6 +3,8 @@
 module Gitlab
   module EtagCaching
     class Router
+      prepend_if_ee('EE::Gitlab::EtagCaching::Router') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
       Route = Struct.new(:regexp, :name)
       # We enable an ETag for every request matching the regex.
       # To match a regex the path needs to match the following:
@@ -49,6 +51,10 @@ module Gitlab
         Gitlab::EtagCaching::Router::Route.new(
           %r(#{RESERVED_WORDS_PREFIX}/builds/\d+\.json\z),
           'project_build'
+        ),
+        Gitlab::EtagCaching::Router::Route.new(
+          %r(#{RESERVED_WORDS_PREFIX}/clusters/\d+/environments\z),
+          'cluster_environments'
         ),
         Gitlab::EtagCaching::Router::Route.new(
           %r(#{RESERVED_WORDS_PREFIX}/environments\.json\z),

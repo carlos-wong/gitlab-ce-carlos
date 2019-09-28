@@ -36,7 +36,7 @@ function previous_deploy_failed() {
   return $status
 }
 
-function delete() {
+function delete_release() {
   if [ -z "$CI_ENVIRONMENT_SLUG" ]; then
     echoerr "No release given, aborting the delete!"
     return
@@ -48,6 +48,26 @@ function delete() {
 
   helm delete --purge "$name"
 }
+
+function delete_failed_release() {
+  if [ -z "$CI_ENVIRONMENT_SLUG" ]; then
+    echoerr "No release given, aborting the delete!"
+    return
+  fi
+
+  if ! deploy_exists "${KUBE_NAMESPACE}" "${CI_ENVIRONMENT_SLUG}"; then
+    echoinfo "No Review App with ${CI_ENVIRONMENT_SLUG} is currently deployed."
+  else
+    # Cleanup and previous installs, as FAILED and PENDING_UPGRADE will cause errors with `upgrade`
+    if previous_deploy_failed "$CI_ENVIRONMENT_SLUG" ; then
+      echoinfo "Review App deployment in bad state, cleaning up $CI_ENVIRONMENT_SLUG"
+      delete_release
+    else
+      echoinfo "Review App deployment in good state"
+    fi
+  fi
+}
+
 
 function get_pod() {
   local app_name="${1}"
@@ -164,7 +184,7 @@ function create_application_secret() {
 function download_chart() {
   echoinfo "Downloading the GitLab chart..." true
 
-  curl -o gitlab.tar.bz2 "https://gitlab.com/charts/gitlab/-/archive/${GITLAB_HELM_CHART_REF}/gitlab-${GITLAB_HELM_CHART_REF}.tar.bz2"
+  curl --location -o gitlab.tar.bz2 "https://gitlab.com/gitlab-org/charts/gitlab/-/archive/${GITLAB_HELM_CHART_REF}/gitlab-${GITLAB_HELM_CHART_REF}.tar.bz2"
   tar -xjf gitlab.tar.bz2
   cd "gitlab-${GITLAB_HELM_CHART_REF}"
 
@@ -177,37 +197,31 @@ function download_chart() {
 
 function deploy() {
   local name="$CI_ENVIRONMENT_SLUG"
+  local edition="${GITLAB_EDITION-ce}"
   echoinfo "Deploying ${name}..." true
 
   IMAGE_REPOSITORY="registry.gitlab.com/gitlab-org/build/cng-mirror"
-  IMAGE_VERSION="${CI_PROJECT_NAME#gitlab-}"
-  gitlab_migrations_image_repository="${IMAGE_REPOSITORY}/gitlab-rails-${IMAGE_VERSION}"
-  gitlab_sidekiq_image_repository="${IMAGE_REPOSITORY}/gitlab-sidekiq-${IMAGE_VERSION}"
-  gitlab_unicorn_image_repository="${IMAGE_REPOSITORY}/gitlab-unicorn-${IMAGE_VERSION}"
-  gitlab_task_runner_image_repository="${IMAGE_REPOSITORY}/gitlab-task-runner-${IMAGE_VERSION}"
+  gitlab_migrations_image_repository="${IMAGE_REPOSITORY}/gitlab-rails-${edition}"
+  gitlab_sidekiq_image_repository="${IMAGE_REPOSITORY}/gitlab-sidekiq-${edition}"
+  gitlab_unicorn_image_repository="${IMAGE_REPOSITORY}/gitlab-unicorn-${edition}"
+  gitlab_task_runner_image_repository="${IMAGE_REPOSITORY}/gitlab-task-runner-${edition}"
   gitlab_gitaly_image_repository="${IMAGE_REPOSITORY}/gitaly"
   gitlab_shell_image_repository="${IMAGE_REPOSITORY}/gitlab-shell"
-  gitlab_workhorse_image_repository="${IMAGE_REPOSITORY}/gitlab-workhorse-${IMAGE_VERSION}"
+  gitlab_workhorse_image_repository="${IMAGE_REPOSITORY}/gitlab-workhorse-${edition}"
 
   create_application_secret
 
 HELM_CMD=$(cat << EOF
   helm upgrade --install \
-    --atomic \
+    --wait \
     --timeout 900 \
+    --set ci.branch="$CI_COMMIT_REF_NAME" \
+    --set ci.commit.sha="$CI_COMMIT_SHORT_SHA" \
+    --set ci.job.url="$CI_JOB_URL" \
+    --set ci.pipeline.url="$CI_PIPELINE_URL" \
     --set releaseOverride="$CI_ENVIRONMENT_SLUG" \
-    --set global.appConfig.enableUsagePing=false \
-    --set global.imagePullPolicy=Always \
     --set global.hosts.hostSuffix="$HOST_SUFFIX" \
     --set global.hosts.domain="$REVIEW_APPS_DOMAIN" \
-    --set global.ingress.configureCertmanager=false \
-    --set global.ingress.tls.secretName=tls-cert \
-    --set global.ingress.annotations."external-dns\.alpha\.kubernetes\.io/ttl"="10" \
-    --set certmanager.install=false \
-    --set prometheus.install=false \
-    --set nginx-ingress.controller.service.enableHttp=false \
-    --set nginx-ingress.controller.replicaCount=2 \
-    --set nginx-ingress.controller.config.ssl-ciphers="ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4" \
     --set gitlab.migrations.image.repository="$gitlab_migrations_image_repository" \
     --set gitlab.migrations.image.tag="$CI_COMMIT_REF_SLUG" \
     --set gitlab.gitaly.image.repository="$gitlab_gitaly_image_repository" \
@@ -225,91 +239,11 @@ HELM_CMD=$(cat << EOF
 EOF
 )
 
-# Default requested: CPU => 100m, memory => 100Mi
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set nginx-ingress.controller.resources.limits.cpu=200m \
-  --set nginx-ingress.controller.resources.requests.memory=210M \
-  --set nginx-ingress.controller.resources.limits.memory=420M
-EOF
-)
-
-# Default requested: CPU => 5m, memory => 5Mi
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set nginx-ingress.defaultBackend.resources.limits.cpu=10m \
-  --set nginx-ingress.defaultBackend.resources.requests.memory=12M \
-  --set nginx-ingress.defaultBackend.resources.limits.memory=24M
-EOF
-)
-
-# Default requested: CPU => 100m, memory => 200Mi
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set gitlab.gitaly.resources.requests.cpu=150m \
-  --set gitlab.gitaly.resources.limits.cpu=300m \
-  --set gitlab.gitaly.resources.limits.memory=420M
-EOF
-)
-
-# Default requested: CPU => 0, memory => 6M
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set gitlab.gitlab-shell.resources.requests.cpu=70m \
-  --set gitlab.gitlab-shell.resources.limits.cpu=140m \
-  --set gitlab.gitlab-shell.resources.requests.memory=20M \
-  --set gitlab.gitlab-shell.resources.limits.memory=40M
-EOF
-)
-
-# Default requested: CPU => 50m, memory => 650M
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set gitlab.sidekiq.resources.requests.cpu=200m \
-  --set gitlab.sidekiq.resources.limits.cpu=300m \
-  --set gitlab.sidekiq.resources.requests.memory=800M \
-  --set gitlab.sidekiq.resources.limits.memory=1.2G
-EOF
-)
-
-# Default requested: CPU => 300m + 100m (workhorse), memory => 1.2G + 100M (workhorse)
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set gitlab.unicorn.resources.limits.cpu=800m \
-  --set gitlab.unicorn.resources.limits.memory=2.6G
-EOF
-)
-
-# Default requested: CPU => 100m, memory => 64Mi
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set redis.resources.limits.cpu=200m \
-  --set redis.resources.limits.memory=130M
-EOF
-)
-
-# Default requested: CPU => 100m, memory => 128Mi
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set minio.resources.limits.cpu=200m \
-  --set minio.resources.limits.memory=280M
-EOF
-)
-
-# Default requested: CPU => 0, memory => 0
-HELM_CMD=$(cat << EOF
-  $HELM_CMD \
-  --set gitlab-runner.resources.requests.cpu=300m \
-  --set gitlab-runner.resources.limits.cpu=600m \
-  --set gitlab-runner.resources.requests.memory=300M \
-  --set gitlab-runner.resources.limits.memory=600M
-EOF
-)
-
 HELM_CMD=$(cat << EOF
   $HELM_CMD \
   --namespace="$KUBE_NAMESPACE" \
   --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
+  -f "../scripts/review_apps/base-config.yaml" \
   "$name" .
 EOF
 )
@@ -321,6 +255,8 @@ EOF
 }
 
 function display_deployment_debug() {
+  kubectl get pods -n "$KUBE_NAMESPACE" -lrelease=${CI_ENVIRONMENT_SLUG}
+
   migrations_pod=$(get_pod "migrations");
   if [ -z "${migrations_pod}" ]; then
     echoerr "Migrations pod not found."

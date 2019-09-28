@@ -302,7 +302,7 @@ Example response:
 
 ## Update a group issue board **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/5954) in GitLab 11.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/5954) in GitLab 11.1.
 
 Updates a Group Issue Board.
 
@@ -536,7 +536,7 @@ Example response:
 
 ## Delete a group issue board list
 
-Only for admins and group owners. Soft deletes the board list in question.
+Only for admins and group owners. Deletes the board list in question.
 
 ```
 DELETE /groups/:id/boards/:board_id/lists/:list_id

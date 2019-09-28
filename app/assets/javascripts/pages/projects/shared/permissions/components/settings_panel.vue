@@ -144,6 +144,10 @@ export default {
     visibilityLevelDescription() {
       return visibilityLevelDescriptions[this.visibilityLevel];
     },
+
+    showContainerRegistryPublicNote() {
+      return this.visibilityLevel === visibilityOptions.PUBLIC;
+    },
   },
 
   watch: {
@@ -211,6 +215,7 @@ export default {
               :disabled="!canChangeVisibilityLevel"
               name="project[visibility_level]"
               class="form-control select-control"
+              data-qa-selector="project_visibility_dropdown"
             >
               <option
                 :value="visibilityOptions.PRIVATE"
@@ -286,6 +291,9 @@ export default {
           label="Container registry"
           help-text="Every project can have its own space to store its Docker images"
         >
+          <div v-if="showContainerRegistryPublicNote" class="text-muted">
+            {{ __('Note: the container registry is always visible when a project is public') }}
+          </div>
           <project-feature-toggle
             v-model="containerRegistryEnabled"
             :disabled-input="!repositoryEnabled"

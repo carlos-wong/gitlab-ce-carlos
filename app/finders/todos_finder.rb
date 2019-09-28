@@ -21,7 +21,7 @@ class TodosFinder
 
   requires_cross_project_access unless: -> { project? }
 
-  NONE = '0'.freeze
+  NONE = '0'
 
   TODO_TYPES = Set.new(%w(Issue MergeRequest Epic)).freeze
 
@@ -47,11 +47,12 @@ class TodosFinder
     sort(items)
   end
 
-  # Returns `true` if the current user has any todos for the given target.
+  # Returns `true` if the current user has any todos for the given target with the optional given state.
   #
   # target - The value of the `target_type` column, such as `Issue`.
-  def any_for_target?(target)
-    current_user.todos.any_for_target?(target)
+  # state - The value of the `state` column, such as `pending` or `done`.
+  def any_for_target?(target, state = nil)
+    current_user.todos.any_for_target?(target, state)
   end
 
   private

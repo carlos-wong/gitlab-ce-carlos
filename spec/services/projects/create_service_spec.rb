@@ -78,6 +78,7 @@ describe Projects::CreateService, '#execute' do
       expect(project).to be_valid
       expect(project.owner).to eq(group)
       expect(project.namespace).to eq(group)
+      expect(project.team.owners).to include(user)
       expect(user.authorized_projects).to include(project)
     end
   end
@@ -347,7 +348,7 @@ describe Projects::CreateService, '#execute' do
 
   context 'when a bad service template is created' do
     it 'sets service to be inactive' do
-      opts[:import_url] = 'http://www.gitlab.com/gitlab-org/gitlab-ce'
+      opts[:import_url] = 'http://www.gitlab.com/gitlab-org/gitlab-foss'
       create(:service, type: 'DroneCiService', project: nil, template: true, active: true)
 
       project = create_project(user, opts)

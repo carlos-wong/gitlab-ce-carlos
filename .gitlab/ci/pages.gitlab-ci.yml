@@ -1,26 +1,25 @@
 pages:
-  extends: .dedicated-no-docs-no-db-pull-cache-job
-  before_script: []
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-cache
+    - .default-only
+    - .only-code-qa-changes
+  only:
+    refs:
+      - master
+    variables:
+      - $CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_NAMESPACE == "gitlab-org"
   stage: pages
-  dependencies:
-    - coverage
-    - karma
-    - gitlab:assets:compile
-    - lint:javascript:report
-    - jsdoc
+  dependencies: ["coverage", "karma", "gitlab:assets:compile"]
   script:
     - mv public/ .public/
     - mkdir public/
     - mv coverage/ public/coverage-ruby/ || true
     - mv coverage-javascript/ public/coverage-javascript/ || true
-    - mv eslint-report.html public/ || true
     - mv webpack-report/ public/webpack-report/ || true
     - cp .public/assets/application-*.css public/application.css || true
     - cp .public/assets/application-*.css.gz public/application.css.gz || true
-    - mv jsdoc/ public/jsdoc/ || true
   artifacts:
     paths:
       - public
-  only:
-    - master@gitlab-org/gitlab-ce
-    - master@gitlab-org/gitlab-ee

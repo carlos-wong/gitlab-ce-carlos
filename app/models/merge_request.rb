@@ -23,6 +23,8 @@ class MergeRequest < ApplicationRecord
 
   SORTING_PREFERENCE_FIELD = :merge_requests_sort
 
+  prepend_if_ee('::EE::MergeRequest') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
   belongs_to :target_project, class_name: "Project"
   belongs_to :source_project, class_name: "Project"
   belongs_to :merge_user, class_name: "User"
@@ -54,7 +56,7 @@ class MergeRequest < ApplicationRecord
 
   belongs_to :head_pipeline, foreign_key: "head_pipeline_id", class_name: "Ci::Pipeline"
 
-  has_many :events, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :merge_requests_closing_issues,
     class_name: 'MergeRequestsClosingIssues',
@@ -174,6 +176,7 @@ class MergeRequest < ApplicationRecord
   scope :from_project, ->(project) { where(source_project_id: project.id) }
   scope :merged, -> { with_state(:merged) }
   scope :closed_and_merged, -> { with_states(:closed, :merged) }
+  scope :open_and_closed, -> { with_states(:opened, :closed) }
   scope :from_source_branches, ->(branches) { where(source_branch: branches) }
   scope :by_commit_sha, ->(sha) do
     where('EXISTS (?)', MergeRequestDiff.select(1).where('merge_requests.latest_merge_request_diff_id = merge_request_diffs.id').by_commit_sha(sha)).reorder(nil)
@@ -187,6 +190,11 @@ class MergeRequest < ApplicationRecord
             target_project: [:route, { namespace: :route }],
             source_project: [:route, { namespace: :route }])
   }
+  scope :by_target_branch_wildcard, ->(wildcard_branch_name) do
+    where("target_branch LIKE ?", ApplicationRecord.sanitize_sql_like(wildcard_branch_name).tr('*', '%'))
+  end
+  scope :by_target_branch, ->(branch_name) { where(target_branch: branch_name) }
+  scope :preload_source_project, -> { preload(:source_project) }
 
   after_save :keep_around_commit
 
@@ -225,7 +233,7 @@ class MergeRequest < ApplicationRecord
 
   # Use this method whenever you need to make sure the head_pipeline is synced with the
   # branch head commit, for example checking if a merge request can be merged.
-  # For more information check: https://gitlab.com/gitlab-org/gitlab-ce/issues/40004
+  # For more information check: https://gitlab.com/gitlab-org/gitlab-foss/issues/40004
   def actual_head_pipeline
     head_pipeline&.matches_sha_or_source_sha?(diff_head_sha) ? head_pipeline : nil
   end
@@ -446,22 +454,15 @@ class MergeRequest < ApplicationRecord
     true
   end
 
-  def preload_discussions_diff_highlight
-    preloadable_files = note_diff_files.for_commit_or_unresolved
-
-    discussions_diffs.load_highlight(preloadable_files.pluck(:id))
-  end
-
   def discussions_diffs
     strong_memoize(:discussions_diffs) do
+      note_diff_files = NoteDiffFile
+        .joins(:diff_note)
+        .merge(notes.or(commit_notes))
+        .includes(diff_note: :project)
+
       Gitlab::DiscussionsDiff::FileCollection.new(note_diff_files.to_a)
     end
-  end
-
-  def note_diff_files
-    NoteDiffFile
-      .where(diff_note: discussion_notes)
-      .includes(diff_note: :project)
   end
 
   def diff_size
@@ -690,7 +691,7 @@ class MergeRequest < ApplicationRecord
   def create_merge_request_diff
     fetch_ref!
 
-    # n+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/37435
+    # n+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/37435
     Gitlab::GitalyClient.allow_n_plus_1_calls do
       merge_request_diffs.create!
       reload_merge_request_diff
@@ -1140,6 +1141,10 @@ class MergeRequest < ApplicationRecord
     ref.start_with?("refs/#{Repository::REF_MERGE_REQUEST}/")
   end
 
+  def self.merge_train_ref?(ref)
+    %r{\Arefs/#{Repository::REF_MERGE_REQUEST}/\d+/train\z}.match?(ref)
+  end
+
   def in_locked_state
     begin
       lock_mr
@@ -1226,9 +1231,9 @@ class MergeRequest < ApplicationRecord
     compare_reports(Ci::CompareTestReportsService)
   end
 
-  def compare_reports(service_class)
-    with_reactive_cache(service_class.name) do |data|
-      unless service_class.new(project)
+  def compare_reports(service_class, current_user = nil)
+    with_reactive_cache(service_class.name, current_user&.id) do |data|
+      unless service_class.new(project, current_user)
         .latest?(base_pipeline, actual_head_pipeline, data)
         raise InvalidateReactiveCache
       end
@@ -1237,12 +1242,13 @@ class MergeRequest < ApplicationRecord
     end || { status: :parsing }
   end
 
-  def calculate_reactive_cache(identifier, *args)
+  def calculate_reactive_cache(identifier, current_user_id = nil, *args)
     service_class = identifier.constantize
 
     raise NameError, service_class unless service_class < Ci::CompareReportsBaseService
 
-    service_class.new(project).execute(base_pipeline, actual_head_pipeline)
+    current_user = User.find_by(id: current_user_id)
+    service_class.new(project, current_user).execute(base_pipeline, actual_head_pipeline)
   end
 
   def all_commits
@@ -1381,7 +1387,7 @@ class MergeRequest < ApplicationRecord
   end
 
   # TODO: remove once production database rename completes
-  # https://gitlab.com/gitlab-org/gitlab-ce/issues/47592
+  # https://gitlab.com/gitlab-org/gitlab-foss/issues/47592
   alias_attribute :allow_collaboration, :allow_maintainer_to_push
 
   def allow_collaboration

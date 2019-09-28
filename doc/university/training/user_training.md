@@ -23,7 +23,7 @@ type: reference
 - Adapts to nearly any workflow.
 - Fast, reliable and stable file format.
 
-## Help!
+## Help
 
 Use the tools at your disposal when you get stuck.
 
@@ -214,7 +214,7 @@ Create your first merge request:
 Review the Thoughtbot code-review guide for suggestions to follow when reviewing merge requests:
 <https://github.com/thoughtbot/guides/tree/master/code-review>.
 
-See GitLab merge requests for examples: <https://gitlab.com/gitlab-org/gitlab-ce/merge_requests>.
+See GitLab merge requests for examples: <https://gitlab.com/gitlab-org/gitlab-foss/merge_requests>.
 
 ## Explore GitLab projects
 

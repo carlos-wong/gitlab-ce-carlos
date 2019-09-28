@@ -44,7 +44,7 @@ records should use stubs/doubles as much as possible.
 | `config/routes.rb`, `config/routes/` | `spec/routing/` | RSpec | |
 | `config/puma.example.development.rb`, `config/unicorn.rb.example` | `spec/rack_servers/` | RSpec | |
 | `db/` | `spec/db/` | RSpec | |
-| `db/{post_,}migrate/` | `spec/migrations/` | RSpec | More details at [`spec/migrations/README.md`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/spec/migrations/README.md). |
+| `db/{post_,}migrate/` | `spec/migrations/` | RSpec | More details at [`spec/migrations/README.md`](https://gitlab.com/gitlab-org/gitlab/blob/master/spec/migrations/README.md). |
 | `Gemfile` | `spec/dependencies/`, `spec/sidekiq/` | RSpec | |
 | `lib/` | `spec/lib/` | RSpec | |
 | `lib/tasks/` | `spec/tasks/` | RSpec | |
@@ -63,10 +63,9 @@ They're useful to test permissions, redirections, what view is rendered etc.
 
 | Code path | Tests path | Testing engine | Notes |
 | --------- | ---------- | -------------- | ----- |
-| `app/controllers/` | `spec/controllers/` | RSpec | |
+| `app/controllers/` | `spec/controllers/` | RSpec | For N+1 tests, use [request specs](../query_recorder.md#use-request-specs-instead-of-controller-specs) |
 | `app/mailers/` | `spec/mailers/` | RSpec | |
 | `lib/api/` | `spec/requests/api/` | RSpec | |
-| `lib/ci/api/` | `spec/requests/ci/api/` | RSpec | |
 | `app/assets/javascripts/` | `spec/javascripts/`, `spec/frontend/` | Karma & Jest | More details in the [Frontend Testing guide](frontend_testing.md) section. |
 
 ### About controller tests
@@ -82,7 +81,7 @@ controller.instance_variable_set(:@user, user)
 
 and use methods which are deprecated in Rails 5 ([#23768]).
 
-[#23768]: https://gitlab.com/gitlab-org/gitlab-ce/issues/23768
+[#23768]: https://gitlab.com/gitlab-org/gitlab-foss/issues/23768
 
 ### About Karma
 
@@ -127,7 +126,7 @@ possible).
 | ---------- | -------------- | ----- |
 | `spec/features/` | [Capybara] + [RSpec] | If your test has the `:js` metadata, the browser driver will be [Poltergeist], otherwise it's using [RackTest]. |
 
-### Consider **not** writing a system test!
+### Consider **not** writing a system test
 
 If we're confident that the low-level components work well (and we should be if
 we have enough Unit & Integration tests), we shouldn't need to duplicate their
@@ -191,8 +190,8 @@ confused with the application's [unit tests](#unit-tests) or
 [GitLab Pages]: https://gitlab.com/gitlab-org/gitlab-pages
 [GitLab Runner]: https://gitlab.com/gitlab-org/gitlab-runner
 [GitLab Omnibus]: https://gitlab.com/gitlab-org/omnibus-gitlab
-[part of GitLab Rails]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa
-[test plan]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/.gitlab/issue_templates/Test%20plan.md
+[part of GitLab Rails]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa
+[test plan]: https://gitlab.com/gitlab-org/gitlab/tree/master/.gitlab/issue_templates/Test%20plan.md
 [Product category]: https://about.gitlab.com/handbook/product/categories/
 
 ### Smoke tests

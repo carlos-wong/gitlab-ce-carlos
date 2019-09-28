@@ -1,14 +1,18 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::UsageData do
-  let(:projects) { create_list(:project, 3) }
+  let(:projects) { create_list(:project, 4) }
   let!(:board) { create(:board, project: projects[0]) }
 
   describe '#data' do
     before do
       create(:jira_service, project: projects[0])
-      create(:jira_service, project: projects[1])
+      create(:jira_service, :without_properties_callback, project: projects[1])
       create(:jira_service, :jira_cloud_service, project: projects[2])
+      create(:jira_service, :without_properties_callback, project: projects[3],
+             properties: { url: 'https://mysite.atlassian.net' })
       create(:prometheus_service, project: projects[1])
       create(:service, project: projects[0], type: 'SlackSlashCommandsService', active: true)
       create(:service, project: projects[1], type: 'SlackService', active: true)
@@ -34,7 +38,7 @@ describe Gitlab::UsageData do
 
     subject { described_class.data }
 
-    it "gathers usage data" do
+    it 'gathers usage data' do
       expect(subject.keys).to include(*%i(
         active_user_count
         counts
@@ -60,12 +64,16 @@ describe Gitlab::UsageData do
         influxdb_metrics_enabled
         prometheus_metrics_enabled
         cycle_analytics_views
+        productivity_analytics_views
       ))
 
       expect(subject).to include(
         snippet_create: a_kind_of(Integer),
         snippet_update: a_kind_of(Integer),
         snippet_comment: a_kind_of(Integer),
+        merge_request_comment: a_kind_of(Integer),
+        merge_request_create: a_kind_of(Integer),
+        commit_comment: a_kind_of(Integer),
         wiki_pages_create: a_kind_of(Integer),
         wiki_pages_update: a_kind_of(Integer),
         wiki_pages_delete: a_kind_of(Integer),
@@ -74,11 +82,12 @@ describe Gitlab::UsageData do
         web_ide_merge_requests: a_kind_of(Integer),
         navbar_searches: a_kind_of(Integer),
         cycle_analytics_views: a_kind_of(Integer),
+        productivity_analytics_views: a_kind_of(Integer),
         source_code_pushes: a_kind_of(Integer)
       )
     end
 
-    it "gathers usage counts" do
+    it 'gathers usage counts' do
       expected_keys = %i(
         assignee_lists
         boards
@@ -149,7 +158,7 @@ describe Gitlab::UsageData do
       count_data = subject[:counts]
 
       expect(count_data[:boards]).to eq(1)
-      expect(count_data[:projects]).to eq(3)
+      expect(count_data[:projects]).to eq(4)
       expect(count_data.keys).to include(*expected_keys)
       expect(expected_keys - count_data.keys).to be_empty
     end
@@ -157,14 +166,14 @@ describe Gitlab::UsageData do
     it 'gathers projects data correctly' do
       count_data = subject[:counts]
 
-      expect(count_data[:projects]).to eq(3)
+      expect(count_data[:projects]).to eq(4)
       expect(count_data[:projects_prometheus_active]).to eq(1)
-      expect(count_data[:projects_jira_active]).to eq(3)
+      expect(count_data[:projects_jira_active]).to eq(4)
       expect(count_data[:projects_jira_server_active]).to eq(2)
-      expect(count_data[:projects_jira_cloud_active]).to eq(1)
+      expect(count_data[:projects_jira_cloud_active]).to eq(2)
       expect(count_data[:projects_slack_notifications_active]).to eq(2)
       expect(count_data[:projects_slack_slash_active]).to eq(1)
-      expect(count_data[:projects_with_repositories_enabled]).to eq(2)
+      expect(count_data[:projects_with_repositories_enabled]).to eq(3)
       expect(count_data[:projects_with_error_tracking_enabled]).to eq(1)
 
       expect(count_data[:clusters_enabled]).to eq(7)
@@ -248,7 +257,7 @@ describe Gitlab::UsageData do
   describe '#license_usage_data' do
     subject { described_class.license_usage_data }
 
-    it "gathers license data" do
+    it 'gathers license data' do
       expect(subject[:uuid]).to eq(Gitlab::CurrentSettings.uuid)
       expect(subject[:version]).to eq(Gitlab::VERSION)
       expect(subject[:installation_type]).to eq('gitlab-development-kit')
@@ -264,6 +273,12 @@ describe Gitlab::UsageData do
       allow(relation).to receive(:count).and_return(1)
 
       expect(described_class.count(relation)).to eq(1)
+    end
+
+    it 'returns the count for count_by when provided' do
+      allow(relation).to receive(:count).with(:creator_id).and_return(2)
+
+      expect(described_class.count(relation, count_by: :creator_id)).to eq(2)
     end
 
     it 'returns the fallback value when counting fails' do

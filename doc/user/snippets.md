@@ -33,10 +33,15 @@ overview that shows snippets you created and allows you to explore all snippets.
 
 If you want to discover snippets that belong to a specific project, you can navigate
 to the Snippets page via the left side navigation on the project page.
+Project snippets are enabled and available by default, but they can
+be disabled by navigating to your project's **Settings**, expanding
+**Visibility, project features, permissions** and scrolling down to
+**Snippets**. From there, you can toggle to disable them or select a
+different visibility level from the dropdown menu.
 
 ## Snippet comments
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/12910) in GitLab 9.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/12910) in GitLab 9.2.
 
 With GitLab Snippets you engage in a conversation about that piece of code,
 facilitating the collaboration among users.
@@ -77,7 +82,7 @@ Here's how an example code looks like:
 
 Here's how an embedded snippet looks like:
 
-<script src="https://gitlab.com/gitlab-org/gitlab-ce/snippets/1717978.js"></script>
+<script src="https://gitlab.com/gitlab-org/gitlab-foss/snippets/1717978.js"></script>
 
 Embedded snippets are displayed with a header that shows the file name if defined,
 the snippet size, a link to GitLab, and the actual snippet content. Actions in

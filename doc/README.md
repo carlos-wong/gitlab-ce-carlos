@@ -36,7 +36,7 @@ Have a look at some of our most popular documentation resources:
 |:----------------------------------------------------------------|:-----------------------------------------------------------------|
 | [Configuring `.gitlab-ci.yml`](ci/yaml/README.md)               | Complete syntax documentation for configuring your CI pipelines. |
 | [GitLab CI/CD examples](ci/examples/README.md)                  | Get up to speed quickly with common CI/CD scenarios.             |
-| [GitLab Container Registry](user/project/container_registry.md) | Host containers within GitLab.                                   |
+| [GitLab Container Registry](user/packages/container_registry/index.md) | Host Docker images within GitLab.                         |
 | [GitLab Pages](user/project/pages/index.md)                     | Host static websites for your projects with GitLab.              |
 | [GitLab.com settings](user/gitlab_com/index.md)                 | Settings for GitLab.com.                                         |
 | [Kubernetes integration](user/project/clusters/index.md)        | Use GitLab with Kubernetes.                                      |
@@ -248,16 +248,18 @@ The following documentation relates to the DevOps **Verify** stage:
 
 ### Package
 
-GitLab Container Registry gives you the enhanced security and access controls of
-custom Docker images without 3rd party add-ons. Easily upload and download images
-from GitLab CI/CD with full Git repository management integration.
+GitLab Packages allows organizations to utilize GitLab as a private repository
+for a variety of common package managers. Users are able to build and publish
+packages, which can be easily consumed as a dependency in downstream projects.
 
 The following documentation relates to the DevOps **Package** stage:
 
 | Package Topics                                                  | Description                                            |
 |:----------------------------------------------------------------|:-------------------------------------------------------|
-| [GitLab Container Registry](user/project/container_registry.md) | Learn how to use GitLab's built-in Container Registry. |
-| [GitLab Packages](administration/packages.md) **(PREMIUM)**     | Use GitLab as an NPM registry or Maven repository.     |
+| [Container Registry](user/packages/container_registry/index.md)   | The GitLab Container Registry enables every project in GitLab to have its own space to store [Docker](https://www.docker.com/) images. |
+| [Dependency Proxy](user/packages/dependency_proxy/index.md) **(PREMIUM)** | The GitLab Dependency Proxy sets up a local proxy for frequently used upstream images/packages. |
+| [Maven Repository](user/packages/maven_repository/index.md) **(PREMIUM)** | The GitLab Maven Repository enables every project in GitLab to have its own space to store [Maven](https://maven.apache.org/) packages. |
+| [NPM Registry](user/packages/npm_registry/index.md) **(PREMIUM)**  | The GitLab NPM Registry enables every project in GitLab to have its own space to store [NPM](https://www.npmjs.com/) packages. |
 
 <div align="right">
   <a type="button" class="btn btn-default" href="#overview">
@@ -357,9 +359,10 @@ The following documentation relates to the DevOps **Secure** stage:
 | [Dependency List](user/application_security/dependency_list/index.md) **(ULTIMATE)**                  | View your project's dependencies and their known vulnerabilities.      |
 | [Dependency Scanning](user/application_security/dependency_scanning/index.md) **(ULTIMATE)**          | Analyze your dependencies for known vulnerabilities.                   |
 | [Dynamic Application Security Testing (DAST)](user/application_security/dast/index.md) **(ULTIMATE)** | Analyze running web applications for known vulnerabilities.            |
-| [Group Security Dashboard](user/application_security/security_dashboard/index.md) **(ULTIMATE)**      | View vulnerabilities in all the projects in a group and its subgroups. |
-| [License Compliance](user/application_security/license_management/index.md) **(ULTIMATE)**            | Search your project's dependencies for their licenses.                 |
-| [Project Security Dashboard](user/application_security/security_dashboard/index.md) **(ULTIMATE)**    | View the latest security reports for your project.                     |
+| [Group Security Dashboard](user/application_security/security_dashboard/index.md#group-security-dashboard) **(ULTIMATE)**      | View vulnerabilities in all the projects in a group and its subgroups. |
+| [License Compliance](user/application_security/license_compliance/index.md) **(ULTIMATE)**            | Search your project's dependencies for their licenses.                 |
+| [Pipeline Security Dashboard](user/application_security/security_dashboard/index.md#pipeline-security-dashboard) **(ULTIMATE)**    | View the security reports for your project's pipelines.               |
+| [Project Security Dashboard](user/application_security/security_dashboard/index.md#project-security-dashboard) **(ULTIMATE)**    | View the latest security reports for your project.                     |
 | [Static Application Security Testing (SAST)](user/application_security/sast/index.md) **(ULTIMATE)**  | Analyze source code for known vulnerabilities.                         |
 
 ## New to Git and GitLab?
@@ -447,8 +450,8 @@ There are many ways to integrate with GitLab, including:
 
 ## Contributing to GitLab
 
-GitLab Community Edition is [open source](https://gitlab.com/gitlab-org/gitlab-ce/)
-and GitLab Enterprise Edition is [open-core](https://gitlab.com/gitlab-org/gitlab-ee/).
+GitLab Community Edition is [open source](https://gitlab.com/gitlab-org/gitlab-foss/)
+and GitLab Enterprise Edition is [open-core](https://gitlab.com/gitlab-org/gitlab/).
 
 Learn how to contribute to GitLab with the following resources:
 

@@ -177,18 +177,22 @@ describe Projects::PipelinesController do
       end
 
       it 'does not perform N + 1 queries' do
+        # Set up all required variables
+        get_pipeline_json
+
         control_count = ActiveRecord::QueryRecorder.new { get_pipeline_json }.count
 
-        create_build('test', 1, 'rspec 1')
-        create_build('test', 1, 'spinach 0')
-        create_build('test', 1, 'spinach 1')
-        create_build('test', 1, 'audit')
-        create_build('post deploy', 3, 'pages 1')
-        create_build('post deploy', 3, 'pages 2')
+        first_build = pipeline.builds.first
+        first_build.tag_list << [:hello, :world]
+        create(:deployment, deployable: first_build)
+
+        second_build = pipeline.builds.second
+        second_build.tag_list << [:docker, :ruby]
+        create(:deployment, deployable: second_build)
 
         new_count = ActiveRecord::QueryRecorder.new { get_pipeline_json }.count
 
-        expect(new_count).to be_within(12).of(control_count)
+        expect(new_count).to be_within(1).of(control_count)
       end
     end
 
@@ -391,6 +395,71 @@ describe Projects::PipelinesController do
       it 'fails to retry pipeline' do
         expect(response).to have_gitlab_http_status(:not_found)
       end
+    end
+  end
+
+  describe 'GET latest' do
+    let(:branch_main) { project.repository.branches[0] }
+    let(:branch_secondary) { project.repository.branches[1] }
+
+    let!(:pipeline_master) do
+      create(:ci_pipeline,
+             ref: branch_main.name,
+             sha: branch_main.target,
+             project: project)
+    end
+
+    let!(:pipeline_secondary) do
+      create(:ci_pipeline,
+             ref: branch_secondary.name,
+             sha: branch_secondary.target,
+             project: project)
+    end
+
+    before do
+      project.change_head(branch_main.name)
+      project.reload_default_branch
+    end
+
+    context 'no ref provided' do
+      it 'shows latest pipeline for the default project branch' do
+        get :show, params: { namespace_id: project.namespace, project_id: project, latest: true, ref: nil }
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(assigns(:pipeline)).to have_attributes(id: pipeline_master.id)
+      end
+    end
+
+    context 'ref provided' do
+      before do
+        create(:ci_pipeline, ref: 'master', project: project)
+      end
+
+      it 'shows the latest pipeline for the provided ref' do
+        get :show, params: { namespace_id: project.namespace, project_id: project, latest: true, ref: branch_secondary.name }
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(assigns(:pipeline)).to have_attributes(id: pipeline_secondary.id)
+      end
+
+      context 'newer pipeline exists for older sha' do
+        before do
+          create(:ci_pipeline, ref: branch_secondary.name, sha: project.commit(branch_secondary.name).parent, project: project)
+        end
+
+        it 'shows the provided ref with the last sha/pipeline combo' do
+          get :show, params: { namespace_id: project.namespace, project_id: project, latest: true, ref: branch_secondary.name }
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(assigns(:pipeline)).to have_attributes(id: pipeline_secondary.id)
+        end
+      end
+    end
+
+    it 'renders a 404 if no pipeline is found for the ref' do
+      get :show, params: { namespace_id: project.namespace, project_id: project, ref: 'no-branch' }
+
+      expect(response).to have_gitlab_http_status(404)
     end
   end
 end

@@ -3,6 +3,7 @@ import Vue from 'vue';
 import Cookies from 'js-cookie';
 import { GlEmptyState } from '@gitlab/ui';
 import filterMixins from 'ee_else_ce/analytics/cycle_analytics/mixins/filter_mixins';
+import addStageMixin from 'ee_else_ce/analytics/cycle_analytics/mixins/add_stage_mixin';
 import Flash from '../flash';
 import { __ } from '~/locale';
 import Translate from '../vue_shared/translate';
@@ -12,6 +13,7 @@ import stageComponent from './components/stage_component.vue';
 import stageReviewComponent from './components/stage_review_component.vue';
 import stageStagingComponent from './components/stage_staging_component.vue';
 import stageTestComponent from './components/stage_test_component.vue';
+import stageNavItem from './components/stage_nav_item.vue';
 import CycleAnalyticsService from './cycle_analytics_service';
 import CycleAnalyticsStore from './cycle_analytics_store';
 
@@ -41,8 +43,13 @@ export default () => {
         import('ee_component/analytics/shared/components/projects_dropdown_filter.vue'),
       DateRangeDropdown: () =>
         import('ee_component/analytics/shared/components/date_range_dropdown.vue'),
+      'stage-nav-item': stageNavItem,
+      CustomStageForm: () =>
+        import('ee_component/analytics/cycle_analytics/components/custom_stage_form.vue'),
+      AddStageButton: () =>
+        import('ee_component/analytics/cycle_analytics/components/add_stage_button.vue'),
     },
-    mixins: [filterMixins],
+    mixins: [filterMixins, addStageMixin],
     data() {
       return {
         store: CycleAnalyticsStore,
@@ -67,7 +74,7 @@ export default () => {
       // after a group is selected the cycle analyitcs data will be fetched). Once the
       // old (current) page has been removed this entire created method as well as the
       // variable itself can be completely removed.
-      // Follow up issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/64490
+      // Follow up issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/64490
       if (cycleAnalyticsEl.dataset.requestPath) this.fetchCycleAnalyticsData();
     },
     methods: {
@@ -122,6 +129,7 @@ export default () => {
           return;
         }
 
+        this.hideAddStageForm();
         this.isLoadingStage = true;
         this.store.setStageEvents([], stage);
         this.store.setActiveStage(stage);

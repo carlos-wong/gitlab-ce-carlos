@@ -32,6 +32,9 @@ export default class ClusterStore {
     this.state = {
       helpPath: null,
       ingressHelpPath: null,
+      environmentsHelpPath: null,
+      clustersHelpPath: null,
+      deployBoardsHelpPath: null,
       status: null,
       rbac: false,
       statusReason: null,
@@ -55,7 +58,7 @@ export default class ClusterStore {
           ...applicationInitialState,
           title: s__('ClusterIntegration|GitLab Runner'),
           version: null,
-          chartRepo: 'https://gitlab.com/charts/gitlab-runner',
+          chartRepo: 'https://gitlab.com/gitlab-org/charts/gitlab-runner',
           updateAvailable: null,
           updateSuccessful: false,
           updateFailed: false,
@@ -80,13 +83,25 @@ export default class ClusterStore {
           updateFailed: false,
         },
       },
+      environments: [],
+      fetchingEnvironments: false,
     };
   }
 
-  setHelpPaths(helpPath, ingressHelpPath, ingressDnsHelpPath) {
+  setHelpPaths(
+    helpPath,
+    ingressHelpPath,
+    ingressDnsHelpPath,
+    environmentsHelpPath,
+    clustersHelpPath,
+    deployBoardsHelpPath,
+  ) {
     this.state.helpPath = helpPath;
     this.state.ingressHelpPath = ingressHelpPath;
     this.state.ingressDnsHelpPath = ingressDnsHelpPath;
+    this.state.environmentsHelpPath = environmentsHelpPath;
+    this.state.clustersHelpPath = clustersHelpPath;
+    this.state.deployBoardsHelpPath = deployBoardsHelpPath;
   }
 
   setManagePrometheusPath(managePrometheusPath) {
@@ -190,5 +205,23 @@ export default class ClusterStore {
         this.state.applications.runner.updateAvailable = updateAvailable;
       }
     });
+  }
+
+  toggleFetchEnvironments(isFetching) {
+    this.state.fetchingEnvironments = isFetching;
+  }
+
+  updateEnvironments(environments = []) {
+    this.state.environments = environments.map(environment => ({
+      name: environment.name,
+      project: environment.project,
+      environmentPath: environment.environment_path,
+      lastDeployment: environment.last_deployment,
+      rolloutStatus: {
+        status: environment.rollout_status ? environment.rollout_status.status : null,
+        instances: environment.rollout_status ? environment.rollout_status.instances : [],
+      },
+      updatedAt: environment.updated_at,
+    }));
   }
 }

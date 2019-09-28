@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AutoMergeService < BaseService
-  STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS = 'merge_when_pipeline_succeeds'.freeze
+  STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS = 'merge_when_pipeline_succeeds'
   STRATEGIES = [STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS].freeze
 
   class << self
@@ -60,3 +60,5 @@ class AutoMergeService < BaseService
     self.class.get_service_class(strategy)&.new(project, current_user, params)
   end
 end
+
+AutoMergeService.prepend_if_ee('EE::AutoMergeService')

@@ -40,7 +40,7 @@ the time it would take to build packages and test everything.
 That is why when someone changes `t.text_field :login` to
 `t.text_field :username` in the _new session_ view we won't know about this
 change until our GitLab QA nightly pipeline fails, or until someone triggers
-`package-and-qa` action in their merge request.
+`package-and-qa-manual` action in their merge request.
 
 Obviously such a change would break all tests. We call this problem a _fragile
 tests problem_.
@@ -166,6 +166,18 @@ There are two supported methods of defining elements within a view.
 
 Any existing `.qa-selector` class should be considered deprecated
 and we should prefer the `data-qa-selector` method of definition.
+
+### Exceptions
+
+In some cases it might not be possible or worthwhile to add a selector.
+
+Some UI components use external libraries, including some maintained by third parties.
+Even if a library is maintained by GitLab, the selector sanity test only runs
+on code within the GitLab project, so it's not possible to specify the path for
+the view for code in a library.
+
+In such rare cases it's reasonable to use CSS selectors in page object methods,
+with a comment explaining why an `element` can't be added.
 
 ## Running the test locally
 

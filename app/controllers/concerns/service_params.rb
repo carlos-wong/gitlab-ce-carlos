@@ -10,6 +10,7 @@ module ServiceParams
     :api_url,
     :api_version,
     :bamboo_url,
+    :branches_to_be_notified,
     :build_key,
     :build_type,
     :ca_pem,
@@ -41,7 +42,6 @@ module ServiceParams
     :new_issue_url,
     :notify,
     :notify_only_broken_pipelines,
-    :notify_only_default_branch,
     :password,
     :priority,
     :project_key,
@@ -85,3 +85,5 @@ module ServiceParams
     ALLOWED_PARAMS_CE
   end
 end
+
+ServiceParams.prepend_if_ee('EE::ServiceParams')

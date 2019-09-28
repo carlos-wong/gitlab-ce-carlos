@@ -10,7 +10,7 @@ that can be:
 
 - Mounted to the local disk
 - Exposed as an NFS shared volume
-- Acessed via [gitaly] on its own machine.
+- Accessed via [gitaly] on its own machine.
 
 In GitLab, this is configured in `/etc/gitlab/gitlab.rb` by the `git_data_dirs({})`
 configuration hash. The storage layouts discussed here will apply to any shard
@@ -82,18 +82,16 @@ by another folder with the next 2 characters. They are both stored in a special
 
 > [Introduced](https://gitlab.com/gitlab-org/gitaly/issues/1606) in GitLab 12.1.
 
-Forks of public projects are deduplicated by creating a third repository, the object pool, containing the objects from the source project. Using `objects/info/alternates`, the source project and forks use the object pool for shared objects. Objects are moved from the source project to the object pool when housekeeping is run on the source project.
+Forks of public projects are deduplicated by creating a third repository, the
+object pool, containing the objects from the source project. Using
+`objects/info/alternates`, the source project and forks use the object pool for
+shared objects. Objects are moved from the source project to the object pool
+when housekeeping is run on the source project.
 
 ```ruby
 # object pool paths
 "@pools/#{hash[0..1]}/#{hash[2..3]}/#{hash}.git"
 ```
-
-Object pools can be disabled using the `object_pools` feature flag, and can be
-disabled for individual projects by executing
-`Feature.disable(:object_pools, Project.find(<id>))`. Disabling object pools
-will not change existing deduplicated forks, but will prevent new forks from
-being deduplicated.
 
 DANGER: **Danger:**
 Do not run `git prune` or `git gc` in pool repositories! This can
@@ -118,7 +116,7 @@ If you do have any existing integration, you may want to do a small rollout firs
 to validate. You can do so by specifying a range with the operation.
 
 This is an example of how to limit the rollout to Project IDs 50 to 100, running in
-an Omnibus Gitlab installation:
+an Omnibus GitLab installation:
 
 ```bash
 sudo gitlab-rake gitlab:storage:migrate_to_hashed ID_FROM=50 ID_TO=100
@@ -139,7 +137,7 @@ To schedule a complete rollback, see the
 [rake task documentation for storage rollback](raketasks/storage.md#rollback-from-hashed-storage-to-legacy-storage) for instructions.
 
 The rollback task also supports specifying a range of Project IDs. Here is an example
-of limiting the rollout to Project IDs 50 to 100, in an Omnibus Gitlab installation:
+of limiting the rollout to Project IDs 50 to 100, in an Omnibus GitLab installation:
 
 ```bash
 sudo gitlab-rake gitlab:storage:rollback_to_legacy ID_FROM=50 ID_TO=100
@@ -185,7 +183,7 @@ CI Artifacts are S3 compatible since **9.4** (GitLab Premium), and available in 
 
 ##### LFS Objects
 
-LFS Objects implements a similar storage pattern using 2 chars, 2 level folders, following git own implementation:
+LFS Objects implements a similar storage pattern using 2 chars, 2 level folders, following Git own implementation:
 
 ```ruby
 "shared/lfs-objects/#{oid[0..1}/#{oid[2..3]}/#{oid[4..-1]}"
@@ -197,7 +195,7 @@ LFS Objects implements a similar storage pattern using 2 chars, 2 level folders,
 They are also S3 compatible since **10.0** (GitLab Premium), and available in GitLab Core since **10.7**.
 
 [ce-2821]: https://gitlab.com/gitlab-com/infrastructure/issues/2821
-[ce-28283]: https://gitlab.com/gitlab-org/gitlab-ce/issues/28283
+[ce-28283]: https://gitlab.com/gitlab-org/gitlab-foss/issues/28283
 [rake/migrate-to-hashed]: raketasks/storage.md#migrate-existing-projects-to-hashed-storage
 [storage-paths]: repository_storage_types.md
 [gitaly]: gitaly/index.md

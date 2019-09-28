@@ -18,14 +18,25 @@ module Gitlab
     end
 
     module UserAuthFinders
+      prepend_if_ee('::EE::Gitlab::Auth::UserAuthFinders') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
       include Gitlab::Utils::StrongMemoize
 
-      PRIVATE_TOKEN_HEADER = 'HTTP_PRIVATE_TOKEN'.freeze
+      PRIVATE_TOKEN_HEADER = 'HTTP_PRIVATE_TOKEN'
       PRIVATE_TOKEN_PARAM = :private_token
 
       # Check the Rails session for valid authentication details
       def find_user_from_warden
         current_request.env['warden']&.authenticate if verified_request?
+      end
+
+      def find_user_from_static_object_token(request_format)
+        return unless valid_static_objects_format?(request_format)
+
+        token = current_request.params[:token].presence || current_request.headers['X-Gitlab-Static-Object-Token'].presence
+        return unless token
+
+        User.find_by_static_object_token(token) || raise(UnauthorizedError)
       end
 
       def find_user_from_feed_token(request_format)
@@ -154,6 +165,15 @@ module Gitlab
         end
       end
 
+      def valid_static_objects_format?(request_format)
+        case request_format
+        when :archive
+          archive_request?
+        else
+          false
+        end
+      end
+
       def rss_request?
         current_request.path.ends_with?('.atom') || current_request.format.atom?
       end
@@ -164,6 +184,10 @@ module Gitlab
 
       def api_request?
         current_request.path.starts_with?("/api/")
+      end
+
+      def archive_request?
+        current_request.path.include?('/-/archive/')
       end
     end
   end

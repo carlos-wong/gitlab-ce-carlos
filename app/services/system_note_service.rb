@@ -67,7 +67,7 @@ module SystemNoteService
     create_note(NoteSummary.new(noteable, project, author, body, action: 'assignee'))
   end
 
-  # Called when the assignees of an Issue is changed or removed
+  # Called when the assignees of an issuable is changed or removed
   #
   # issuable - Issuable object (responds to assignees)
   # project  - Project owning noteable
@@ -88,10 +88,12 @@ module SystemNoteService
   def change_issuable_assignees(issuable, project, author, old_assignees)
     unassigned_users = old_assignees - issuable.assignees
     added_users = issuable.assignees.to_a - old_assignees
-
     text_parts = []
-    text_parts << "assigned to #{added_users.map(&:to_reference).to_sentence}" if added_users.any?
-    text_parts << "unassigned #{unassigned_users.map(&:to_reference).to_sentence}" if unassigned_users.any?
+
+    Gitlab::I18n.with_default_locale do
+      text_parts << "assigned to #{added_users.map(&:to_reference).to_sentence}" if added_users.any?
+      text_parts << "unassigned #{unassigned_users.map(&:to_reference).to_sentence}" if unassigned_users.any?
+    end
 
     body = text_parts.join(' and ')
 
@@ -240,7 +242,7 @@ module SystemNoteService
 
     ##
     # TODO: Abort message should be sent by the system, not a particular user.
-    # See https://gitlab.com/gitlab-org/gitlab-ce/issues/63187.
+    # See https://gitlab.com/gitlab-org/gitlab-foss/issues/63187.
     create_note(NoteSummary.new(noteable, project, author, body, action: 'merge'))
   end
 
@@ -598,11 +600,11 @@ module SystemNoteService
   end
 
   def zoom_link_added(issue, project, author)
-    create_note(NoteSummary.new(issue, project, author, _('a Zoom call was added to this issue'), action: 'pinned_embed'))
+    create_note(NoteSummary.new(issue, project, author, _('added a Zoom call to this issue'), action: 'pinned_embed'))
   end
 
   def zoom_link_removed(issue, project, author)
-    create_note(NoteSummary.new(issue, project, author, _('a Zoom call was removed from this issue'), action: 'pinned_embed'))
+    create_note(NoteSummary.new(issue, project, author, _('removed a Zoom call from this issue'), action: 'pinned_embed'))
   end
 
   private
@@ -704,3 +706,5 @@ module SystemNoteService
     ActionController::Base.helpers.content_tag(*args)
   end
 end
+
+SystemNoteService.prepend_if_ee('EE::SystemNoteService')

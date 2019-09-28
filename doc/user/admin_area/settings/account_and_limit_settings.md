@@ -2,7 +2,7 @@
 type: reference
 ---
 
-# Account and limit settings
+# Account and limit settings **(CORE ONLY)**
 
 ## Max attachment size
 
@@ -17,7 +17,7 @@ details.
 
 ## Repository size limit **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/740) in [GitLab Enterprise Edition 8.12](https://about.gitlab.com/2016/09/22/gitlab-8-12-released/#limit-project-size-ee).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/740) in [GitLab Enterprise Edition 8.12](https://about.gitlab.com/2016/09/22/gitlab-8-12-released/#limit-project-size-ee).
 > Available in [GitLab Starter](https://about.gitlab.com/pricing/).
 
 Repositories within your GitLab instance can grow quickly, especially if you are
@@ -44,12 +44,19 @@ there are no restrictions.
 
 These settings can be found within:
 
-- Each project's settings.
-- A group's settings.
-- The **Size limit per repository (MB)** field in the **Account and limit** section of a GitLab instance's
-  settings by navigating to either:
-  - **Admin Area > Settings > General**.
-  - The path `/admin/application_settings`.
+- Each project's settings:
+  1. From the Project's homepage, navigate to **Settings > General**.
+  1. Fill in the **Repository size limit (MB)** field in the **Naming, topics, avatar** section.
+  1. Click **Save changes**.
+- Each group's settings:
+  1. From the Group's homepage, navigate to **Settings > General**.
+  1. Fill in the **Repository size limit (MB)** field in the **Naming, visibility** section.
+  1. Click **Save changes**.
+- GitLab's global settings:
+  1. From the Dashboard, navigate to **Admin Area > Settings > General**.
+  1. Expand the **Account and limit** section.
+  1. Fill in the **Size limit per repository (MB)** field.
+  1. Click **Save changes**.
 
 The first push of a new project, including LFS objects, will be checked for size
 and **will** be rejected if the sum of their sizes exceeds the maximum allowed

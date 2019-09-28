@@ -37,8 +37,8 @@ class Project < ApplicationRecord
 
   BoardLimitExceeded = Class.new(StandardError)
 
-  STATISTICS_ATTRIBUTE = 'repositories_count'.freeze
-  UNKNOWN_IMPORT_URL = 'http://unknown.git'.freeze
+  STATISTICS_ATTRIBUTE = 'repositories_count'
+  UNKNOWN_IMPORT_URL = 'http://unknown.git'
   # Hashed Storage versions handle rolling out new storage to project and dependents models:
   # nil: legacy
   # 1: repository
@@ -55,11 +55,18 @@ class Project < ApplicationRecord
   VALID_MIRROR_PORTS = [22, 80, 443].freeze
   VALID_MIRROR_PROTOCOLS = %w(http https ssh git).freeze
 
+  ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT = 10
+
+  SORTING_PREFERENCE_FIELD = :projects_sort
+  MAX_BUILD_TIMEOUT = 1.month
+
   cache_markdown_field :description, pipeline: :description
 
-  delegate :feature_available?, :builds_enabled?, :wiki_enabled?,
-           :merge_requests_enabled?, :issues_enabled?, :pages_enabled?, :public_pages?,
-           to: :project_feature, allow_nil: true
+  delegate :feature_available?, :builds_enabled?, :wiki_enabled?, :merge_requests_enabled?,
+    :issues_enabled?, :pages_enabled?, :public_pages?, :private_pages?,
+    :merge_requests_access_level, :issues_access_level, :wiki_access_level,
+    :snippets_access_level, :builds_access_level, :repository_access_level,
+    to: :project_feature, allow_nil: true
 
   delegate :base_dir, :disk_path, :ensure_storage_path_exists, to: :storage
 
@@ -285,6 +292,8 @@ class Project < ApplicationRecord
   has_many :remote_mirrors, inverse_of: :project
   has_many :cycle_analytics_stages, class_name: 'Analytics::CycleAnalytics::ProjectStage'
 
+  has_many :external_pull_requests, inverse_of: :project
+
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
   accepts_nested_attributes_for :import_data
@@ -422,7 +431,7 @@ class Project < ApplicationRecord
 
   validates :build_timeout, allow_nil: true,
                             numericality: { greater_than_or_equal_to: 10.minutes,
-                                            less_than: 1.month,
+                                            less_than: MAX_BUILD_TIMEOUT,
                                             only_integer: true,
                                             message: _('needs to be between 10 minutes and 1 month') }
 
@@ -495,6 +504,7 @@ class Project < ApplicationRecord
   # We require an alias to the project_mirror_data_table in order to use import_state in our queries
   scope :joins_import_state, -> { joins("INNER JOIN project_mirror_data import_state ON import_state.project_id = projects.id") }
   scope :for_group, -> (group) { where(group: group) }
+  scope :for_group_and_its_subgroups, ->(group) { where(namespace_id: group.self_and_descendants.select(:id)) }
 
   class << self
     # Searches for a list of projects based on the query given in `query`.
@@ -743,6 +753,15 @@ class Project < ApplicationRecord
     latest_successful_build_for_ref(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
   end
 
+  def latest_pipeline_for_ref(ref = default_branch)
+    ref = ref.presence || default_branch
+    sha = commit(ref)&.sha
+
+    return unless sha
+
+    ci_pipelines.newest_first(ref: ref, sha: sha).first
+  end
+
   def merge_base_commit(first_commit_id, second_commit_id)
     sha = repository.merge_base(first_commit_id, second_commit_id)
     commit_by(oid: sha) if sha
@@ -765,7 +784,7 @@ class Project < ApplicationRecord
       if forked?
         RepositoryForkWorker.perform_async(id)
       elsif gitlab_project_import?
-        # Do not retry on Import/Export until https://gitlab.com/gitlab-org/gitlab-ce/issues/26189 is solved.
+        # Do not retry on Import/Export until https://gitlab.com/gitlab-org/gitlab-foss/issues/26189 is solved.
         RepositoryImportWorker.set(retry: false).perform_async(self.id)
       else
         RepositoryImportWorker.perform_async(self.id)
@@ -1297,7 +1316,7 @@ class Project < ApplicationRecord
       result = self
 
       # TODO: Make this go to the fork_network root immeadiatly
-      # dependant on the discussion in: https://gitlab.com/gitlab-org/gitlab-ce/issues/39769
+      # dependant on the discussion in: https://gitlab.com/gitlab-org/gitlab-foss/issues/39769
       result = result.fork_source while result&.forked?
 
       result || self
@@ -1309,7 +1328,7 @@ class Project < ApplicationRecord
   # network, or it is the base of the fork network.
   #
   # TODO: refactor this to get the correct lfs objects when implementing
-  #       https://gitlab.com/gitlab-org/gitlab-ce/issues/39769
+  #       https://gitlab.com/gitlab-org/gitlab-foss/issues/39769
   def all_lfs_objects
     lfs_storage_project.lfs_objects
   end
@@ -1802,6 +1821,7 @@ class Project < ApplicationRecord
       .append(key: 'CI_PROJECT_NAMESPACE', value: namespace.full_path)
       .append(key: 'CI_PROJECT_URL', value: web_url)
       .append(key: 'CI_PROJECT_VISIBILITY', value: visibility)
+      .append(key: 'CI_PROJECT_REPOSITORY_LANGUAGES', value: repository_languages.map(&:name).join(',').downcase)
       .concat(pages_variables)
       .concat(container_registry_variables)
       .concat(auto_devops_variables)
@@ -2173,8 +2193,7 @@ class Project < ApplicationRecord
     hashed_storage?(:repository) &&
       public? &&
       repository_exists? &&
-      Gitlab::CurrentSettings.hashed_storage_enabled &&
-      Feature.enabled?(:object_pools, self, default_enabled: true)
+      Gitlab::CurrentSettings.hashed_storage_enabled
   end
 
   def leave_pool_repository
@@ -2187,6 +2206,14 @@ class Project < ApplicationRecord
 
   def has_pool_repository?
     pool_repository.present?
+  end
+
+  def access_request_approvers_to_be_notified
+    members.maintainers.order_recent_sign_in.limit(ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT)
+  end
+
+  def pages_lookup_path(domain: nil)
+    Pages::LookupPath.new(self, domain: domain)
   end
 
   private
@@ -2302,7 +2329,7 @@ class Project < ApplicationRecord
     Gitlab::SafeRequestStore.fetch("project-#{id}:branch-#{branch_name}:user-#{user.id}:branch_allows_collaboration") do
       next false if empty_repo?
 
-      # Issue for N+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/49322
+      # Issue for N+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/49322
       Gitlab::GitalyClient.allow_n_plus_1_calls do
         merge_requests_allowing_collaboration(branch_name).any? do |merge_request|
           merge_request.can_be_merged_by?(user)
@@ -2315,3 +2342,5 @@ class Project < ApplicationRecord
     @services_templates ||= Service.where(template: true)
   end
 end
+
+Project.prepend_if_ee('EE::Project')

@@ -7,8 +7,8 @@ module Projects
     include Gitlab::Utils::StrongMemoize
 
     # Cache keys used to store issues count
-    PUBLIC_COUNT_KEY = 'public_open_issues_count'.freeze
-    TOTAL_COUNT_KEY = 'total_open_issues_count'.freeze
+    PUBLIC_COUNT_KEY = 'public_open_issues_count'
+    TOTAL_COUNT_KEY = 'total_open_issues_count'
 
     def initialize(project, user = nil)
       @user = user
@@ -65,7 +65,7 @@ module Projects
     # We only show total issues count for reporters
     # which are allowed to view confidential issues
     # This will still show a discrepancy on issues number but should be less than before.
-    # Check https://gitlab.com/gitlab-org/gitlab-ce/issues/38418 description.
+    # Check https://gitlab.com/gitlab-org/gitlab-foss/issues/38418 description.
     # rubocop: disable CodeReuse/ActiveRecord
     def self.query(projects, public_only: true)
       if public_only

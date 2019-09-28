@@ -41,10 +41,16 @@ export default {
   methods: {
     ...mapCommitActions(['updateCommitAction']),
     updateSelectedCommitAction() {
-      if (this.currentBranch && !this.currentBranch.can_push) {
-        this.updateCommitAction(consts.COMMIT_TO_NEW_BRANCH);
-      } else if (this.containsStagedChanges) {
+      if (!this.currentBranch) {
+        return;
+      }
+
+      const { can_push: canPush = false, default: isDefault = false } = this.currentBranch;
+
+      if (canPush && !isDefault) {
         this.updateCommitAction(consts.COMMIT_TO_CURRENT_BRANCH);
+      } else {
+        this.updateCommitAction(consts.COMMIT_TO_NEW_BRANCH);
       }
     },
   },
@@ -63,7 +69,11 @@ export default {
       :disabled="currentBranch && !currentBranch.can_push"
       :title="$options.currentBranchPermissionsTooltip"
     >
-      <span class="ide-radio-label" v-html="commitToCurrentBranchText"> </span>
+      <span
+        class="ide-radio-label"
+        data-qa-selector="commit_to_current_branch_radio"
+        v-html="commitToCurrentBranchText"
+      ></span>
     </radio-group>
     <radio-group
       :value="$options.commitToNewBranch"

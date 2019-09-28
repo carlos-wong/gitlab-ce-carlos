@@ -232,7 +232,7 @@
                 = _('Settings')
             %li.divider.fly-out-top-item
             = nav_link(path: 'application_settings#show') do
-              = link_to admin_application_settings_path, title: _('General'), class: 'qa-admin-settings-general-item' do
+              = link_to general_admin_application_settings_path, title: _('General'), class: 'qa-admin-settings-general-item' do
                 %span
                   = _('General')
             = nav_link(path: 'application_settings#integrations') do
@@ -261,7 +261,7 @@
                 %span
                   = _('Metrics and profiling')
             = nav_link(path: 'application_settings#network') do
-              = link_to network_admin_application_settings_path, title: _('Network') do
+              = link_to network_admin_application_settings_path, title: _('Network'), data: { qa_selector: 'admin_settings_network_item' } do
                 %span
                   = _('Network')
             - if template_exists?('admin/application_settings/geo')
@@ -270,7 +270,7 @@
                   %span
                     = _('Geo')
             = nav_link(path: 'application_settings#preferences') do
-              = link_to preferences_admin_application_settings_path, title: _('Preferences') do
+              = link_to preferences_admin_application_settings_path, title: _('Preferences'), data: { qa_selector: 'admin_settings_preferences_link' } do
                 %span
                   = _('Preferences')
 

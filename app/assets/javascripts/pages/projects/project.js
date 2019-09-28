@@ -1,4 +1,4 @@
-/* eslint-disable func-names, no-var, no-return-assign, object-shorthand, vars-on-top */
+/* eslint-disable func-names, no-var, no-return-assign, vars-on-top */
 
 import $ from 'jquery';
 import Cookies from 'js-cookie';
@@ -73,13 +73,6 @@ export default class Project {
         .remove();
       return e.preventDefault();
     });
-    $('.hide-shared-runner-limit-message').on('click', function(e) {
-      var $alert = $(this).parents('.shared-runner-quota-message');
-      var scope = $alert.data('scope');
-      Cookies.set('hide_shared_runner_quota_message', 'false', { path: scope });
-      $alert.remove();
-      e.preventDefault();
-    });
     $('.hide-auto-devops-implicitly-enabled-banner').on('click', function(e) {
       const projectId = $(this).data('project-id');
       const cookieKey = `hide_auto_devops_implicitly_enabled_banner_${projectId}`;
@@ -130,7 +123,7 @@ export default class Project {
         filterByText: true,
         inputFieldName: $dropdown.data('inputFieldName'),
         fieldName,
-        renderRow: function(ref) {
+        renderRow(ref) {
           var li = refListItem.cloneNode(false);
 
           if (ref.header != null) {
@@ -151,13 +144,13 @@ export default class Project {
 
           return li;
         },
-        id: function(obj, $el) {
+        id(obj, $el) {
           return $el.attr('data-ref');
         },
-        toggleLabel: function(obj, $el) {
+        toggleLabel(obj, $el) {
           return $el.text().trim();
         },
-        clicked: function(options) {
+        clicked(options) {
           const { e } = options;
           e.preventDefault();
           if ($(`input[name="${fieldName}"]`).length) {

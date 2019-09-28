@@ -4,10 +4,12 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   include ParamsBackwardCompatibility
   include RendersMemberAccess
   include OnboardingExperimentHelper
+  include SortingHelper
+  include SortingPreference
 
   prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss) }
   before_action :set_non_archived_param
-  before_action :default_sorting
+  before_action :set_sorting
   before_action :projects, only: [:index]
   skip_cross_project_access_check :index, :starred
 
@@ -53,15 +55,10 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   end
 
   def render_projects
-    # n+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/40260
+    # n+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/40260
     Gitlab::GitalyClient.allow_n_plus_1_calls do
       render
     end
-  end
-
-  def default_sorting
-    params[:sort] ||= 'latest_activity_desc'
-    @sort = params[:sort]
   end
 
   # rubocop: disable CodeReuse/ActiveRecord
@@ -73,6 +70,7 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
                 .new(params: finder_params, current_user: current_user)
                 .execute
                 .includes(:route, :creator, :group, namespace: [:route, :owner])
+                .preload(:project_feature)
                 .page(finder_params[:page])
 
     prepare_projects_for_rendering(projects)
@@ -88,4 +86,19 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
 
     Events::RenderService.new(current_user).execute(@events, atom_request: request.format.atom?)
   end
+
+  def set_sorting
+    params[:sort] = set_sort_order
+    @sort = params[:sort]
+  end
+
+  def default_sort_order
+    sort_value_latest_activity
+  end
+
+  def sorting_field
+    Project::SORTING_PREFERENCE_FIELD
+  end
 end
+
+Dashboard::ProjectsController.prepend_if_ee('EE::Dashboard::ProjectsController')

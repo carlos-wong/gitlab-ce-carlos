@@ -69,7 +69,7 @@ that are in common for all providers that we need to consider.
 
 To change these settings:
 
-- **For omnibus package**
+- **For Omnibus package**
 
   Open the configuration file:
 
@@ -192,7 +192,7 @@ from the Omniauth provider's documentation.
   sudo service gitlab stop
   ```
 
-- Add the gem to your [Gemfile](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/Gemfile):
+- Add the gem to your [Gemfile](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/Gemfile):
 
   ```sh
   gem "omniauth-your-auth-provider"
@@ -277,3 +277,54 @@ omniauth:
   sync_profile_from_provider: ['twitter', 'google_oauth2']
   sync_profile_attributes: ['email', 'location']
 ```
+
+## Bypassing two factor authentication
+
+Starting with GitLab 12.3, this allows users to login with the specified
+providers without two factor authentication.
+
+Define the allowed providers using an array, e.g. `["twitter", 'google_oauth2']`, or as
+`true`/`false` to allow all providers or none. This option should only be configured
+for providers which already have two factor authentication (default: false).
+This configration dose not apply to SAML.
+
+```ruby
+gitlab_rails['omniauth_allow_bypass_two_factor'] = ['twitter', 'google_oauth2']
+```
+
+**For installations from source**
+
+```yaml
+omniauth:
+  allow_bypass_two_factor: ['twitter', 'google_oauth2']
+```
+
+## Automatically sign in with provider
+
+You can add the `auto_sign_in_with_provider` setting to your
+GitLab configuration to automatically redirect login requests
+to your OmniAuth provider for authentication, thus removing the need to click a button
+before actually signing in.
+
+For example, when using the Azure integration, you would set the following
+to enable auto sign in.
+
+For Omnibus package:
+
+```ruby
+gitlab_rails['omniauth_auto_sign_in_with_provider'] = 'azure_oauth2'
+```
+
+For installations from source:
+
+```yaml
+omniauth:
+  auto_sign_in_with_provider: azure_oauth2
+```
+
+Please keep in mind that every sign in attempt will be redirected to the OmniAuth provider,
+so you will not be able to sign in using local credentials. Make sure that at least one
+of the OmniAuth users has admin permissions.
+
+You may also bypass the auto signin feature by browsing to
+`https://gitlab.example.com/users/sign_in?auto_sign_in=false`.

@@ -3,7 +3,7 @@
 /* global ListMilestone */
 /* global ListAssignee */
 
-import Vue from 'vue';
+import axios from '~/lib/utils/axios_utils';
 import './label';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import IssueProject from './project';
@@ -11,11 +11,6 @@ import boardsStore from '../stores/boards_store';
 
 class ListIssue {
   constructor(obj, defaultAvatar) {
-    this.id = obj.id;
-    this.iid = obj.iid;
-    this.title = obj.title;
-    this.confidential = obj.confidential;
-    this.dueDate = obj.due_date;
     this.subscribed = obj.subscribed;
     this.labels = [];
     this.assignees = [];
@@ -25,6 +20,16 @@ class ListIssue {
       subscriptions: true,
     };
     this.isLoading = {};
+
+    this.refreshData(obj, defaultAvatar);
+  }
+
+  refreshData(obj, defaultAvatar) {
+    this.id = obj.id;
+    this.iid = obj.iid;
+    this.title = obj.title;
+    this.confidential = obj.confidential;
+    this.dueDate = obj.due_date;
     this.sidebarInfoEndpoint = obj.issue_sidebar_endpoint;
     this.referencePath = obj.reference_path;
     this.path = obj.real_path;
@@ -42,11 +47,13 @@ class ListIssue {
       this.milestone_id = obj.milestone.id;
     }
 
-    obj.labels.forEach(label => {
-      this.labels.push(new ListLabel(label));
-    });
+    if (obj.labels) {
+      this.labels = obj.labels.map(label => new ListLabel(label));
+    }
 
-    this.assignees = obj.assignees.map(a => new ListAssignee(a, defaultAvatar));
+    if (obj.assignees) {
+      this.assignees = obj.assignees.map(a => new ListAssignee(a, defaultAvatar));
+    }
   }
 
   addLabel(label) {
@@ -133,7 +140,7 @@ class ListIssue {
     }
 
     const projectPath = this.project ? this.project.path : '';
-    return Vue.http.patch(`${this.path}.json`, data).then(({ body = {} } = {}) => {
+    return axios.patch(`${this.path}.json`, data).then(({ data: body = {} } = {}) => {
       /**
        * Since post implementation of Scoped labels, server can reject
        * same key-ed labels. To keep the UI and server Model consistent,

@@ -1,81 +1,120 @@
-# coding: utf-8
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::UrlBlocker do
+  include StubRequests
+
   describe '#validate!' do
+    subject { described_class.validate!(import_url) }
+
+    shared_examples 'validates URI and hostname' do
+      it 'runs the url validations' do
+        uri, hostname = subject
+
+        expect(uri).to eq(Addressable::URI.parse(expected_uri))
+        expect(hostname).to eq(expected_hostname)
+      end
+    end
+
     context 'when URI is nil' do
       let(:import_url) { nil }
 
-      it 'returns no URI and hostname' do
-        uri, hostname = described_class.validate!(import_url)
-
-        expect(uri).to be(nil)
-        expect(hostname).to be(nil)
+      it_behaves_like 'validates URI and hostname' do
+        let(:expected_uri) { nil }
+        let(:expected_hostname) { nil }
       end
     end
 
     context 'when URI is internal' do
       let(:import_url) { 'http://localhost' }
 
-      it 'returns URI and no hostname' do
-        uri, hostname = described_class.validate!(import_url)
+      before do
+        stub_dns(import_url, ip_address: '127.0.0.1')
+      end
 
-        expect(uri).to eq(Addressable::URI.parse('http://[::1]'))
-        expect(hostname).to eq('localhost')
+      it_behaves_like 'validates URI and hostname' do
+        let(:expected_uri) { 'http://127.0.0.1' }
+        let(:expected_hostname) { 'localhost' }
       end
     end
 
     context 'when the URL hostname is a domain' do
-      let(:import_url) { 'https://example.org' }
+      context 'when domain can be resolved' do
+        let(:import_url) { 'https://example.org' }
 
-      it 'returns URI and hostname' do
-        uri, hostname = described_class.validate!(import_url)
+        before do
+          stub_dns(import_url, ip_address: '93.184.216.34')
+        end
 
-        expect(uri).to eq(Addressable::URI.parse('https://93.184.216.34'))
-        expect(hostname).to eq('example.org')
+        it_behaves_like 'validates URI and hostname' do
+          let(:expected_uri) { 'https://93.184.216.34' }
+          let(:expected_hostname) { 'example.org' }
+        end
+      end
+
+      context 'when domain cannot be resolved' do
+        let(:import_url) { 'http://foobar.x' }
+
+        it 'raises an error' do
+          stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
+
+          expect { subject }.to raise_error(described_class::BlockedUrlError)
+        end
       end
     end
 
     context 'when the URL hostname is an IP address' do
       let(:import_url) { 'https://93.184.216.34' }
 
-      it 'returns URI and no hostname' do
-        uri, hostname = described_class.validate!(import_url)
+      it_behaves_like 'validates URI and hostname' do
+        let(:expected_uri) { import_url }
+        let(:expected_hostname) { nil }
+      end
 
-        expect(uri).to eq(Addressable::URI.parse('https://93.184.216.34'))
-        expect(hostname).to be(nil)
+      context 'when the address is invalid' do
+        let(:import_url) { 'http://1.1.1.1.1' }
+
+        it 'raises an error' do
+          stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
+
+          expect { subject }.to raise_error(described_class::BlockedUrlError)
+        end
       end
     end
 
     context 'disabled DNS rebinding protection' do
+      subject { described_class.validate!(import_url, dns_rebind_protection: false) }
+
       context 'when URI is internal' do
         let(:import_url) { 'http://localhost' }
 
-        it 'returns URI and no hostname' do
-          uri, hostname = described_class.validate!(import_url, dns_rebind_protection: false)
-
-          expect(uri).to eq(Addressable::URI.parse('http://localhost'))
-          expect(hostname).to be(nil)
+        it_behaves_like 'validates URI and hostname' do
+          let(:expected_uri) { import_url }
+          let(:expected_hostname) { nil }
         end
       end
 
       context 'when the URL hostname is a domain' do
         let(:import_url) { 'https://example.org' }
 
-        it 'returns URI and no hostname' do
-          uri, hostname = described_class.validate!(import_url, dns_rebind_protection: false)
-
-          expect(uri).to eq(Addressable::URI.parse('https://example.org'))
-          expect(hostname).to eq(nil)
+        before do
+          stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
         end
 
-        context 'when it cannot be resolved' do
+        context 'when domain can be resolved' do
+          it_behaves_like 'validates URI and hostname' do
+            let(:expected_uri) { import_url }
+            let(:expected_hostname) { nil }
+          end
+        end
+
+        context 'when domain cannot be resolved' do
           let(:import_url) { 'http://foobar.x' }
 
-          it 'raises error' do
-            stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
-
-            expect { described_class.validate!(import_url) }.to raise_error(described_class::BlockedUrlError)
+          it_behaves_like 'validates URI and hostname' do
+            let(:expected_uri) { import_url }
+            let(:expected_hostname) { nil }
           end
         end
       end
@@ -83,20 +122,17 @@ describe Gitlab::UrlBlocker do
       context 'when the URL hostname is an IP address' do
         let(:import_url) { 'https://93.184.216.34' }
 
-        it 'returns URI and no hostname' do
-          uri, hostname = described_class.validate!(import_url, dns_rebind_protection: false)
-
-          expect(uri).to eq(Addressable::URI.parse('https://93.184.216.34'))
-          expect(hostname).to be(nil)
+        it_behaves_like 'validates URI and hostname' do
+          let(:expected_uri) { import_url }
+          let(:expected_hostname) { nil }
         end
 
         context 'when it is invalid' do
           let(:import_url) { 'http://1.1.1.1.1' }
 
-          it 'raises an error' do
-            stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
-
-            expect { described_class.validate!(import_url) }.to raise_error(described_class::BlockedUrlError)
+          it_behaves_like 'validates URI and hostname' do
+            let(:expected_uri) { import_url }
+            let(:expected_hostname) { nil }
           end
         end
       end
@@ -314,6 +350,7 @@ describe Gitlab::UrlBlocker do
           end
 
           before do
+            allow(ApplicationSetting).to receive(:current).and_return(ApplicationSetting.new)
             stub_application_setting(outbound_local_requests_whitelist: whitelist)
           end
 
@@ -351,9 +388,15 @@ describe Gitlab::UrlBlocker do
             it_behaves_like 'allows local requests', { allow_localhost: false, allow_local_network: false }
 
             it 'whitelists IP when dns_rebind_protection is disabled' do
-              stub_domain_resolv('example.com', '192.168.1.1') do
-                expect(described_class).not_to be_blocked_url("http://example.com",
-                  url_blocker_attributes.merge(dns_rebind_protection: false))
+              url = "http://example.com"
+              attrs = url_blocker_attributes.merge(dns_rebind_protection: false)
+
+              stub_domain_resolv('example.com', '192.168.1.2') do
+                expect(described_class).not_to be_blocked_url(url, attrs)
+              end
+
+              stub_domain_resolv('example.com', '192.168.1.3') do
+                expect(described_class).to be_blocked_url(url, attrs)
               end
             end
           end
@@ -403,6 +446,51 @@ describe Gitlab::UrlBlocker do
                 expect(described_class).not_to be_blocked_url("http://#{idna_encoded_domain}",
                   url_blocker_attributes)
               end
+            end
+
+            shared_examples 'dns rebinding checks' do
+              shared_examples 'whitelists the domain' do
+                let(:whitelist) { [domain] }
+                let(:url) { "http://#{domain}" }
+
+                before do
+                  stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
+                end
+
+                it do
+                  expect(described_class).not_to be_blocked_url(url, dns_rebind_protection: dns_rebind_value)
+                end
+              end
+
+              context 'when dns_rebinding_setting is' do
+                context 'enabled' do
+                  let(:dns_rebind_value) { true }
+
+                  it_behaves_like 'whitelists the domain'
+                end
+
+                context 'disabled' do
+                  let(:dns_rebind_value) { false }
+
+                  it_behaves_like 'whitelists the domain'
+                end
+              end
+            end
+
+            context 'when the domain cannot be resolved' do
+              let(:domain) { 'foobar.x' }
+
+              it_behaves_like 'dns rebinding checks'
+            end
+
+            context 'when the domain can be resolved' do
+              let(:domain) { 'example.com' }
+
+              before do
+                stub_dns(url, ip_address: '93.184.216.34')
+              end
+
+              it_behaves_like 'dns rebinding checks'
             end
           end
 

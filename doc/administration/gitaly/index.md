@@ -10,11 +10,15 @@ In the rest of this page, Gitaly server is referred to the standalone node that
 only runs Gitaly, and Gitaly client to the GitLab Rails node that runs all other
 processes except Gitaly.
 
+## Architecture
+
+Here's a high-level architecture overview of how Gitaly is used.
+
+![Gitaly architecture diagram](img/architecture_v12_4.png)
+
 ## Configuring Gitaly
 
-The Gitaly service itself is configured via a TOML configuration file.
-This file is documented [in the Gitaly
-repository](https://gitlab.com/gitlab-org/gitaly/blob/master/doc/configuration/README.md).
+The Gitaly service itself is configured via a [TOML configuration file](reference.md).
 
 In case you want to change some of its settings:
 
@@ -64,6 +68,7 @@ The following list depicts what the network architecture of Gitaly is:
   topology.
 - A `(Gitaly address, Gitaly token)` corresponds to a Gitaly server.
 - A Gitaly server hosts one or more storages.
+- A GitLab server can use one or more Gitaly servers.
 - Gitaly addresses must be specified in such a way that they resolve
   correctly for ALL Gitaly clients.
 - Gitaly clients are: Unicorn, Sidekiq, gitlab-workhorse,
@@ -77,14 +82,16 @@ The following list depicts what the network architecture of Gitaly is:
 - Authentication is done through a static token which is shared among the Gitaly
   and GitLab Rails nodes.
 
-Below we describe how to configure a Gitaly server at address
-`gitaly.internal:8075` with secret token `abc123secret`. We assume
-your GitLab installation has two repository storages, `default` and
-`storage1`.
+Below we describe how to configure two Gitaly servers one at
+`gitaly1.internal` and the other at `gitaly2.internal`
+with secret token `abc123secret`. We assume
+your GitLab installation has three repository storages: `default`,
+`storage1` and `storage2`.
 
 ### 1. Installation
 
-First install Gitaly using either Omnibus GitLab or install it from source:
+First install Gitaly on each Gitaly server using either
+Omnibus GitLab or install it from source:
 
 - For Omnibus GitLab: [Download/install](https://about.gitlab.com/install/) the Omnibus GitLab
   package you want using **steps 1 and 2** from the GitLab downloads page but
@@ -119,7 +126,7 @@ Configure a token on the instance that runs the GitLab Rails application.
 
 ### 3. Gitaly server configuration
 
-Next, on the Gitaly server, you need to configure storage paths, enable
+Next, on the Gitaly servers, you need to configure storage paths, enable
 the network listener and configure the token.
 
 NOTE: **Note:** if you want to reduce the risk of downtime when you enable
@@ -136,7 +143,7 @@ Git operations in GitLab will result in an API error.
 
 NOTE: **Note:**
 In most or all cases, the storage paths below end in `/repositories` which is
-not that case with `path` in `git_data_dirs` of Omnibus GitLab installations.
+not the case with `path` in `git_data_dirs` of Omnibus GitLab installations.
 Check the directory layout on your Gitaly server to be sure.
 
 **For Omnibus GitLab**
@@ -145,7 +152,7 @@ Check the directory layout on your Gitaly server to be sure.
 
    <!--
    updates to following example must also be made at
-   https://gitlab.com/charts/gitlab/blob/master/doc/advanced/external-gitaly/external-omnibus-gitaly.md#configure-omnibus-gitlab
+   https://gitlab.com/gitlab-org/charts/gitlab/blob/master/doc/advanced/external-gitaly/external-omnibus-gitaly.md#configure-omnibus-gitlab
    -->
 
    ```ruby
@@ -175,15 +182,29 @@ Check the directory layout on your Gitaly server to be sure.
    gitaly['listen_addr'] = "0.0.0.0:8075"
    gitaly['auth_token'] = 'abc123secret'
 
-   gitaly['storage'] = [
-     { 'name' => 'default' },
-     { 'name' => 'storage1' },
-   ]
-
    # To use TLS for Gitaly you need to add
    gitaly['tls_listen_addr'] = "0.0.0.0:9999"
    gitaly['certificate_path'] = "path/to/cert.pem"
    gitaly['key_path'] = "path/to/key.pem"
+   ```
+
+1. Append the following to `/etc/gitlab/gitlab.rb` for each respective server:
+
+   For `gitaly1.internal`:
+
+   ```
+   gitaly['storage'] = [
+     { 'name' => 'default' },
+     { 'name' => 'storage1' },
+   ]
+   ```
+
+   For `gitaly2.internal`:
+
+   ```
+   gitaly['storage'] = [
+     { 'name' => 'storage2' },
+   ]
    ```
 
    NOTE: **Note:**
@@ -206,12 +227,25 @@ Check the directory layout on your Gitaly server to be sure.
 
    [auth]
    token = 'abc123secret'
+   ```
 
+1. Append the following to `/home/git/gitaly/config.toml` for each respective server:
+
+   For `gitaly1.internal`:
+
+   ```toml
    [[storage]]
    name = 'default'
 
    [[storage]]
    name = 'storage1'
+   ```
+
+   For `gitaly2.internal`:
+
+   ```toml
+   [[storage]]
+   name = 'storage2'
    ```
 
    NOTE: **Note:**
@@ -231,9 +265,13 @@ then all Gitaly requests will fail.
 Additionally, you need to
 [disable Rugged if previously manually enabled](../high_availability/nfs.md#improving-nfs-performance-with-gitlab).
 
-We assume that your Gitaly server can be reached at
-`gitaly.internal:8075` from your GitLab server, and that Gitaly can read and
-write to `/mnt/gitlab/default` and `/mnt/gitlab/storage1` respectively.
+We assume that your `gitaly1.internal` Gitaly server can be reached at
+`gitaly1.internal:8075` from your GitLab server, and that Gitaly server
+can read and write to `/mnt/gitlab/default` and `/mnt/gitlab/storage1`.
+
+We assume also that your `gitaly2.internal` Gitaly server can be reached at
+`gitaly2.internal:8075` from your GitLab server, and that Gitaly server
+can read and write to `/mnt/gitlab/storage2`.
 
 **For Omnibus GitLab**
 
@@ -241,16 +279,13 @@ write to `/mnt/gitlab/default` and `/mnt/gitlab/storage1` respectively.
 
    ```ruby
    git_data_dirs({
-     'default' => { 'gitaly_address' => 'tcp://gitaly.internal:8075' },
-     'storage1' => { 'gitaly_address' => 'tcp://gitaly.internal:8075' },
+     'default' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
+     'storage1' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
+     'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075' },
    })
 
    gitlab_rails['gitaly_token'] = 'abc123secret'
    ```
-
-   NOTE: **Note:**
-   In some cases, you'll have to set `path` for each `git_data_dirs` in the
-   format `'path' => '/mnt/gitlab/<storage name>'`.
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 1. Tail the logs to see the requests:
@@ -268,17 +303,23 @@ write to `/mnt/gitlab/default` and `/mnt/gitlab/storage1` respectively.
      repositories:
        storages:
          default:
-           gitaly_address: tcp://gitaly.internal:8075
+           gitaly_address: tcp://gitaly1.internal:8075
+           path: /some/dummy/path
          storage1:
-           gitaly_address: tcp://gitaly.internal:8075
+           gitaly_address: tcp://gitaly1.internal:8075
+           path: /some/dummy/path
+         storage2:
+           gitaly_address: tcp://gitaly2.internal:8075
+           path: /some/dummy/path
 
      gitaly:
        token: 'abc123secret'
    ```
 
    NOTE: **Note:**
-   In some cases, you'll have to set `path` for each of the `storages` in the
-   format `path: /mnt/gitlab/<storage name>/repositories`.
+   `/some/dummy/path` should be set to a local folder that exists, however no
+   data will be stored in this folder. This will no longer be necessary after
+   [this issue](https://gitlab.com/gitlab-org/gitaly/issues/1282) is resolved.
 
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source).
 1. Tail the logs to see the requests:
@@ -325,7 +366,7 @@ To disable Gitaly on a client node:
 
 ## TLS support
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22602) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22602) in GitLab 11.8.
 
 Gitaly supports TLS encryption. To be able to communicate
 with a Gitaly instance that listens for secure connections you will need to use `tls://` url
@@ -350,8 +391,9 @@ To configure Gitaly with TLS:
 
    ```ruby
    git_data_dirs({
-     'default' => { 'gitaly_address' => 'tls://gitaly.internal:9999' },
-     'storage1' => { 'gitaly_address' => 'tls://gitaly.internal:9999' },
+     'default' => { 'gitaly_address' => 'tls://gitaly1.internal:9999' },
+     'storage1' => { 'gitaly_address' => 'tls://gitaly1.internal:9999' },
+     'storage2' => { 'gitaly_address' => 'tls://gitaly2.internal:9999' },
    })
 
    gitlab_rails['gitaly_token'] = 'abc123secret'
@@ -377,17 +419,23 @@ To configure Gitaly with TLS:
      repositories:
        storages:
          default:
-           gitaly_address: tls://gitaly.internal:9999
+           gitaly_address: tls://gitaly1.internal:9999
+           path: /some/dummy/path
          storage1:
-           gitaly_address: tls://gitaly.internal:9999
+           gitaly_address: tls://gitaly1.internal:9999
+           path: /some/dummy/path
+         storage2:
+           gitaly_address: tls://gitaly2.internal:9999
+           path: /some/dummy/path
 
      gitaly:
        token: 'abc123secret'
    ```
 
    NOTE: **Note:**
-   In some cases, you'll have to set `path` for each of the `storages` in the
-   format `path: /mnt/gitlab/<storage name>/repositories`.
+   `/some/dummy/path` should be set to a local folder that exists, however no
+   data will be stored in this folder. This will no longer be necessary after
+   [this issue](https://gitlab.com/gitlab-org/gitaly/issues/1282) is resolved.
 
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source).
 1. On the Gitaly server nodes, edit `/home/git/gitaly/config.toml`:
@@ -474,7 +522,72 @@ One current feature of GitLab that still requires a shared directory (NFS) is
 There is [work in progress](https://gitlab.com/gitlab-org/gitlab-pages/issues/196)
 to eliminate the need for NFS to support GitLab Pages.
 
+## Limiting RPC concurrency
+
+It can happen that CI clone traffic puts a large strain on your Gitaly
+service. The bulk of the work gets done in the SSHUploadPack (for Git
+SSH) and PostUploadPack (for Git HTTP) RPC's. To prevent such workloads
+from overcrowding your Gitaly server you can set concurrency limits in
+Gitaly's configuration file.
+
+```ruby
+# in /etc/gitlab/gitlab.rb
+
+gitaly['concurrency'] = [
+  {
+    'rpc' => "/gitaly.SmartHTTPService/PostUploadPack",
+    'max_per_repo' => 20
+  },
+  {
+    'rpc' => "/gitaly.SSHService/SSHUploadPack",
+    'max_per_repo' => 20
+  }
+]
+```
+
+This will limit the number of in-flight RPC calls for the given RPC's.
+The limit is applied per repository. In the example above, each on the
+Gitaly server can have at most 20 simultaneous PostUploadPack calls in
+flight, and the same for SSHUploadPack. If another request comes in for
+a repository that hase used up its 20 slots, that request will get
+queued.
+
+You can observe the behavior of this queue via the Gitaly logs and via
+Prometheus. In the Gitaly logs, you can look for the string (or
+structured log field) `acquire_ms`. Messages that have this field are
+reporting about the concurrency limiter. In Prometheus, look for the
+`gitaly_rate_limiting_in_progress`, `gitaly_rate_limiting_queued` and
+`gitaly_rate_limiting_seconds` metrics.
+
+The name of the Prometheus metric is not quite right because this is a
+concurrency limiter, not a rate limiter. If a client makes 1000 requests
+in a row in a very short timespan, the concurrency will not exceed 1,
+and this mechanism (the concurrency limiter) will do nothing.
+
 ## Troubleshooting Gitaly
+
+### `gitaly-debug`
+
+The `gitaly-debug` command provides "production debugging" tools for Gitaly and Git
+performance. It is intended to help production engineers and support
+engineers investigate Gitaly performance problems.
+
+If you're using GitLab 11.6 or newer, this tool should be installed on
+your GitLab / Gitaly server already at `/opt/gitlab/embedded/bin/gitaly-debug`.
+If you're investigating an older GitLab version you can compile this
+tool offline and copy the executable to your server:
+
+```sh
+git clone https://gitlab.com/gitlab-org/gitaly.git
+cd cmd/gitaly-debug
+GOOS=linux GOARCH=amd64 go build -o gitaly-debug
+```
+
+To see the help page of `gitaly-debug` for a list of supported sub-commands, run:
+
+```sh
+gitaly-debug -h
+```
 
 ### Commits, pushes, and clones return a 401
 
@@ -484,17 +597,6 @@ remote: GitLab: 401 Unauthorized
 
 You will need to sync your `gitlab-secrets.json` file with your GitLab
 app nodes.
-
-### `gitaly-debug`
-
-Since GitLab 11.6, Gitaly comes with a command-line tool called
-`gitaly-debug` that can be run on a Gitaly server to aid in
-troubleshooting. In GitLab 11.6 its only sub-command is
-`simulate-http-clone` which allows you to measure the maximum possible
-Git clone speed for a specific repository on the server.
-
-For an up to date list of sub-commands see [the gitaly-debug
-README](https://gitlab.com/gitlab-org/gitaly/blob/master/cmd/gitaly-debug/README.md).
 
 ### Client side GRPC logs
 
@@ -549,7 +651,7 @@ Confirm the following are all true:
   UI, it immediatley fails with a red `401 Unauthorized` banner.
 - Creating a new project and [initializing it with a README](../../gitlab-basics/create-project.md#blank-projects)
   successfully creates the project but doesn't create the README.
-- When [tailing the logs](https://docs.gitlab.com/omnibus/settings/logs.md#tail-logs-in-a-console-on-the-server) on an app node and reproducing the error, you get `401` errors
+- When [tailing the logs](https://docs.gitlab.com/omnibus/settings/logs.html#tail-logs-in-a-console-on-the-server) on an app node and reproducing the error, you get `401` errors
   when reaching the `/api/v4/internal/allowed` endpoint:
 
   ```sh
@@ -615,3 +717,33 @@ To fix this problem, confirm that your [`gitlab-secrets.json` file](#3-gitaly-se
 on the Gitaly node matches the one on all other nodes. If it doesn't match,
 update the secrets file on the Gitaly node to match the others, then
 [reconfigure the node](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+
+### Command line tools cannot connect to Gitaly
+
+If you are having trouble connecting to a Gitaly node with command line (CLI) tools, and certain actions result in a `14: Connect Failed` error message, it means that gRPC cannot reach your Gitaly node.
+
+Verify that you can reach Gitaly via TCP:
+
+```bash
+sudo gitlab-rake gitlab:tcp_check[GITALY_SERVER_IP,GITALY_LISTEN_PORT]
+```
+
+If the TCP connection fails, check your network settings and your firewall rules. If the TCP connection succeeds, your networking and firewall rules are correct.
+
+If you use proxy servers in your command line environment, such as Bash, these can interfere with your gRPC traffic.
+
+If you use Bash or a compatible command line environment, run the following commands to determine whether you have proxy servers configured:
+
+```bash
+echo $http_proxy
+echo $https_proxy
+```
+
+If either of these variables have a value, your Gitaly CLI connections may be getting routed through a proxy which cannot connect to Gitaly.
+
+To remove the proxy setting, run the following commands (depending on which variables had values):
+
+```bash
+unset http_proxy
+unset https_proxy
+```

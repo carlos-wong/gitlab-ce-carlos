@@ -8,8 +8,8 @@ Learn how to administer your self-managed GitLab instance.
 
 GitLab has two product distributions available through [different subscriptions](https://about.gitlab.com/pricing/):
 
-- The open source [GitLab Community Edition (CE)](https://gitlab.com/gitlab-org/gitlab-ce).
-- The open core [GitLab Enterprise Edition (EE)](https://gitlab.com/gitlab-org/gitlab-ee).
+- The open source [GitLab Community Edition (CE)](https://gitlab.com/gitlab-org/gitlab-foss).
+- The open core [GitLab Enterprise Edition (EE)](https://gitlab.com/gitlab-org/gitlab).
 
 You can [install either GitLab CE or GitLab EE](https://about.gitlab.com/install/ce-or-ee/).
 However, the features you'll have access to depend on the subscription you choose
@@ -64,6 +64,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [External Classification Policy Authorization](../user/admin_area/settings/external_authorization.md) **(PREMIUM ONLY)**
 - [Upload a license](../user/admin_area/license.md): Upload a license to unlock features that are in paid tiers of GitLab. **(STARTER ONLY)**
 - [Admin Area](../user/admin_area/index.md): for self-managed instance-wide configuration and maintenance.
+- [S/MIME Signing](smime_signing_email.md): how to sign all outgoing notification emails with S/MIME
 
 #### Customizing GitLab's appearance
 
@@ -103,6 +104,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 
 ## User settings and permissions
 
+- [Creating users](../user/profile/account/create_accounts.md): Create users manually or through authentication integrations.
 - [Libravatar](../customization/libravatar.md): Use Libravatar instead of Gravatar for user avatars.
 - [Sign-up restrictions](../user/admin_area/settings/sign_up_restrictions.md): block email addresses of specific domains, or whitelist only specific domains.
 - [Access restrictions](../user/admin_area/settings/visibility_and_access_controls.md#enabled-git-access-protocols): Define which Git access protocols can be used to talk to GitLab (SSH, HTTP, HTTPS).
@@ -126,20 +128,26 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 
 ## Project settings
 
-- [Container Registry](container_registry.md): Configure Container Registry with GitLab.
 - [Issue closing pattern](issue_closing_pattern.md): Customize how to close an issue from commit messages.
 - [Gitaly](gitaly/index.md): Configuring Gitaly, GitLab's Git repository storage service.
 - [Default labels](../user/admin_area/labels.md): Create labels that will be automatically added to every new project.
 - [Restrict the use of public or internal projects](../public_access/public_access.md#restricting-the-use-of-public-or-internal-projects): Restrict the use of visibility levels for users when they create a project or a snippet.
 - [Custom project templates](../user/admin_area/custom_project_templates.md): Configure a set of projects to be used as custom templates when creating a new project. **(PREMIUM ONLY)**
-- [Packages](packages.md): Enable GitLab to act as a Maven repository or NPM registry. **(PREMIUM ONLY)**
+
+## Package Registry administration
+
+- [Container Registry](packages/container_registry.md): Configure Container Registry with GitLab.
+- [Package Registry](packages/index.md): Enable GitLab to act as an NPM Registry and a Maven Repository. **(PREMIUM ONLY)**
+- [Dependency Proxy](packages/dependency_proxy.md): Configure the Dependency Proxy, a local proxy for frequently used upstream images/packages. **(PREMIUM ONLY)**
 
 ### Repository settings
 
 - [Repository checks](repository_checks.md): Periodic Git repository checks.
 - [Repository storage paths](repository_storage_paths.md): Manage the paths used to store repositories.
+- [Repository storage types](repository_storage_types.md): Information about the different repository storage types.
 - [Repository storage rake tasks](raketasks/storage.md): A collection of rake tasks to list and migrate existing projects and attachments associated with it from Legacy storage to Hashed storage.
 - [Limit repository size](../user/admin_area/settings/account_and_limit_settings.md): Set a hard limit for your repositories' size. **(STARTER ONLY)**
+- [Static objects external storage](static_objects_external_storage.md): Set external storage for static objects in a repository.
 
 ## Continuous Integration settings
 
@@ -185,13 +193,29 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Debugging tips](troubleshooting/debug.md): Tips to debug problems when things go wrong
 - [Log system](logs.md): Where to look for logs.
 - [Sidekiq Troubleshooting](troubleshooting/sidekiq.md): Debug when Sidekiq appears hung and is not processing jobs.
-- Useful [diagnostics tools](troubleshooting/diagnostics_tools.md) that are sometimes used by the GitLab
-  Support team.
-- [Troubleshooting ElasticSearch](troubleshooting/elasticsearch.md): Tips to troubleshoot ElasticSearch.
-- [Kubernetes troubleshooting](troubleshooting/kubernetes_cheat_sheet.md): Commands and tips useful
-  for troubleshooting Kubernetes-related issues.
-- Useful links from the Support Team:
-  - [GitLab Developer Docs](https://docs.gitlab.com/ee/development/README.html).
-  - [Repairing and recovering broken git repositories](https://git.seveas.net/repairing-and-recovering-broken-git-repositories.html).
-  - [Testing with OpenSSL](https://www.feistyduck.com/library/openssl-cookbook/online/ch-testing-with-openssl.html).
-  - [Strace zine](https://wizardzines.com/zines/strace/).
+- [Troubleshooting ElasticSearch](troubleshooting/elasticsearch.md)
+
+### Support Team Docs
+
+The GitLab Support Team has collected a lot of information about troubleshooting GitLab
+instances. These documents are normally used by the Support Team itself, or by customers
+with direct guidance from a Support Team member. GitLab administrators may find the
+information useful for troubleshooting, but if you are experiencing trouble with your
+GitLab instance, you should check your [support options](https://about.gitlab.com/support/)
+before referring to these documents.
+
+CAUTION: **Warning:**
+Using the commands listed in the documentation below could result in data loss or
+other damage to a GitLab instance, and should only be used by experienced administrators
+who are aware of the risks.
+
+- [Useful diagnostics tools](troubleshooting/diagnostics_tools.md)
+- [Useful Linux commands](troubleshooting/linux_cheat_sheet.md)
+- [Troubleshooting Kubernetes](troubleshooting/kubernetes_cheat_sheet.md)
+- [Guide to test environments](troubleshooting/test_environments.md) (for Support Engineers)
+- [GitLab rails console commands](troubleshooting/gitlab_rails_cheat_sheet.md) (for Support Engineers)
+- Useful links:
+  - [GitLab Developer Docs](../development/README.md)
+  - [Repairing and recovering broken Git repositories](https://git.seveas.net/repairing-and-recovering-broken-git-repositories.html)
+  - [Testing with OpenSSL](https://www.feistyduck.com/library/openssl-cookbook/online/ch-testing-with-openssl.html)
+  - [Strace zine](https://wizardzines.com/zines/strace/)

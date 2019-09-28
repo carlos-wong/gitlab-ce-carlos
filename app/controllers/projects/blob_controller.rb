@@ -92,10 +92,10 @@ class Projects::BlobController < Projects::ApplicationController
   def diff
     apply_diff_view_cookie!
 
-    @form = Blobs::UnfoldPresenter.new(blob, params.to_unsafe_h)
+    @form = Blobs::UnfoldPresenter.new(blob, diff_params)
 
     # keep only json rendering when
-    # https://gitlab.com/gitlab-org/gitlab-ce/issues/44988 is done
+    # https://gitlab.com/gitlab-org/gitlab-foss/issues/44988 is done
     if rendered_for_merge_request?
       render json: DiffLineSerializer.new.represent(@form.diff_lines)
     else
@@ -238,5 +238,9 @@ class Projects::BlobController < Projects::ApplicationController
 
   def tree_path
     @path.rpartition('/').first
+  end
+
+  def diff_params
+    params.permit(:full, :since, :to, :bottom, :unfold, :offset, :indent)
   end
 end

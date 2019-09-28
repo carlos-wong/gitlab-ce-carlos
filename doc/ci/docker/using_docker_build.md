@@ -125,7 +125,7 @@ not without its own challenges:
   child containers. For example, if you have files you want to share with a
   child container, you may create a subdirectory under `/builds/$CI_PROJECT_PATH`
   and use it as your mount point (for a more thorough explanation, check [issue
-  #41227](https://gitlab.com/gitlab-org/gitlab-ce/issues/41227)):
+  #41227](https://gitlab.com/gitlab-org/gitlab-foss/issues/41227)):
 
     ```yaml
     variables:
@@ -515,7 +515,7 @@ If you're running multiple Runners you will have to modify all configuration fil
 >   login to GitLab's Container Registry.
 
 Once you've built a Docker image, you can push it up to the built-in
-[GitLab Container Registry](../../user/project/container_registry.md).
+[GitLab Container Registry](../../user/packages/container_registry/index.md).
 Some things you should be aware of:
 
 - You must [log in to the container registry](#authenticating-to-the-container-registry)
@@ -574,6 +574,43 @@ For private and internal projects:
   ```sh
   docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
   ```
+
+### Using docker-in-docker image from Container Registry
+
+If you want to use your own Docker images for docker-in-docker there are a few things you need to do in addition to the steps in the [docker-in-docker](#use-docker-in-docker-workflow-with-docker-executor) section:
+
+1. Update the `image` and `service` to point to your registry.
+1. Add a service [alias](../yaml/README.md#servicesalias).
+
+Below is an example of what your `.gitlab-ci.yml` should look like,
+assuming you have it configured with [TLS enabled](#tls-enabled):
+
+```yaml
+ build:
+   image: $CI_REGISTRY/group/project/docker:19.03.1
+   services:
+     - name: $CI_REGISTRY/group/project/docker:19.03.1-dind
+       alias: docker
+   variables:
+     # Specify to Docker where to create the certificates, Docker will
+     # create them automatically on boot, and will create
+     # `/certs/client` that will be shared between the service and
+     # build container.
+     DOCKER_TLS_CERTDIR: "/certs"
+     DOCKER_DRIVER: overlay2
+   stage: build
+   script:
+     - docker build -t my-docker-image .
+     - docker run my-docker-image /script/to/run/tests
+```
+
+If you forget to set the service alias, the `docker:19.03.1` image won't find the
+`dind` service, and an error like the following is thrown:
+
+```sh
+$ docker info
+error during connect: Get http://docker:2376/v1.39/info: dial tcp: lookup docker on 192.168.0.1:53: no such host
+```
 
 ### Container Registry examples
 
@@ -683,6 +720,13 @@ deploy:
   only:
     - master
 ```
+
+NOTE: **Note:**
+This example explicitly calls `docker pull`. If you prefer to implicitly pull the
+built image using `image:`, and use either the [Docker](https://docs.gitlab.com/runner/executors/docker.html)
+or [Kubernetes](https://docs.gitlab.com/runner/executors/kubernetes.html) executor,
+make sure that [`pull_policy`](https://docs.gitlab.com/runner/executors/docker.html#how-pull-policies-work)
+is set to `always`.
 
 [docker-in-docker]: https://blog.docker.com/2013/09/docker-can-now-run-within-docker/
 [docker-cap]: https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities

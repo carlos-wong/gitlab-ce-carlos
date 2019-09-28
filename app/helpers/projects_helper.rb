@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module ProjectsHelper
+  prepend_if_ee('::EE::ProjectsHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
   def link_to_project(project)
     link_to namespace_project_path(namespace_id: project.namespace, id: project), title: h(project.name) do
       title = content_tag(:span, project.name, class: 'project-name')
@@ -233,7 +235,6 @@ module ProjectsHelper
   #
   # If no limit is applied we'll just issue a COUNT since the result set could
   # be too large to load into memory.
-  # rubocop: disable CodeReuse/ActiveRecord
   def any_projects?(projects)
     return projects.any? if projects.is_a?(Array)
 
@@ -243,10 +244,9 @@ module ProjectsHelper
       projects.except(:offset).any?
     end
   end
-  # rubocop: enable CodeReuse/ActiveRecord
 
   # TODO: Remove this method when removing the feature flag
-  # https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/11209#note_162234863
+  # https://gitlab.com/gitlab-org/gitlab/merge_requests/11209#note_162234863
   # make sure to remove from the EE specific controller as well: ee/app/controllers/ee/dashboard/projects_controller.rb
   def show_projects?(projects, params)
     Feature.enabled?(:project_list_filter_bar) || !!(params[:personal] || params[:name] || any_projects?(projects))
@@ -448,7 +448,7 @@ module ProjectsHelper
 
   def git_user_email
     if current_user
-      current_user.email
+      current_user.commit_email
     else
       "your@email.com"
     end
@@ -560,7 +560,7 @@ module ProjectsHelper
       allowedVisibilityOptions: project_allowed_visibility_levels(project),
       visibilityHelpPath: help_page_path('public_access/public_access'),
       registryAvailable: Gitlab.config.registry.enabled,
-      registryHelpPath: help_page_path('user/project/container_registry'),
+      registryHelpPath: help_page_path('user/packages/container_registry/index'),
       lfsAvailable: Gitlab.config.lfs.enabled,
       lfsHelpPath: help_page_path('workflow/lfs/manage_large_binaries_with_git_lfs'),
       pagesAvailable: Gitlab.config.pages.enabled,

@@ -1,5 +1,5 @@
-#cycle-analytics {
-  max-width: 1000px;
+#cycle-analytics,
+.cycle-analytics {
   margin: 24px auto 0;
   position: relative;
 
@@ -41,8 +41,8 @@
       width: 20%;
     }
 
-
-    .fa {
+    .fa,
+    svg {
       color: $cycle-analytics-light-gray;
 
       &:hover {
@@ -51,27 +51,19 @@
     }
 
     .stage-header {
-      width: 26%;
-      padding-left: $gl-padding;
+      width: 18.5%;
     }
 
     .median-header {
-      width: 14%;
+      width: 21.5%;
     }
 
     .event-header {
       width: 45%;
-      padding-left: $gl-padding;
     }
 
     .total-time-header {
       width: 15%;
-      text-align: right;
-      padding-right: $gl-padding;
-    }
-
-    .stage-name {
-      font-weight: $gl-font-weight-bold;
     }
   }
 
@@ -153,23 +145,12 @@
     }
 
     .stage-nav-item {
-      display: flex;
       line-height: 65px;
-      border-top: 1px solid transparent;
-      border-bottom: 1px solid transparent;
-      border-right: 1px solid $border-color;
-      background-color: $gray-light;
 
       &.active {
-        background-color: transparent;
-        border-right-color: transparent;
-        border-top-color: $border-color;
-        border-bottom-color: $border-color;
-        box-shadow: inset 2px 0 0 0 $blue-500;
-
-        .stage-name {
-          font-weight: $gl-font-weight-bold;
-        }
+        background: $blue-50;
+        border-color: $blue-300;
+        box-shadow: inset 4px 0 0 0 $blue-500;
       }
 
       &:hover:not(.active) {
@@ -178,24 +159,12 @@
         cursor: pointer;
       }
 
-      &:first-child {
-        border-top: 0;
+      .stage-nav-item-cell.stage-name {
+        width: 44.5%;
       }
 
-      &:last-child {
-        border-bottom: 0;
-      }
-
-      .stage-nav-item-cell {
-        &.stage-median {
-          margin-left: auto;
-          margin-right: $gl-padding;
-          min-width: calc(35% - #{$gl-padding});
-        }
-      }
-
-      .stage-name {
-        padding-left: 16px;
+      .stage-nav-item-cell.stage-median {
+        min-width: 43%;
       }
 
       .stage-empty,
@@ -265,7 +234,7 @@
 
       &.issue-title,
       &.commit-title,
-      &.merge-merquest-title {
+      &.merge-request-title {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -298,6 +267,7 @@
       color: $gl-text-color;
     }
 
+    .mr-link,
     .issue-link,
     .commit-author-link,
     .issue-author-link {

@@ -25,7 +25,11 @@ module Gitlab
           Chronic.parse(due_date_param).try(:to_date)
         end
         command :due do |due_date|
-          @updates[:due_date] = due_date if due_date
+          if due_date
+            @updates[:due_date] = due_date
+          else
+            @execution_message[:due] = _('Failed to set due date because the date format is invalid.')
+          end
         end
 
         desc _('Remove due date')
@@ -162,6 +166,49 @@ module Gitlab
             branch_name: branch_name,
             issue_iid: quick_action_target.iid
           }
+        end
+
+        desc _('Add Zoom meeting')
+        explanation _('Adds a Zoom meeting')
+        params '<Zoom URL>'
+        types Issue
+        condition do
+          zoom_link_service.can_add_link?
+        end
+        parse_params do |link|
+          zoom_link_service.parse_link(link)
+        end
+        command :zoom do |link|
+          result = zoom_link_service.add_link(link)
+
+          if result.success?
+            @updates[:description] = result.payload[:description]
+          end
+
+          @execution_message[:zoom] = result.message
+        end
+
+        desc _('Remove Zoom meeting')
+        explanation _('Remove Zoom meeting')
+        execution_message _('Zoom meeting removed')
+        types Issue
+        condition do
+          zoom_link_service.can_remove_link?
+        end
+        command :remove_zoom do
+          result = zoom_link_service.remove_link
+
+          if result.success?
+            @updates[:description] = result.payload[:description]
+          end
+
+          @execution_message[:remove_zoom] = result.message
+        end
+
+        private
+
+        def zoom_link_service
+          Issues::ZoomLinkService.new(quick_action_target, current_user)
         end
       end
     end

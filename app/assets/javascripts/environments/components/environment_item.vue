@@ -111,12 +111,7 @@ export default {
      * @returns {Boolean|Undefined}
      */
     canShowDate() {
-      return (
-        this.model &&
-        this.model.last_deployment &&
-        this.model.last_deployment.deployable &&
-        this.model.last_deployment.deployable !== undefined
-      );
+      return this.model && this.model.last_deployment && this.model.last_deployment.deployed_at;
     },
 
     /**
@@ -124,14 +119,9 @@ export default {
      *
      * @returns {String}
      */
-    createdDate() {
-      if (
-        this.model &&
-        this.model.last_deployment &&
-        this.model.last_deployment.deployable &&
-        this.model.last_deployment.deployable.created_at
-      ) {
-        return timeagoInstance.format(this.model.last_deployment.deployable.created_at);
+    deployedDate() {
+      if (this.canShowDate) {
+        return timeagoInstance.format(this.model.last_deployment.deployed_at);
       }
       return '';
     },
@@ -288,7 +278,7 @@ export default {
      */
     isLastDeployment() {
       // name: 'last?' is a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26#possible-false-positives
-      // Vue i18n ESLint rules issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/63560
+      // Vue i18n ESLint rules issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/63560
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
       return this.model && this.model.last_deployment && this.model.last_deployment['last?'];
     },
@@ -547,7 +537,7 @@ export default {
     <div v-if="!model.isFolder" class="table-section section-10" role="gridcell">
       <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Updated') }}</div>
       <span v-if="canShowDate" class="environment-created-date-timeago table-mobile-content">
-        {{ createdDate }}
+        {{ deployedDate }}
       </span>
     </div>
 

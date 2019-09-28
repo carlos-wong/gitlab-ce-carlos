@@ -26,6 +26,10 @@
 }
 
 .pipelines {
+  .negative-margin-top {
+    margin-top: -$pipelines-table-header-height;
+  }
+
   .stage {
     max-width: 90px;
     width: 90px;
@@ -449,7 +453,7 @@
   display: flex;
   width: 100%;
   background-color: $gray-light;
-  padding: $gl-padding;
+  padding: $gl-padding 0;
   overflow: auto;
 }
 
@@ -475,10 +479,6 @@
   .stage-column {
     display: inline-block;
     vertical-align: top;
-
-    &:not(:last-child) {
-      margin-right: 44px;
-    }
 
     &.left-margin {
       &:not(:first-child) {

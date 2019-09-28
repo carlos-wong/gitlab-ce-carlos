@@ -18,7 +18,7 @@ The instructions make the assumption that you will be using the email address `i
    sudo apt-get install postfix
    ```
 
-   When asked about the environment, select 'Internet Site'. When asked to confirm the hostname, make sure it matches gitlab.example.com`.
+   When asked about the environment, select 'Internet Site'. When asked to confirm the hostname, make sure it matches `gitlab.example.com`.
 
 1. Install the `mailutils` package.
 
@@ -331,7 +331,7 @@ Courier, which we will install later to add IMAP authentication, requires mailbo
       a logout
       ```
 
-## Done!
+## Done
 
 If all the tests were successful, Postfix is all set up and ready to receive email! Continue with the [incoming email] guide to configure GitLab.
 

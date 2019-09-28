@@ -36,6 +36,31 @@ describe Projects::IssuesController do
           expect(response).to render_template(:index)
         end
       end
+
+      context 'when project has moved' do
+        let(:new_project) { create(:project) }
+        let(:issue) { create(:issue, project: new_project) }
+
+        before do
+          project.route.destroy
+          new_project.redirect_routes.create!(path: project.full_path)
+          new_project.add_developer(user)
+        end
+
+        it 'redirects to the new issue tracker from the old one' do
+          get :index, params: { namespace_id: project.namespace, project_id: project }
+
+          expect(response).to redirect_to(project_issues_path(new_project))
+          expect(response).to have_gitlab_http_status(302)
+        end
+
+        it 'redirects from an old issue correctly' do
+          get :show, params: { namespace_id: project.namespace, project_id: project, id: issue }
+
+          expect(response).to redirect_to(project_issue_path(new_project, issue))
+          expect(response).to have_gitlab_http_status(302)
+        end
+      end
     end
 
     context 'internal issue tracker' do
@@ -71,9 +96,16 @@ describe Projects::IssuesController do
       end
     end
 
-    context 'with page param' do
-      let(:last_page) { project.issues.page.total_pages }
+    it_behaves_like 'paginated collection' do
       let!(:issue_list) { create_list(:issue, 2, project: project) }
+      let(:collection) { project.issues }
+      let(:params) do
+        {
+          namespace_id: project.namespace.to_param,
+          project_id: project,
+          state: 'opened'
+        }
+      end
 
       before do
         sign_in(user)
@@ -81,51 +113,10 @@ describe Projects::IssuesController do
         allow(Kaminari.config).to receive(:default_per_page).and_return(1)
       end
 
-      it 'redirects to last_page if page number is larger than number of pages' do
-        get :index,
-          params: {
-            namespace_id: project.namespace.to_param,
-            project_id: project,
-            page: (last_page + 1).to_param
-          }
-
-        expect(response).to redirect_to(namespace_project_issues_path(page: last_page, state: controller.params[:state], scope: controller.params[:scope]))
-      end
-
-      it 'redirects to specified page' do
-        get :index,
-          params: {
-            namespace_id: project.namespace.to_param,
-            project_id: project,
-            page: last_page.to_param
-          }
-
-        expect(assigns(:issues).current_page).to eq(last_page)
-        expect(response).to have_gitlab_http_status(200)
-      end
-
-      it 'does not redirect to external sites when provided a host field' do
-        external_host = "www.example.com"
-        get :index,
-          params: {
-            namespace_id: project.namespace.to_param,
-            project_id: project,
-            page: (last_page + 1).to_param,
-            host: external_host
-          }
-
-        expect(response).to redirect_to(namespace_project_issues_path(page: last_page, state: controller.params[:state], scope: controller.params[:scope]))
-      end
-
       it 'does not use pagination if disabled' do
         allow(controller).to receive(:pagination_disabled?).and_return(true)
 
-        get :index,
-          params: {
-            namespace_id: project.namespace.to_param,
-            project_id: project,
-            page: (last_page + 1).to_param
-          }
+        get :index, params: params.merge(page: last_page + 1)
 
         expect(response).to have_gitlab_http_status(200)
         expect(assigns(:issues).size).to eq(2)
@@ -804,7 +795,7 @@ describe Projects::IssuesController do
 
         control_count = ActiveRecord::QueryRecorder.new { issue.update(description: [issue.description, label].join(' ')) }.count
 
-        # Follow-up to get rid of this `2 * label.count` requirement: https://gitlab.com/gitlab-org/gitlab-ce/issues/52230
+        # Follow-up to get rid of this `2 * label.count` requirement: https://gitlab.com/gitlab-org/gitlab-foss/issues/52230
         expect { issue.update(description: [issue.description, labels].join(' ')) }
           .not_to exceed_query_limit(control_count + 2 * labels.count)
       end
@@ -1084,16 +1075,41 @@ describe Projects::IssuesController do
       end
 
       it "deletes the issue" do
-        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, destroy_confirm: true }
 
         expect(response).to have_gitlab_http_status(302)
         expect(controller).to set_flash[:notice].to(/The issue was successfully deleted\./)
       end
 
+      it "deletes the issue" do
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, destroy_confirm: true }
+
+        expect(response).to have_gitlab_http_status(302)
+        expect(controller).to set_flash[:notice].to(/The issue was successfully deleted\./)
+      end
+
+      it "prevents deletion if destroy_confirm is not set" do
+        expect(Gitlab::Sentry).to receive(:track_acceptable_exception).and_call_original
+
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
+
+        expect(response).to have_gitlab_http_status(302)
+        expect(controller).to set_flash[:notice].to('Destroy confirmation not provided for issue')
+      end
+
+      it "prevents deletion in JSON format if destroy_confirm is not set" do
+        expect(Gitlab::Sentry).to receive(:track_acceptable_exception).and_call_original
+
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, format: 'json' }
+
+        expect(response).to have_gitlab_http_status(422)
+        expect(json_response).to eq({ 'errors' => 'Destroy confirmation not provided for issue' })
+      end
+
       it 'delegates the update of the todos count cache to TodoService' do
         expect_any_instance_of(TodoService).to receive(:destroy_target).with(issue).once
 
-        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
+        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, destroy_confirm: true }
       end
     end
   end
@@ -1104,17 +1120,38 @@ describe Projects::IssuesController do
       project.add_developer(user)
     end
 
+    subject do
+      post(:toggle_award_emoji, params: {
+        namespace_id: project.namespace,
+        project_id: project,
+        id: issue.iid,
+        name: emoji_name
+      })
+    end
+    let(:emoji_name) { 'thumbsup' }
+
     it "toggles the award emoji" do
       expect do
-        post(:toggle_award_emoji, params: {
-                                    namespace_id: project.namespace,
-                                    project_id: project,
-                                    id: issue.iid,
-                                    name: "thumbsup"
-                                  })
+        subject
       end.to change { issue.award_emoji.count }.by(1)
 
       expect(response).to have_gitlab_http_status(200)
+    end
+
+    it "removes the already awarded emoji" do
+      create(:award_emoji, awardable: issue, name: emoji_name, user: user)
+
+      expect { subject }.to change { AwardEmoji.count }.by(-1)
+
+      expect(response).to have_gitlab_http_status(200)
+    end
+
+    it 'marks Todos on the Issue as done' do
+      todo = create(:todo, target: issue, project: project, user: user)
+
+      subject
+
+      expect(todo.reload).to be_done
     end
   end
 

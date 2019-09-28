@@ -1,5 +1,19 @@
 import $ from 'jquery';
 
+const DEFAULT_SNOWPLOW_OPTIONS = {
+  namespace: 'gl',
+  hostname: window.location.hostname,
+  cookieDomain: window.location.hostname,
+  appId: '',
+  userFingerprint: false,
+  respectDoNotTrack: true,
+  forceSecureTracker: true,
+  eventMethod: 'post',
+  contexts: { webPage: true },
+  formTracking: false,
+  linkClickTracking: false,
+};
+
 const extractData = (el, opts = {}) => {
   const { trackEvent, trackLabel = '', trackProperty = '' } = el.dataset;
   let trackValue = el.dataset.trackValue || el.value || '';
@@ -15,8 +29,14 @@ const extractData = (el, opts = {}) => {
 };
 
 export default class Tracking {
+  static trackable() {
+    return !['1', 'yes'].includes(
+      window.doNotTrack || navigator.doNotTrack || navigator.msDoNotTrack,
+    );
+  }
+
   static enabled() {
-    return typeof window.snowplow === 'function';
+    return typeof window.snowplow === 'function' && this.trackable();
   }
 
   static event(category = document.body.dataset.page, event = 'generic', data = {}) {
@@ -64,4 +84,17 @@ export default class Tracking {
       this.constructor.event(category || this.category, ...extractData(e.currentTarget, opts));
     };
   }
+}
+
+export function initUserTracking() {
+  if (!Tracking.enabled()) return;
+
+  const opts = Object.assign({}, DEFAULT_SNOWPLOW_OPTIONS, window.snowplowOptions);
+  window.snowplow('newTracker', opts.namespace, opts.hostname, opts);
+
+  window.snowplow('enableActivityTracking', 30, 30);
+  window.snowplow('trackPageView'); // must be after enableActivityTracking
+
+  if (opts.formTracking) window.snowplow('enableFormTracking');
+  if (opts.linkClickTracking) window.snowplow('enableLinkClickTracking');
 }

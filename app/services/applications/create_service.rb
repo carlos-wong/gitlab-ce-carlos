@@ -6,7 +6,7 @@ module Applications
 
     def initialize(current_user, params)
       @current_user = current_user
-      @params = params.except(:ip_address) # rubocop: disable CodeReuse/ActiveRecord
+      @params = params.except(:ip_address)
     end
 
     # EE would override and use `request` arg
@@ -15,3 +15,5 @@ module Applications
     end
   end
 end
+
+Applications::CreateService.prepend_if_ee('EE::Applications::CreateService')

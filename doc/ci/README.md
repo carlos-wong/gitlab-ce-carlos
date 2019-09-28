@@ -57,7 +57,7 @@ If you're coming over from Jenkins, you can also check out our handy [reference]
 for converting your pipelines.
 
 You can also get started by using one of the
-[`.gitlab-ci.yml` templates](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates)
+[`.gitlab-ci.yml` templates](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates)
 available through the UI. You can use them by creating a new file,
 choosing a template that suits your application, and adjusting it
 to your needs:
@@ -131,7 +131,7 @@ Its feature set is listed on the table below according to DevOps stages.
 | **Secure** ||
 | [Container Scanning](../user/application_security/container_scanning/index.md) **(ULTIMATE)** | Check your Docker containers for known vulnerabilities.|
 | [Dependency Scanning](../user/application_security/dependency_scanning/index.md) **(ULTIMATE)** | Analyze your dependencies for known vulnerabilities. |
-| [License Compliance](../user/application_security/license_management/index.md) **(ULTIMATE)** | Search your project dependencies for their licenses. |
+| [License Compliance](../user/application_security/license_compliance/index.md) **(ULTIMATE)** | Search your project dependencies for their licenses. |
 | [Security Test reports](../user/project/merge_requests/index.md#security-reports-ultimate) **(ULTIMATE)** | Check for app vulnerabilities. |
 
 ## Examples
@@ -174,7 +174,7 @@ been necessary. These are:
 
 #### 12.0
 
-- [Use refspec to clone/fetch git
+- [Use refspec to clone/fetch Git
   repository](https://gitlab.com/gitlab-org/gitlab-runner/issues/4069).
 - [Old cache
   configuration](https://gitlab.com/gitlab-org/gitlab-runner/issues/4070).

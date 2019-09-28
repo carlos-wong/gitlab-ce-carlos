@@ -970,34 +970,6 @@ describe QuickActions::InterpretService do
       let(:issuable) { merge_request }
     end
 
-    it_behaves_like 'due command' do
-      let(:content) { '/due 2016-08-28' }
-      let(:issuable) { issue }
-    end
-
-    it_behaves_like 'due command' do
-      let(:content) { '/due tomorrow' }
-      let(:issuable) { issue }
-      let(:expected_date) { Date.tomorrow }
-    end
-
-    it_behaves_like 'due command' do
-      let(:content) { '/due 5 days from now' }
-      let(:issuable) { issue }
-      let(:expected_date) { 5.days.from_now.to_date }
-    end
-
-    it_behaves_like 'due command' do
-      let(:content) { '/due in 2 days' }
-      let(:issuable) { issue }
-      let(:expected_date) { 2.days.from_now.to_date }
-    end
-
-    it_behaves_like 'empty command' do
-      let(:content) { '/due foo bar' }
-      let(:issuable) { issue }
-    end
-
     it_behaves_like 'empty command' do
       let(:content) { '/due 2016-08-28' }
       let(:issuable) { merge_request }
@@ -1131,9 +1103,55 @@ describe QuickActions::InterpretService do
       end
     end
 
+    context '/due command' do
+      it 'returns invalid date format message when the due date is invalid' do
+        issue = build(:issue, project: project)
+
+        _, _, message = service.execute('/due invalid date', issue)
+
+        expect(message).to eq('Failed to set due date because the date format is invalid.')
+      end
+
+      it_behaves_like 'due command' do
+        let(:content) { '/due 2016-08-28' }
+        let(:issuable) { issue }
+      end
+
+      it_behaves_like 'due command' do
+        let(:content) { '/due tomorrow' }
+        let(:issuable) { issue }
+        let(:expected_date) { Date.tomorrow }
+      end
+
+      it_behaves_like 'due command' do
+        let(:content) { '/due 5 days from now' }
+        let(:issuable) { issue }
+        let(:expected_date) { 5.days.from_now.to_date }
+      end
+
+      it_behaves_like 'due command' do
+        let(:content) { '/due in 2 days' }
+        let(:issuable) { issue }
+        let(:expected_date) { 2.days.from_now.to_date }
+      end
+    end
+
     context '/copy_metadata command' do
       let(:todo_label) { create(:label, project: project, title: 'To Do') }
       let(:inreview_label) { create(:label, project: project, title: 'In Review') }
+
+      it 'is available when the user is a developer' do
+        expect(service.available_commands(issue)).to include(a_hash_including(name: :copy_metadata))
+      end
+
+      context 'when the user does not have permission' do
+        let(:guest) { create(:user) }
+        let(:service) { described_class.new(project, guest) }
+
+        it 'is not available' do
+          expect(service.available_commands(issue)).not_to include(a_hash_including(name: :copy_metadata))
+        end
+      end
 
       it_behaves_like 'empty command' do
         let(:content) { '/copy_metadata' }

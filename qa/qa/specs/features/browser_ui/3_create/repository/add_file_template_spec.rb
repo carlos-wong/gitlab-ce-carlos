@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  # Failure issue: https://gitlab.com/gitlab-org/quality/nightly/issues/127
-  context 'Create', :quarantine do
+  context 'Create' do
     describe 'File templates' do
       include Runtime::Fixtures
 
@@ -58,7 +57,7 @@ module QA
           @project.visit!
 
           Page::Project::Show.perform(&:create_new_file!)
-          Page::File::Form.perform do |page|
+          Page::File::Form.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
             page.select_template template[:file_name], template[:name]
           end
 

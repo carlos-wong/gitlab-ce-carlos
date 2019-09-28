@@ -9,10 +9,12 @@ module Banzai
   # so we can avoid N+1 queries problem
 
   class IssuableExtractor
+    prepend_if_ee('EE::Banzai::IssuableExtractor') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
     attr_reader :context
 
-    ISSUE_REFERENCE_TYPE = '@data-reference-type="issue"'.freeze
-    MERGE_REQUEST_REFERENCE_TYPE = '@data-reference-type="merge_request"'.freeze
+    ISSUE_REFERENCE_TYPE = '@data-reference-type="issue"'
+    MERGE_REQUEST_REFERENCE_TYPE = '@data-reference-type="merge_request"'
 
     # context - An instance of Banzai::RenderContext.
     def initialize(context)

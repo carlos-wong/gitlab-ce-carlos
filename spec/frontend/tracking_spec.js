@@ -1,18 +1,62 @@
 import $ from 'jquery';
 import { setHTMLFixture } from './helpers/fixtures';
 
-import Tracking from '~/tracking';
+import Tracking, { initUserTracking } from '~/tracking';
 
 describe('Tracking', () => {
+  let snowplowSpy;
+
   beforeEach(() => {
     window.snowplow = window.snowplow || (() => {});
+    window.snowplowOptions = {
+      namespace: '_namespace_',
+      hostname: 'app.gitfoo.com',
+      cookieDomain: '.gitfoo.com',
+    };
+    snowplowSpy = jest.spyOn(window, 'snowplow');
+  });
+
+  describe('initUserTracking', () => {
+    it('calls through to get a new tracker with the expected options', () => {
+      initUserTracking();
+      expect(snowplowSpy).toHaveBeenCalledWith('newTracker', '_namespace_', 'app.gitfoo.com', {
+        namespace: '_namespace_',
+        hostname: 'app.gitfoo.com',
+        cookieDomain: '.gitfoo.com',
+        appId: '',
+        userFingerprint: false,
+        respectDoNotTrack: true,
+        forceSecureTracker: true,
+        eventMethod: 'post',
+        contexts: { webPage: true },
+        formTracking: false,
+        linkClickTracking: false,
+      });
+    });
+
+    it('should activate features based on what has been enabled', () => {
+      initUserTracking();
+      expect(snowplowSpy).toHaveBeenCalledWith('enableActivityTracking', 30, 30);
+      expect(snowplowSpy).toHaveBeenCalledWith('trackPageView');
+      expect(snowplowSpy).not.toHaveBeenCalledWith('enableFormTracking');
+      expect(snowplowSpy).not.toHaveBeenCalledWith('enableLinkClickTracking');
+
+      window.snowplowOptions = Object.assign({}, window.snowplowOptions, {
+        formTracking: true,
+        linkClickTracking: true,
+      });
+
+      initUserTracking();
+      expect(snowplowSpy).toHaveBeenCalledWith('enableFormTracking');
+      expect(snowplowSpy).toHaveBeenCalledWith('enableLinkClickTracking');
+    });
   });
 
   describe('.event', () => {
-    let snowplowSpy = null;
-
-    beforeEach(() => {
-      snowplowSpy = jest.spyOn(window, 'snowplow');
+    afterEach(() => {
+      window.doNotTrack = undefined;
+      navigator.doNotTrack = undefined;
+      navigator.msDoNotTrack = undefined;
     });
 
     it('tracks to snowplow (our current tracking system)', () => {
@@ -27,6 +71,27 @@ describe('Tracking', () => {
 
     it('skips tracking if snowplow is unavailable', () => {
       window.snowplow = false;
+      Tracking.event('_category_', '_eventName_');
+
+      expect(snowplowSpy).not.toHaveBeenCalled();
+    });
+
+    it('skips tracking if the user does not want to be tracked (general spec)', () => {
+      window.doNotTrack = '1';
+      Tracking.event('_category_', '_eventName_');
+
+      expect(snowplowSpy).not.toHaveBeenCalled();
+    });
+
+    it('skips tracking if the user does not want to be tracked (firefox legacy)', () => {
+      navigator.doNotTrack = 'yes';
+      Tracking.event('_category_', '_eventName_');
+
+      expect(snowplowSpy).not.toHaveBeenCalled();
+    });
+
+    it('skips tracking if the user does not want to be tracked (IE legacy)', () => {
+      navigator.msDoNotTrack = '1';
       Tracking.event('_category_', '_eventName_');
 
       expect(snowplowSpy).not.toHaveBeenCalled();

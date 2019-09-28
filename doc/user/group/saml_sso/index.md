@@ -30,14 +30,33 @@ SAML SSO for GitLab.com groups does not sync users between providers without usi
 
 SSO enforcement was:
 
-- [Introduced in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-ee/issues/5291).
-- [Improved upon in GitLab 11.11 with ongoing enforcement in the GitLab UI](https://gitlab.com/gitlab-org/gitlab-ee/issues/9255).
+- [Introduced in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab/issues/5291).
+- [Improved upon in GitLab 11.11 with ongoing enforcement in the GitLab UI](https://gitlab.com/gitlab-org/gitlab/issues/9255).
 
 With this option enabled, users must use your group's GitLab single sign on URL to be added to the group or be added via SCIM. Users cannot be added manually, and may only access project/group resources via the UI by signing in through the SSO URL.
 
 However, users will not be prompted to log via SSO on each visit. GitLab will check whether a user has authenticated through the SSO link, and will only prompt the user to login via SSO if it has been longer than 7 days.
 
-We intend to add a similar SSO requirement for [Git and API activity](https://gitlab.com/gitlab-org/gitlab-ee/issues/9152) in the future.
+We intend to add a similar SSO requirement for [Git and API activity](https://gitlab.com/gitlab-org/gitlab/issues/9152) in the future.
+
+#### Group-managed accounts
+
+[Introduced in GitLab 12.1](https://gitlab.com/groups/gitlab-org/-/epics/709).
+
+When SSO is being enforced, groups can enable an additional level of protection by enforcing the creation of dedicated user accounts to access the group.
+
+Without group-managed accounts, users can link their SAML identity with any existing user on the instance. With group-managed accounts enabled, users are required to create a new, dedicated user linked to the group. The notification email address associated with the user is locked to the email address received from the configured identity provider.
+
+When this option is enabled:
+
+- All existing and new users in the group will be required to log in via the SSO URL associated with the group.
+- On successfully authenticating, GitLab will prompt the user to create a new, dedicated account using the email address received from the configured identity provider.
+- After the group managed account has been created, group activity will require the use of this user account.
+
+Since use of the group managed account requires the use of SSO, users of group managed accounts will lose access to these accounts when they are no longer able to authenticate with the connected identity provider. In the case of an offboarded employee who has been removed from your identity provider:
+
+- The user will be unable to access the group (their credentials will no longer work on the identity provider when prompted to SSO).
+- Contributions in the group (e.g. issues, merge requests) will remain intact.
 
 ### NameID
 

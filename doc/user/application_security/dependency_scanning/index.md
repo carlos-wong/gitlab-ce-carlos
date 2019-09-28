@@ -4,8 +4,11 @@ type: reference, howto
 
 # Dependency Scanning **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5105)
-in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5105) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.7.
+
+Dependency Scanning helps to automatically find security vulnerabilities in your dependencies
+while you are developing and testing your applications, for example when your
+application is using an external (open source) library which is known to be vulnerable.
 
 ## Overview
 
@@ -18,7 +21,7 @@ in your existing `.gitlab-ci.yml` file or by implicitly using
 that is provided by [Auto DevOps](../../../topics/autodevops/index.md).
 
 GitLab checks the Dependency Scanning report, compares the found vulnerabilities
-between the source and target branches, and shows the information right on the
+between the source and target branches, and shows the information on the
 merge request.
 
 ![Dependency Scanning Widget](img/dependency_scanning.png)
@@ -32,12 +35,6 @@ The results are sorted by the severity of the vulnerability:
 1. Unknown
 1. Everything else
 
-## Use cases
-
-It helps to automatically find security vulnerabilities in your dependencies
-while you are developing and testing your applications. For example when your
-application is using an external (open source) library which is known to be vulnerable.
-
 ## Requirements
 
 To run a Dependency Scanning job, you need GitLab Runner with the
@@ -46,20 +43,24 @@ To run a Dependency Scanning job, you need GitLab Runner with the
 executor running in privileged mode. If you're using the shared Runners on GitLab.com,
 this is enabled by default.
 
+CAUTION: **Caution:**
+If you use your own Runners, make sure that the Docker version you have installed
+is **not** `19.03.00`. See [troubleshooting information](#error-response-from-daemon-error-processing-tar-file-docker-tar-relocation-error) for details.
+
 ## Supported languages and package managers
 
 The following languages and dependency managers are supported.
 
 | Language (package managers)  | Supported | Scan tool(s) |
 |----------------------------- | --------- | ------------ |
-| Java ([Gradle](https://gradle.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/13075 "Dependency Scanning for Gradle" )) | not available |
+| Java ([Gradle](https://gradle.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/13075 "Dependency Scanning for Gradle" )) | not available |
 | Java ([Maven](https://maven.apache.org/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
 | JavaScript ([npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/en/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [Retire.js](https://retirejs.github.io/retire.js)         |
-| Go ([Golang](https://golang.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/7132 "Dependency Scanning for Go")) | not available |
+| Go ([Golang](https://golang.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7132 "Dependency Scanning for Go")) | not available |
 | PHP ([Composer](https://getcomposer.org/))  | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([pip](https://pip.pypa.io/en/stable/)) (only `requirements.txt` supported)  | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([Pipfile](https://docs.pipenv.org/en/latest/basics/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/11756 "Pipfile.lock support for Dependency Scanning"))| not available |
-| Python ([poetry](https://poetry.eustace.io/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
+| Python ([pip](https://pip.pypa.io/en/stable/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Python ([Pipfile](https://docs.pipenv.org/en/latest/basics/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/11756 "Pipfile.lock support for Dependency Scanning"))| not available |
+| Python ([poetry](https://poetry.eustace.io/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
 | Ruby ([gem](https://rubygems.org/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [bundler-audit](https://github.com/rubysec/bundler-audit) |
 
 ## Remote checks
@@ -77,13 +78,13 @@ like Gemnasium require sending data to GitLab central servers to analyze them:
 The Gemnasium client does **NOT** send the exact package versions your project relies on.
 
 You can disable the remote checks by [using](#customizing-the-dependency-scanning-settings)
-the `DS_DISABLE_REMOTE_CHECKS` environment variable and setting it to `true`.
+the `DS_DISABLE_REMOTE_CHECKS` environment variable and setting it to `"true"`.
 
 ## Configuration
 
 For GitLab 11.9 and later, to enable Dependency Scanning, you must
 [include](../../../ci/yaml/README.md#includetemplate) the
-[`Dependency-Scanning.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/lib/gitlab/ci/templates/Security/Dependency-Scanning.gitlab-ci.yml)
+[`Dependency-Scanning.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Dependency-Scanning.gitlab-ci.yml)
 that's provided as a part of your GitLab installation.
 For GitLab versions earlier than 11.9, you can copy and use the job as defined
 that template.
@@ -115,7 +116,7 @@ include:
   template: Dependency-Scanning.gitlab-ci.yml
 
 variables:
-  DS_DISABLE_REMOTE_CHECKS: true
+  DS_DISABLE_REMOTE_CHECKS: "true"
 ```
 
 Because template is [evaluated before](../../../ci/yaml/README.md#include) the pipeline
@@ -141,27 +142,56 @@ dependency_scanning:
 Dependency Scanning can be [configured](#customizing-the-dependency-scanning-settings)
 using environment variables.
 
-| Environment variable                    | Function |
-|--------------------------------         |----------|
-| `DS_ANALYZER_IMAGES`                    | Comma separated list of custom images. The official default images are still enabled. Read more about [customizing analyzers](analyzers.md). |
-| `DS_ANALYZER_IMAGE_PREFIX`              | Override the name of the Docker registry providing the official default images (proxy). Read more about [customizing analyzers](analyzers.md). |
-| `DS_ANALYZER_IMAGE_TAG`                 | Override the Docker tag of the official default images. Read more about [customizing analyzers](analyzers.md). |
-| `DS_PYTHON_VERSION`                     | Version of Python. If set to 2, dependencies are installed using Python 2.7 instead of Python 3.6. ([Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/12296) in GitLab 12.1)|
-| `DS_PIP_DEPENDENCY_PATH`                | Path to load Python pip dependencies from. ([Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/12412) in GitLab 12.2) |
-| `DS_DEFAULT_ANALYZERS`                  | Override the names of the official default images. Read more about [customizing analyzers](analyzers.md). |
-| `DS_DISABLE_REMOTE_CHECKS`              | Do not send any data to GitLab. Used in the [Gemnasium analyzer](#remote-checks). |
-| `DS_PULL_ANALYZER_IMAGES`               | Pull the images from the Docker registry (set to `0` to disable). |
-| `DS_EXCLUDED_PATHS`                     | Exclude vulnerabilities from output based on the paths. A comma-separated list of patterns. Patterns can be globs, file or folder paths. Parent directories will also match patterns. |
-| `DS_DOCKER_CLIENT_NEGOTIATION_TIMEOUT`  | Time limit for Docker client negotiation. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h`, or `2h45m`. |
-| `DS_PULL_ANALYZER_IMAGE_TIMEOUT`        | Time limit when pulling the image of an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h`, or `2h45m`. |
-| `DS_RUN_ANALYZER_TIMEOUT`               | Time limit when running an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h`, or `2h45m`. |
-| `PIP_INDEX_URL`                         | Base URL of Python Package Index (default `https://pypi.org/simple`). |
-| `PIP_EXTRA_INDEX_URL`                   | Array of [extra URLs](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-extra-index-url) of package indexes to use in addition to `PIP_INDEX_URL`. Comma separated. |
+| Environment variable                    | Description | Example usage |
+| --------------------------------------- | ----------- | ------------- |
+| `DS_ANALYZER_IMAGES`                    | Comma separated list of custom images. The official default images are still enabled. Read more about [customizing analyzers](analyzers.md). | |
+| `DS_ANALYZER_IMAGE_PREFIX`              | Override the name of the Docker registry providing the official default images (proxy). Read more about [customizing analyzers](analyzers.md). | |
+| `DS_ANALYZER_IMAGE_TAG`                 | Override the Docker tag of the official default images. Read more about [customizing analyzers](analyzers.md). | |
+| `DS_PYTHON_VERSION`                     | Version of Python. If set to 2, dependencies are installed using Python 2.7 instead of Python 3.6. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12296) in GitLab 12.1)| |
+| `DS_PIP_DEPENDENCY_PATH`                | Path to load Python pip dependencies from. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12412) in GitLab 12.2) | |
+| `DS_DEFAULT_ANALYZERS`                  | Override the names of the official default images. Read more about [customizing analyzers](analyzers.md). | |
+| `DS_DISABLE_REMOTE_CHECKS`              | Do not send any data to GitLab. Used in the [Gemnasium analyzer](#remote-checks). | |
+| `DS_PULL_ANALYZER_IMAGES`               | Pull the images from the Docker registry (set to `0` to disable). | |
+| `DS_EXCLUDED_PATHS`                     | Exclude vulnerabilities from output based on the paths. A comma-separated list of patterns. Patterns can be globs, file or folder paths. Parent directories will also match patterns. | `DS_EXCLUDED_PATHS=doc,spec` |
+| `DS_DOCKER_CLIENT_NEGOTIATION_TIMEOUT`  | Time limit for Docker client negotiation. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h`, or `2h45m`. | |
+| `DS_PULL_ANALYZER_IMAGE_TIMEOUT`        | Time limit when pulling the image of an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h`, or `2h45m`. | |
+| `DS_RUN_ANALYZER_TIMEOUT`               | Time limit when running an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h`, or `2h45m`. | |
+| `PIP_INDEX_URL`                         | Base URL of Python Package Index (default `https://pypi.org/simple`). | |
+| `PIP_EXTRA_INDEX_URL`                   | Array of [extra URLs](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-extra-index-url) of package indexes to use in addition to `PIP_INDEX_URL`. Comma separated. | |
+
+## Interacting with the vulnerabilities
+
+Once a vulnerability is found, you can interact with it. Read more on how to
+[interact with the vulnerabilities](../index.md#interacting-with-the-vulnerabilities).
+
+## Solutions for vulnerabilities (auto-remediation)
+
+Some vulnerabilities can be fixed by applying the solution that GitLab
+automatically generates.
+
+Read more about the [solutions for vulnerabilities](../index.md#solutions-for-vulnerabilities-auto-remediation).
+
+## Security Dashboard
+
+The Security Dashboard is a good place to get an overview of all the security
+vulnerabilities in your groups, projects and pipelines. Read more about the
+[Security Dashboard](../security_dashboard/index.md).
+
+## Vulnerabilities database update
+
+For more information about the vulnerabilities database update, check the
+[maintenance table](../index.md#maintenance-and-update-of-the-vulnerabilities-database).
+
+## Dependency List
+
+An additional benefit of Dependency Scanning is the ability to view your
+project's dependencies and their known vulnerabilities. Read more about
+the [Dependency List](../dependency_list/index.md).
 
 ## Reports JSON format
 
 CAUTION: **Caution:**
-The JSON report artifacts are not a public API of Dependency Scanning and their format may change in future.
+The JSON report artifacts are not a public API of Dependency Scanning and their format may change in the future.
 
 The Dependency Scanning tool emits a JSON report file. Here is an example of the report structure with all important parts of
 it highlighted:
@@ -276,8 +306,8 @@ it highlighted:
 Here is the description of the report file structure nodes and their meaning. All fields are mandatory to be present in
 the report JSON unless stated otherwise. Presence of optional fields depends on the underlying analyzers being used.
 
-| Report JSON node                                     | Function |
-|------------------------------------------------------|----------|
+| Report JSON node                                     | Description |
+|------------------------------------------------------|-------------|
 | `version`                                            | Report syntax version used to generate this JSON. |
 | `vulnerabilities`                                    | Array of vulnerability objects. |
 | `vulnerabilities[].category`                         | Where this vulnerability belongs (SAST, Dependency Scanning etc.). For Dependency Scanning, it will always be `dependency_scanning`. |
@@ -311,28 +341,6 @@ the report JSON unless stated otherwise. Presence of optional fields depends on 
 | `remediations[].summary`                             | Overview of how the vulnerabilities have been fixed. |
 | `remediations[].diff`                                | base64-encoded remediation code diff, compatible with [`git apply`](https://git-scm.com/docs/git-format-patch#_discussion). |
 
-## Security Dashboard
-
-The Security Dashboard is a good place to get an overview of all the security
-vulnerabilities in your groups and projects. Read more about the
-[Security Dashboard](../security_dashboard/index.md).
-
-## Interacting with the vulnerabilities
-
-Once a vulnerability is found, you can interact with it. Read more on how to
-[interact with the vulnerabilities](../index.md#interacting-with-the-vulnerabilities).
-
-## Vulnerabilities database update
-
-For more information about the vulnerabilities database update, check the
-[maintenance table](../index.md#maintenance-and-update-of-the-vulnerabilities-database).
-
-## Dependency List **(ULTIMATE)**
-
-An additional benefit of Dependency Scanning is the ability to view your
-project's dependencies and their known vulnerabilities. Read more about
-the [Dependency List](../dependency_list/index.md).
-
 ## Versioning and release process
 
 Please check the [Release Process documentation](https://gitlab.com/gitlab-org/security-products/release/blob/master/docs/release_process.md).
@@ -343,14 +351,11 @@ You can search the [gemnasium-db](https://gitlab.com/gitlab-org/security-product
 to find a vulnerability in the Gemnasium database.
 You can also [submit new vulnerabilities](https://gitlab.com/gitlab-org/security-products/gemnasium-db/blob/master/CONTRIBUTING.md).
 
-<!-- ## Troubleshooting
+## Troubleshooting
 
-Include any troubleshooting steps that you can foresee. If you know beforehand what issues
-one might have when setting this up, or when something is changed, or on upgrading, it's
-important to describe those, too. Think of things that may go wrong and include them here.
-This is important to minimize requests for support, and to avoid doc comments with
-questions that you know someone might ask.
+### Error response from daemon: error processing tar file: docker-tar: relocation error
 
-Each scenario can be a third-level heading, e.g. `### Getting error message X`.
-If you have none to add when creating a doc, leave this section in place
-but commented out to help encourage others to add to it in the future. -->
+This error occurs when the Docker version used to run the SAST job is `19.03.00`.
+You are advised to update to Docker `19.03.01` or greater. Older versions are not
+affected. Read more in
+[this issue](https://gitlab.com/gitlab-org/gitlab/issues/13830#note_211354992 "Current SAST container fails").

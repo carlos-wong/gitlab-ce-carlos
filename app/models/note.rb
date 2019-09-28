@@ -14,7 +14,6 @@ class Note < ApplicationRecord
   include CacheMarkdownField
   include AfterCommitQueue
   include ResolvableNote
-  include IgnorableColumn
   include Editable
   include Gitlab::SQL::Pattern
   include ThrottledTouch
@@ -34,14 +33,12 @@ class Note < ApplicationRecord
     end
   end
 
-  ignore_column :original_discussion_id
-
   cache_markdown_field :note, pipeline: :note, issuable_state_filter_enabled: true
 
   redact_field :note
 
   # Aliases to make application_helper#edited_time_ago_with_tooltip helper work properly with notes.
-  # See https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/10392/diffs#note_28719102
+  # See https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/10392/diffs#note_28719102
   alias_attribute :last_edited_at, :updated_at
   alias_attribute :last_edited_by, :updated_by
 
@@ -79,7 +76,7 @@ class Note < ApplicationRecord
   # suggestions.delete_all calls
   has_many :suggestions, -> { order(:relative_order) },
     inverse_of: :note, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
-  has_many :events, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
   has_one :system_note_metadata
   has_one :note_diff_file, inverse_of: :diff_note, foreign_key: :diff_note_id
 
@@ -478,6 +475,7 @@ class Note < ApplicationRecord
   def parent
     project
   end
+  alias_method :resource_parent, :parent
 
   private
 
@@ -522,3 +520,5 @@ class Note < ApplicationRecord
     system_note_metadata&.cross_reference_types&.include?(system_note_metadata&.action)
   end
 end
+
+Note.prepend_if_ee('EE::Note')

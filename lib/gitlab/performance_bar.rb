@@ -2,11 +2,15 @@
 
 module Gitlab
   module PerformanceBar
-    ALLOWED_USER_IDS_KEY = 'performance_bar_allowed_user_ids:v2'.freeze
+    ALLOWED_USER_IDS_KEY = 'performance_bar_allowed_user_ids:v2'
     EXPIRY_TIME_L1_CACHE = 1.minute
     EXPIRY_TIME_L2_CACHE = 5.minutes
 
-    def self.enabled?(user = nil)
+    def self.enabled_for_request?
+      Gitlab::SafeRequestStore[:peek_enabled]
+    end
+
+    def self.enabled_for_user?(user = nil)
       return true if Rails.env.development?
       return true if user&.admin?
       return false unless user && allowed_group_id

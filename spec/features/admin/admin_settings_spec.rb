@@ -15,7 +15,7 @@ describe 'Admin updates settings' do
 
   context 'General page' do
     before do
-      visit admin_application_settings_path
+      visit general_admin_application_settings_path
     end
 
     it 'Change visibility settings' do
@@ -216,7 +216,7 @@ describe 'Admin updates settings' do
       fill_in 'Username', with: 'test_user'
       fill_in 'service_push_channel', with: '#test_channel'
       page.check('Notify only broken pipelines')
-      page.check('Notify only default branch')
+      page.select 'All branches', from: 'Branches to be notified'
 
       check_all_events
       click_on 'Save'

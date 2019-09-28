@@ -1,3 +1,7 @@
+---
+type: reference
+---
+
 # Time Tracking
 
 > Introduced in GitLab 8.14.
@@ -7,7 +11,7 @@ requests within GitLab.
 
 ## Overview
 
-Time Tracking lets you:
+Time Tracking allows you:
 
 - Record the time spent working on an issue or a merge request.
 - Add an estimate of the amount of time needed to complete an issue or a merge
@@ -18,7 +22,7 @@ You don't have to indicate an estimate to enter the time spent, and vice versa.
 Data about time tracking is shown on the issue/merge request sidebar, as shown
 below.
 
-![Time tracking in the sidebar](time-tracking/time-tracking-sidebar.png)
+![Time tracking in the sidebar](time_tracking/img/time_tracking_sidebar_v8_16.png)
 
 ## How to enter data
 
@@ -30,7 +34,7 @@ in a comment in both an issue or a merge request.
 
 Below is an example of how you can use those new quick actions inside a comment.
 
-![Time tracking example in a comment](time-tracking/time-tracking-example.png)
+![Time tracking example in a comment](time_tracking/img/time_tracking_example_v12_2.png)
 
 Adding time entries (time spent or estimates) is limited to project members.
 
@@ -65,17 +69,17 @@ To remove all the time spent at once, use `/remove_time_spent`.
 
 The following time units are available:
 
-- months (mo)
-- weeks (w)
-- days (d)
-- hours (h)
-- minutes (m)
+- Months (mo)
+- Weeks (w)
+- Days (d)
+- Hours (h)
+- Minutes (m)
 
 Default conversion rates are 1mo = 4w, 1w = 5d and 1d = 8h.
 
 ### Limit displayed units to hours **(CORE ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/29469/) in GitLab 12.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/29469/) in GitLab 12.1.
 
 In GitLab self-managed instances, the display of time units can be limited to
 hours through the option in **Admin Area > Settings > Preferences** under **Localization**.
@@ -84,4 +88,4 @@ With this option enabled, `75h` is displayed instead of `1w 4d 3h`.
 
 ## Other interesting links
 
-- [Time Tracking landing page on about.gitlab.com](https://about.gitlab.com/solutions/time-tracking/)
+- [Time Tracking landing page in the GitLab handbook](https://about.gitlab.com/solutions/time-tracking/)

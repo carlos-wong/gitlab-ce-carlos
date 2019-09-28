@@ -1,6 +1,6 @@
 # Slash Commands
 
-> The `run` command was [introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/4466) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.6. [Moved](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24780) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.9.
+> The `run` command was [introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/4466) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.6. [Moved](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/24780) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.9.
 
 Slash commands in Mattermost and Slack allow you to control GitLab and view GitLab content right inside your chat client, without having to leave it. For Slack, this requires a [project service configuration](../user/project/integrations/slack_slash_commands.md). Simply type the command as a message in your chat client to activate it.
 
@@ -15,6 +15,7 @@ Taking the trigger term as `project-name`, the commands are:
 | `/project-name help` | Shows all available slash commands |
 | `/project-name issue new <title> <shift+return> <description>` | Creates a new issue with title `<title>` and description `<description>` |
 | `/project-name issue show <id>` | Shows the issue with id `<id>` |
+| `/project-name issue close <id>` | Closes the issue with id `<id>` |
 | `/project-name issue search <query>` | Shows up to 5 issues matching `<query>` |
 | `/project-name issue move <id> to <project>` | Moves issue ID `<id>` to `<project>` |
 | `/project-name deploy <from> to <to>` | Deploy from the `<from>` environment to the `<to>` environment |

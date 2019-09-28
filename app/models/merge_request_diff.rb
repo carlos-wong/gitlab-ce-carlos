@@ -4,7 +4,6 @@ class MergeRequestDiff < ApplicationRecord
   include Sortable
   include Importable
   include ManualInverseAssociation
-  include IgnorableColumn
   include EachBatch
   include Gitlab::Utils::StrongMemoize
   include ObjectStorage::BackgroundMove
@@ -198,7 +197,7 @@ class MergeRequestDiff < ApplicationRecord
 
   def lines_count
     strong_memoize(:lines_count) do
-      diffs.diff_files.sum(&:line_count)
+      raw_diffs(limits: false).line_count
     end
   end
 
@@ -221,6 +220,10 @@ class MergeRequestDiff < ApplicationRecord
 
   def first_commit
     commits.last
+  end
+
+  def last_commit
+    commits.first
   end
 
   def base_commit
@@ -298,7 +301,7 @@ class MergeRequestDiff < ApplicationRecord
     if without_files? && comparison = diff_refs&.compare_in(project)
       # It should fetch the repository when diffs are cleaned by the system.
       # We don't keep these for storage overload purposes.
-      # See https://gitlab.com/gitlab-org/gitlab-ce/issues/37639
+      # See https://gitlab.com/gitlab-org/gitlab-foss/issues/37639
       comparison.diffs(diff_options)
     else
       diffs_collection(diff_options)
@@ -354,7 +357,7 @@ class MergeRequestDiff < ApplicationRecord
   # use factories that rely on current code with an old schema. Without these
   # `has_attribute?` guards, they fail with a `MissingAttributeError`.
   #
-  # For more details, see: https://gitlab.com/gitlab-org/gitlab-ce/issues/44990
+  # For more details, see: https://gitlab.com/gitlab-org/gitlab-foss/issues/44990
 
   def write_uploader(column, identifier)
     carrierwave_write_uploader(column, identifier) if has_attribute?(column)

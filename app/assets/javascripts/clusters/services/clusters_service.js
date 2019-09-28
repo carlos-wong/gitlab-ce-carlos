@@ -17,7 +17,7 @@ export default class ClusterService {
     };
   }
 
-  fetchData() {
+  fetchClusterStatus() {
     return axios.get(this.options.endpoint);
   }
 
@@ -31,6 +31,10 @@ export default class ClusterService {
 
   uninstallApplication(appId, params) {
     return axios.delete(this.appInstallEndpointMap[appId], params);
+  }
+
+  fetchClusterEnvironments() {
+    return axios.get(this.options.clusterEnvironmentsEndpoint);
   }
 
   static updateCluster(endpoint, data) {

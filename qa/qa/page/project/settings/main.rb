@@ -18,6 +18,10 @@ module QA
             element :save_naming_topics_avatar_button
           end
 
+          view 'app/views/projects/edit.html.haml' do
+            element :visibility_features_permissions_content
+          end
+
           def rename_project_to(name)
             fill_project_name(name)
             click_save_changes
@@ -36,8 +40,16 @@ module QA
               Advanced.perform(&block)
             end
           end
+
+          def expand_visibility_project_features_permissions(&block)
+            expand_section(:visibility_features_permissions_content) do
+              VisibilityFeaturesPermissions.perform(&block)
+            end
+          end
         end
       end
     end
   end
 end
+
+QA::Page::Project::Settings::Main.prepend_if_ee('QA::EE::Page::Project::Settings::Main')

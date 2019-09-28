@@ -6,8 +6,8 @@ module Gitlab
       extend ActiveSupport::Concern
       include Gitlab::QuickActions::Dsl
 
-      SHRUG = '¯\\＿(ツ)＿/¯'.freeze
-      TABLEFLIP = '(╯°□°)╯︵ ┻━┻'.freeze
+      SHRUG = '¯\\＿(ツ)＿/¯'
+      TABLEFLIP = '(╯°□°)╯︵ ┻━┻'
 
       included do
         # Issue, MergeRequest, Epic: quick actions definitions

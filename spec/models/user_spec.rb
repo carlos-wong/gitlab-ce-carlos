@@ -32,7 +32,7 @@ describe User do
     it { is_expected.to have_many(:groups) }
     it { is_expected.to have_many(:keys).dependent(:destroy) }
     it { is_expected.to have_many(:deploy_keys).dependent(:nullify) }
-    it { is_expected.to have_many(:events).dependent(:destroy) }
+    it { is_expected.to have_many(:events).dependent(:delete_all) }
     it { is_expected.to have_many(:issues).dependent(:destroy) }
     it { is_expected.to have_many(:notes).dependent(:destroy) }
     it { is_expected.to have_many(:merge_requests).dependent(:destroy) }
@@ -101,6 +101,14 @@ describe User do
     describe 'name' do
       it { is_expected.to validate_presence_of(:name) }
       it { is_expected.to validate_length_of(:name).is_at_most(128) }
+    end
+
+    describe 'first name' do
+      it { is_expected.to validate_length_of(:first_name).is_at_most(255) }
+    end
+
+    describe 'last name' do
+      it { is_expected.to validate_length_of(:last_name).is_at_most(255) }
     end
 
     describe 'username' do
@@ -608,7 +616,7 @@ describe User do
     end
 
     describe '#update_notification_email' do
-      # Regression: https://gitlab.com/gitlab-org/gitlab-ce/issues/22846
+      # Regression: https://gitlab.com/gitlab-org/gitlab-foss/issues/22846
       context 'when changing :email' do
         let(:user) { create(:user) }
         let(:new_email) { 'new-email@example.com' }
@@ -675,6 +683,18 @@ describe User do
         expect(user).to receive(:update_invalid_gpg_signatures).at_most(:twice)
         user.update!(email: 'shawnee.ritchie@denesik.com')
       end
+    end
+  end
+
+  describe 'name getters' do
+    let(:user) { create(:user, name: 'Kane Martin William') }
+
+    it 'derives first name from full name, if not present' do
+      expect(user.first_name).to eq('Kane')
+    end
+
+    it 'derives last name from full name, if not present' do
+      expect(user.last_name).to eq('Martin William')
     end
   end
 
@@ -925,6 +945,16 @@ describe User do
     end
   end
 
+  describe 'static object token' do
+    it 'ensures a static object token on read' do
+      user = create(:user, static_object_token: nil)
+      static_object_token = user.static_object_token
+
+      expect(static_object_token).not_to be_blank
+      expect(user.reload.static_object_token).to eq static_object_token
+    end
+  end
+
   describe '#recently_sent_password_reset?' do
     it 'is false when reset_password_sent_at is nil' do
       user = build_stubbed(:user, reset_password_sent_at: nil)
@@ -1156,7 +1186,7 @@ describe User do
         expect(user.can_create_group).to eq(Gitlab.config.gitlab.default_can_create_group)
         expect(user.theme_id).to eq(Gitlab.config.gitlab.default_theme)
         expect(user.external).to be_falsey
-        expect(user.private_profile).to eq false
+        expect(user.private_profile).to eq(false)
       end
     end
 

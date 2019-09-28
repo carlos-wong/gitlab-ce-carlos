@@ -35,8 +35,8 @@ A To Do displays on your To-Do List when:
 - You are `@mentioned` in a comment on a commit
 - A job in the CI pipeline running for your merge request failed, but this
   job is not allowed to fail
-- An open merge request becomes unmergeable due to conflict, and you are either: 
-  - The author 
+- An open merge request becomes unmergeable due to conflict, and you are either:
+  - The author
   - Have set it to automatically merge once the pipeline succeeds
 
 To-do triggers are not affected by [GitLab Notification Email settings](notifications.md).
@@ -134,5 +134,5 @@ There are four kinds of filters you can use on your To-Do List.
 
 You can also filter by more than one of these at the same time. The possible Actions are `Any Action`, `Assigned`, `Mentioned`, `Added`, `Pipelines`, and `Directly Addressed`, [as described above](#what-triggers-a-to-do).
 
-[ce-2817]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/2817
-[ce-7926]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7926
+[ce-2817]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/2817
+[ce-7926]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/7926

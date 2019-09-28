@@ -725,8 +725,16 @@ describe Gitlab::Database::MigrationHelpers do
         .with(/CREATE OR REPLACE FUNCTION foo()/m)
 
       expect(model).to receive(:execute)
+        .with(/DROP TRIGGER IF EXISTS foo/m)
+
+      expect(model).to receive(:execute)
         .with(/CREATE TRIGGER foo/m)
 
+      model.install_rename_triggers_for_postgresql('foo', :users, :old, :new)
+    end
+
+    it 'does not fail if trigger already exists' do
+      model.install_rename_triggers_for_postgresql('foo', :users, :old, :new)
       model.install_rename_triggers_for_postgresql('foo', :users, :old, :new)
     end
   end
@@ -1275,33 +1283,19 @@ describe Gitlab::Database::MigrationHelpers do
 
   describe '#perform_background_migration_inline?' do
     it 'returns true in a test environment' do
-      allow(Rails.env)
-        .to receive(:test?)
-        .and_return(true)
+      stub_rails_env('test')
 
       expect(model.perform_background_migration_inline?).to eq(true)
     end
 
     it 'returns true in a development environment' do
-      allow(Rails.env)
-        .to receive(:test?)
-        .and_return(false)
-
-      allow(Rails.env)
-        .to receive(:development?)
-        .and_return(true)
+      stub_rails_env('development')
 
       expect(model.perform_background_migration_inline?).to eq(true)
     end
 
     it 'returns false in a production environment' do
-      allow(Rails.env)
-        .to receive(:test?)
-        .and_return(false)
-
-      allow(Rails.env)
-        .to receive(:development?)
-        .and_return(false)
+      stub_rails_env('production')
 
       expect(model.perform_background_migration_inline?).to eq(false)
     end

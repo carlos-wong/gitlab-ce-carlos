@@ -50,7 +50,7 @@ module Gitlab
     def self.interceptors
       return [] unless Labkit::Tracing.enabled?
 
-      [Labkit::Tracing::GRPCInterceptor.instance]
+      [Labkit::Tracing::GRPC::ClientInterceptor.instance]
     end
     private_class_method :interceptors
 
@@ -157,7 +157,7 @@ module Gitlab
 
       # Keep track, separately, for the performance bar
       self.query_time += duration
-      if peek_enabled?
+      if Gitlab::PerformanceBar.enabled_for_request?
         add_call_details(feature: "#{service}##{rpc}", duration: duration, request: request_hash, rpc: rpc,
                          backtrace: Gitlab::Profiler.clean_backtrace(caller))
       end
@@ -335,17 +335,13 @@ module Gitlab
       Gitlab::SafeRequestStore["gitaly_call_permitted"] = 0
     end
 
-    def self.peek_enabled?
-      Gitlab::SafeRequestStore[:peek_enabled]
-    end
-
     def self.add_call_details(details)
       Gitlab::SafeRequestStore['gitaly_call_details'] ||= []
       Gitlab::SafeRequestStore['gitaly_call_details'] << details
     end
 
     def self.list_call_details
-      return [] unless peek_enabled?
+      return [] unless Gitlab::PerformanceBar.enabled_for_request?
 
       Gitlab::SafeRequestStore['gitaly_call_details'] || []
     end
@@ -406,7 +402,8 @@ module Gitlab
     def self.filesystem_id(storage)
       response = Gitlab::GitalyClient::ServerService.new(storage).info
       storage_status = response.storage_statuses.find { |status| status.storage_name == storage }
-      storage_status.filesystem_id
+
+      storage_status&.filesystem_id
     end
 
     def self.filesystem_id_from_disk(storage)

@@ -3,6 +3,8 @@
 module QA
   module Resource
     class Group < Base
+      include Members
+
       attr_accessor :path, :description
 
       attribute :sandbox do
@@ -10,6 +12,7 @@ module QA
       end
 
       attribute :id
+      attribute :name
 
       def initialize
         @path = Runtime::Namespace.name
@@ -49,10 +52,6 @@ module QA
 
       def api_get_path
         "/groups/#{CGI.escape("#{sandbox.path}/#{path}")}"
-      end
-
-      def api_members_path
-        "#{api_get_path}/members"
       end
 
       def api_post_path

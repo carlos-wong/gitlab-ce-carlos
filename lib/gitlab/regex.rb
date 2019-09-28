@@ -115,5 +115,11 @@ module Gitlab
     def jira_transition_id_regex
       @jira_transition_id_regex ||= /\d+/
     end
+
+    def breakline_regex
+      @breakline_regex ||= /\r\n|\r|\n/
+    end
   end
 end
+
+Gitlab::Regex.prepend_if_ee('EE::Gitlab::Regex')

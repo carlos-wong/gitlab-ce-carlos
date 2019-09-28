@@ -2,7 +2,7 @@
 
 > [Introduced][ee-1659] in [GitLab Premium][eep] 9.1.
 
-A popular [Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration)
+A popular [Continuous Deployment](https://en.wikipedia.org/wiki/Continuous_deployment)
 strategy, where a small portion of the fleet is updated to the new version of
 your application.
 
@@ -63,7 +63,7 @@ can easily notice them.
 ![Canary deployments on Deploy Board](img/deploy_boards_canary_deployments.png)
 
 [eep]: https://about.gitlab.com/pricing/
-[ee-1659]: https://gitlab.com/gitlab-org/gitlab-ee/issues/1659
+[ee-1659]: https://gitlab.com/gitlab-org/gitlab/issues/1659
 [kube-canary]: https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments
 [deploy board]: deploy_boards.md
 [cd-blog]: https://about.gitlab.com/2016/08/05/continuous-integration-delivery-and-deployment-with-gitlab/

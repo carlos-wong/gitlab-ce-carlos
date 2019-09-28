@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module UserCalloutsHelper
-  GKE_CLUSTER_INTEGRATION = 'gke_cluster_integration'.freeze
-  GCP_SIGNUP_OFFER = 'gcp_signup_offer'.freeze
-  SUGGEST_POPOVER_DISMISSED = 'suggest_popover_dismissed'.freeze
+  GKE_CLUSTER_INTEGRATION = 'gke_cluster_integration'
+  GCP_SIGNUP_OFFER = 'gcp_signup_offer'
+  SUGGEST_POPOVER_DISMISSED = 'suggest_popover_dismissed'
 
   def show_gke_cluster_integration_callout?(project)
     can?(current_user, :create_cluster, project) &&
@@ -31,3 +31,5 @@ module UserCalloutsHelper
     current_user&.callouts&.find_by(feature_name: UserCallout.feature_names[feature_name])
   end
 end
+
+UserCalloutsHelper.prepend_if_ee('EE::UserCalloutsHelper')

@@ -8,30 +8,6 @@ storage disk use. To counteract this problem, we are adding Git object
 deduplication for forks to GitLab. In this document, we will describe how
 GitLab implements Git object deduplication.
 
-## Enabling Git object deduplication via feature flags
-
-As of GitLab 12.0, Git object deduplication in GitLab is still behind a
-feature flag. In this document, you can read about the effects of
-enabling the feature. Also, note that Git object deduplication is
-limited to forks of public projects on hashed repository storage.
-
-You can enable deduplication globally by setting the `object_pools`
-feature flag to `true`:
-
-``` {.ruby}
-Feature.enable(:object_pools)
-```
-
-Or just for forks of a specific project:
-
-``` {.ruby}
-fork_parent = Project.find(MY_PROJECT_ID)
-Feature.enable(:object_pools, fork_parent)
-```
-
-To check if a project uses Git object deduplication, look in a Rails
-console if `project.pool_repository` is present.
-
 ## Pool repositories
 
 ### Understanding Git alternates
@@ -193,7 +169,7 @@ There are three different things that can go wrong here.
 In this case, we miss out on disk space savings but all RPC's on A
 itself will function fine. The next time garbage collection runs on A,
 the alternates connection gets established in Gitaly. This is done by
-`Projects::GitDeduplicationService` in gitlab-rails.
+`Projects::GitDeduplicationService` in GitLab Rails.
 
 #### 2. SQL says repo A belongs to pool P1 but Gitaly says A has alternate objects in pool P2
 
@@ -210,7 +186,7 @@ When a pool repository record is created in SQL on a Geo primary, this
 will eventually trigger an event on the Geo secondary. The Geo secondary
 will then create the pool repository in Gitaly. This leads to an
 "eventually consistent" situation because as each pool participant gets
-synchronized, Geo will eventuall trigger garbage collection in Gitaly on
+synchronized, Geo will eventually trigger garbage collection in Gitaly on
 the secondary, at which stage Git objects will get deduplicated.
 
 > TODO How do we handle the edge case where at the time the Geo

@@ -21,11 +21,15 @@ module QA
         end
 
         def repository_http_uri
-          @repository_http_uri ||= begin
+          @repository_http_uri ||= wiki.repository_http_location.uri
+        end
+
+        def repository_ssh_uri
+          @repository_ssh_uri ||= begin
             wiki.visit!
             Page::Project::Wiki::Show.act do
               click_clone_repository
-              choose_repository_clone_http
+              choose_repository_clone_ssh
               repository_location.uri
             end
           end

@@ -11,7 +11,7 @@ GET /projects/:id/labels
 | Attribute     | Type           | Required | Description                                                                                                                                                                  |
 | ---------     | -------        | -------- | ---------------------                                                                                                                                                        |
 | `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                                                              |
-| `with_counts` | boolean        | no       | Whether or not to include issue and merge request counts. Defaults to `false`. _([Introduced in GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/31543))_ |
+| `with_counts` | boolean        | no       | Whether or not to include issue and merge request counts. Defaults to `false`. _([Introduced in GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/31543))_ |
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/labels?with_counts=true
@@ -137,8 +137,9 @@ DELETE /projects/:id/labels
 
 | Attribute | Type    | Required | Description           |
 | --------- | ------- | -------- | --------------------- |
-| `id`      | integer/string    | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
-| `name`    | string  | yes      | The name of the label |
+| `id`            | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
+| `label_id`      | integer        | yes (or `name`)                   | The id of the existing label     |
+| `name`          | string         | yes (or `label_id`)               | The name of the existing label   |
 
 ```bash
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/labels?name=bug"
@@ -156,7 +157,8 @@ PUT /projects/:id/labels
 | Attribute       | Type    | Required                          | Description                      |
 | --------------- | ------- | --------------------------------- | -------------------------------  |
 | `id`      | integer/string    | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
-| `name`          | string  | yes                               | The name of the existing label   |
+| `label_id`      | integer | yes (or `name`)                   | The id of the existing label     |
+| `name`          | string  | yes (or `label_id`)               | The name of the existing label   |
 | `new_name`      | string  | yes if `color` is not provided    | The new name of the label        |
 | `color`         | string  | yes if `new_name` is not provided | The color of the label given in 6-digit hex notation with leading '#' sign (e.g. #FFAABB) or one of the [CSS color names](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords) |
 | `description`   | string  | no                                | The new description of the label |
@@ -181,6 +183,40 @@ Example response:
   "subscribed": false,
   "priority": null,
   "is_project_label": true
+}
+```
+
+## Promote a project label to a group label
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25218) in GitLab 12.3.
+
+Promotes a project label to a group label.
+
+```
+PUT /projects/:id/labels/promote
+```
+
+| Attribute       | Type    | Required                          | Description                      |
+| --------------- | ------- | --------------------------------- | -------------------------------  |
+| `id`      | integer/string    | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
+| `name`          | string  | yes                               | The name of the existing label   |
+
+```bash
+curl --request PUT --data "name=documentation" --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/labels/promote"
+```
+
+Example response:
+
+```json
+{
+  "id" : 8,
+  "name" : "documentation",
+  "color" : "#8E44AD",
+  "description": "Documentation",
+  "open_issues_count": 1,
+  "closed_issues_count": 0,
+  "open_merge_requests_count": 2,
+  "subscribed": false
 }
 ```
 

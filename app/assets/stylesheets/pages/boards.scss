@@ -2,20 +2,6 @@
   cursor: grab;
 }
 
-.is-dragging {
-  // Important because plugin sets inline CSS
-  opacity: 1 !important;
-
-  * {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    // !important to make sure no style can override this when dragging
-    cursor: grabbing !important;
-  }
-}
-
 .is-ghost {
   opacity: 0.3;
   pointer-events: none;
@@ -86,6 +72,9 @@
 }
 
 .board {
+  // the next line cannot be replaced with .d-inline-block because it breaks display: none of SortableJS
+  // see https://gitlab.com/gitlab-org/gitlab-foss/issues/64828
+  display: inline-block;
   width: calc(85vw - 15px);
 
   @include media-breakpoint-up(sm) {

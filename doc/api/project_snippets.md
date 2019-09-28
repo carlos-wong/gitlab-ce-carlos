@@ -17,7 +17,7 @@ NOTE: **Note:**
 From July 2019, the `Internal` visibility setting is disabled for new projects, groups,
 and snippets on GitLab.com. Existing projects, groups, and snippets using the `Internal`
 visibility setting keep this setting. You can read more about the change in the
-[relevant issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/12388).
+[relevant issue](https://gitlab.com/gitlab-org/gitlab/issues/12388).
 
 ## List snippets
 
@@ -81,6 +81,27 @@ Parameters:
 - `code` (required) - The content of a snippet
 - `visibility` (required) - The snippet's visibility
 
+Example request:
+
+```bash
+curl --request POST https://gitlab.com/api/v4/projects/:id/snippets \
+     --header "PRIVATE-TOKEN: <your access token>" \
+     --header "Content-Type: application/json" \
+     -d @snippet.json
+```
+
+`snippet.json` used in the above example request:
+
+```json
+{
+  "title" : "Example Snippet Title",
+  "description" : "More verbose snippet description",
+  "file_name" : "example.txt",
+  "code" : "source code \n with multiple lines\n",
+  "visibility" : "private"
+}
+```
+
 ## Update snippet
 
 Updates an existing project snippet. The user must have permission to change an existing snippet.
@@ -99,6 +120,27 @@ Parameters:
 - `code` (optional) - The content of a snippet
 - `visibility` (optional) - The snippet's visibility
 
+Example request:
+
+```bash
+curl --request PUT https://gitlab.com/api/v4/projects/:id/snippets \
+     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "Content-Type: application/json" \
+     -d @snippet.json
+```
+
+`snippet.json` used in the above example request:
+
+```json
+{
+  "title" : "Updated Snippet Title",
+  "description" : "More verbose snippet description",
+  "file_name" : "new_filename.txt",
+  "code" : "updated source code \n with multiple lines\n",
+  "visibility" : "private"
+}
+```
+
 ## Delete snippet
 
 Deletes an existing project snippet. This returns a `204 No Content` status code if the operation was successfully or `404` if the resource was not found.
@@ -112,6 +154,13 @@ Parameters:
 - `id` (required) - The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user
 - `snippet_id` (required) - The ID of a project's snippet
 
+Example request:
+
+```bash
+curl --request DELETE https://gitlab.com/api/v4/projects/:id/snippets \
+     --header "PRIVATE-TOKEN: <your_access_token>"
+```
+
 ## Snippet content
 
 Returns the raw project snippet as plain text.
@@ -124,6 +173,13 @@ Parameters:
 
 - `id` (required) - The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user
 - `snippet_id` (required) - The ID of a project's snippet
+
+Example request:
+
+```bash
+curl --request GET https://gitlab.com/api/v4/projects/:id/snippets/:snippet_id/raw \
+     --header "PRIVATE-TOKEN: <your_access_token>"
+```
 
 ## Get user agent details
 
@@ -140,6 +196,8 @@ GET /projects/:id/snippets/:snippet_id/user_agent_detail
 | `id`          | Integer | yes      | The ID of a project                  |
 | `snippet_id`  | Integer | yes      | The ID of a snippet                  |
 
+Example request:
+
 ```bash
 curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/snippets/2/user_agent_detail
 ```
@@ -154,4 +212,4 @@ Example response:
 }
 ```
 
-[ce-29508]: https://gitlab.com/gitlab-org/gitlab-ce/issues/29508
+[ce-29508]: https://gitlab.com/gitlab-org/gitlab-foss/issues/29508

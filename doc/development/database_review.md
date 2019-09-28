@@ -36,8 +36,9 @@ A Merge Request author's role is to:
 
 - Decide whether a database review is needed.
 - If database review is needed, add the ~database label.
-- Use the [database changes](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.gitlab/merge_request_templates/Database%20changes.md)
+- Use the [database changes](https://gitlab.com/gitlab-org/gitlab/blob/master/.gitlab/merge_request_templates/Database%20changes.md)
   merge request template, or include the appropriate items in the MR description.
+- [Prepare the merge request for a database review](#how-to-prepare-the-merge-request-for-a-database-review).
 
 A database **reviewer**'s role is to:
 
@@ -58,7 +59,7 @@ A database **maintainer**'s role is to:
 ### Distributing review workload
 
 Review workload is distributed using [reviewer roulette](code_review.md#reviewer-roulette)
-([example](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/25181#note_147551725)).
+([example](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25181#note_147551725)).
 The MR author should then co-assign the suggested database
 **reviewer**. When they give their sign-off, they will hand over to
 the suggested database **maintainer**.
@@ -68,7 +69,7 @@ make sure you have applied the ~database label and rerun the
 `danger-review` CI job, or pick someone from the
 [`@gl-database` team](https://gitlab.com/groups/gl-database/-/group_members).
 
-### How to prepare for speedy database reviews
+### How to prepare the merge request for a database review
 
 In order to make reviewing easier and therefore faster, please consider preparing a comment
 and details for a database reviewer:
@@ -91,7 +92,7 @@ and details for a database reviewer:
     concurrent index/foreign key helpers (with transactions disabled)
   - Check consistency with `db/schema.rb` and that migrations are [reversible](migration_style_guide.md#reversibility)
   - Check queries timing (If any): Queries executed in a migration
-    need to fit comfortable within `15s` - preferably much less than that - on GitLab.com.
+    need to fit comfortably within `15s` - preferably much less than that - on GitLab.com.
 - Check [background migrations](background_migrations.md):
   - For data migrations, establish a time estimate for execution
   - They should only be used when migrating data in larger tables.

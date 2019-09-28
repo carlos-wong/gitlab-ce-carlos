@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::Utils::StrongMemoize do
@@ -47,6 +49,22 @@ describe Gitlab::Utils::StrongMemoize do
 
         it_behaves_like 'caching the value'
       end
+    end
+  end
+
+  describe '#strong_memoized?' do
+    let(:value) { :anything }
+
+    subject { object.strong_memoized?(:method_name) }
+
+    it 'returns false if the value is uncached' do
+      is_expected.to be(false)
+    end
+
+    it 'returns true if the value is cached' do
+      object.method_name
+
+      is_expected.to be(true)
     end
   end
 

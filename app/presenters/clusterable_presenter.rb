@@ -25,8 +25,8 @@ class ClusterablePresenter < Gitlab::View::Presenter::Delegated
     polymorphic_path([clusterable, :clusters])
   end
 
-  def new_path
-    new_polymorphic_path([clusterable, :cluster])
+  def new_path(options = {})
+    new_polymorphic_path([clusterable, :cluster], options)
   end
 
   def create_user_clusters_path
@@ -53,6 +53,11 @@ class ClusterablePresenter < Gitlab::View::Presenter::Delegated
     raise NotImplementedError
   end
 
+  # Will be overidden in EE
+  def environments_cluster_path(cluster)
+    nil
+  end
+
   def empty_state_help_text
     nil
   end
@@ -76,3 +81,5 @@ class ClusterablePresenter < Gitlab::View::Presenter::Delegated
     clusterable.clusters.empty?
   end
 end
+
+ClusterablePresenter.prepend_if_ee('EE::ClusterablePresenter')

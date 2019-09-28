@@ -60,16 +60,21 @@ future GitLab releases.**
 | `CI_MERGE_REQUEST_PROJECT_URL`          | 11.6   | all    | The URL of the project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md) (e.g. `http://192.168.10.15:3000/namespace/awesome-project`). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_REF_PATH`             | 11.6   | all    | The ref path of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). (e.g. `refs/merge-requests/1/head`). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_SOURCE_BRANCH_NAME`   | 11.6   | all    | The source branch name of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
-| `CI_MERGE_REQUEST_SOURCE_BRANCH_SHA`    | 11.9   | all    | The HEAD sha of the source branch of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
+| `CI_MERGE_REQUEST_SOURCE_BRANCH_SHA`    | 11.9   | all    | The HEAD SHA of the source branch of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_SOURCE_PROJECT_ID`    | 11.6   | all    | The ID of the source project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_SOURCE_PROJECT_PATH`  | 11.6   | all    | The path of the source project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_SOURCE_PROJECT_URL`   | 11.6   | all    | The URL of the source project of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_TARGET_BRANCH_NAME`   | 11.6   | all    | The target branch name of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
-| `CI_MERGE_REQUEST_TARGET_BRANCH_SHA`    | 11.9   | all    | The HEAD sha of the target branch of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
+| `CI_MERGE_REQUEST_TARGET_BRANCH_SHA`    | 11.9   | all    | The HEAD SHA of the target branch of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_TITLE`                | 11.9   | all    | The title of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_ASSIGNEES`            | 11.9   | all    | Comma-separated list of username(s) of assignee(s) for the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created. |
 | `CI_MERGE_REQUEST_MILESTONE`            | 11.9   | all    | The milestone title of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
 | `CI_MERGE_REQUEST_LABELS`               | 11.9   | all    | Comma-separated label names of the merge request if [the pipelines are for merge requests](../merge_request_pipelines/index.md). Available only if `only: [merge_requests]` is used and the merge request is created.  |
+| `CI_EXTERNAL_PULL_REQUEST_IID`          | 12.3   | all    | Pull Request ID from GitHub if the [pipelines are for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests). Available only if `only: [external_pull_requests]` is used and the pull request is open. |
+| `CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_SHA` | 12.3 | all | The HEAD SHA of the source branch of the pull request if [the pipelines are for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests). Available only if `only: [external_pull_requests]` is used and the pull request is open. |
+| `CI_EXTERNAL_PULL_REQUEST_TARGET_BRANCH_SHA` | 12.3 | all | The HEAD SHA of the target branch of the pull request if [the pipelines are for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests). Available only if `only: [external_pull_requests]` is used and the pull request is open. |
+| `CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_NAME` | 12.3 | all | The source branch name of the pull request if [the pipelines are for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests). Available only if `only: [external_pull_requests]` is used and the pull request is open. |
+| `CI_EXTERNAL_PULL_REQUEST_TARGET_BRANCH_NAME` | 12.3 | all | The target branch name of the pull request if [the pipelines are for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests). Available only if `only: [external_pull_requests]` is used and the pull request is open. |
 | `CI_NODE_INDEX`                         | 11.5   | all    | Index of the job in the job set. If the job is not parallelized, this variable is not set. |
 | `CI_NODE_TOTAL`                         | 11.5   | all    | Total number of instances of this job running in parallel. If the job is not parallelized, this variable is set to `1`. |
 | `CI_API_V4_URL`                         | 11.7   | all    | The GitLab API v4 root URL |
@@ -88,6 +93,7 @@ future GitLab releases.**
 | `CI_PROJECT_PATH_SLUG`                  | 9.3    | all    | `$CI_PROJECT_PATH` lowercased and with everything except `0-9` and `a-z` replaced with `-`. Use in URLs and domain names. |
 | `CI_PROJECT_URL`                        | 8.10   | 0.5    | The HTTP(S) address to access project |
 | `CI_PROJECT_VISIBILITY`                 | 10.3   | all    | The project visibility (internal, private, public) |
+| `CI_PROJECT_REPOSITORY_LANGUAGES`       | 12.3   | all    | Comma-separated, lowercased list of the languages used in the repository (e.g. `ruby,javascript,html,css`) |
 | `CI_COMMIT_REF_PROTECTED`                      | 11.11  | all    | If the job is running on a protected branch |
 | `CI_REGISTRY`                           | 8.10   | 0.5    | If the Container Registry is enabled it returns the address of GitLab's Container Registry |
 | `CI_REGISTRY_IMAGE`                     | 8.10   | 0.5    | If the Container Registry is enabled for the project it returns the address of the registry tied to the specific project |
@@ -100,6 +106,7 @@ future GitLab releases.**
 | `CI_RUNNER_REVISION`                    | all    | 10.6   | GitLab Runner revision that is executing the current job |
 | `CI_RUNNER_TAGS`                        | 8.10   | 0.5    | The defined runner tags |
 | `CI_RUNNER_VERSION`                     | all    | 10.6   | GitLab Runner version that is executing the current job |
+| `CI_RUNNER_SHORT_TOKEN`                 | all    | 12.3   | First eight characters of GitLab Runner's token used to authenticate new job requests. Used as Runner's unique ID |
 | `CI_SERVER`                             | all    | all    | Mark that job is executed in CI environment |
 | `CI_SERVER_HOST`                        | 12.1   | all    | Host component of the GitLab instance URL, without protocol and port (like gitlab.example.com) |
 | `CI_SERVER_NAME`                        | all    | all    | The name of CI server that is used to coordinate jobs |
@@ -119,5 +126,5 @@ future GitLab releases.**
 | `GITLAB_FEATURES`                       | 10.6   | all    | The comma separated list of licensed features available for your instance and plan |
 
 [gitlab-deploy-token]: ../../user/project/deploy_tokens/index.md#gitlab-deploy-token
-[registry]: ../../user/project/container_registry.md
+[registry]: ../../user/packages/container_registry/index.md
 [dependent-repositories]: ../../user/project/new_ci_build_permissions_model.md#dependent-repositories

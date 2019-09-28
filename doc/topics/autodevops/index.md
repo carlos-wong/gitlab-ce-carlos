@@ -95,34 +95,45 @@ Auto DevOps.
 
 To make full use of Auto DevOps, you will need:
 
-- **GitLab Runner** (needed for all stages) - Your Runner needs to be
-  configured to be able to run Docker. Generally this means using the
-  [Docker](https://docs.gitlab.com/runner/executors/docker.html) or [Kubernetes
-  executor](https://docs.gitlab.com/runner/executors/kubernetes.html), with
+- **GitLab Runner** (for all stages)
+
+  Your Runner needs to be configured to be able to run Docker. Generally this
+  means using the either the [Docker](https://docs.gitlab.com/runner/executors/docker.html)
+  or [Kubernetes](https://docs.gitlab.com/runner/executors/kubernetes.html) executors, with
   [privileged mode enabled](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
+
   The Runners do not need to be installed in the Kubernetes cluster, but the
   Kubernetes executor is easy to use and is automatically autoscaling.
   Docker-based Runners can be configured to autoscale as well, using [Docker
-  Machine](https://docs.gitlab.com/runner/install/autoscaling.html). Runners
-  should be registered as [shared Runners](../../ci/runners/README.md#registering-a-shared-runner)
+  Machine](https://docs.gitlab.com/runner/install/autoscaling.html).
+
+  Runners should be registered as [shared Runners](../../ci/runners/README.md#registering-a-shared-runner)
   for the entire GitLab instance, or [specific Runners](../../ci/runners/README.md#registering-a-specific-runner)
   that are assigned to specific projects.
-- **Base domain** (needed for Auto Review Apps and Auto Deploy) - You will need
-  a domain configured with wildcard DNS which is going to be used by all of your
-  Auto DevOps applications. [Read the specifics](#auto-devops-base-domain).
-- **Kubernetes** (needed for Auto Review Apps, Auto Deploy, and Auto Monitoring) -
-  To enable deployments, you will need Kubernetes 1.5+. You need a [Kubernetes cluster][kubernetes-clusters]
-  for the project, or a Kubernetes [default service template](../../user/project/integrations/services_templates.md)
-  for the entire GitLab installation.
-  - **A load balancer** - You can use NGINX ingress by deploying it to your
-    Kubernetes cluster using the
-    [`nginx-ingress`](https://github.com/kubernetes/charts/tree/master/stable/nginx-ingress)
-    Helm chart.
-- **Prometheus** (needed for Auto Monitoring) - To enable Auto Monitoring, you
+- **Base domain** (for Auto Review Apps and Auto Deploy)
+
+  You will need a domain configured with wildcard DNS which is going to be used
+  by all of your Auto DevOps applications.
+
+  Read the [specifics](#auto-devops-base-domain).
+- **Kubernetes** (for Auto Review Apps, Auto Deploy, and Auto Monitoring)
+
+  To enable deployments, you will need:
+
+  - Kubernetes 1.5+.
+  - A [Kubernetes cluster][kubernetes-clusters] for the project.
+  - A load balancer. You can use NGINX ingress by deploying it to your
+    Kubernetes cluster by either:
+    - Using the [`nginx-ingress`](https://github.com/kubernetes/charts/tree/master/stable/nginx-ingress) Helm chart.
+    - Installing the Ingress [GitLab Managed App](../../user/clusters/applications.md#ingress).
+- **Prometheus** (for Auto Monitoring)
+
+  To enable Auto Monitoring, you
   will need Prometheus installed somewhere (inside or outside your cluster) and
   configured to scrape your Kubernetes cluster. To get response metrics
   (in addition to system metrics), you need to
   [configure Prometheus to monitor NGINX](../../user/project/integrations/prometheus_library/nginx_ingress.md#configuring-nginx-ingress-monitoring).
+
   The [Prometheus service](../../user/project/integrations/prometheus.md)
   integration needs to be enabled for the project, or enabled as a
   [default service template](../../user/project/integrations/services_templates.md)
@@ -147,7 +158,7 @@ as other environment [variables](../../ci/variables/README.md#priority-of-enviro
 
 NOTE: **Note**
 `AUTO_DEVOPS_DOMAIN` environment variable is deprecated and
-[is scheduled to be removed](https://gitlab.com/gitlab-org/gitlab-ce/issues/56959).
+[is scheduled to be removed](https://gitlab.com/gitlab-org/gitlab-foss/issues/56959).
 
 A wildcard DNS A record matching the base domain(s) is required, for example,
 given a base domain of `example.com`, you'd need a DNS entry like:
@@ -171,7 +182,7 @@ them to the Kubernetes pods that run your application(s).
 NOTE: **Note:**
 From GitLab 11.8, `KUBE_INGRESS_BASE_DOMAIN` replaces `AUTO_DEVOPS_DOMAIN`.
 Support for `AUTO_DEVOPS_DOMAIN` was [removed in GitLab
-12.0](https://gitlab.com/gitlab-org/gitlab-ce/issues/56959).
+12.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/56959).
 
 ## Using multiple Kubernetes clusters **(PREMIUM)**
 
@@ -241,7 +252,7 @@ Auto DevOps at the group and project level, respectively.
 
 ### At the group level
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/52447) in GitLab 11.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/52447) in GitLab 11.10.
 
 Only administrators and group owners can enable or disable Auto DevOps at the group level.
 
@@ -278,7 +289,7 @@ This can be enabled from the console with the following, which uses the example 
 
 ### Deployment strategy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/38542) in GitLab 11.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/38542) in GitLab 11.0.
 
 You can change the deployment strategy used by Auto DevOps by going to your
 project's **Settings > CI/CD > Auto DevOps**.
@@ -415,7 +426,7 @@ report is created, it's uploaded as an artifact which you can later download and
 check out.
 
 Any licenses are also shown in the merge request widget. Read more how
-[License Compliance works](../../user/application_security/license_management/index.md).
+[License Compliance works](../../user/application_security/license_compliance/index.md).
 
 ### Auto Container Scanning **(ULTIMATE)**
 
@@ -461,7 +472,7 @@ namespace](../../user/project/clusters/index.md#deployment-variables)
 for the environment.
 
 Since GitLab 11.4, a [local
-Tiller](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22036) is
+Tiller](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22036) is
 used. Previous versions of GitLab had a Tiller installed in the project
 namespace.
 
@@ -527,7 +538,7 @@ namespace](../../user/project/clusters/index.md#deployment-variables)
 for the environment.
 
 Since GitLab 11.4, a [local
-Tiller](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22036) is
+Tiller](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22036) is
 used. Previous versions of GitLab had a Tiller installed in the project
 namespace.
 
@@ -583,6 +594,55 @@ For example, in a Rails application in an image built with
 Unless you have a `Dockerfile` in your repo, your image is built with
 Herokuish, and you must prefix commands run in these images with `/bin/herokuish
 procfile exec` to replicate the environment where your application will run.
+
+#### Workers
+
+Some web applications need to run extra deployments for "worker processes". For
+example, it is common in a Rails application to have a separate worker process
+to run background tasks like sending emails.
+
+The [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app)
+used in Auto Deploy [has support for running worker
+processes](https://gitlab.com/gitlab-org/charts/auto-deploy-app/merge_requests/9).
+
+In order to run a worker, you'll need to ensure that it is able to respond to
+the standard health checks, which expect a successful HTTP response on port
+`5000`. For [Sidekiq](https://github.com/mperham/sidekiq), you could make use of
+the [`sidekiq_alive` gem](https://rubygems.org/gems/sidekiq_alive) to do this.
+
+In order to work with Sidekiq, you'll also need to ensure your deployments have
+access to a Redis instance. Auto DevOps won't deploy this for you so you'll
+need to:
+
+- Maintain your own Redis instance.
+- Set a CI variable `K8S_SECRET_REDIS_URL`, which the URL of this instance to
+  ensure it's passed into your deployments.
+
+Once you have configured your worker to respond to health checks, you will
+need to configure a CI variable `HELM_UPGRADE_EXTRA_ARGS` with the value
+`--values helm-values.yaml`.
+
+Then you can, for example, run a Sidekiq worker for your Rails application
+by adding a file named `helm-values.yaml` to your repository with the following
+content:
+
+```yml
+workers:
+  sidekiq:
+    replicaCount: 1
+    command:
+    - /bin/herokuish
+    - procfile
+    - exec
+    - sidekiq
+    preStopCommand:
+    - /bin/herokuish
+    - procfile
+    - exec
+    - sidekiqctl
+    - quiet
+    terminationGracePeriodSeconds: 60
+```
 
 ### Auto Monitoring
 
@@ -646,6 +706,68 @@ will build a Docker image based on the Dockerfile rather than using buildpacks.
 This can be much faster and result in smaller images, especially if your
 Dockerfile is based on [Alpine](https://hub.docker.com/_/alpine/).
 
+### Passing arguments to `docker build`
+
+Arguments can be passed to the `docker build` command using the
+`AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS` project variable.
+
+For example, to build a Docker image based on based on the `ruby:alpine`
+instead of the default `ruby:latest`:
+
+1. Set `AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS` to `--build-arg=RUBY_VERSION=alpine`.
+1. Add the following to a custom `Dockerfile`:
+
+    ```docker
+    ARG RUBY_VERSION=latest
+    FROM ruby:$RUBY_VERSION
+
+    # ... put your stuff here
+    ```
+
+NOTE: **Note:**
+Passing in complex values (newlines and spaces, for example) will likely
+cause escaping issues due to the way this argument is used in Auto DevOps.
+Consider using Base64 encoding of such values to avoid this problem.
+
+CAUTION: **Warning:**
+Avoid passing secrets as Docker build arguments if possible, as they may be
+persisted in your image. See
+[this discussion](https://github.com/moby/moby/issues/13490) for details.
+
+### Passing secrets to `docker build` (beta)
+
+CI environment variables can be passed as [build
+secrets](https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information) to the `docker build` command by listing them comma separated by name in the
+`AUTO_DEVOPS_BUILD_IMAGE_FORWARDED_CI_VARIABLES` variable. For example, in order to forward the variables `CI_COMMIT_SHA` and `CI_ENVIRONMENT_NAME`, one would set `AUTO_DEVOPS_BUILD_IMAGE_FORWARDED_CI_VARIABLES` to `CI_COMMIT_SHA,CI_ENVIRONMENT_NAME`.
+
+Unlike build arguments, these are not persisted by Docker in the final image
+(though you can still persist them yourself, so be careful).
+
+In projects:
+
+- Without a `Dockerfile`, these are available automatically as environment
+  variables.
+- With a `Dockerfile`, the following is required:
+
+  1. Activate the experimental `Dockerfile` syntax by adding the following
+     to the top of the file:
+
+     ```docker
+     # syntax = docker/dockerfile:experimental
+     ```
+
+  1. To make secrets available in any `RUN $COMMAND` in the `Dockerfile`, mount
+     the secret file and source it prior to running `$COMMAND`:
+
+     ```docker
+     RUN --mount=type=secret,id=auto-devops-build-secrets . /run/secrets/auto-devops-build-secrets && $COMMAND
+     ```
+
+NOTE: **Note:**
+When `AUTO_DEVOPS_BUILD_IMAGE_FORWARDED_CI_VARIABLES` is set, Auto DevOps
+enables the experimental [Docker BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/)
+feature to use the `--secret` flag.
+
 ### Custom Helm Chart
 
 Auto DevOps uses [Helm](https://helm.sh/) to deploy your application to Kubernetes.
@@ -692,15 +814,19 @@ It is also possible to copy and paste the contents of the [Auto DevOps
 template] into your project and edit this as needed. You may prefer to do it
 that way if you want to specifically remove any part of it.
 
-### Using components of Auto-DevOps
+### Using components of Auto DevOps
 
-If you only require a subset of the features offered by Auto-DevOps, you can include
-individual Auto-DevOps jobs into your own `.gitlab-ci.yml`.
+If you only require a subset of the features offered by Auto DevOps, you can include
+individual Auto DevOps jobs into your own `.gitlab-ci.yml`. Each component job relies
+on a stage that should be defined in the `.gitlab-ci.yml` that includes the template.
 
 For example, to make use of [Auto Build](#auto-build), you can add the following to
 your `.gitlab-ci.yml`:
 
 ```yaml
+stages:
+  - build
+
 include:
   - template: Jobs/Build.gitlab-ci.yml
 ```
@@ -734,6 +860,8 @@ applications.
 |-----------------------------------------|------------------------------------|
 | `ADDITIONAL_HOSTS`                      | Fully qualified domain names specified as a comma-separated list that are added to the ingress hosts. |
 | `<ENVIRONMENT>_ADDITIONAL_HOSTS`        | For a specific environment, the fully qualified domain names specified as a comma-separated list that are added to the ingress hosts. This takes precedence over `ADDITIONAL_HOSTS`. |
+| `AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS`    | Extra arguments to be passed to the `docker build` command. Note that using quotes will not prevent word splitting. [More details](#passing-arguments-to-docker-build). |
+| `AUTO_DEVOPS_BUILD_IMAGE_FORWARDED_CI_VARIABLES` | A [comma-separated list of CI variable names](#passing-secrets-to-docker-build-beta) to be passed to the `docker build` command as secrets. |
 | `AUTO_DEVOPS_CHART`                     | Helm Chart used to deploy your apps. Defaults to the one [provided by GitLab](https://gitlab.com/gitlab-org/charts/auto-deploy-app). |
 | `AUTO_DEVOPS_CHART_REPOSITORY`          | Helm Chart repository used to search for charts. Defaults to `https://charts.gitlab.io`. |
 | `AUTO_DEVOPS_CHART_REPOSITORY_NAME`     | From Gitlab 11.11, used to set the name of the helm repository. Defaults to `gitlab`. |
@@ -802,7 +930,7 @@ The following table lists variables used to disable jobs.
 
 #### Application secret variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/49056) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/49056) in GitLab 11.7.
 
 Some applications need to define secret variables that are
 accessible by the deployed application. Auto DevOps detects variables where the key starts with
@@ -947,7 +1075,7 @@ If `CANARY_ENABLED` is defined in your project (e.g., set `CANARY_ENABLED` to
 
 #### Incremental rollout to production **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5415) in GitLab 10.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5415) in GitLab 10.8.
 
 TIP: **Tip:**
 You can also set this inside your [project's settings](#deployment-strategy).
@@ -1005,7 +1133,7 @@ This configuration is deprecated and will be removed in the future.
 
 #### Timed incremental rollout to production **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/7545) in GitLab 11.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7545) in GitLab 11.4.
 
 TIP: **Tip:**
 You can also set this inside your [project's settings](#deployment-strategy).
@@ -1075,6 +1203,27 @@ There is no documented way of using private container registry with Auto DevOps.
 We strongly advise using GitLab Container Registry with Auto DevOps in order to
 simplify configuration and prevent any unforeseen issues.
 
+### Installing Helm behind a proxy
+
+GitLab does not yet support installing [Helm as a GitLab-managed App](../../user/clusters/applications.md#helm) when
+behind a proxy. Users who wish to do so must inject their proxy settings
+into the installation pods at runtime, for example by using a
+[`PodPreset`](https://kubernetes.io/docs/concepts/workloads/pods/podpreset/):
+
+```yml
+apiVersion: settings.k8s.io/v1alpha1
+kind: PodPreset
+metadata:
+  name: gitlab-managed-apps-default-proxy
+  namespace: gitlab-managed-apps
+spec:
+   env:
+    - name: http_proxy
+      value: "PUT_YOUR_HTTP_PROXY_HERE"
+    - name: https_proxy
+      value: "PUT_YOUR_HTTPS_PROXY_HERE"
+```
+
 ## Troubleshooting
 
 - Auto Build and Auto Test may fail in detecting your language/framework. There
@@ -1110,16 +1259,16 @@ Or through the HTTP API with an admin access token:
 curl --data "value=true" --header "PRIVATE-TOKEN: personal_access_token" https://gitlab.example.com/api/v4/features/auto_devops_banner_disabled
 ```
 
-[ce-37115]: https://gitlab.com/gitlab-org/gitlab-ce/issues/37115
+[ce-37115]: https://gitlab.com/gitlab-org/gitlab-foss/issues/37115
 [kubernetes-clusters]: ../../user/project/clusters/index.md
 [docker-in-docker]: ../../docker/using_docker_build.md#use-docker-in-docker-executor
 [review-app]: ../../ci/review_apps/index.md
-[container-registry]: ../../user/project/container_registry.md
+[container-registry]: ../../user/packages/container_registry/index.md
 [postgresql]: https://www.postgresql.org/
-[Auto DevOps template]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
+[Auto DevOps template]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
 [ee]: https://about.gitlab.com/pricing/
-[ce-21955]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/21955
-[ce-19507]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/19507
+[ce-21955]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/21955
+[ce-19507]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/19507
 
 ## Development guides
 

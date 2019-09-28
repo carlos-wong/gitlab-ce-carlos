@@ -89,11 +89,12 @@ class Todo < ApplicationRecord
       ])
     end
 
-    # Returns `true` if the current user has any todos for the given target.
+    # Returns `true` if the current user has any todos for the given target with the optional given state.
     #
     # target - The value of the `target_type` column, such as `Issue`.
-    def any_for_target?(target)
-      exists?(target: target)
+    # state - The value of the `state` column, such as `pending` or `done`.
+    def any_for_target?(target, state = nil)
+      state.nil? ? exists?(target: target) : exists?(target: target, state: state)
     end
 
     # Updates the state of a relation of todos to the new state.
@@ -146,6 +147,7 @@ class Todo < ApplicationRecord
   def parent
     project
   end
+  alias_method :resource_parent, :parent
 
   def unmergeable?
     action == UNMERGEABLE
@@ -186,9 +188,9 @@ class Todo < ApplicationRecord
 
   def target_reference
     if for_commit?
-      target.reference_link_text(full: true)
+      target.reference_link_text
     else
-      target.to_reference(full: true)
+      target.to_reference
     end
   end
 
@@ -206,3 +208,5 @@ class Todo < ApplicationRecord
     project.repository.keep_around(self.commit_id)
   end
 end
+
+Todo.prepend_if_ee('EE::Todo')

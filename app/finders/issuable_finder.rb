@@ -40,16 +40,19 @@ class IssuableFinder
   requires_cross_project_access unless: -> { project? }
 
   # This is used as a common filter for None / Any
-  FILTER_NONE = 'none'.freeze
-  FILTER_ANY = 'any'.freeze
+  FILTER_NONE = 'none'
+  FILTER_ANY = 'any'
 
   # This is used in unassigning users
-  NONE = '0'.freeze
+  NONE = '0'
+
+  NEGATABLE_PARAMS_HELPER_KEYS = %i[include_subgroups in].freeze
 
   attr_accessor :current_user, :params
 
-  def self.scalar_params
-    @scalar_params ||= %i[
+  class << self
+    def scalar_params
+      @scalar_params ||= %i[
       assignee_id
       assignee_username
       author_id
@@ -60,14 +63,30 @@ class IssuableFinder
       search
       in
     ]
-  end
+    end
 
-  def self.array_params
-    @array_params ||= { label_name: [], assignee_username: [] }
-  end
+    def array_params
+      @array_params ||= { label_name: [], assignee_username: [] }
+    end
 
-  def self.valid_params
-    @valid_params ||= scalar_params + [array_params]
+    # This should not be used in controller strong params!
+    def negatable_scalar_params
+      @negatable_scalar_params ||= scalar_params + %i[project_id group_id]
+    end
+
+    # This should not be used in controller strong params!
+    def negatable_array_params
+      @negatable_array_params ||= array_params.keys.append(:iids)
+    end
+
+    # This should not be used in controller strong params!
+    def negatable_params
+      @negatable_params ||= negatable_scalar_params + negatable_array_params
+    end
+
+    def valid_params
+      @valid_params ||= scalar_params + [array_params] + [{ not: [] }]
+    end
   end
 
   def initialize(current_user, params = {})
@@ -78,6 +97,9 @@ class IssuableFinder
   def execute
     items = init_collection
     items = filter_items(items)
+
+    # Let's see if we have to negate anything
+    items = by_negation(items)
 
     # This has to be last as we use a CTE as an optimization fence
     # for counts by passing the force_cte param and enabling the
@@ -193,13 +215,28 @@ class IssuableFinder
     projects =
       if current_user && params[:authorized_only].presence && !current_user_related?
         current_user.authorized_projects(min_access_level)
-      elsif group
-        find_group_projects
       else
-        Project.public_or_visible_to_user(current_user, min_access_level)
+        projects_public_or_visible_to_user
       end
 
     @projects = projects.with_feature_available_for_user(klass, current_user).reorder(nil) # rubocop: disable CodeReuse/ActiveRecord
+  end
+
+  def projects_public_or_visible_to_user
+    projects =
+      if group
+        if params[:projects]
+          find_group_projects.id_in(params[:projects])
+        else
+          find_group_projects
+        end
+      elsif params[:projects]
+        Project.id_in(params[:projects])
+      else
+        Project
+      end
+
+    projects.public_or_visible_to_user(current_user, min_access_level)
   end
 
   def find_group_projects
@@ -209,7 +246,7 @@ class IssuableFinder
       Project.where(namespace_id: group.self_and_descendants) # rubocop: disable CodeReuse/ActiveRecord
     else
       group.projects
-    end.public_or_visible_to_user(current_user, min_access_level)
+    end
   end
 
   def search
@@ -350,6 +387,33 @@ class IssuableFinder
   def count_key(value)
     Array(value).last.to_sym
   end
+
+  # Negates all params found in `negatable_params`
+  # rubocop: disable CodeReuse/ActiveRecord
+  def by_negation(items)
+    not_params = params[:not].dup
+    # API endpoints send in `nil` values so we test if there are any non-nil
+    return items unless not_params.present? && not_params.values.any?
+
+    not_params.keep_if { |_k, v| v.present? }.each do |(key, value)|
+      # These aren't negatable params themselves, but rather help other searches, so we skip them.
+      # They will be added into all the NOT searches.
+      next if NEGATABLE_PARAMS_HELPER_KEYS.include?(key.to_sym)
+      next unless self.class.negatable_params.include?(key.to_sym)
+
+      # These are "helper" params that are required inside the NOT to get the right results. They usually come in
+      # at the top-level params, but if they do come in inside the `:not` params, they should take precedence.
+      not_helpers = params.slice(*NEGATABLE_PARAMS_HELPER_KEYS).merge(params[:not].slice(*NEGATABLE_PARAMS_HELPER_KEYS))
+      not_param = { key => value }.with_indifferent_access.merge(not_helpers)
+
+      items_to_negate = self.class.new(current_user, not_param).execute
+
+      items = items.where.not(id: items_to_negate)
+    end
+
+    items
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   # rubocop: disable CodeReuse/ActiveRecord
   def by_scope(items)

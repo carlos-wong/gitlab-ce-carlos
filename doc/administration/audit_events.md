@@ -1,5 +1,5 @@
 ---
-last_updated: 2019-02-04
+last_updated: 2019-09-16
 ---
 
 # Audit Events **(STARTER)**
@@ -75,6 +75,9 @@ From there, you can see the following actions:
 - User was removed from project
 - Project export was downloaded
 - Project repository was downloaded
+- Project was archived
+- Project was unarchived
+- Added/removed/updated protected branches
 
 ### Instance events **(PREMIUM ONLY)**
 
@@ -114,6 +117,6 @@ on adding these events into GitLab:
 - [Group settings and activity](https://gitlab.com/groups/gitlab-org/-/epics/475)
 - [Instance-level settings and activity](https://gitlab.com/groups/gitlab-org/-/epics/476)
 
-[ee-2336]: https://gitlab.com/gitlab-org/gitlab-ee/issues/2336
+[ee-2336]: https://gitlab.com/gitlab-org/gitlab/issues/2336
 [ee]: https://about.gitlab.com/pricing/
 [permissions]: ../user/permissions.md

@@ -35,7 +35,7 @@ module QA
 
       def view_commit
         @project.visit!
-        Page::Project::Show.perform do |page|
+        Page::Project::Show.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.click_commit(@commit_message)
         end
       end
@@ -49,7 +49,7 @@ module QA
 
         Page::Project::Commit::Show.perform(&:select_email_patches)
 
-        expect(page).to have_content("From: #{@user.name} <#{@user.public_email}>")
+        expect(page).to have_content(/From: "?#{Regexp.escape(@user.name)}"? <#{@user.public_email}>/)
         expect(page).to have_content('Subject: [PATCH] Add second file')
         expect(page).to have_content('diff --git a/second b/second')
       end

@@ -19,13 +19,11 @@ This namespace:
 - Is created once.
 - Has a non-configurable name.
 
-To see a list of available applications to install:
+To see a list of available applications to install. For a:
 
-1. For a:
-   - [Project-level cluster](../project/clusters/index.md),
-     navigate to your project's **Operations > Kubernetes**.
-   - [Group-level cluster](../group/clusters/index.md),
-     navigate to your group's **Kubernetes** page.
+- [Project-level cluster](../project/clusters/index.md), navigate to your project's
+  **Operations > Kubernetes**.
+- [Group-level cluster](../group/clusters/index.md), navigate to your group's **Kubernetes** page.
 
 Install Helm first as it's used to install other applications.
 
@@ -51,7 +49,7 @@ Some applications are installable only for a project-level cluster.
 Support for installing these applications in a group-level cluster is
 planned for future releases.
 For updates, see [the issue tracking
-progress](https://gitlab.com/gitlab-org/gitlab-ce/issues/51989).
+progress](https://gitlab.com/gitlab-org/gitlab-foss/issues/51989).
 
 CAUTION: **Caution:**
 If you have an existing Kubernetes cluster with Helm already installed,
@@ -61,18 +59,22 @@ can lead to confusion during deployments.
 
 ### Helm
 
-> - Available for project-level clusters since GitLab 10.2.
-> - Available for group-level clusters since GitLab 11.6.
+> - Introduced in GitLab 10.2 for project-level clusters.
+> - Introduced in GitLab 11.6 for group-level clusters.
 
 [Helm](https://docs.helm.sh/) is a package manager for Kubernetes and is
 required to install all the other applications. It is installed in its
 own pod inside the cluster which can run the `helm` CLI in a safe
 environment.
 
+NOTE: **Note:**
+Installing Helm as a GitLab-managed App behind a proxy is not supported,
+but a [workaround](../../topics/autodevops/index.md#installing-helm-behind-a-proxy)
+is available.
+
 ### Cert-Manager
 
-> - Available for project-level clusters since GitLab 11.6.
-> - Available for group-level clusters since GitLab 11.6.
+> Introduced in GitLab 11.6 for project- and group-level clusters.
 
 [Cert-Manager](https://docs.cert-manager.io/en/latest/) is a native
 Kubernetes certificate management controller that helps with issuing
@@ -82,15 +84,17 @@ certificates are valid and up-to-date.
 
 NOTE: **Note:**
 The
-[stable/cert-manager](https://github.com/helm/charts/tree/master/stable/cert-manager)
+[jetstack/cert-manager](https://github.com/jetstack/cert-manager)
 chart is used to install this application with a
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/cert_manager/values.yaml)
-file.
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/vendor/cert_manager/values.yaml)
+file. Prior to GitLab 12.3,
+the [stable/cert-manager](https://github.com/helm/charts/tree/master/stable/cert-manager)
+chart was used.
 
 ### GitLab Runner
 
-> - Available for project-level clusters since GitLab 10.6.
-> - Available for group-level clusters since GitLab 11.10.
+> - Introduced in GitLab 10.6 for project-level clusters.
+> - Introduced in GitLab 11.10 for group-level clusters.
 
 [GitLab Runner](https://docs.gitlab.com/runner/) is the open source
 project that is used to run your jobs and send the results back to
@@ -103,15 +107,15 @@ implications](../project/clusters/index.md#security-implications) before doing s
 
 NOTE: **Note:**
 The
-[runner/gitlab-runner](https://gitlab.com/charts/gitlab-runner)
+[runner/gitlab-runner](https://gitlab.com/gitlab-org/charts/gitlab-runner)
 chart is used to install this application with a
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/runner/values.yaml)
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/vendor/runner/values.yaml)
 file.
 
 ### Ingress
 
-> - Available for project-level clusters since GitLab 10.2.
-> - Available for group-level clusters since GitLab 11.6.
+> - Introduced in GitLab 10.2 for project-level clusters.
+> - Introduced in GitLab 11.6 for group-level clusters.
 
 [Ingress](https://kubernetes.github.io/ingress-nginx/) can provide load
 balancing, SSL termination, and name-based virtual hosting. It acts as a
@@ -122,12 +126,41 @@ NOTE: **Note:**
 The
 [stable/nginx-ingress](https://github.com/helm/charts/tree/master/stable/nginx-ingress)
 chart is used to install this application with a
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/ingress/values.yaml)
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/vendor/ingress/values.yaml)
 file.
+
+#### Modsecurity Application Firewall
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/65192) in GitLab 12.3 (enabled using `ingress_modsecurity` [feature flag](../../development/feature_flags/development.md#enabling-a-feature-flag-in-development)).
+
+GitLab supports
+[`modsecurity`](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity)
+to check requests against [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/).
+This feature:
+
+- Runs in "Detection-only mode" unless configured otherwise.
+- Is viewable by checking your ingress controller's `modsec` log for rule violations.
+  For example:
+
+  ```sh
+  kubectl -n gitlab-managed-apps exec -it $(kubectl get pods -n gitlab-managed-apps | grep 'ingress-controller' | awk '{print $1}') -- tail -f /var/log/modsec_audit.log
+  ```
+
+There is a small performance overhead by enabling `modsecurity`. However, if this is
+considered significant for your application, you can toggle the feature flag back to
+false by running the following command within the Rails console:
+
+```ruby
+Feature.disable(:ingress_modsecurity)
+```
+
+Once disabled, you must [uninstall](#uninstalling-applications) and reinstall your Ingress
+application for the changes to take effect.
 
 ### JupyterHub
 
-> Available for project-level clusters since GitLab 11.0.
+> - Introduced in GitLab 11.0 for project-level clusters.
+> - Introduced in GitLab 12.3 for group-level clusters.
 
 [JupyterHub](https://jupyterhub.readthedocs.io/en/stable/) is a
 multi-user service for managing notebooks across a team. [Jupyter
@@ -136,8 +169,9 @@ web-based interactive programming environment used for data analysis,
 visualization, and machine learning.
 
 Authentication will be enabled only for [project
-members](../project/members/index.md) with [Developer or
-higher](../permissions.md) access to the project.
+members](../project/members/index.md) for project-level clusters and group
+members for group-level clusters with [Developer or
+higher](../permissions.md) access to the associated project or group.
 
 We use a [custom Jupyter
 image](https://gitlab.com/gitlab-org/jupyterhub-user-image/blob/master/Dockerfile)
@@ -154,12 +188,12 @@ NOTE: **Note:**
 The
 [jupyter/jupyterhub](https://jupyterhub.github.io/helm-chart/)
 chart is used to install this application with a
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/jupyter/values.yaml)
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/vendor/jupyter/values.yaml)
 file.
 
 #### Jupyter Git Integration
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/28783) in GitLab 12 for project-level clusters.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/28783) in GitLab 12.0 for project-level clusters.
 
 When installing JupyterHub onto your Kubernetes cluster, [JupyterLab's Git extension](https://github.com/jupyterlab/jupyterlab-git)
 is automatically provisioned and configured using the authenticated user's:
@@ -186,7 +220,8 @@ You can clone repositories from the files tab in Jupyter:
 
 ### Knative
 
-> Available for project-level clusters since GitLab 11.5.
+> - Introduced in GitLab 11.5 for project-level clusters.
+> - Introduced in GitLab 12.3 for group- and instance-level clusters.
 
 [Knative](https://cloud.google.com/knative) provides a platform to
 create, deploy, and manage serverless workloads from a Kubernetes
@@ -209,8 +244,8 @@ chart is used to install this application.
 
 ### Prometheus
 
-> - Available for project-level clusters since GitLab 10.4.
-> - Available for group-level clusters since GitLab 11.11.
+> - Introduced in GitLab 10.4 for project-level clusters.
+> - Introduced in GitLab 11.11 for group-level clusters.
 
 [Prometheus](https://prometheus.io/docs/introduction/overview/) is an
 open-source monitoring and alerting system useful to supervise your
@@ -220,13 +255,12 @@ NOTE: **Note:**
 The
 [stable/prometheus](https://github.com/helm/charts/tree/master/stable/prometheus)
 chart is used to install this application with a
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/prometheus/values.yaml)
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/vendor/prometheus/values.yaml)
 file.
 
 ## Upgrading applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24789)
-in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/24789) in GitLab 11.8.
 
 The applications below can be upgraded.
 
@@ -247,12 +281,11 @@ To upgrade an application:
 NOTE: **Note:**
 Upgrades will reset values back to the values built into the `runner`
 chart plus the values set by
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/vendor/runner/values.yaml)
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/vendor/runner/values.yaml)
 
 ## Uninstalling applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/60665) in
-> GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/60665) in GitLab 11.11.
 
 The applications below can be uninstalled.
 

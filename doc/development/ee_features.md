@@ -20,11 +20,11 @@ should be added for EE. Licensed features can be stubbed using the
 spec helper `stub_licensed_features` in `EE::LicenseHelpers`.
 
 You can force Webpack to act as CE by either deleting the `ee/` directory or by
-setting the [`IS_GITLAB_EE` environment variable](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/config/helpers/is_ee_env.js)
+setting the [`IS_GITLAB_EE` environment variable](https://gitlab.com/gitlab-org/gitlab/blob/master/config/helpers/is_ee_env.js)
 to something that evaluates as `false`. The same works for running tests
 (for example `IS_GITLAB_EE=0 yarn jest`).
 
-[ee-as-ce]: https://gitlab.com/gitlab-org/gitlab-ee/issues/2500
+[ee-as-ce]: https://gitlab.com/gitlab-org/gitlab/issues/2500
 
 ## Separation of EE code
 
@@ -36,7 +36,7 @@ implement EE features.
 Instead, all EE code should be put inside the `ee/` top-level directory. The
 rest of the code should be as close to the CE files as possible.
 
-[single code base]: https://gitlab.com/gitlab-org/gitlab-ee/issues/2952#note_41016454
+[single code base]: https://gitlab.com/gitlab-org/gitlab/issues/2952#note_41016454
 
 ### EE-specific comments
 
@@ -93,7 +93,7 @@ For instance, it was decided that moving EE-only files from `qa/` to `ee/qa/`
 would make it difficult to build the `gitLab-{ce,ee}-qa` Docker images and it
 was [not worth the complexity].
 
-[not worth the complexity]: https://gitlab.com/gitlab-org/gitlab-ee/issues/4997#note_59764702
+[not worth the complexity]: https://gitlab.com/gitlab-org/gitlab/issues/4997#note_59764702
 
 ### EE-only features
 
@@ -120,7 +120,7 @@ This works because for every path that are present in CE's eager-load/auto-load
 paths, we add the same `ee/`-prepended path in [`config/application.rb`].
 This also applies to views.
 
-[`config/application.rb`]: https://gitlab.com/gitlab-org/gitlab-ee/blob/925d3d4ebc7a2c72964ce97623ae41b8af12538d/config/application.rb#L42-52
+[`config/application.rb`]: https://gitlab.com/gitlab-org/gitlab/blob/925d3d4ebc7a2c72964ce97623ae41b8af12538d/config/application.rb#L42-52
 
 ### EE features based on CE features
 
@@ -170,7 +170,7 @@ still having access the class's implementation with `super`.
 
 There are a few gotchas with it:
 
-- you should always [`extend ::Gitlab::Utils::Override`](utilities.md#overridehttpsgitlabcomgitlab-orggitlab-ceblobmasterlibgitlabutilsoverriderb) and use `override` to
+- you should always [`extend ::Gitlab::Utils::Override`](utilities.md#overridehttpsgitlabcomgitlab-orggitlab-fossblobmasterlibgitlabutilsoverriderb) and use `override` to
   guard the "overrider" method to ensure that if the method gets renamed in
   CE, the EE override won't be silently forgotten.
 - when the "overrider" would add a line in the middle of the CE
@@ -347,8 +347,8 @@ end
 See [CE MR][ce-mr-full-private] and [EE MR][ee-mr-full-private] for
 full implementation details.
 
-[ce-mr-full-private]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/12373
-[ee-mr-full-private]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/2199
+[ce-mr-full-private]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/12373
+[ee-mr-full-private]: https://gitlab.com/gitlab-org/gitlab/merge_requests/2199
 
 ### Code in `config/routes`
 
@@ -910,7 +910,7 @@ import bundle from 'ee_else_ce/protected_branches/protected_branches_bundle.js';
 ```
 
 See the frontend guide [performance section](fe_guide/performance.md) for
-information on managing page-specific javascript within EE.
+information on managing page-specific JavaScript within EE.
 
 ## Vue code in `assets/javascript`
 
@@ -945,7 +945,7 @@ export default {
 - Since we [can't async load a mixin](https://github.com/vuejs/vue-loader/issues/418#issuecomment-254032223) we will use the [`ee_else_ce`](../development/ee_features.md#javascript-code-in-assetsjavascripts) alias we already have for webpack.
   - This means all the EE specific props, computed properties, methods, etc that are EE only should be in a mixin in the `ee/` folder and we need to create a CE counterpart of the mixin
 
-##### Example:
+##### Example
 
 ```javascript
 import mixin from 'ee_else_ce/path/mixin';
@@ -958,7 +958,7 @@ import mixin from 'ee_else_ce/path/mixin';
 - Computed Properties/methods and getters only used in the child import still need a counterpart in CE
 
 - For store modules, we will need a CE counterpart too.
-- You can see an MR with an example [here](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/9762)
+- You can see an MR with an example [here](https://gitlab.com/gitlab-org/gitlab/merge_requests/9762)
 
 #### `template` tag
 
@@ -976,7 +976,7 @@ For regular JS files, the approach is similar.
    1. An EE file should be created with the EE only code, and it should extend the CE counterpart.
    1. For code inside functions that can't be extended, the code should be moved into a new file and we should use `ee_else_ce` helper:
 
-#### Example:
+#### Example
 
 ```javascript
   import eeCode from 'ee_else_ce/ee_code';
@@ -1047,8 +1047,6 @@ code base.  Examples of backports include the following:
 
 Here is a workflow to make sure those changes end up backported safely into CE too.
 
-(This approach does not refer to changes introduced via [csslab](https://gitlab.com/gitlab-org/csslab/).)
-
 1. **Make your changes in the EE branch.** If possible, keep a separated commit (to be squashed) to help backporting and review.
 1. **Open merge request to EE project.**
 1. **Apply the changes you made to CE files in a branch of the CE project.** (Tip: Use `patch` with the diff from your commit in EE branch)
@@ -1057,7 +1055,7 @@ Here is a workflow to make sure those changes end up backported safely into CE t
 
 **Note:** regarding SCSS, make sure the files living outside `/ee/` don't diverge between CE and EE projects.
 
-## gitlab-svgs
+## GitLab-svgs
 
 Conflicts in `app/assets/images/icons.json` or `app/assets/images/icons.svg` can
 be resolved simply by regenerating those assets with

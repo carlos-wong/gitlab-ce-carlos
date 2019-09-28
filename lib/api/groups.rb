@@ -75,6 +75,7 @@ module API
         ).execute
         projects = projects.with_issues_available_for_user(current_user) if params[:with_issues_enabled]
         projects = projects.with_merge_requests_enabled if params[:with_merge_requests_enabled]
+        projects = projects.visible_to_user_and_access_level(current_user, params[:min_access_level]) if params[:min_access_level]
         projects = reorder_projects(projects)
         paginate(projects)
       end
@@ -172,7 +173,8 @@ module API
 
         options = {
           with: params[:with_projects] ? Entities::GroupDetail : Entities::Group,
-          current_user: current_user
+          current_user: current_user,
+          user_can_admin_group: can?(current_user, :admin_group, group)
         }
 
         group, options = with_custom_attributes(group, options)
@@ -185,7 +187,7 @@ module API
         group = find_group!(params[:id])
         authorize! :admin_group, group
 
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/46285')
+        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/46285')
         destroy_conditionally!(group) do |group|
           ::Groups::DestroyService.new(group, current_user).async_execute
         end
@@ -213,9 +215,11 @@ module API
         optional :with_merge_requests_enabled, type: Boolean, default: false, desc: 'Limit by enabled merge requests feature'
         optional :with_shared, type: Boolean, default: true, desc: 'Include projects shared to this group'
         optional :include_subgroups, type: Boolean, default: false, desc: 'Includes projects in subgroups of this group'
+        optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Limit by minimum access level of authenticated user on projects'
 
         use :pagination
         use :with_custom_attributes
+        use :optional_projects_params
       end
       get ":id/projects" do
         projects = find_group_projects(params)
@@ -263,3 +267,5 @@ module API
     end
   end
 end
+
+API::Groups.prepend_if_ee('EE::API::Groups')

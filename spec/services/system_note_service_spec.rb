@@ -212,6 +212,13 @@ describe SystemNoteService do
       expect(build_note([assignee, assignee1, assignee2], [assignee, assignee1])).to eq \
         "unassigned @#{assignee2.username}"
     end
+
+    it 'builds a correct phrase when the locale is different' do
+      Gitlab::I18n.with_locale('pt-BR') do
+        expect(build_note([assignee, assignee1, assignee2], [assignee3])).to eq \
+          "assigned to @#{assignee3.username} and unassigned @#{assignee.username}, @#{assignee1.username}, and @#{assignee2.username}"
+      end
+    end
   end
 
   describe '.change_milestone' do
@@ -521,7 +528,7 @@ describe SystemNoteService do
     end
 
     it 'sets the zoom link added note text' do
-      expect(subject.note).to eq('a Zoom call was added to this issue')
+      expect(subject.note).to eq('added a Zoom call to this issue')
     end
   end
 
@@ -533,7 +540,7 @@ describe SystemNoteService do
     end
 
     it 'sets the zoom link removed note text' do
-      expect(subject.note).to eq('a Zoom call was removed from this issue')
+      expect(subject.note).to eq('removed a Zoom call from this issue')
     end
   end
 

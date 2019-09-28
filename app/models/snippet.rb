@@ -22,7 +22,7 @@ class Snippet < ApplicationRecord
   redact_field :description
 
   # Aliases to make application_helper#edited_time_ago_with_tooltip helper work properly with snippets.
-  # See https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/10392/diffs#note_28719102
+  # See https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/10392/diffs#note_28719102
   alias_attribute :last_edited_at, :updated_at
   alias_attribute :last_edited_by, :updated_by
 
@@ -55,6 +55,7 @@ class Snippet < ApplicationRecord
   scope :are_public, -> { where(visibility_level: Snippet::PUBLIC) }
   scope :public_and_internal, -> { where(visibility_level: [Snippet::PUBLIC, Snippet::INTERNAL]) }
   scope :fresh, -> { order("created_at DESC") }
+  scope :inc_author, -> { includes(:author) }
   scope :inc_relations_for_view, -> { includes(author: :status) }
 
   participant :author
@@ -226,3 +227,5 @@ class Snippet < ApplicationRecord
     end
   end
 end
+
+Snippet.prepend_if_ee('EE::Snippet')

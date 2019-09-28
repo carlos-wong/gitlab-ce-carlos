@@ -1,6 +1,6 @@
 # GitLab instance administration project
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/56883) in GitLab 12.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/56883) in GitLab 12.2.
 
 GitLab has been adding the ability for administrators to see insights into the health of
 their GitLab instance. In order to surface this experience in a native way, similar to how
@@ -27,7 +27,7 @@ If that's not the case or if you have an external Prometheus instance or an HA s
 you should
 [configure it manually](../../../user/project/integrations/prometheus.md#manual-configuration-of-prometheus).
 
-## Taking action on Prometheus alerts **[ULTIMATE]**
+## Taking action on Prometheus alerts **(ULTIMATE)**
 
 You can [add a webhook](../../../user/project/integrations/prometheus.md#external-prometheus-instances)
 to the Prometheus config in order for GitLab to receive notifications of any alerts.

@@ -28,7 +28,7 @@ GitLab can scan and report any vulnerabilities found in your project.
 | [Dependency List](dependency_list/index.md) **(ULTIMATE)**                   | View your project's dependencies and their known vulnerabilities.      |
 | [Dependency Scanning](dependency_scanning/index.md) **(ULTIMATE)**           | Analyze your dependencies for known vulnerabilities.                   |
 | [Dynamic Application Security Testing (DAST)](dast/index.md) **(ULTIMATE)**  | Analyze running web applications for known vulnerabilities.            |
-| [License Compliance](license_management/index.md) **(ULTIMATE)**             | Search your project's dependencies for their licenses.                 |
+| [License Compliance](license_compliance/index.md) **(ULTIMATE)**             | Search your project's dependencies for their licenses.                 |
 | [Security Dashboard](security_dashboard/index.md) **(ULTIMATE)**             | View vulnerabilities in all your projects and groups.                  |
 | [Static Application Security Testing (SAST)](sast/index.md) **(ULTIMATE)**   | Analyze source code for known vulnerabilities.                         |
 
@@ -38,7 +38,7 @@ The various scanning tools and the vulnerabilities database are updated regularl
 
 | Secure scanning tool                                         | Vulnerabilities database updates          |
 |:-------------------------------------------------------------|-------------------------------------------|
-| [Container Scanning](container_scanning/index.md)            | Uses `clair` underneath and the latest `clair-db` version is used for each job run by running the [`latest` docker image tag](https://gitlab.com/gitlab-org/gitlab-ee/blob/438a0a56dc0882f22bdd82e700554525f552d91b/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml#L37). The `clair-db` database [is updated daily according to the author](https://github.com/arminc/clair-local-scan#clair-server-or-local). |
+| [Container Scanning](container_scanning/index.md)            | Uses `clair` underneath and the latest `clair-db` version is used for each job run by running the [`latest` docker image tag](https://gitlab.com/gitlab-org/gitlab/blob/438a0a56dc0882f22bdd82e700554525f552d91b/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml#L37). The `clair-db` database [is updated daily according to the author](https://github.com/arminc/clair-local-scan#clair-server-or-local). |
 | [Dependency Scanning](dependency_scanning/index.md)          | Relies on `bundler-audit` (for Rubygems), `retire.js` (for NPM packages) and `gemnasium` (GitLab's own tool for all libraries). `bundler-audit` and `retire.js` both fetch their vulnerabilities data from GitHub repositories, so vulnerabilities added to `ruby-advisory-db` and `retire.js` are immediately available. The tools themselves are updated once per month if there's a new version. The [Gemnasium DB](https://gitlab.com/gitlab-org/security-products/gemnasium-db) is updated at least once a week. |
 | [Dynamic Application Security Testing (DAST)](dast/index.md) | Updated weekly on Sundays. The underlying tool, `zaproxy`, downloads fresh rules at startup. |
 | [Static Application Security Testing (SAST)](sast/index.md)  | Relies exclusively on [the tools GitLab is wrapping](sast/index.md#supported-languages-and-frameworks). The underlying analyzers are updated at least once per month if a relevant update is available. The vulnerabilities database is updated by the upstream tools. |
@@ -53,7 +53,7 @@ previous GitLab releases, so they automatically get the latest versions of the
 scanning tools without the user having to do anything.
 
 This workflow comes with some drawbacks and there's a
-[plan to change this](https://gitlab.com/gitlab-org/gitlab-ee/issues/9725).
+[plan to change this](https://gitlab.com/gitlab-org/gitlab/issues/9725).
 
 ## Interacting with the vulnerabilities
 
@@ -71,8 +71,7 @@ entry, a detailed information will pop up with different possible options:
 - [Create issue](#creating-an-issue-for-a-vulnerability): The new issue will
   have the title and description pre-populated with the information from the
   vulnerability report and will be created as [confidential](../project/issues/confidential_issues.md) by default.
-- [Solution](#solutions-for-vulnerabilities): For some vulnerabilities
-  ([Dependency Scanning](dependency_scanning/index.md) and [Container Scanning](container_scanning/index.md))
+- [Solution](#solutions-for-vulnerabilities-auto-remediation): For some vulnerabilities,
   a solution is provided for how to fix the vulnerability.
 
 ![Interacting with security reports](img/interactive_reports.png)
@@ -89,7 +88,7 @@ If you wish to undo this dismissal, you can click the **Undo dismiss** button.
 
 When dismissing a vulnerability, it's often helpful to provide a reason for doing so.
 If you press the comment button next to **Dismiss vulnerability** in the modal, a text box will appear, allowing you to add a comment with your dismissal.
-This comment can not currently be edited or removed, but [future versions](https://gitlab.com/gitlab-org/gitlab-ee/issues/11721) will add this functionality.
+This comment can not currently be edited or removed, but [future versions](https://gitlab.com/gitlab-org/gitlab/issues/11721) will add this functionality.
 
 ![Dismissed vulnerability comment](img/dismissed_info.png)
 
@@ -109,17 +108,16 @@ the vulnerability will now have an associated issue next to the name.
 
 ![Linked issue in the group security dashboard](img/issue.png)
 
-### Solutions for vulnerabilities
+### Solutions for vulnerabilities (auto-remediation)
 
-> Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.7.
-
-CAUTION: **Warning:**
-Automatic Patch creation is only available for a subset of
-[Dependency Scanning](dependency_scanning/index.md). At the moment only Node.JS
-projects managed with yarn are supported.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5656) in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.7.
 
 Some vulnerabilities can be fixed by applying the solution that GitLab
-automatically generates.
+automatically generates. The following scanners are supported:
+
+- [Dependency Scanning](dependency_scanning/index.md):
+  Automatic Patch creation is only available for Node.JS projects managed with
+  `yarn`.
 
 #### Manually applying the suggested patch
 
@@ -136,13 +134,12 @@ generated by GitLab. To apply the fix:
 
 #### Creating a merge request from a vulnerability
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/9224) in
-> [GitLab Ultimate](https://about.gitlab.com/pricing) 11.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9224) in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.9.
 
 In certain cases, GitLab will allow you to create a merge request that will
 automatically remediate the vulnerability. Any vulnerability that has a
-[solution](#solutions-for-vulnerabilities) can have a merge request created to
-automatically solve the issue.
+[solution](#solutions-for-vulnerabilities-auto-remediation) can have a merge
+request created to automatically solve the issue.
 
 If this action is available there will be a **Create merge request** button in the vulnerability modal.
 Clicking on this button will create a merge request to apply the solution onto the source branch.
@@ -151,9 +148,9 @@ Clicking on this button will create a merge request to apply the solution onto t
 
 ## Security approvals in merge requests **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/9928) in [GitLab Ultimate](https://about.gitlab.com/pricing) 12.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9928) in [GitLab Ultimate](https://about.gitlab.com/pricing) 12.2.
 
-Merge Request Approvals can be configured to require approval from a member 
+Merge Request Approvals can be configured to require approval from a member
 of your security team when a vulnerability would be introduced by a merge request.
 
 This threshold is defined as `high`, `critical`, or `unknown`

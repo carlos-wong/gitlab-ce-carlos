@@ -343,21 +343,6 @@ world. Custom domains and TLS are supported.
 1. Restart NGINX
 1. [Restart GitLab][restart]
 
-## Change storage path
-
-Follow the steps below to change the default path where GitLab Pages' contents
-are stored.
-
-1. Pages are stored by default in `/var/opt/gitlab/gitlab-rails/shared/pages`.
-   If you wish to store them in another location you must set it up in
-   `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   gitlab_rails['pages_path'] = "/mnt/storage/pages"
-   ```
-
-1. [Reconfigure GitLab][reconfigure]
-
 ## NGINX caveats
 
 >**Note:**
@@ -387,7 +372,7 @@ server_name ~^.*\.pages\.example\.io$;
 
 ## Access control
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/33422) in GitLab 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/33422) in GitLab 11.5.
 
 GitLab Pages access control can be configured per-project, and allows access to a Pages
 site to be controlled based on a user's membership to that project.
@@ -462,14 +447,13 @@ You should strongly consider running GitLab pages under a different hostname
 than GitLab to prevent XSS attacks.
 
 [backup]: ../../raketasks/backup_restore.md
-[ee-80]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/80
-[ee-173]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/173
+[ee-80]: https://gitlab.com/gitlab-org/gitlab/merge_requests/80
+[ee-173]: https://gitlab.com/gitlab-org/gitlab/merge_requests/173
 [gitlab pages daemon]: https://gitlab.com/gitlab-org/gitlab-pages
-[NGINX configs]: https://gitlab.com/gitlab-org/gitlab-ee/tree/8-5-stable-ee/lib/support/nginx
+[NGINX configs]: https://gitlab.com/gitlab-org/gitlab/tree/8-5-stable-ee/lib/support/nginx
 [pages-readme]: https://gitlab.com/gitlab-org/gitlab-pages/blob/master/README.md
 [pages-userguide]: ../../user/project/pages/index.md
-[reconfigure]: ../restart_gitlab.md#omnibus-gitlab-reconfigure
 [restart]: ../restart_gitlab.md#installations-from-source
 [gitlab-pages]: https://gitlab.com/gitlab-org/gitlab-pages/tree/v0.4.0
-[gl-example]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/support/init.d/gitlab.default.example
+[gl-example]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/support/init.d/gitlab.default.example
 [shared runners]: ../../ci/runners/README.md

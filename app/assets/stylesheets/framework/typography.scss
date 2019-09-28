@@ -2,7 +2,7 @@
  * Apply Markup (Markdown/AsciiDoc) typography
  *
  */
-.md:not(.use-csslab) {
+.md {
   color: $gl-text-color;
   word-wrap: break-word;
 
@@ -65,6 +65,18 @@
     margin: 5px 0;
     // Ensure that image does not exceed viewport
     max-height: calc(100vh - 100px);
+  }
+
+  details {
+    margin-bottom: $gl-padding;
+
+    summary {
+      margin-bottom: $gl-padding;
+    }
+
+    *:first-child:not(summary) {
+      margin-top: $gl-padding;
+    }
   }
 
   // Single code lines should wrap
@@ -384,8 +396,18 @@
       @extend .fa-exclamation-circle;
     }
   }
-}
 
+  .prometheus-graph-embed {
+    h3.popover-header {
+      /** Override <h3> .popover-header
+      * as embed metrics do not follow the same
+      * style as default md <h3> (which are deeply nested)
+      */
+      margin: 0;
+      font-size: $gl-font-size-small;
+    }
+  }
+}
 
 /**
  * Headers

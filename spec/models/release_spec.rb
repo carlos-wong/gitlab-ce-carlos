@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require 'spec_helper'
 
 RSpec.describe Release do
   let(:user)    { create(:user) }
@@ -13,6 +13,8 @@ RSpec.describe Release do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:author).class_name('User') }
     it { is_expected.to have_many(:links).class_name('Releases::Link') }
+    it { is_expected.to have_many(:milestones) }
+    it { is_expected.to have_many(:milestone_releases) }
   end
 
   describe 'validation' do
@@ -32,6 +34,20 @@ RSpec.describe Release do
         expect(existing_release_without_name).to be_valid
         expect(existing_release_without_name.description).to eq("change")
         expect(existing_release_without_name.name).to be_nil
+      end
+    end
+
+    context 'when a release is tied to a milestone for another project' do
+      it 'creates a validation error' do
+        milestone = build(:milestone, project: create(:project))
+        expect { release.milestones << milestone }.to raise_error
+      end
+    end
+
+    context 'when a release is tied to a milestone linked to the same project' do
+      it 'successfully links this release to this milestone' do
+        milestone = build(:milestone, project: project)
+        expect { release.milestones << milestone }.to change { MilestoneRelease.count }.by(1)
       end
     end
   end

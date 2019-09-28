@@ -11,17 +11,17 @@
 
 ## How to use
 
-### Create a new folder to import your Git repositories from.
+### Create a new folder to import your Git repositories from
 
-The new folder needs to have git user ownership and read/write/execute access for git user and its group:
+The new folder needs to have Git user ownership and read/write/execute access for Git user and its group:
 
 ```
 sudo -u git mkdir -p /var/opt/gitlab/git-data/repository-import-<date>/new_group
 ```
 
-### Copy your bare repositories inside this newly created folder:
+### Copy your bare repositories inside this newly created folder
 
-- Any .git repositories found on any of the subfolders will be imported as projects
+- Any `.git` repositories found on any of the subfolders will be imported as projects
 - Groups will be created as needed, these could be nested folders. Example:
 
 If we copy the repos to `/var/opt/gitlab/git-data/repository-import-<date>`, and repo A needs to be under the groups G1 and G2, it will
@@ -34,25 +34,25 @@ sudo cp -r /old/git/foo.git /var/opt/gitlab/git-data/repository-import-<date>/ne
 sudo chown -R git:git /var/opt/gitlab/git-data/repository-import-<date>
 ```
 
-`foo.git` needs to be owned by the git user and git users group.
+`foo.git` needs to be owned by the `git` user and `git` users group.
 
 If you are using an installation from source, replace `/var/opt/gitlab/` with `/home/git`.
 
-### Run the command below depending on your type of installation:
+### Run the command below depending on your type of installation
 
 #### Omnibus Installation
 
-```
-$ sudo gitlab-rake gitlab:import:repos['/var/opt/gitlab/git-data/repository-import-<date>']
+```sh
+sudo gitlab-rake gitlab:import:repos['/var/opt/gitlab/git-data/repository-import-<date>']
 ```
 
 #### Installation from source
 
 Before running this command you need to change the directory to where your GitLab installation is located:
 
-```
-$ cd /home/git/gitlab
-$ sudo -u git -H bundle exec rake gitlab:import:repos['/var/opt/gitlab/git-data/repository-import-<date>'] RAILS_ENV=production
+```sh
+cd /home/git/gitlab
+sudo -u git -H bundle exec rake gitlab:import:repos['/var/opt/gitlab/git-data/repository-import-<date>'] RAILS_ENV=production
 ```
 
 #### Example output
@@ -96,7 +96,7 @@ Importing bare repositories from hashed storage is unsupported.
 
 To support importing bare repositories from hashed storage, GitLab 10.4 and
 later stores the full project path with each repository, in a special section of
-the git repository's config file. This section is formatted as follows:
+the Git repository's config file. This section is formatted as follows:
 
 ```
 [gitlab]
@@ -122,7 +122,7 @@ Bare repositories are **not** importable by GitLab 10.4 and later when all the f
 - Its ancestor namespaces were not renamed or transferred in GitLab 10.4 and later.
 
 There is an [open issue to add a migration to make all bare repositories
-importable](https://gitlab.com/gitlab-org/gitlab-ce/issues/41776).
+importable](https://gitlab.com/gitlab-org/gitlab-foss/issues/41776).
 
 Until then, you may wish to manually migrate repositories yourself. You can use
 [Rails console](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)

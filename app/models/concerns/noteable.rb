@@ -3,6 +3,10 @@
 module Noteable
   extend ActiveSupport::Concern
 
+  # This object is used to gather noteable meta data for list displays
+  # avoiding n+1 queries and improving performance.
+  NoteableMeta = Struct.new(:user_notes_count)
+
   class_methods do
     # `Noteable` class names that support replying to individual notes.
     def replyable_types
@@ -73,6 +77,10 @@ module Noteable
       .discussions(self)
   end
 
+  def capped_notes_count(max)
+    notes.limit(max).count
+  end
+
   def grouped_diff_discussions(*args)
     # Doesn't use `discussion_notes`, because this may include commit diff notes
     # besides MR diff notes, that we do not want to display on the MR Changes tab.
@@ -135,3 +143,6 @@ module Noteable
 end
 
 Noteable.extend(Noteable::ClassMethods)
+
+Noteable::ClassMethods.prepend_if_ee('EE::Noteable::ClassMethods') # rubocop: disable Cop/InjectEnterpriseEditionModule
+Noteable.prepend_if_ee('EE::Noteable')

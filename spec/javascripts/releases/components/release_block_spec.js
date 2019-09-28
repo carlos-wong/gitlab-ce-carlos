@@ -44,21 +44,23 @@ describe('Release block', () => {
       sources: [
         {
           format: 'zip',
-          url: 'https://gitlab.com/gitlab-org/gitlab-ce/-/archive/v11.3.12/gitlab-ce-v11.3.12.zip',
+          url:
+            'https://gitlab.com/gitlab-org/gitlab-foss/-/archive/v11.3.12/gitlab-ce-v11.3.12.zip',
         },
         {
           format: 'tar.gz',
           url:
-            'https://gitlab.com/gitlab-org/gitlab-ce/-/archive/v11.3.12/gitlab-ce-v11.3.12.tar.gz',
+            'https://gitlab.com/gitlab-org/gitlab-foss/-/archive/v11.3.12/gitlab-ce-v11.3.12.tar.gz',
         },
         {
           format: 'tar.bz2',
           url:
-            'https://gitlab.com/gitlab-org/gitlab-ce/-/archive/v11.3.12/gitlab-ce-v11.3.12.tar.bz2',
+            'https://gitlab.com/gitlab-org/gitlab-foss/-/archive/v11.3.12/gitlab-ce-v11.3.12.tar.bz2',
         },
         {
           format: 'tar',
-          url: 'https://gitlab.com/gitlab-org/gitlab-ce/-/archive/v11.3.12/gitlab-ce-v11.3.12.tar',
+          url:
+            'https://gitlab.com/gitlab-org/gitlab-foss/-/archive/v11.3.12/gitlab-ce-v11.3.12.tar',
         },
       ],
       links: [
@@ -70,7 +72,7 @@ describe('Release block', () => {
         {
           name: 'binary-linux-amd64',
           url:
-            'https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/artifacts/v11.6.0-rc4/download?job=rspec-mysql+41%2F50',
+            'https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/artifacts/v11.6.0-rc4/download?job=rspec-mysql+41%2F50',
           external: false,
         },
       ],
@@ -86,6 +88,10 @@ describe('Release block', () => {
 
   afterEach(() => {
     vm.$destroy();
+  });
+
+  it("renders the block with an id equal to the release's tag name", () => {
+    expect(vm.$el.id).toBe('18.04');
   });
 
   it('renders release name', () => {

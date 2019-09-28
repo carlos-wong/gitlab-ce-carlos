@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 module API
@@ -27,6 +26,12 @@ module API
             name: :channel,
             type: String,
             desc: 'The default chat channel'
+          },
+          {
+            required: false,
+            name: :branches_to_be_notified,
+            type: String,
+            desc: 'Branches for which notifications are to be sent'
           }
         ].freeze
       end
@@ -38,12 +43,6 @@ module API
             name: :notify_only_broken_pipelines,
             type: Boolean,
             desc: 'Send notifications for broken pipelines'
-          },
-          {
-            required: false,
-            name: :notify_only_default_branch,
-            type: Boolean,
-            desc: 'Send notifications only for the default branch'
           }
         ].freeze
       end
@@ -540,9 +539,9 @@ module API
             },
             {
               required: false,
-              name: :notify_only_default_branch,
-              type: Boolean,
-              desc: 'Send notifications only for the default branch'
+              name: :branches_to_be_notified,
+              type: String,
+              desc: 'Branches for which notifications are to be sent'
             }
           ],
           'pivotaltracker' => [
@@ -739,3 +738,5 @@ module API
     end
   end
 end
+
+API::Helpers::ServicesHelpers.prepend_if_ee('EE::API::Helpers::ServicesHelpers')

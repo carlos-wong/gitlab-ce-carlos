@@ -5,7 +5,8 @@ module ProtectedBranches
     def execute(skip_authorization: false)
       raise Gitlab::Access::AccessDeniedError unless skip_authorization || authorized?
 
-      protected_branch.save
+      save_protected_branch
+
       protected_branch
     end
 
@@ -15,8 +16,14 @@ module ProtectedBranches
 
     private
 
+    def save_protected_branch
+      protected_branch.save
+    end
+
     def protected_branch
       @protected_branch ||= project.protected_branches.new(params)
     end
   end
 end
+
+ProtectedBranches::CreateService.prepend_if_ee('EE::ProtectedBranches::CreateService')

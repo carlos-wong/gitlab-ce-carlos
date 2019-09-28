@@ -42,7 +42,7 @@ class MicrosoftTeamsService < ChatNotificationService
     [
       { type: 'text', name: 'webhook', placeholder: "e.g. #{webhook_placeholder}" },
       { type: 'checkbox', name: 'notify_only_broken_pipelines' },
-      { type: 'checkbox', name: 'notify_only_default_branch' }
+      { type: 'select', name: 'branches_to_be_notified', choices: BRANCH_CHOICES }
     ]
   end
 
@@ -58,6 +58,6 @@ class MicrosoftTeamsService < ChatNotificationService
   end
 
   def custom_data(data)
-    super(data).merge(markdown: true)
+    super(data).merge(markdown: true, commit_message_html: true)
   end
 end

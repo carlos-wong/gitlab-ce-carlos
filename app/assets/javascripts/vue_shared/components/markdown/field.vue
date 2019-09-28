@@ -1,5 +1,6 @@
 <script>
 import $ from 'jquery';
+import '~/behaviors/markdown/render_gfm';
 import _ from 'underscore';
 import { __, sprintf } from '~/locale';
 import { stripHtml } from '~/lib/utils/text_utility';
@@ -9,6 +10,7 @@ import markdownHeader from './header.vue';
 import markdownToolbar from './toolbar.vue';
 import icon from '../icon.vue';
 import Suggestions from '~/vue_shared/components/markdown/suggestions.vue';
+import axios from '~/lib/utils/axios_utils';
 
 export default {
   components: {
@@ -167,10 +169,9 @@ export default {
       if (text) {
         this.markdownPreviewLoading = true;
         this.markdownPreview = __('Loading…');
-        this.$http
+        axios
           .post(this.markdownPreviewPath, { text })
-          .then(resp => resp.json())
-          .then(data => this.renderMarkdown(data))
+          .then(response => this.renderMarkdown(response.data))
           .catch(() => new Flash(__('Error loading markdown preview')));
       } else {
         this.renderMarkdown();

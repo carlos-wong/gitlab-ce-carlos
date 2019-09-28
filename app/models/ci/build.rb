@@ -11,19 +11,20 @@ module Ci
     include ObjectStorage::BackgroundMove
     include Presentable
     include Importable
-    include IgnorableColumn
     include Gitlab::Utils::StrongMemoize
     include Deployable
     include HasRef
 
     BuildArchivedError = Class.new(StandardError)
 
-    ignore_column :commands
-    ignore_column :artifacts_file
-    ignore_column :artifacts_metadata
-    ignore_column :artifacts_file_store
-    ignore_column :artifacts_metadata_store
-    ignore_column :artifacts_size
+    self.ignored_columns += %i[
+      artifacts_file
+      artifacts_file_store
+      artifacts_metadata
+      artifacts_metadata_store
+      artifacts_size
+      commands
+    ]
 
     belongs_to :project, inverse_of: :builds
     belongs_to :runner
@@ -63,7 +64,7 @@ module Ci
     # `ci_builds` creation. We can look up a relevant `environment` through
     # `deployment` relation today. This is much more efficient than expanding
     # environment name with variables.
-    # (See more https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22380)
+    # (See more https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22380)
     #
     # However, we have to still expand environment name if it's a stop action,
     # because `deployment` persists information for start action only.
@@ -86,6 +87,11 @@ module Ci
 
     validates :coverage, numericality: true, allow_blank: true
     validates :ref, presence: true
+
+    scope :not_interruptible, -> do
+      joins(:metadata).where('ci_builds_metadata.id NOT IN (?)',
+        Ci::BuildMetadata.scoped_build.with_interruptible.select(:id))
+    end
 
     scope :unstarted, ->() { where(runner_id: nil) }
     scope :ignore_failures, ->() { where(allow_failure: false) }
@@ -121,6 +127,8 @@ module Ci
     scope :scheduled_actions, ->() { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
     scope :ref_protected, -> { where(protected: true) }
     scope :with_live_trace, -> { where('EXISTS (?)', Ci::BuildTraceChunk.where('ci_builds.id = ci_build_trace_chunks.build_id').select(1)) }
+    scope :with_stale_live_trace, -> { with_live_trace.finished_before(12.hours.ago) }
+    scope :finished_before, -> (date) { finished.where('finished_at < ?', date) }
 
     scope :matches_tag_ids, -> (tag_ids) do
       matcher = ::ActsAsTaggableOn::Tagging
@@ -442,7 +450,7 @@ module Ci
       end
     end
 
-    CI_REGISTRY_USER = 'gitlab-ci-token'.freeze
+    CI_REGISTRY_USER = 'gitlab-ci-token'
 
     def persisted_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
@@ -864,3 +872,5 @@ module Ci
     end
   end
 end
+
+Ci::Build.prepend_if_ee('EE::Ci::Build')

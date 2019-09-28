@@ -14,7 +14,7 @@ module Gitlab
     MAX_TIMESTAMP_VALUE = Time.at((1 << 31) - 1).freeze
 
     # The maximum number of characters for text fields, to avoid DoS attacks via parsing huge text fields
-    # https://gitlab.com/gitlab-org/gitlab-ce/issues/61974
+    # https://gitlab.com/gitlab-org/gitlab-foss/issues/61974
     MAX_TEXT_SIZE_LIMIT = 1_000_000
 
     # Minimum schema version from which migrations are supported
@@ -199,13 +199,14 @@ module Gitlab
 
     # pool_size - The size of the DB pool.
     # host - An optional host name to use instead of the default one.
-    def self.create_connection_pool(pool_size, host = nil)
+    def self.create_connection_pool(pool_size, host = nil, port = nil)
       # See activerecord-4.2.7.1/lib/active_record/connection_adapters/connection_specification.rb
       env = Rails.env
       original_config = ActiveRecord::Base.configurations
 
       env_config = original_config[env].merge('pool' => pool_size)
       env_config['host'] = host if host
+      env_config['port'] = port if port
 
       config = original_config.merge(env => env_config)
 
@@ -308,3 +309,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::Database.prepend_if_ee('EE::Gitlab::Database')

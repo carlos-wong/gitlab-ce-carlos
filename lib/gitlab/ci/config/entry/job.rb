@@ -11,38 +11,51 @@ module Gitlab
           include ::Gitlab::Config::Entry::Configurable
           include ::Gitlab::Config::Entry::Attributable
 
-          ALLOWED_KEYS = %i[tags script only except type image services
+          ALLOWED_WHEN = %w[on_success on_failure always manual delayed].freeze
+          ALLOWED_KEYS = %i[tags script only except rules type image services
                             allow_failure type stage when start_in artifacts cache
-                            dependencies needs before_script after_script variables
-                            environment coverage retry parallel extends].freeze
+                            dependencies before_script needs after_script variables
+                            environment coverage retry parallel extends interruptible timeout].freeze
 
           REQUIRED_BY_NEEDS = %i[stage].freeze
 
           validations do
+            validates :config, type: Hash
             validates :config, allowed_keys: ALLOWED_KEYS
             validates :config, required_keys: REQUIRED_BY_NEEDS, if: :has_needs?
             validates :config, presence: true
             validates :script, presence: true
             validates :name, presence: true
             validates :name, type: Symbol
+            validates :config,
+              disallowed_keys: {
+                in: %i[only except when start_in],
+                message: 'key may not be used with `rules`'
+              },
+              if: :has_rules?
 
             with_options allow_nil: true do
               validates :tags, array_of_strings: true
               validates :allow_failure, boolean: true
+              validates :interruptible, boolean: true
               validates :parallel, numericality: { only_integer: true,
                                                    greater_than_or_equal_to: 2,
                                                    less_than_or_equal_to: 50 }
-              validates :when,
-                inclusion: { in: %w[on_success on_failure always manual delayed],
-                             message: 'should be on_success, on_failure, ' \
-                                      'always, manual or delayed' }
+              validates :when, inclusion: {
+                in: ALLOWED_WHEN,
+                message: "should be one of: #{ALLOWED_WHEN.join(', ')}"
+              }
+
+              validates :timeout, duration: { limit: ChronicDuration.output(Project::MAX_BUILD_TIMEOUT) }
+
               validates :dependencies, array_of_strings: true
               validates :needs, array_of_strings: true
               validates :extends, array_of_strings_or_string: true
+              validates :rules, array_of_hashes: true
             end
 
             validates :start_in, duration: { limit: '1 day' }, if: :delayed?
-            validates :start_in, absence: true, unless: :delayed?
+            validates :start_in, absence: true, if: -> { has_rules? || !delayed? }
 
             validate do
               next unless dependencies.present?
@@ -91,6 +104,9 @@ module Gitlab
           entry :except, Entry::Policy,
             description: 'Refs policy this job will be executed for.'
 
+          entry :rules, Entry::Rules,
+            description: 'List of evaluable Rules to determine job inclusion.'
+
           entry :variables, Entry::Variables,
             description: 'Environment variables available for this job.'
 
@@ -108,11 +124,12 @@ module Gitlab
 
           helpers :before_script, :script, :stage, :type, :after_script,
                   :cache, :image, :services, :only, :except, :variables,
-                  :artifacts, :environment, :coverage, :retry,
-                  :parallel, :needs
+                  :artifacts, :environment, :coverage, :retry, :rules,
+                  :parallel, :needs, :interruptible
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
-                     :needs, :retry, :parallel, :extends, :start_in
+                     :needs, :retry, :parallel, :extends, :start_in, :rules,
+                     :interruptible, :timeout
 
           def self.matching?(name, config)
             !name.to_s.start_with?('.') &&
@@ -130,6 +147,13 @@ module Gitlab
               end
 
               @entries.delete(:type)
+
+              # This is something of a hack, see issue for details:
+              # https://gitlab.com/gitlab-org/gitlab-foss/issues/67150
+              if !only_defined? && has_rules?
+                @entries.delete(:only)
+                @entries.delete(:except)
+              end
             end
 
             inherit!(deps)
@@ -149,6 +173,10 @@ module Gitlab
 
           def delayed?
             self.when == 'delayed'
+          end
+
+          def has_rules?
+            @config.try(:key?, :rules)
           end
 
           def ignored?
@@ -184,12 +212,15 @@ module Gitlab
               cache: cache_value,
               only: only_value,
               except: except_value,
+              rules: has_rules? ? rules_value : nil,
               variables: variables_defined? ? variables_value : {},
               environment: environment_defined? ? environment_value : nil,
               environment_name: environment_defined? ? environment_value[:name] : nil,
               coverage: coverage_defined? ? coverage_value : nil,
               retry: retry_defined? ? retry_value : nil,
               parallel: parallel_defined? ? parallel_value.to_i : nil,
+              interruptible: interruptible_defined? ? interruptible_value : nil,
+              timeout: has_timeout? ? ChronicDuration.parse(timeout.to_s) : nil,
               artifacts: artifacts_value,
               after_script: after_script_value,
               ignore: ignored?,

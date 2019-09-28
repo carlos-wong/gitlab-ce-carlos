@@ -33,7 +33,23 @@ module TodosHelper
         todo.target_reference
       end
 
-    link_to text, todo_target_path(todo), class: 'has-tooltip', title: todo.target.title
+    link_to text, todo_target_path(todo)
+  end
+
+  def todo_target_title(todo)
+    if todo.target
+      "\"#{todo.target.title}\""
+    else
+      ""
+    end
+  end
+
+  def todo_parent_path(todo)
+    if todo.parent.is_a?(Group)
+      link_to todo.parent.name, group_path(todo.parent)
+    else
+      link_to_project(todo.project)
+    end
   end
 
   def todo_target_type_name(todo)
@@ -188,3 +204,5 @@ module TodosHelper
     groups.unshift({ id: '', text: 'Any Group' }).to_json
   end
 end
+
+TodosHelper.prepend_if_ee('EE::NotesHelper'); TodosHelper.prepend_if_ee('EE::TodosHelper') # rubocop: disable Style/Semicolon

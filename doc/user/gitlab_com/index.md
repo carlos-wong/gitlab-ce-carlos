@@ -43,13 +43,15 @@ Host gitlab.com
 
 Below are the settings for [GitLab Pages].
 
-| Setting                 | GitLab.com        | Default       |
-| ----------------------- | ----------------  | ------------- |
-| Domain name             | `gitlab.io`       | -             |
-| IP address              | `35.185.44.232`   | -             |
-| Custom domains support  | yes               | no            |
-| TLS certificates support| yes               | no            |
+| Setting                     | GitLab.com        | Default       |
+| --------------------------- | ----------------  | ------------- |
+| Domain name                 | `gitlab.io`       | -             |
+| IP address                  | `35.185.44.232`   | -             |
+| Custom domains support      | yes               | no            |
+| TLS certificates support    | yes               | no            |
+| Maximum size (uncompressed) | 1G                | 100M          |
 
+NOTE: **Note:**
 The maximum size of your Pages site is regulated by the artifacts maximum size
 which is part of [GitLab CI/CD](#gitlab-cicd).
 
@@ -59,7 +61,7 @@ Below are the current settings regarding [GitLab CI/CD](../../ci/README.md).
 
 | Setting                 | GitLab.com        | Default       |
 | -----------             | ----------------- | ------------- |
-| Artifacts maximum size  | 1G                | 100M          |
+| Artifacts maximum size (uncompressed) | 1G                | 100M          |
 | Artifacts [expiry time](../../ci/yaml/README.md#artifactsexpire_in)   | kept forever           | deleted after 30 days unless otherwise specified    |
 
 ## Repository size limit
@@ -312,27 +314,34 @@ Source:
 
 #### Git and container registry failed authentication ban
 
-GitLab.com responds with HTTP status code 403 for 1 hour, if 30 failed
+GitLab.com responds with HTTP status code `403` for 1 hour, if 30 failed
 authentication requests were received in a 3-minute period from a single IP address.
 
 This applies only to Git requests and container registry (`/jwt/auth`) requests
 (combined).
 
-This limit is reset by requests that authenticate successfully. For example, 29
-failed authentication requests followed by 1 successful request, followed by 29
-more failed authentication requests would not trigger a ban.
+This limit:
+
+- Is reset by requests that authenticate successfully. For example, 29
+  failed authentication requests followed by 1 successful request, followed by 29
+  more failed authentication requests would not trigger a ban.
+- Does not apply to JWT requests authenticated by `gitlab-ci-token`.
 
 No response headers are provided.
 
 ### Admin Area settings
 
-GitLab.com does not currently use these settings.
+GitLab.com:
+
+- Has [rate limits on raw endpoints](../../user/admin_area/settings/rate_limits_on_raw_endpoints.md)
+  set to the default.
+- Does not have the user and IP rate limits settings enabled.
 
 ## GitLab.com at scale
 
 In addition to the GitLab Enterprise Edition Omnibus install, GitLab.com uses
 the following applications and settings to achieve scale. All settings are
-located publicly available [chef cookbooks](https://gitlab.com/gitlab-cookbooks).
+publicly available at [chef cookbooks](https://gitlab.com/gitlab-cookbooks).
 
 ### ELK
 
@@ -389,4 +398,4 @@ On GitLab.com, projects, groups, and snippets created
 after July 2019 have the `Internal` visibility setting disabled.
 
 You can read more about the change in the
-[relevant issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/12388).
+[relevant issue](https://gitlab.com/gitlab-org/gitlab/issues/12388).

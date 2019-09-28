@@ -28,11 +28,14 @@ NOTE: **Note:**
 Requires Developer [permissions](../../permissions.md).
 
 Create a new page by clicking the **New page** button that can be found
-in all wiki pages. You will be asked to fill in the page name from which GitLab
-will create the path to the page. You can specify a full path for the new file
-and any missing directories will be created automatically.
+in all wiki pages.
 
-![New page modal](img/wiki_create_new_page_modal.png)
+You will be asked to fill in a title for your new wiki page.
+
+You can specify a full path for the wiki page by using '/' in the
+title to indicate subdirectories. Any missing directories will be created
+automatically. For example, a title of `docs/my-page` will create a wiki
+page with a path `/wikis/docs/my-page`.
 
 Once you enter the page name, it's time to fill in its content. GitLab wikis
 support Markdown, RDoc and AsciiDoc. For Markdown based pages, all the
@@ -47,7 +50,7 @@ When you're ready, click the **Create page** and the new page will be created.
 
 ![New page](img/wiki_create_new_page.png)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/33475) in GitLab 11.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/33475) in GitLab 11.3.
 
 Starting with GitLab 11.3, any file that is uploaded to the wiki via GitLab's
 interface will be stored in the wiki Git repository, and it will be available

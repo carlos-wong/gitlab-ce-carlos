@@ -76,13 +76,16 @@ class IssuableBaseService < BaseService
   end
 
   def filter_labels
-    params[:add_label_ids] = labels_service.filter_labels_ids_in_param(:add_label_ids) if params[:add_label_ids]
-    params[:remove_label_ids] = labels_service.filter_labels_ids_in_param(:remove_label_ids) if params[:remove_label_ids]
+    label_ids_to_filter(:add_label_ids, :add_labels, false)
+    label_ids_to_filter(:remove_label_ids, :remove_labels, true)
+    label_ids_to_filter(:label_ids, :labels, false)
+  end
 
-    if params[:label_ids]
-      params[:label_ids] = labels_service.filter_labels_ids_in_param(:label_ids)
-    elsif params[:labels]
-      params[:label_ids] = labels_service.find_or_create_by_titles.map(&:id)
+  def label_ids_to_filter(label_id_key, label_key, find_only)
+    if params[label_id_key]
+      params[label_id_key] = labels_service.filter_labels_ids_in_param(label_id_key)
+    elsif params[label_key]
+      params[label_id_key] = labels_service.find_or_create_by_titles(label_key, find_only: find_only).map(&:id)
     end
   end
 
@@ -221,6 +224,7 @@ class IssuableBaseService < BaseService
       # We have to perform this check before saving the issuable as Rails resets
       # the changed fields upon calling #save.
       update_project_counters = issuable.project && update_project_counter_caches?(issuable)
+      ensure_milestone_available(issuable)
 
       if issuable.with_transaction_returning_status { issuable.save(touch: should_touch) }
         # We do not touch as it will affect a update on updated_at field
@@ -344,10 +348,7 @@ class IssuableBaseService < BaseService
 
   def toggle_award(issuable)
     award = params.delete(:emoji_award)
-    if award
-      todo_service.new_award_emoji(issuable, current_user)
-      issuable.toggle_award_emoji(award, current_user)
-    end
+    AwardEmojis::ToggleService.new(issuable, award, current_user).execute if award
   end
 
   def associations_before_update(issuable)
@@ -413,3 +414,5 @@ class IssuableBaseService < BaseService
     issuable.changes.keys != ["relative_position"]
   end
 end
+
+IssuableBaseService.prepend_if_ee('EE::IssuableBaseService')

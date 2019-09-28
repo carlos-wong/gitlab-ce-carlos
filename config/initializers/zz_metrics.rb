@@ -1,5 +1,5 @@
 # This file was prefixed with zz_ because we want to load it the last!
-# See: https://gitlab.com/gitlab-org/gitlab-ce/issues/55611
+# See: https://gitlab.com/gitlab-org/gitlab-foss/issues/55611
 
 # Autoload all classes that we want to instrument, and instrument the methods we
 # need. This takes the Gitlab::Metrics::Instrumentation module as an argument so
@@ -100,11 +100,7 @@ def instrument_classes(instrumentation)
     instrumentation.instrument_instance_methods(Gitlab::Elastic::SnippetSearchResults)
     instrumentation.instrument_methods(Gitlab::Elastic::Helper)
 
-    instrumentation.instrument_instance_methods(Elastic::ApplicationSearch)
-    instrumentation.instrument_instance_methods(Elastic::IssuesSearch)
-    instrumentation.instrument_instance_methods(Elastic::MergeRequestsSearch)
-    instrumentation.instrument_instance_methods(Elastic::MilestonesSearch)
-    instrumentation.instrument_instance_methods(Elastic::NotesSearch)
+    instrumentation.instrument_instance_methods(Elastic::ApplicationVersionedSearch)
     instrumentation.instrument_instance_methods(Elastic::ProjectsSearch)
     instrumentation.instrument_instance_methods(Elastic::RepositoriesSearch)
     instrumentation.instrument_instance_methods(Elastic::SnippetsSearch)
@@ -119,7 +115,7 @@ def instrument_classes(instrumentation)
   # This is a Rails scope so we have to instrument it manually.
   instrumentation.instrument_method(Project, :visible_to_user)
 
-  # Needed for https://gitlab.com/gitlab-org/gitlab-ce/issues/30224#note_32306159
+  # Needed for https://gitlab.com/gitlab-org/gitlab-foss/issues/30224#note_32306159
   instrumentation.instrument_instance_method(MergeRequestDiff, :load_commits)
 end
 # rubocop:enable Metrics/AbcSize
@@ -130,7 +126,7 @@ end
 # We should deprecate the usage of `any_instance_of` in the future
 # check: https://github.com/rspec/rspec-mocks#settings-mocks-or-stubs-on-any-instance-of-a-class
 #
-# Related issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/33587
+# Related issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/33587
 #
 # In development mode, we turn off eager loading when we're running
 # `rails generate migration` because eager loading short-circuits the

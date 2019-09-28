@@ -169,7 +169,7 @@ describe 'Dashboard Projects' do
         expect(page).to have_xpath("//a[@href='#{pipelines_project_commit_path(project, project.commit, ref: pipeline.ref)}']")
         expect(page).to have_css('.ci-status-link')
         expect(page).to have_css('.ci-status-icon-success')
-        expect(page).to have_link('Commit: passed')
+        expect(page).to have_link('Pipeline: passed')
       end
     end
 
@@ -189,7 +189,7 @@ describe 'Dashboard Projects' do
           expect(page).not_to have_xpath("//a[@href='#{pipelines_project_commit_path(project, project.commit, ref: pipeline.ref)}']")
           expect(page).not_to have_css('.ci-status-link')
           expect(page).not_to have_css('.ci-status-icon-success')
-          expect(page).not_to have_link('Commit: passed')
+          expect(page).not_to have_link('Pipeline: passed')
         end
       end
     end
@@ -219,5 +219,27 @@ describe 'Dashboard Projects' do
       expect(find('input#merge_request_source_branch', visible: false).value).to eq 'feature'
       expect(find('input#merge_request_target_branch', visible: false).value).to eq 'master'
     end
+  end
+
+  it 'avoids an N+1 query in dashboard index' do
+    create(:ci_pipeline, :with_job, status: :success, project: project, ref: project.default_branch, sha: project.commit.sha)
+    visit dashboard_projects_path
+
+    control_count = ActiveRecord::QueryRecorder.new { visit dashboard_projects_path }.count
+
+    new_project = create(:project, :repository, name: 'new project')
+    create(:ci_pipeline, :with_job, status: :success, project: new_project, ref: new_project.commit.sha)
+    new_project.add_developer(user)
+
+    ActiveRecord::QueryRecorder.new { visit dashboard_projects_path }.count
+
+    # There are three known N+1 queries:
+    # 1. Project#open_issues_count
+    # 2. Project#open_merge_requests_count
+    # 3. Project#forks_count
+    #
+    # In addition, ProjectsHelper#load_pipeline_status also adds an
+    # additional query.
+    expect { visit dashboard_projects_path }.not_to exceed_query_limit(control_count + 4)
   end
 end

@@ -13,7 +13,6 @@ class User < ApplicationRecord
   include Sortable
   include CaseSensitivity
   include TokenAuthenticatable
-  include IgnorableColumn
   include FeatureGate
   include CreatedAtFilterable
   include BulkMemberAccessLoad
@@ -24,12 +23,9 @@ class User < ApplicationRecord
 
   DEFAULT_NOTIFICATION_LEVEL = :participating
 
-  ignore_column :external_email
-  ignore_column :email_provider
-  ignore_column :authentication_token
-
   add_authentication_token_field :incoming_email_token, token_generator: -> { SecureRandom.hex.to_i(16).to_s(36) }
   add_authentication_token_field :feed_token
+  add_authentication_token_field :static_object_token
 
   default_value_for :admin, false
   default_value_for(:external) { Gitlab::CurrentSettings.user_default_external }
@@ -58,7 +54,10 @@ class User < ApplicationRecord
          :validatable, :omniauthable, :confirmable, :registerable
 
   BLOCKED_MESSAGE = "Your account has been blocked. Please contact your GitLab " \
-                    "administrator if you think this is an error.".freeze
+                    "administrator if you think this is an error."
+
+  # Removed in GitLab 12.3. Keep until after 2019-09-22.
+  self.ignored_columns += %i[support_bot]
 
   # Override Devise::Models::Trackable#update_tracked_fields!
   # to limit database writes to at most once every hour
@@ -130,7 +129,7 @@ class User < ApplicationRecord
   has_many :notes,                    dependent: :destroy, foreign_key: :author_id # rubocop:disable Cop/ActiveRecordDependent
   has_many :issues,                   dependent: :destroy, foreign_key: :author_id # rubocop:disable Cop/ActiveRecordDependent
   has_many :merge_requests,           dependent: :destroy, foreign_key: :author_id # rubocop:disable Cop/ActiveRecordDependent
-  has_many :events,                   dependent: :destroy, foreign_key: :author_id # rubocop:disable Cop/ActiveRecordDependent
+  has_many :events,                   dependent: :delete_all, foreign_key: :author_id # rubocop:disable Cop/ActiveRecordDependent
   has_many :releases,                 dependent: :nullify, foreign_key: :author_id # rubocop:disable Cop/ActiveRecordDependent
   has_many :subscriptions,            dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :oauth_applications, class_name: 'Doorkeeper::Application', as: :owner, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -161,6 +160,8 @@ class User < ApplicationRecord
   #
   # Note: devise :validatable above adds validations for :email and :password
   validates :name, presence: true, length: { maximum: 128 }
+  validates :first_name, length: { maximum: 255 }
+  validates :last_name, length: { maximum: 255 }
   validates :email, confirmation: true
   validates :notification_email, presence: true
   validates :notification_email, devise_email: true, if: ->(user) { user.notification_email != user.email }
@@ -234,6 +235,7 @@ class User < ApplicationRecord
   delegate :timezone, :timezone=, to: :user_preference
   delegate :time_display_relative, :time_display_relative=, to: :user_preference
   delegate :time_format_in_24h, :time_format_in_24h=, to: :user_preference
+  delegate :show_whitespace_in_diffs, :show_whitespace_in_diffs=, to: :user_preference
 
   accepts_nested_attributes_for :user_preference, update_only: true
 
@@ -491,7 +493,7 @@ class User < ApplicationRecord
     def by_login(login)
       return unless login
 
-      if login.include?('@'.freeze)
+      if login.include?('@')
         unscoped.iwhere(email: login).take
       else
         unscoped.iwhere(username: login).take
@@ -888,7 +890,15 @@ class User < ApplicationRecord
   end
 
   def first_name
-    name.split.first unless name.blank?
+    read_attribute(:first_name) || begin
+      name.split(' ').first unless name.blank?
+    end
+  end
+
+  def last_name
+    read_attribute(:last_name) || begin
+      name.split(' ').drop(1).join(' ') unless name.blank?
+    end
   end
 
   def projects_limit_left
@@ -1426,6 +1436,13 @@ class User < ApplicationRecord
     ensure_feed_token!
   end
 
+  # Each existing user needs to have a `static_object_token`.
+  # We do this on read since migrating all existing users is not a feasible
+  # solution.
+  def static_object_token
+    ensure_static_object_token!
+  end
+
   def sync_attribute?(attribute)
     return true if ldap_user? && attribute == :email
 
@@ -1652,3 +1669,5 @@ class User < ApplicationRecord
                   project_creation_level: project_creation_levels)
   end
 end
+
+User.prepend_if_ee('EE::User')

@@ -3,7 +3,7 @@
 > [Introduced][ce-3232] in GitLab 8.7. It is OFF by default because it still
 causes too many false alarms.
 
-Git has a built-in mechanism, [git fsck][git-fsck], to verify the
+Git has a built-in mechanism, [`git fsck`][git-fsck], to verify the
 integrity of all data committed to a repository. GitLab administrators
 can trigger such a check for a project via the project page under the
 admin panel. The checks run asynchronously so it may take a few minutes
@@ -42,5 +42,5 @@ clicking "Clear all repository checks" on the **Settings** page of the
 admin panel (`/admin/application_settings`).
 
 ---
-[ce-3232]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/3232 "Auto git fsck"
+[ce-3232]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/3232 "Auto git fsck"
 [git-fsck]: https://git-scm.com/docs/git-fsck "git fsck documentation"

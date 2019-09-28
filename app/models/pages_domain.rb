@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PagesDomain < ApplicationRecord
-  VERIFICATION_KEY = 'gitlab-pages-verification-code'.freeze
+  VERIFICATION_KEY = 'gitlab-pages-verification-code'
   VERIFICATION_THRESHOLD = 3.days.freeze
   SSL_RENEWAL_THRESHOLD = 30.days.freeze
 
@@ -17,7 +17,7 @@ class PagesDomain < ApplicationRecord
   validates :certificate, certificate: true, if: ->(domain) { domain.certificate.present? }
   validates :key, presence: { message: 'must be present if HTTPS-only is enabled' },
             if: :certificate_should_be_present?
-  validates :key, certificate_key: true, if: ->(domain) { domain.key.present? }
+  validates :key, certificate_key: true, named_ecdsa_key: true, if: ->(domain) { domain.key.present? }
   validates :verification_code, presence: true, allow_blank: false
 
   validate :validate_pages_domain
@@ -185,6 +185,10 @@ class PagesDomain < ApplicationRecord
     self.certificate_source = 'gitlab_provided' if key_changed?
   end
 
+  def pages_virtual_domain
+    Pages::VirtualDomain.new([project], domain: self)
+  end
+
   private
 
   def set_verification_code
@@ -247,7 +251,7 @@ class PagesDomain < ApplicationRecord
   def pkey
     return unless key
 
-    @pkey ||= OpenSSL::PKey::RSA.new(key)
+    @pkey ||= OpenSSL::PKey.read(key)
   rescue OpenSSL::PKey::PKeyError, OpenSSL::Cipher::CipherError
     nil
   end

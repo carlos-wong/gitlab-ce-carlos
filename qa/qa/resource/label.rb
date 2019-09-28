@@ -7,6 +7,7 @@ module QA
     class Label < Base
       attr_accessor :description, :color
 
+      attribute :id
       attribute :title
 
       attribute :project do
@@ -27,7 +28,7 @@ module QA
         Page::Project::Menu.perform(&:go_to_labels)
         Page::Label::Index.perform(&:click_new_label_button)
 
-        Page::Label::New.perform do |page|
+        Page::Label::New.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.fill_title(@title)
           page.fill_description(@description)
           page.fill_color(@color)

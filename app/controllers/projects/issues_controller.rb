@@ -21,7 +21,8 @@ class Projects::IssuesController < Projects::ApplicationController
   prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss) }
   prepend_before_action(only: [:calendar]) { authenticate_sessionless_user!(:ics) }
   prepend_before_action :authenticate_user!, only: [:new]
-  prepend_before_action :store_uri, only: [:new, :show]
+  # designs is only applicable to EE, but defining a prepend_before_action in EE code would overwrite this
+  prepend_before_action :store_uri, only: [:new, :show, :designs]
 
   before_action :whitelist_query_limiting, only: [:create, :create_merge_request, :move, :bulk_update]
   before_action :check_issues_available!
@@ -42,6 +43,8 @@ class Projects::IssuesController < Projects::ApplicationController
   before_action :authorize_download_code!, only: [:related_branches]
 
   respond_to :html
+
+  alias_method :designs, :show
 
   def index
     @issues = @issuables
@@ -190,7 +193,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   protected
 
-  def issuable_sorting_field
+  def sorting_field
     Issue::SORTING_PREFERENCE_FIELD
   end
 
@@ -274,9 +277,11 @@ class Projects::IssuesController < Projects::ApplicationController
   def whitelist_query_limiting
     # Also see the following issues:
     #
-    # 1. https://gitlab.com/gitlab-org/gitlab-ce/issues/42423
-    # 2. https://gitlab.com/gitlab-org/gitlab-ce/issues/42424
-    # 3. https://gitlab.com/gitlab-org/gitlab-ce/issues/42426
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42422')
+    # 1. https://gitlab.com/gitlab-org/gitlab-foss/issues/42423
+    # 2. https://gitlab.com/gitlab-org/gitlab-foss/issues/42424
+    # 3. https://gitlab.com/gitlab-org/gitlab-foss/issues/42426
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42422')
   end
 end
+
+Projects::IssuesController.prepend_if_ee('EE::Projects::IssuesController')

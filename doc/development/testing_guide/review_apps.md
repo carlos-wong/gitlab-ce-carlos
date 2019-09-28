@@ -1,8 +1,7 @@
 # Review Apps
 
-Review Apps are automatically deployed by each pipeline, both in
-[CE](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22010) and
-[EE](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6665).
+Review Apps are automatically deployed by [the
+pipeline](https://gitlab.com/gitlab-org/gitlab/merge_requests/6665).
 
 ## How does it work?
 
@@ -10,24 +9,30 @@ Review Apps are automatically deployed by each pipeline, both in
 
 ```mermaid
 graph TD
-    build-qa-image -.->|once the `prepare` stage is done| gitlab:assets:compile
-    review-build-cng -->|triggers a CNG-mirror pipeline and wait for it to be done| CNG-mirror
-    review-build-cng -.->|once the `test` stage is done| review-deploy
-    review-deploy -.->|once the `review` stage is done| review-qa-smoke
+    build-qa-image -->|once the `prepare` stage is done| gitlab:assets:compile
+    gitlab:assets:compile -->|once the `gitlab:assets:compile` job is done| review-build-cng
+    review-build-cng -.->|triggers a CNG-mirror pipeline and wait for it to be done| CNG-mirror
+    CNG-mirror -.->|polls until completed| review-build-cng
+    review-build-cng -->|once the `review-build-cng` job is done| review-deploy
+    review-deploy -->|once the `review-deploy` job is done| review-qa-smoke
 
 subgraph "1. gitlab-ce/ee `prepare` stage"
     build-qa-image
     end
 
 subgraph "2. gitlab-ce/ee `test` stage"
-    gitlab:assets:compile -->|plays dependent job once done| review-build-cng
+    gitlab:assets:compile
     end
 
-subgraph "3. gitlab-ce/ee `review` stage"
+subgraph "3. gitlab-ce/ee `review-prepare` stage"
+    review-build-cng
+    end
+
+subgraph "4. gitlab-ce/ee `review` stage"
     review-deploy["review-deploy<br><br>Helm deploys the Review App using the Cloud<br/>Native images built by the CNG-mirror pipeline.<br><br>Cloud Native images are deployed to the `review-apps-ce` or `review-apps-ee`<br>Kubernetes (GKE) cluster, in the GCP `gitlab-review-apps` project."]
     end
 
-subgraph "4. gitlab-ce/ee `qa` stage"
+subgraph "5. gitlab-ce/ee `qa` stage"
     review-qa-smoke[review-qa-smoke<br><br>gitlab-qa runs the smoke suite against the Review App.]
     end
 
@@ -132,7 +137,7 @@ to prevent other pods from being scheduled on this node pool.
 This is to ensure Tiller isn't affected by "noisy" neighbors that could put
 their node under pressure.
 
-## How to:
+## How to
 
 ### Log into my Review App
 
@@ -177,11 +182,30 @@ secure note named **gitlab-{ce,ee} Review App's root password**.
    `review-qa-raise-e-12chm0-migrations.1-nqwtx`.
 1. Click on the `Container logs` link.
 
+### Diagnosing unhealthy review-app releases
+
+If [Review App Stability](https://gitlab.com/gitlab-org/quality/team-tasks/issues/93) dips this may be a signal
+that the `review-apps-ce/ee` cluster is unhealthy. Leading indicators may be healthcheck failures leading to restarts or majority failure for Review App deployments.
+
+The following items may help diagnose this:
+
+- [Instance group CPU Utilization in GCP](https://console.cloud.google.com/compute/instanceGroups/details/us-central1-b/gke-review-apps-ee-preemp-n1-standard-8affc0f5-grp?project=gitlab-review-apps&tab=monitoring&graph=GCE_CPU&duration=P30D) - helpful to identify if nodes are problematic or the entire cluster is trending towards unhealthy
+- [Instance Group size in GCP](https://console.cloud.google.com/compute/instanceGroups/details/us-central1-b/gke-review-apps-ee-preemp-n1-standard-8affc0f5-grp?project=gitlab-review-apps&tab=monitoring&graph=GCE_SIZE&duration=P30D) - aids in identifying load spikes on the cluster. Kubernetes will add nodes up to 220 based on total resource requests.
+- `kubectl top nodes --sort-by=cpu` - can identify if node spikes are common or load on specific nodes which may get rebalanced by the Kubernetes scheduler.
+- `kubectl top pods --sort-by=cpu` -
+- [K9s] - K9s is a powerful command line dashboard which allows you to filter by labels. This can help identify trends with apps exceeding the [review-app resource requests](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/scripts/review_apps/base-config.yaml). Kubernetes will schedule pods to nodes based on resource requests and allow for CPU usage up to the limits.
+  - In K9s you can sort or add filters by typing the `/` character
+    - `-lrelease=<review-app-slug>` - filters down to all pods for a release. This aids in determining what is having issues in a single deployment
+    - `-lapp=<app>` - filters down to all pods for a specific app. This aids in determining resource usage by app.
+  - You can scroll to a Kubernetes resource and hit `d`(describe), `s`(shell), `l`(logs) for a deeper inspection
+
+![K9s](img/k9s.png)
+
 ### Troubleshoot a pending `dns-gitlab-review-app-external-dns` Deployment
 
 #### Finding the problem
 
-[In the past](https://gitlab.com/gitlab-org/gitlab-ce/issues/62834), it happened
+[In the past](https://gitlab.com/gitlab-org/gitlab-foss/issues/62834), it happened
 that the `dns-gitlab-review-app-external-dns` Deployment was in a pending state,
 effectively preventing all the Review Apps from getting a DNS record assigned,
 making them unreachable via domain name.
@@ -255,8 +279,8 @@ that a machine will hit the "too many mount points" problem in the future.
 thousands of unused Docker images.**
 
   > We have to start somewhere and improve later. Also, we're using the
-  CNG-mirror project to store these Docker images so that we can just wipe out
-  the registry at some point, and use a new fresh, empty one.
+  > CNG-mirror project to store these Docker images so that we can just wipe out
+  > the registry at some point, and use a new fresh, empty one.
 
 **How do we secure this from abuse? Apps are open to the world so we need to
 find a way to limit it to only us.**
@@ -266,25 +290,32 @@ find a way to limit it to only us.**
 ## Other resources
 
 - [Review Apps integration for CE/EE (presentation)](https://docs.google.com/presentation/d/1QPLr6FO4LduROU8pQIPkX1yfGvD13GEJIBOenqoKxR8/edit?usp=sharing)
+- [Stability issues](https://gitlab.com/gitlab-org/quality/team-tasks/issues/212)
 
-[charts-1068]: https://gitlab.com/charts/gitlab/issues/1068
-[gitlab-pipeline]: https://gitlab.com/gitlab-org/gitlab-ce/pipelines/44362587
-[gitlab:assets:compile]: https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/149511610
-[review-build-cng]: https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/149511623
-[review-deploy]: https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/149511624
+### Helpful command line tools
+
+- [K9s] - enables CLI dashboard across pods and enabling filtering by labels
+- [Stern](https://github.com/wercker/stern) - enables cross pod log tailing based on label/field selectors
+
+[charts-1068]: https://gitlab.com/gitlab-org/charts/gitlab/issues/1068
+[gitlab-pipeline]: https://gitlab.com/gitlab-org/gitlab-foss/pipelines/44362587
+[gitlab:assets:compile]: https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/149511610
+[review-build-cng]: https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/149511623
+[review-deploy]: https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/149511624
 [cng-mirror]: https://gitlab.com/gitlab-org/build/CNG-mirror
 [cng]: https://gitlab.com/gitlab-org/build/CNG
 [cng-mirror-pipeline]: https://gitlab.com/gitlab-org/build/CNG-mirror/pipelines/44364657
 [cng-mirror-registry]: https://gitlab.com/gitlab-org/build/CNG-mirror/container_registry
-[helm-chart]: https://gitlab.com/charts/gitlab/
+[helm-chart]: https://gitlab.com/gitlab-org/charts/gitlab/
 [review-apps-ce]: https://console.cloud.google.com/kubernetes/clusters/details/us-central1-a/review-apps-ce?project=gitlab-review-apps
 [review-apps-ee]: https://console.cloud.google.com/kubernetes/clusters/details/us-central1-b/review-apps-ee?project=gitlab-review-apps
-[review-apps.sh]: https://gitlab.com/gitlab-org/gitlab-ee/blob/master/scripts/review_apps/review-apps.sh
-[automated_cleanup.rb]: https://gitlab.com/gitlab-org/gitlab-ee/blob/master/scripts/review_apps/automated_cleanup.rb
-[Auto-DevOps.gitlab-ci.yml]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
-[gitlab-ci-yml]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.gitlab-ci.yml
+[review-apps.sh]: https://gitlab.com/gitlab-org/gitlab/blob/master/scripts/review_apps/review-apps.sh
+[automated_cleanup.rb]: https://gitlab.com/gitlab-org/gitlab/blob/master/scripts/review_apps/automated_cleanup.rb
+[Auto-DevOps.gitlab-ci.yml]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
+[gitlab-ci-yml]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/.gitlab-ci.yml
 [gitlab-k8s-integration]: ../../user/project/clusters/index.md
-[password-bug]: https://gitlab.com/gitlab-org/gitlab-ce/issues/53621
+[K9s]: https://github.com/derailed/k9s
+[password-bug]: https://gitlab.com/gitlab-org/gitlab-foss/issues/53621
 
 ---
 

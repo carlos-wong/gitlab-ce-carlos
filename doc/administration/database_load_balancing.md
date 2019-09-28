@@ -122,6 +122,7 @@ production:
     discover:
       nameserver: localhost
       record: secondary.postgresql.service.consul
+      record_type: A
       port: 8600
       interval: 60
       disconnect_timeout: 120
@@ -137,11 +138,19 @@ The following options can be set:
 | Option               | Description                                                                                       | Default   |
 |----------------------|---------------------------------------------------------------------------------------------------|-----------|
 | `nameserver`         | The nameserver to use for looking up the DNS record.                                              | localhost |
-| `record`             | The A record to look up. This option is required for service discovery to work.                   |           |
+| `record`             | The record to look up. This option is required for service discovery to work.                     |           |
+| `record_type`        | Optional record type to look up, this can be either A or SRV (since GitLab 12.3)                  | A         |
 | `port`               | The port of the nameserver.                                                                       | 8600      |
 | `interval`           | The minimum time in seconds between checking the DNS record.                                      | 60        |
 | `disconnect_timeout` | The time in seconds after which an old connection is closed, after the list of hosts was updated. | 120       |
 | `use_tcp`            | Lookup DNS resources using TCP instead of UDP                                                     | false     |
+
+If `record_type` is set to `SRV`, GitLab will continue to use a round-robin algorithm
+and will ignore the `weight` and `priority` in the record. Since SRV records usually
+return hostnames instead of IPs, GitLab will look for the IPs of returned hostnames
+in the additional section of the SRV response. If no IP is found for a hostname, GitLab
+will query the configured `nameserver` for ANY record for each such hostname looking for A or AAAA
+records, eventually dropping this hostname from rotation if it can't resolve its IP.
 
 The `interval` value specifies the _minimum_ time between checks. If the A
 record has a TTL greater than this value, then service discovery will honor said
@@ -207,28 +216,25 @@ without it immediately leading to errors being presented to the users.
 
 ## Logging
 
-The load balancer logs various messages, such as:
+The load balancer logs various events in
+[`database_load_balancing.log`](logs.md#database_load_balancinglog-premium-only), such as
 
 - When a host is marked as offline
 - When a host comes back online
 - When all secondaries are offline
+- When a read is retried on a different host due to a query conflict
 
-Each log message contains the tag `[DB-LB]` to make searching/filtering of such
-log entries easier. For example:
+The log is structured with each entry a JSON object containing at least:
 
-```
-[DB-LB] Host 10.123.2.5 came back online
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Host 10.123.2.6 came back online
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Marking host 10.123.2.7 as offline
-[DB-LB] Host 10.123.2.7 came back online
-[DB-LB] Host 10.123.2.7 came back online
+- An `event` field useful for filtering.
+- A human-readable `message` field.
+- Some event-specific metadata. For example, `db_host`
+- Contextual information that is always logged. For example, `severity` and `time`.
+
+For example:
+
+```json
+{"severity":"INFO","time":"2019-09-02T12:12:01.728Z","correlation_id":"abcdefg","event":"host_online","message":"Host came back online","db_host":"111.222.333.444","db_port":null,"tag":"rails.database_load_balancing","environment":"production","hostname":"web-example-1","fqdn":"gitlab.example.com","path":null,"params":null}
 ```
 
 ## Handling Stale Reads
@@ -266,12 +272,12 @@ production:
 ```
 
 [hot-standby]: https://www.postgresql.org/docs/9.6/hot-standby.html
-[ee-1283]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/1283
+[ee-1283]: https://gitlab.com/gitlab-org/gitlab/merge_requests/1283
 [eep]: https://about.gitlab.com/pricing/
 [reconfigure gitlab]: restart_gitlab.md#omnibus-gitlab-reconfigure "How to reconfigure Omnibus GitLab"
 [restart gitlab]: restart_gitlab.md#installations-from-source "How to restart GitLab"
 [wikipedia]: https://en.wikipedia.org/wiki/Load_balancing_(computing)
 [db-req]: ../install/requirements.md#database
-[ee-3526]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3526
-[ee-5883]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/5883
+[ee-3526]: https://gitlab.com/gitlab-org/gitlab/merge_requests/3526
+[ee-5883]: https://gitlab.com/gitlab-org/gitlab/merge_requests/5883
 [consul-udp]: https://www.consul.io/docs/agent/dns.html#udp-based-dns-queries

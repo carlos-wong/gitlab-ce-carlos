@@ -40,6 +40,13 @@ describe 'projects/issues/show' do
           expect(rendered).to have_selector('.status-box-issue-closed:not(.hidden)', text: 'Closed (moved)')
         end
 
+        it 'shows "Closed (moved)" if an issue has been moved and discussion is locked' do
+          allow(issue).to receive(:discussion_locked).and_return(true)
+          render
+
+          expect(rendered).to have_selector('.status-box-issue-closed:not(.hidden)', text: 'Closed (moved)')
+        end
+
         it 'links "moved" to the new issue the original issue was moved to' do
           render
 
@@ -56,7 +63,48 @@ describe 'projects/issues/show' do
       end
     end
 
-    it 'shows "Closed" if an issue has not been moved' do
+    context 'when the issue was duplicated' do
+      let(:new_issue) { create(:issue, project: project, author: user) }
+
+      before do
+        issue.duplicated_to = new_issue
+      end
+
+      context 'when user can see the duplicated issue' do
+        before do
+          project.add_developer(user)
+        end
+
+        it 'shows "Closed (duplicated)" if an issue has been duplicated' do
+          render
+
+          expect(rendered).to have_selector('.status-box-issue-closed:not(.hidden)', text: 'Closed (duplicated)')
+        end
+
+        it 'links "duplicated" to the new issue the original issue was duplicated to' do
+          render
+
+          expect(rendered).to have_selector("a[href=\"#{issue_path(new_issue)}\"]", text: 'duplicated')
+        end
+      end
+
+      context 'when user cannot see duplicated issue' do
+        it 'does not show duplicated issue link' do
+          render
+
+          expect(rendered).not_to have_selector("a[href=\"#{issue_path(new_issue)}\"]", text: 'duplicated')
+        end
+      end
+    end
+
+    it 'shows "Closed" if an issue has not been moved or duplicated' do
+      render
+
+      expect(rendered).to have_selector('.status-box-issue-closed:not(.hidden)', text: 'Closed')
+    end
+
+    it 'shows "Closed" if discussion is locked' do
+      allow(issue).to receive(:discussion_locked).and_return(true)
       render
 
       expect(rendered).to have_selector('.status-box-issue-closed:not(.hidden)', text: 'Closed')
@@ -66,10 +114,17 @@ describe 'projects/issues/show' do
   context 'when the issue is open' do
     before do
       allow(issue).to receive(:closed?).and_return(false)
-      allow(issue).to receive(:disscussion_locked).and_return(false)
+      allow(issue).to receive(:discussion_locked).and_return(false)
     end
 
     it 'shows "Open" if an issue has been moved' do
+      render
+
+      expect(rendered).to have_selector('.status-box-open:not(.hidden)', text: 'Open')
+    end
+
+    it 'shows "Open" if discussion is locked' do
+      allow(issue).to receive(:discussion_locked).and_return(true)
       render
 
       expect(rendered).to have_selector('.status-box-open:not(.hidden)', text: 'Open')

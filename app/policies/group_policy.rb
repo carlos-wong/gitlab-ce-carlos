@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class GroupPolicy < BasePolicy
+  include FindGroupProjects
+
   desc "Group is public"
   with_options scope: :subject, score: 0
   condition(:public_group) { @subject.public? }
@@ -22,7 +24,7 @@ class GroupPolicy < BasePolicy
   condition(:can_change_parent_share_with_group_lock) { can?(:change_share_with_group_lock, @subject.parent) }
 
   condition(:has_projects) do
-    GroupProjectsFinder.new(group: @subject, current_user: @user, options: { include_subgroups: true, only_owned: true }).execute.any?
+    group_projects_for(user: @user, group: @subject).any?
   end
 
   with_options scope: :subject, score: 0
@@ -124,6 +126,8 @@ class GroupPolicy < BasePolicy
   rule { developer & developer_maintainer_access }.enable :create_projects
   rule { create_projects_disabled }.prevent :create_projects
 
+  rule { owner | admin }.enable :read_statistics
+
   def access_level
     return GroupMember::NO_ACCESS if @user.nil?
 
@@ -134,3 +138,5 @@ class GroupPolicy < BasePolicy
     @subject.max_member_access_for_user(@user)
   end
 end
+
+GroupPolicy.prepend_if_ee('EE::GroupPolicy')

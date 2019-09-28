@@ -29,13 +29,13 @@ module Gitlab
         if result.status.success?
           result.stdout.chomp.freeze
         else
-          "Unknown".freeze
+          "Unknown"
         end
       end
     end
   end
 
-  COM_URL = 'https://gitlab.com'.freeze
+  COM_URL = 'https://gitlab.com'
   APP_DIRS_PATTERN = %r{^/?(app|config|ee|lib|spec|\(\w*\))}.freeze
   SUBDOMAIN_REGEX = %r{\Ahttps://[a-z0-9]+\.gitlab\.com\z}.freeze
   VERSION = File.read(root.join("VERSION")).strip.freeze
@@ -55,8 +55,12 @@ module Gitlab
     SUBDOMAIN_REGEX === Gitlab.config.gitlab.url
   end
 
+  def self.dev_env_org_or_com?
+    dev_env_or_com? || org?
+  end
+
   def self.dev_env_or_com?
-    Rails.env.development? || org? || com?
+    Rails.env.development? || com?
   end
 
   def self.ee?

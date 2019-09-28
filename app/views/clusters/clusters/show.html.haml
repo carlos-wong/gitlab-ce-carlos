@@ -3,6 +3,7 @@
 - breadcrumb_title @cluster.name
 - page_title _('Kubernetes Cluster')
 - manage_prometheus_path = edit_project_service_path(@cluster.project, 'prometheus') if @project
+- cluster_environments_path = clusterable.environments_cluster_path(@cluster)
 
 - expanded = expanded_by_default?
 
@@ -16,6 +17,7 @@
   install_jupyter_path: clusterable.install_applications_cluster_path(@cluster, :jupyter),
   install_knative_path: clusterable.install_applications_cluster_path(@cluster, :knative),
   update_knative_path: clusterable.update_applications_cluster_path(@cluster, :knative),
+  cluster_environments_path: cluster_environments_path,
   toggle_status: @cluster.enabled? ? 'true': 'false',
   has_rbac: has_rbac_enabled?(@cluster) ? 'true': 'false',
   cluster_type: @cluster.cluster_type,
@@ -24,38 +26,19 @@
   help_path: help_page_path('user/project/clusters/index.md', anchor: 'installing-applications'),
   ingress_help_path: help_page_path('user/project/clusters/index.md', anchor: 'getting-the-external-endpoint'),
   ingress_dns_help_path: help_page_path('user/project/clusters/index.md', anchor: 'manually-determining-the-external-endpoint'),
+  environments_help_path: help_page_path('ci/environments', anchor: 'defining-environments'),
+  clusters_help_path: help_page_path('user/project/clusters/index.md', anchor: 'deploying-to-a-kubernetes-cluster'),
+  deploy_boards_help_path: help_page_path('user/project/deploy_boards.html', anchor: 'enabling-deploy-boards'),
   manage_prometheus_path: manage_prometheus_path,
   cluster_id: @cluster.id } }
 
   .js-cluster-application-notice
     .flash-container
 
-  %section#cluster-integration
-    %h4= @cluster.name
-    = render 'banner'
+  %h4= @cluster.name
+  = render 'banner'
 
-    - unless @cluster.status_name.in? %i/scheduled creating/
-      = render 'form'
-
-  - unless @cluster.status_name.in? %i/scheduled creating/
-    = render_if_exists 'projects/clusters/prometheus_graphs'
-
-    .cluster-applications-table#js-cluster-applications
-
-    %section.settings#js-cluster-details{ class: ('expanded' if expanded) }
-      .settings-header
-        %h4= s_('ClusterIntegration|Kubernetes cluster details')
-        %button.btn.js-settings-toggle{ type: 'button' }
-          = expanded ? _('Collapse') : _('Expand')
-        %p= s_('ClusterIntegration|See and edit the details for your Kubernetes cluster')
-      .settings-content
-        = render 'clusters/platforms/kubernetes/form', cluster: @cluster, platform: @cluster.platform_kubernetes, update_cluster_url_path: clusterable.cluster_path(@cluster)
-
-    %section.settings.no-animate#js-cluster-advanced-settings{ class: ('expanded' if expanded) }
-      .settings-header
-        %h4= _('Advanced settings')
-        %button.btn.js-settings-toggle{ type: 'button' }
-          = expanded ? _('Collapse') : _('Expand')
-        %p= s_("ClusterIntegration|Advanced options on this Kubernetes cluster's integration")
-      .settings-content#advanced-settings-section
-        = render 'advanced_settings'
+  - if cluster_environments_path.present?
+    = render_if_exists 'clusters/clusters/group_cluster_environments', expanded: expanded
+  - else
+    = render 'configure', expanded: expanded

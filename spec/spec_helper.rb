@@ -32,6 +32,8 @@ end
 require 'rainbow/ext/string'
 Rainbow.enabled = false
 
+require_relative('../ee/spec/spec_helper') if Gitlab.ee?
+
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 # Requires helpers, and shared contexts/examples first since they're used in other support files
@@ -109,6 +111,7 @@ RSpec.configure do |config|
   config.include PolicyHelpers, type: :policy
   config.include MemoryUsageHelper
   config.include ExpectRequestWithStatus, type: :request
+  config.include RailsHelpers
 
   if ENV['CI']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -147,6 +150,14 @@ RSpec.configure do |config|
     allow(Feature).to receive(:enabled?)
       .with(:force_autodevops_on_by_default, anything)
       .and_return(false)
+
+    # Stub these calls due to being expensive operations
+    # It can be reenabled for specific tests via:
+    #
+    # allow(DetectRepositoryLanguagesWorker).to receive(:perform_async).and_call_original
+    # allow(Gitlab::Git::KeepAround).to receive(:execute).and_call_original
+    allow(DetectRepositoryLanguagesWorker).to receive(:perform_async).and_return(true)
+    allow(Gitlab::Git::KeepAround).to receive(:execute)
 
     Gitlab::ThreadMemoryCache.cache_backend.clear
   end

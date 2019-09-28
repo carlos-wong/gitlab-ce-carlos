@@ -23,7 +23,8 @@ module Ci
         api: 5,
         external: 6,
         chat: 8,
-        merge_request_event: 10
+        merge_request_event: 10,
+        external_pull_request_event: 11
       }
     end
 
@@ -38,3 +39,5 @@ module Ci
     end
   end
 end
+
+Ci::PipelineEnums.prepend_if_ee('EE::Ci::PipelineEnums')

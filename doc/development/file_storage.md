@@ -2,6 +2,8 @@
 
 We use the [CarrierWave] gem to handle file upload, store and retrieval.
 
+File uploads should be accelerated by workhorse, for details please refer to [uploads development documentation](uploads.md).
+
 There are many places where file uploading is used, according to contexts:
 
 - System
@@ -144,4 +146,4 @@ end
 [CarrierWave]: https://github.com/carrierwaveuploader/carrierwave
 [Hashed Storage]: ../administration/repository_storage_types.md
 [all-in-one rake task]: ../administration/raketasks/uploads/migrate.md
-[category list]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/tasks/gitlab/uploads/migrate.rake
+[category list]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/tasks/gitlab/uploads/migrate.rake

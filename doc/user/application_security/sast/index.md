@@ -4,7 +4,7 @@ type: reference, howto
 
 # Static Application Security Testing (SAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3775)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3775)
 in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
 
 NOTE: **4 of the top 6 attacks were application based.**
@@ -51,6 +51,10 @@ To run a SAST job, you need GitLab Runner with the
 executor running in privileged mode. If you're using the shared Runners on GitLab.com,
 this is enabled by default.
 
+CAUTION: **Caution:**
+If you use your own Runners, make sure that the Docker version you have installed
+is **not** `19.03.00`. See [troubleshooting information](#error-response-from-daemon-error-processing-tar-file-docker-tar-relocation-error) for details.
+
 ## Supported languages and frameworks
 
 The following table shows which languages, package managers and frameworks are supported and which tools are used.
@@ -82,7 +86,7 @@ The Java analyzers can also be used for variants like the
 
 For GitLab 11.9 and later, to enable SAST, you must
 [include](../../../ci/yaml/README.md#includetemplate) the
-[`SAST.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml)
+[`SAST.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml)
 that's provided as a part of your GitLab installation.
 For GitLab versions earlier than 11.9, you can copy and use the job as defined
 that template.
@@ -125,6 +129,21 @@ variables:
 Because the template is [evaluated before](../../../ci/yaml/README.md#include)
 the pipeline configuration, the last mention of the variable will take precedence.
 
+#### Using a variable to pass username and password to a private Maven repository
+
+If you have a private Apache Maven repository that requires login credentials,
+you can use the `MAVEN_CLI_OPTS` [environment variable](#available-variables)
+to pass a username and password. You can set it under your project's settings
+so that your credentials aren't exposed in `.gitlab-ci.yml`.
+
+If the username is `myuser` and the password is `verysecret` then you would
+set the following [variable](../../../ci/variables/README.md#via-the-ui)
+under your project's settings:
+
+| Type | Key | Value |
+| ---- | --- | ----- |
+| Variable | `MAVEN_CLI_OPTS` | `-Drepository.password=verysecret -Drepository.user=myuser` |
+
 ### Overriding the SAST template
 
 If you want to override the job definition (for example, change properties like
@@ -160,17 +179,21 @@ The following are Docker image-related variables.
 
 Some analyzers make it possible to filter out vulnerabilities under a given threshold.
 
-| `SAST_BANDIT_EXCLUDED_PATHS`  | -   | comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html) |
-| `SAST_BRAKEMAN_LEVEL`   |         1 | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High. |
-| `SAST_FLAWFINDER_LEVEL` |         1 | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk. |
-| `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0 | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high. |
-| `SAST_GOSEC_LEVEL`      |         0 | Ignore gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High. |
-| `SAST_EXCLUDED_PATHS`   |   -        | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, file or folder paths. Parent directories will also match patterns. |
+| Environment variable | Default value | Description | Example usage |
+|----------------------|---------------|-------------|---|
+| `SAST_BANDIT_EXCLUDED_PATHS`  | -   | comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html) | |
+| `SAST_BRAKEMAN_LEVEL`   |         1 | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High. | |
+| `SAST_FLAWFINDER_LEVEL` |         1 | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk. | |
+| `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0 | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high. | |
+| `SAST_GOSEC_LEVEL`      |         0 | Ignore gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High. | |
+| `SAST_EXCLUDED_PATHS`   |   -        | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, file or folder paths. Parent directories will also match patterns. | `SAST_EXCLUDED_PATHS=doc,spec` |
 
 ### Timeouts
 
 The following variables configure timeouts.
 
+| Environment variable | Default value | Description |
+|----------------------|---------------|-------------|
 | `SAST_DOCKER_CLIENT_NEGOTIATION_TIMEOUT` |      2m | Time limit for Docker client negotiation. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". For example, "300ms", "1.5h" or "2h45m". |
 | `SAST_PULL_ANALYZER_IMAGE_TIMEOUT`       |      5m | Time limit when pulling the image of an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". For example, "300ms", "1.5h" or "2h45m". |
 | `SAST_RUN_ANALYZER_TIMEOUT`              |     20m | Time limit when running an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". For example, "300ms", "1.5h" or "2h45m".|
@@ -186,6 +209,7 @@ Some analyzers can be customized with environment variables.
 | `GRADLE_PATH`           | spotbugs | Path to the `gradle` executable. |
 | `JAVA_OPTS`             | spotbugs | Additional arguments for the `java` executable. |
 | `JAVA_PATH`             | spotbugs | Path to the `java` executable. |
+| `SAST_JAVA_VERSION`     | spotbugs | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
 | `MAVEN_CLI_OPTS`        | spotbugs | Additional arguments for the `mvn` or `mvnw` executable. |
 | `MAVEN_PATH`            | spotbugs | Path to the `mvn` executable. |
 | `MAVEN_REPO_PATH`       | spotbugs | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
@@ -314,20 +338,10 @@ CI/CD configuration file to turn it on. Results are available in the SAST report
 
 GitLab currently includes [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) checks.
 
-## Security report under pipelines
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3776)
-in [GitLab Ultimate](https://about.gitlab.com/pricing) 10.6.
-
-Visit any pipeline page which has a `sast` job and you will be able to see
-the security report tab with the listed vulnerabilities (if any).
-
-![Security Report](img/security_report.png)
-
 ## Security Dashboard
 
 The Security Dashboard is a good place to get an overview of all the security
-vulnerabilities in your groups and projects. Read more about the
+vulnerabilities in your groups, projects and pipelines. Read more about the
 [Security Dashboard](../security_dashboard/index.md).
 
 ## Interacting with the vulnerabilities
@@ -340,14 +354,11 @@ Once a vulnerability is found, you can interact with it. Read more on how to
 For more information about the vulnerabilities database update, check the
 [maintenance table](../index.md#maintenance-and-update-of-the-vulnerabilities-database).
 
-<!-- ## Troubleshooting
+## Troubleshooting
 
-Include any troubleshooting steps that you can foresee. If you know beforehand what issues
-one might have when setting this up, or when something is changed, or on upgrading, it's
-important to describe those, too. Think of things that may go wrong and include them here.
-This is important to minimize requests for support, and to avoid doc comments with
-questions that you know someone might ask.
+### Error response from daemon: error processing tar file: docker-tar: relocation error
 
-Each scenario can be a third-level heading, e.g. `### Getting error message X`.
-If you have none to add when creating a doc, leave this section in place
-but commented out to help encourage others to add to it in the future. -->
+This error occurs when the Docker version used to run the SAST job is `19.03.00`.
+You are advised to update to Docker `19.03.01` or greater. Older versions are not
+affected. Read more in
+[this issue](https://gitlab.com/gitlab-org/gitlab/issues/13830#note_211354992 "Current SAST container fails").

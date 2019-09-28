@@ -6,8 +6,10 @@ module Boards
       def execute(board)
         board.lists.create(list_type: :backlog) unless board.lists.backlog.exists?
 
-        board.lists.preload_associations
+        board.lists.preload_associations(current_user)
       end
     end
   end
 end
+
+Boards::Lists::ListService.prepend_if_ee('EE::Boards::Lists::ListService')

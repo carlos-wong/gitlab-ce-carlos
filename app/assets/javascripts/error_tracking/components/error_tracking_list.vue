@@ -38,6 +38,10 @@ export default {
       type: String,
       required: true,
     },
+    userCanEnableErrorTracking: {
+      type: Boolean,
+      required: true,
+    },
   },
   computed: {
     ...mapState(['errors', 'externalUrl', 'loading']),
@@ -111,14 +115,26 @@ export default {
         </gl-table>
       </div>
     </div>
-    <div v-else>
+    <div v-else-if="userCanEnableErrorTracking">
       <gl-empty-state
         :title="__('Get started with error tracking')"
-        :description="__('Monitor your errors by integrating with Sentry')"
+        :description="__('Monitor your errors by integrating with Sentry.')"
         :primary-button-text="__('Enable error tracking')"
         :primary-button-link="enableErrorTrackingLink"
         :svg-path="illustrationPath"
       />
+    </div>
+    <div v-else>
+      <gl-empty-state :title="__('Get started with error tracking')" :svg-path="illustrationPath">
+        <template #description>
+          <div>
+            <span>{{ __('Monitor your errors by integrating with Sentry.') }}</span>
+            <a href="/help/user/project/operations/error_tracking.html">
+              {{ __('More information') }}
+            </a>
+          </div>
+        </template>
+      </gl-empty-state>
     </div>
   </div>
 </template>

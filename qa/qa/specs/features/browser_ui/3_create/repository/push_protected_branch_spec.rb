@@ -8,6 +8,7 @@ module QA
       let(:project) do
         Resource::Project.fabricate! do |resource|
           resource.name = 'protected-branch-project'
+          resource.initialize_with_readme = true
         end
       end
 
@@ -16,16 +17,11 @@ module QA
         Page::Main::Login.perform(&:sign_in_using_credentials)
       end
 
-      after do
-        # We need to clear localStorage because we're using it for the dropdown,
-        # and capybara doesn't do this for us.
-        # https://github.com/teamcapybara/capybara/issues/1702
-        Capybara.execute_script 'localStorage.clear()'
-      end
-
       context 'when developers and maintainers are allowed to push to a protected branch' do
         it 'user with push rights successfully pushes to the protected branch' do
-          create_protected_branch(allow_to_push: true)
+          create_protected_branch(allowed_to_push: {
+            roles: Resource::ProtectedBranch::Roles::DEVS_AND_MAINTAINERS
+          })
 
           push = push_new_file(branch_name)
 
@@ -35,18 +31,19 @@ module QA
 
       context 'when developers and maintainers are not allowed to push to a protected branch' do
         it 'user without push rights fails to push to the protected branch' do
-          create_protected_branch(allow_to_push: false)
+          create_protected_branch(allowed_to_push: {
+            roles: Resource::ProtectedBranch::Roles::NO_ONE
+          })
 
           expect { push_new_file(branch_name) }.to raise_error(QA::Git::Repository::RepositoryCommandError, /remote: GitLab: You are not allowed to push code to protected branches on this project\.([\s\S]+)\[remote rejected\] #{branch_name} -> #{branch_name} \(pre-receive hook declined\)/)
         end
       end
 
-      def create_protected_branch(allow_to_push:)
-        Resource::Branch.fabricate! do |resource|
+      def create_protected_branch(allowed_to_push:)
+        Resource::ProtectedBranch.fabricate! do |resource|
           resource.branch_name = branch_name
           resource.project = project
-          resource.allow_to_push = allow_to_push
-          resource.protected = true
+          resource.allowed_to_push = allowed_to_push
         end
       end
 

@@ -1,9 +1,8 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 module Gitlab
   module Profiler
-    FILTERED_STRING = '[FILTERED]'.freeze
+    FILTERED_STRING = '[FILTERED]'
 
     IGNORE_BACKTRACES = %w[
       lib/gitlab/i18n.rb
@@ -97,7 +96,7 @@ module Gitlab
           attr_reader :load_times_by_model, :private_token
 
           def debug(message, *)
-            message.gsub!(private_token, FILTERED_STRING) if private_token
+            message = message.gsub(private_token, FILTERED_STRING) if private_token
 
             _, type, time = *message.match(/(\w+) Load \(([0-9.]+)ms\)/)
 

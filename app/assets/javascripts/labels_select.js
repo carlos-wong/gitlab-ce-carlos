@@ -1,4 +1,4 @@
-/* eslint-disable no-useless-return, func-names, no-var, no-underscore-dangle, prefer-arrow-callback, one-var, no-unused-vars, prefer-template, no-new, consistent-return, object-shorthand, no-shadow, no-param-reassign, vars-on-top, no-lonely-if, no-else-return, dot-notation, no-empty */
+/* eslint-disable no-useless-return, func-names, no-var, no-underscore-dangle, prefer-arrow-callback, one-var, prefer-template, no-new, consistent-return, no-shadow, no-param-reassign, vars-on-top, no-lonely-if, no-else-return, dot-notation, no-empty */
 /* global Issuable */
 /* global ListLabel */
 
@@ -26,7 +26,6 @@ export default class LabelsSelect {
 
     $els.each(function(i, dropdown) {
       var $block,
-        $colorPreview,
         $dropdown,
         $form,
         $loading,
@@ -35,8 +34,6 @@ export default class LabelsSelect {
         $value,
         abilityName,
         defaultLabel,
-        enableLabelCreateButton,
-        issueURLSplit,
         issueUpdateURL,
         labelUrl,
         namespacePath,
@@ -47,16 +44,11 @@ export default class LabelsSelect {
         showNo,
         $sidebarLabelTooltip,
         initialSelected,
-        $toggleText,
         fieldName,
-        useId,
-        propertyName,
         showMenuAbove,
-        $container,
         $dropdownContainer;
       $dropdown = $(dropdown);
       $dropdownContainer = $dropdown.closest('.labels-filter');
-      $toggleText = $dropdown.find('.dropdown-toggle-text');
       namespacePath = $dropdown.data('namespacePath');
       projectPath = $dropdown.data('projectPath');
       issueUpdateURL = $dropdown.data('issueUpdate');
@@ -77,10 +69,6 @@ export default class LabelsSelect {
       $value = $block.find('.value');
       $loading = $block.find('.block-loading').fadeOut();
       fieldName = $dropdown.data('fieldName');
-      useId = $dropdown.is(
-        '.js-issuable-form-dropdown, .js-filter-bulk-update, .js-label-sidebar-dropdown',
-      );
-      propertyName = useId ? 'id' : 'title';
       initialSelected = $selectbox
         .find('input[name="' + $dropdown.data('fieldName') + '"]')
         .map(function() {
@@ -124,7 +112,7 @@ export default class LabelsSelect {
         axios
           .put(issueUpdateURL, data)
           .then(({ data }) => {
-            var labelCount, template, labelTooltipTitle, labelTitles, formattedLabels;
+            var labelCount, template, labelTooltipTitle, labelTitles;
             $loading.fadeOut();
             $dropdown.trigger('loaded.gl.dropdown');
             $selectbox.hide();
@@ -209,8 +197,8 @@ export default class LabelsSelect {
           .catch(() => flash(__('Error saving label update.')));
       };
       $dropdown.glDropdown({
-        showMenuAbove: showMenuAbove,
-        data: function(term, callback) {
+        showMenuAbove,
+        data(term, callback) {
           labelUrl = $dropdown.attr('data-labels');
           axios
             .get(labelUrl)
@@ -231,7 +219,7 @@ export default class LabelsSelect {
                   });
                 }
                 if (extraData.length) {
-                  extraData.push('divider');
+                  extraData.push({ type: 'divider' });
                   data = extraData.concat(data);
                 }
               }
@@ -243,15 +231,13 @@ export default class LabelsSelect {
             })
             .catch(() => flash(__('Error fetching labels.')));
         },
-        renderRow: function(label, instance) {
+        renderRow(label) {
           var linkEl,
             listItemEl,
-            color,
             colorEl,
             indeterminate,
             removesAll,
             selectedClass,
-            spacing,
             i,
             marked,
             dropdownValue;
@@ -330,7 +316,7 @@ export default class LabelsSelect {
         selectable: true,
         filterable: true,
         selected: $dropdown.data('selected') || [],
-        toggleLabel: function(selected, el) {
+        toggleLabel(selected, el) {
           var $dropdownParent = $dropdown.parent();
           var $dropdownInputField = $dropdownParent.find('.dropdown-input-field');
           var isSelected = el !== null ? el.hasClass('is-active') : false;
@@ -364,7 +350,7 @@ export default class LabelsSelect {
           }
         },
         fieldName: $dropdown.data('fieldName'),
-        id: function(label) {
+        id(label) {
           if (label.id <= 0) return label.title;
 
           if ($dropdown.hasClass('js-issuable-form-dropdown')) {
@@ -377,8 +363,8 @@ export default class LabelsSelect {
             return label.id;
           }
         },
-        hidden: function() {
-          var isIssueIndex, isMRIndex, page, selectedLabels;
+        hidden() {
+          var isIssueIndex, isMRIndex, page;
           page = $('body').attr('data-page');
           isIssueIndex = page === 'projects:issues:index';
           isMRIndex = page === 'projects:merge_requests:index';
@@ -395,9 +381,6 @@ export default class LabelsSelect {
           }
           if ($dropdown.hasClass('js-multiselect')) {
             if ($dropdown.hasClass('js-filter-submit') && (isIssueIndex || isMRIndex)) {
-              selectedLabels = $dropdown
-                .closest('form')
-                .find("input:hidden[name='" + $dropdown.data('fieldName') + "']");
               Issuable.filterResults($dropdown.closest('form'));
             } else if ($dropdown.hasClass('js-filter-submit')) {
               $dropdown.closest('form').submit();
@@ -411,7 +394,7 @@ export default class LabelsSelect {
         },
         multiSelect: $dropdown.hasClass('js-multiselect'),
         vue: $dropdown.hasClass('js-issue-board-sidebar'),
-        clicked: function(clickEvent) {
+        clicked(clickEvent) {
           const { $el, e, isMarking } = clickEvent;
           const label = clickEvent.selectedObj;
 
@@ -495,7 +478,7 @@ export default class LabelsSelect {
             }
           }
         },
-        opened: function(e) {
+        opened() {
           if ($dropdown.hasClass('js-issue-board-sidebar')) {
             const previousSelection = $dropdown.attr('data-selected');
             this.selected = previousSelection ? previousSelection.split(',') : [];

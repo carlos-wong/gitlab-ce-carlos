@@ -168,6 +168,8 @@ module ApplicationSettingsHelper
       :asset_proxy_secret_key,
       :asset_proxy_url,
       :asset_proxy_whitelist,
+      :static_objects_external_storage_auth_token,
+      :static_objects_external_storage_url,
       :authorized_keys_enabled,
       :auto_devops_enabled,
       :auto_devops_domain,
@@ -180,8 +182,12 @@ module ApplicationSettingsHelper
       :default_projects_limit,
       :default_snippet_visibility,
       :disabled_oauth_sign_in_sources,
+      :domain_blacklist,
       :domain_blacklist_enabled,
+      # TODO Remove domain_blacklist_raw in APIv5 (See https://gitlab.com/gitlab-org/gitlab-foss/issues/67204)
       :domain_blacklist_raw,
+      :domain_whitelist,
+      # TODO Remove domain_whitelist_raw in APIv5 (See https://gitlab.com/gitlab-org/gitlab-foss/issues/67204)
       :domain_whitelist_raw,
       :outbound_local_requests_whitelist_raw,
       :dsa_key_restriction,
@@ -303,3 +309,9 @@ module ApplicationSettingsHelper
     can?(current_user, :read_cluster, Clusters::Instance.new)
   end
 end
+
+ApplicationSettingsHelper.prepend_if_ee('EE::ApplicationSettingsHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
+# The methods in `EE::ApplicationSettingsHelper` should be available as both
+# instance and class methods.
+ApplicationSettingsHelper.extend_if_ee('EE::ApplicationSettingsHelper')

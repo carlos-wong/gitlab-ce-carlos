@@ -76,7 +76,7 @@ Here you'll find a guide on
 Since Annex files are stored as objects with symlinks and cannot be directly
 modified, we need to first remove those symlinks.
 
->**Note:**
+NOTE: **Note:**
 Make sure the you read about the [`direct` mode][annex-direct] as it contains
 useful information that may fit in your use case. Note that `annex direct` is
 deprecated in Git Annex version 6, so you may need to upgrade your repository
@@ -246,7 +246,7 @@ git annex uninit
 [Git Annex]: http://git-annex.branchable.com/
 [Git LFS]: https://git-lfs.github.com/
 [install-lfs]: https://git-lfs.github.com/
-[issue-remove-annex]: https://gitlab.com/gitlab-org/gitlab-ee/issues/1648
+[issue-remove-annex]: https://gitlab.com/gitlab-org/gitlab/issues/1648
 [lfs-track]: https://about.gitlab.com/2017/01/30/getting-started-with-git-lfs-tutorial/#tracking-files-with-lfs
 [post-1]: https://about.gitlab.com/2017/01/30/getting-started-with-git-lfs-tutorial/
 [post-2]: https://about.gitlab.com/2015/11/23/announcing-git-lfs-support-in-gitlab/

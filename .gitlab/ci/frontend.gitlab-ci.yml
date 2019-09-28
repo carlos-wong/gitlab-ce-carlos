@@ -1,23 +1,22 @@
-.assets-compile-cache: &assets-compile-cache
+.assets-compile-cache:
   cache:
-    key: "assets-compile:vendor_ruby:.yarn-cache:tmp_cache_assets_sprockets:v6"
     paths:
       - vendor/ruby/
       - .yarn-cache/
       - tmp/cache/assets/sprockets
 
-.use-pg: &use-pg
-  services:
-    - name: postgres:9.6.14
-      command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
-    - name: redis:alpine
-
 .gitlab:assets:compile-metadata:
-  <<: *assets-compile-cache
-  extends: .dedicated-no-docs-pull-cache-job
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-only
+    - .default-before_script
+    - .assets-compile-cache
+    - .only-code-qa-changes
   image: dev.gitlab.org:5005/gitlab/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.33-docker-18.06.1
-  dependencies:
-    - setup-test-env
+  stage: test
+  dependencies: ["setup-test-env"]
+  needs: ["setup-test-env"]
   services:
     - docker:19.03.0-dind
   variables:
@@ -30,6 +29,14 @@
     NODE_OPTIONS: --max_old_space_size=3584
     DOCKER_DRIVER: overlay2
     DOCKER_HOST: tcp://docker:2375
+  cache:
+    key: "assets-compile:production:vendor_ruby:.yarn-cache:tmp_cache_assets_sprockets:v6"
+  artifacts:
+    name: webpack-report
+    expire_in: 31d
+    paths:
+      - webpack-report/
+      - public/assets/
   script:
     - node --version
     - retry yarn install --frozen-lockfile --production --cache-folder .yarn-cache --prefer-offline
@@ -38,47 +45,39 @@
     - time scripts/build_assets_image
     - scripts/clean-old-cached-assets
     - rm -f /etc/apt/sources.list.d/google*.list  # We don't need to update Chrome here
-    # Play dependent manual jobs
-    - install_api_client_dependencies_with_apt
-    - play_job "review-build-cng" || true  # this job might not exist so ignore the failure if it cannot be played
-    - play_job "schedule:review-build-cng" || true  # this job might not exist so ignore the failure if it cannot be played
-  artifacts:
-    name: webpack-report
-    expire_in: 31d
-    paths:
-      - webpack-report/
-      - public/assets/
   only:
-    - /.+/@gitlab-org/gitlab-ce
-    - /.+/@gitlab-org/gitlab-ee
-    - /.+/@gitlab/gitlabhq
-    - /.+/@gitlab/gitlab-ee
+    variables:
+      - $CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_NAMESPACE == "gitlab-org"
+      - $CI_SERVER_HOST == "dev.gitlab.org"
   tags:
-    - docker
     - gitlab-org
+    - docker
 
 gitlab:assets:compile:
   extends: .gitlab:assets:compile-metadata
+  only:
+    refs:
+      - master
   cache:
     policy: pull-push
-  only:
-    - master@gitlab-org/gitlab-ce
-    - master@gitlab-org/gitlab-ee
 
 gitlab:assets:compile pull-cache:
   extends: .gitlab:assets:compile-metadata
-  cache:
-    policy: pull
   except:
     refs:
-      - master@gitlab-org/gitlab-ce
-      - master@gitlab-org/gitlab-ee
-      - /(^docs[\/-].+|.+-docs$)/
+      - master
+  cache:
+    policy: pull
 
 .compile-assets-metadata:
-  extends: .dedicated-runner
-  <<: *use-pg
-  <<: *assets-compile-cache
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-only
+    - .default-before_script
+    - .assets-compile-cache
+    - .only-code-qa-changes
+    - .use-pg
   stage: prepare
   script:
     - node --version
@@ -89,6 +88,8 @@ gitlab:assets:compile pull-cache:
   variables:
     # we override the max_old_space_size to prevent OOM errors
     NODE_OPTIONS: --max_old_space_size=3584
+  cache:
+    key: "assets-compile:test:vendor_ruby:.yarn-cache:tmp_cache_assets_sprockets:v6"
   artifacts:
     expire_in: 7d
     paths:
@@ -97,29 +98,33 @@ gitlab:assets:compile pull-cache:
 
 compile-assets:
   extends: .compile-assets-metadata
+  only:
+    refs:
+      - master
   cache:
     policy: pull-push
-  only:
-    - master@gitlab-org/gitlab-ce
-    - master@gitlab-org/gitlab-ee
 
 compile-assets pull-cache:
   extends: .compile-assets-metadata
-  cache:
-    policy: pull
   except:
     refs:
-      - master@gitlab-org/gitlab-ce
-      - master@gitlab-org/gitlab-ee
-      - /(^docs[\/-].+|.+-docs$)/
+      - master
+  cache:
+    policy: pull
+
+.only-code-frontend-job-base:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-cache
+    - .default-only
+    - .default-before_script
+    - .only-code-changes
+    - .use-pg
+  dependencies: ["compile-assets", "compile-assets pull-cache", "setup-test-env"]
 
 karma:
-  extends: .dedicated-no-docs-pull-cache-job
-  <<: *use-pg
-  dependencies:
-    - compile-assets
-    - compile-assets pull-cache
-    - setup-test-env
+  extends: .only-code-frontend-job-base
   variables:
     # we override the max_old_space_size to prevent OOM errors
     NODE_OPTIONS: --max_old_space_size=3584
@@ -142,12 +147,7 @@ karma:
       junit: junit_karma.xml
 
 jest:
-  extends: .dedicated-no-docs-and-no-qa-pull-cache-job
-  <<: *use-pg
-  dependencies:
-    - compile-assets
-    - compile-assets pull-cache
-    - setup-test-env
+  extends: .only-code-frontend-job-base
   script:
     - scripts/gitaly-test-spawn
     - date
@@ -170,36 +170,42 @@ jest:
       - tmp/jest/jest/
     policy: pull-push
 
-qa:internal:
-  extends: .dedicated-no-docs-no-db-pull-cache-job
-  services: []
-  script:
+.qa-job-base:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-cache
+    - .default-only
+    - .only-code-qa-changes
+  dependencies: []
+  stage: test
+  before_script:
     - cd qa/
     - bundle install
+
+qa:internal:
+  extends: .qa-job-base
+  script:
     - bundle exec rspec
-  dependencies:
-    - setup-test-env
 
 qa:selectors:
-  extends: .dedicated-no-docs-no-db-pull-cache-job
-  services: []
+  extends: .qa-job-base
   script:
-    - cd qa/
-    - bundle install
     - bundle exec bin/qa Test::Sanity::Selectors
-  dependencies:
-    - setup-test-env
 
-.qa-frontend-node: &qa-frontend-node
-  extends: .dedicated-no-docs-no-db-pull-cache-job
-  stage: test
+.qa-frontend-node:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-cache
+    - .default-only
+    - .only-code-changes
+  dependencies: []
   cache:
     key: "$CI_JOB_NAME"
     paths:
       - .yarn-cache/
     policy: pull-push
-  dependencies: []
-  before_script: []
   script:
     - date
     - yarn install --frozen-lockfile --cache-folder .yarn-cache --prefer-offline
@@ -207,44 +213,28 @@ qa:selectors:
     - yarn run webpack-prod
 
 qa-frontend-node:8:
-  <<: *qa-frontend-node
+  extends: .qa-frontend-node
   image: node:carbon
 
 qa-frontend-node:10:
-  <<: *qa-frontend-node
+  extends: .qa-frontend-node
   image: node:dubnium
 
 qa-frontend-node:latest:
-  <<: *qa-frontend-node
+  extends: .qa-frontend-node
   image: node:latest
   allow_failure: true
 
-lint:javascript:report:
-  extends: .dedicated-no-docs-no-db-pull-cache-job
-  stage: post-test
-  dependencies: []
-  before_script: []
+webpack-dev-server:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-cache
+    - .default-only
+    - .only-code-changes
+  dependencies: ["setup-test-env", "compile-assets", "compile-assets pull-cache"]
+  variables:
+    WEBPACK_MEMORY_TEST: "true"
   script:
-    - date
-    - yarn run eslint-report || true  # ignore exit code
-  artifacts:
-    name: eslint-report
-    expire_in: 31d
-    paths:
-      - eslint-report.html
-
-jsdoc:
-  extends: .dedicated-no-docs-no-db-pull-cache-job
-  stage: post-test
-  dependencies:
-    - compile-assets
-    - compile-assets pull-cache
-  before_script: []
-  script:
-    - date
-    - yarn run jsdoc || true  # ignore exit code
-  artifacts:
-    name: jsdoc
-    expire_in: 31d
-    paths:
-      - jsdoc/
+    - node --version
+    - node --expose-gc node_modules/.bin/webpack-dev-server --config config/webpack.config.js

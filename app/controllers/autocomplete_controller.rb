@@ -36,7 +36,7 @@ class AutocompleteController < ApplicationController
   end
 
   def award_emojis
-    render json: AwardedEmojiFinder.new(current_user).execute
+    render json: AwardEmojis::CollectUserEmojiService.new(current_user).execute
   end
 
   def merge_request_target_branches
@@ -46,3 +46,5 @@ class AutocompleteController < ApplicationController
     render json: target_branches.map { |target_branch| { title: target_branch } }
   end
 end
+
+AutocompleteController.prepend_if_ee('EE::AutocompleteController')

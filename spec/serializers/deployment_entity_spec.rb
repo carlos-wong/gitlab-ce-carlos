@@ -32,8 +32,17 @@ describe DeploymentEntity do
     expect(subject).to include(:created_at)
   end
 
-  it 'exposes finished_at' do
-    expect(subject).to include(:finished_at)
+  it 'exposes deployed_at' do
+    expect(subject).to include(:deployed_at)
+  end
+
+  context 'when deployable is nil' do
+    let(:entity) { described_class.new(deployment, request: request, deployment_details: false) }
+    let(:deployment) { create(:deployment, deployable: nil, project: project) }
+
+    it 'does not expose deployable entry' do
+      expect(subject).not_to include(:deployable)
+    end
   end
 
   context 'when the pipeline has another manual action' do

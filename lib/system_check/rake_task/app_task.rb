@@ -30,9 +30,12 @@ module SystemCheck
           SystemCheck::App::RubyVersionCheck,
           SystemCheck::App::GitVersionCheck,
           SystemCheck::App::GitUserDefaultSSHConfigCheck,
-          SystemCheck::App::ActiveUsersCheck
+          SystemCheck::App::ActiveUsersCheck,
+          SystemCheck::App::AuthorizedKeysPermissionCheck
         ]
       end
     end
   end
 end
+
+SystemCheck::RakeTask::AppTask.prepend_if_ee('EE::SystemCheck::RakeTask::AppTask')

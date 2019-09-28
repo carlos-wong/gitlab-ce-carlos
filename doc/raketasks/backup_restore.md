@@ -80,6 +80,9 @@ Use this command if you've installed GitLab with the Omnibus package:
 sudo gitlab-backup create
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
 Use this if you've installed GitLab from source:
 
 ```sh
@@ -92,9 +95,12 @@ If you are running GitLab within a Docker container, you can run the backup from
 docker exec -t <container name> gitlab-backup create
 ```
 
-If you are using the [GitLab helm chart](https://gitlab.com/charts/gitlab) on a
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
+If you are using the [GitLab helm chart](https://gitlab.com/gitlab-org/charts/gitlab) on a
 Kubernetes cluster, you can run the backup task using `backup-utility` script on
-the gitlab task runner pod via `kubectl`. Refer to [backing up a GitLab installation](https://gitlab.com/charts/gitlab/blob/master/doc/backup-restore/backup.md#backing-up-a-gitlab-installation) for more details:
+the GitLab task runner pod via `kubectl`. Refer to [backing up a GitLab installation](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/doc/backup-restore/backup.md#backing-up-a-gitlab-installation) for more details:
 
 ```sh
 kubectl exec -it <gitlab task-runner pod> backup-utility
@@ -179,7 +185,7 @@ The command line tool GitLab provides to backup your instance can take more opti
 
 ### Backup strategy option
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/8728) in GitLab 8.17.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/8728) in GitLab 8.17.
 
 The default backup strategy is to essentially stream data from the respective
 data locations to the backup using the Linux command `tar` and `gzip`. This works
@@ -190,7 +196,7 @@ it` may occur, and will cause the backup process to fail. To combat this, 8.17
 introduces a new backup strategy called `copy`. The strategy copies data files
 to a temporary location before calling `tar` and `gzip`, avoiding the error.
 
-A side-effect is that the backup process with take up to an additional 1X disk
+A side-effect is that the backup process will take up to an additional 1X disk
 space. The process does its best to clean up the temporary files at each stage
 so the problem doesn't compound, but it could be a considerable change for large
 installations. This is why the `copy` strategy is not the default in 8.17.
@@ -202,6 +208,9 @@ To use the `copy` strategy instead of the default streaming strategy, specify
 sudo gitlab-backup create STRATEGY=copy
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
 ### Backup filename
 
 By default a backup file is created according to the specification in [the Backup timestamp](#backup-timestamp) section above. You can however override the `[TIMESTAMP]` part of the filename by setting the `BACKUP` environment variable. For example:
@@ -209,6 +218,9 @@ By default a backup file is created according to the specification in [the Backu
 ```sh
 sudo gitlab-backup create BACKUP=dump
 ```
+
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
 The resulting file will then be `dump_gitlab_backup.tar`. This is useful for systems that make use of rsync and incremental backups, and will result in considerably faster transfer speeds.
 
@@ -221,6 +233,9 @@ Note that the `--rsyncable` option in `gzip` is not guaranteed to be available o
 ```sh
 sudo gitlab-backup create BACKUP=dump GZIP_RSYNCABLE=yes
 ```
+
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
 ### Excluding specific directories from the backup
 
@@ -247,6 +262,9 @@ For Omnibus GitLab packages:
 sudo gitlab-backup create SKIP=db,uploads
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
 For installations from source:
 
 ```sh
@@ -259,7 +277,7 @@ Starting with GitLab 7.4 you can let the backup script upload the '.tar' file it
 It uses the [Fog library](http://fog.io/) to perform the upload.
 In the example below we use Amazon S3 for storage, but Fog also lets you use
 [other storage providers](http://fog.io/storage/). GitLab
-[imports cloud drivers](https://gitlab.com/gitlab-org/gitlab-ce/blob/30f5b9a5b711b46f1065baf755e413ceced5646b/Gemfile#L88)
+[imports cloud drivers](https://gitlab.com/gitlab-org/gitlab-foss/blob/30f5b9a5b711b46f1065baf755e413ceced5646b/Gemfile#L88)
 for AWS, Google, OpenStack Swift, Rackspace and Aliyun as well. A local driver is
 [also available](#uploading-to-locally-mounted-shares).
 
@@ -452,13 +470,16 @@ sudo gitlab-backup create DIRECTORY=daily
 sudo gitlab-backup create DIRECTORY=weekly
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
 ### Uploading to locally mounted shares
 
 You may also send backups to a mounted share (`NFS` / `CIFS` / `SMB` / etc.) by
 using the Fog [`Local`](https://github.com/fog/fog-local#usage) storage provider.
 The directory pointed to by the `local_root` key **must** be owned by the `git`
 user **when mounted** (mounting with the `uid=` of the `git` user for `CIFS` and
-`SMB`) or the user that you are executing the backup tasks under (for omnibus
+`SMB`) or the user that you are executing the backup tasks under (for Omnibus
 packages, this is the `git` user).
 
 The `backup_upload_remote_directory` **must** be set in addition to the
@@ -507,7 +528,7 @@ For installations from source:
 ### Backup archive permissions
 
 The backup archives created by GitLab (`1393513186_2014_02_27_gitlab_backup.tar`)
-will have owner/group git:git and 0600 permissions by default.
+will have owner/group `git`/`git` and 0600 permissions by default.
 This is meant to avoid other system users reading GitLab's data.
 If you need the backup archives to have different permissions you can use the 'archive_permissions' setting.
 
@@ -569,6 +590,9 @@ There, add the following line to schedule the backup for everyday at 2 AM:
 0 2 * * * /opt/gitlab/bin/gitlab-backup create CRON=1
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
 You may also want to set a limited lifetime for backups to prevent regular
 backups using all your disk space.
 
@@ -614,7 +638,7 @@ GitLab that you created it on, for example CE 9.1.0.
 
 You need to have a working GitLab installation before you can perform
 a restore. This is mainly because the system user performing the
-restore actions ('git') is usually not allowed to create or delete
+restore actions (`git`) is usually not allowed to create or delete
 the SQL database it needs to import data into ('gitlabhq_production').
 All existing data will be either erased (SQL) or moved to a separate
 directory (repositories, uploads).
@@ -729,6 +753,14 @@ restore:
 sudo gitlab-backup restore BACKUP=1493107454_2018_04_25_10.6.4-ce
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:restore`.
+
+CAUTION: **Warning:**
+`gitlab-rake gitlab:backup:restore` does not set the right file system permissions on your Registry directory.
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759). On GitLab 12.2 or newer, you can
+use `gitlab-backup restore` to avoid this issue.
+
 Next, restore `/etc/gitlab/gitlab-secrets.json` if necessary as mentioned above.
 
 Reconfigure, restart and check GitLab:
@@ -763,8 +795,16 @@ For docker installations, the restore task can be run from host:
 docker exec -it <name of container> gitlab-backup restore
 ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:restore`.
+
+CAUTION: **Warning:**
+`gitlab-rake gitlab:backup:restore` does not set the right file system permissions on your Registry directory.
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759). On GitLab 12.2 or newer, you can
+use `gitlab-backup restore` to avoid this issue.
+
 The GitLab helm chart uses a different process, documented in
-[restoring a GitLab helm chart installation](https://gitlab.com/charts/gitlab/blob/master/doc/backup-restore/restore.md).
+[restoring a GitLab helm chart installation](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/doc/backup-restore/restore.md).
 
 ## Alternative backup strategies
 
@@ -773,14 +813,14 @@ In this case you can consider using filesystem snapshots as part of your backup 
 
 Example: Amazon EBS
 
-> A GitLab server using omnibus-gitlab hosted on Amazon AWS.
+> A GitLab server using Omnibus GitLab hosted on Amazon AWS.
 > An EBS drive containing an ext4 filesystem is mounted at `/var/opt/gitlab`.
 > In this case you could make an application backup by taking an EBS snapshot.
 > The backup includes all repositories, uploads and Postgres data.
 
 Example: LVM snapshots + rsync
 
-> A GitLab server using omnibus-gitlab, with an LVM logical volume mounted at `/var/opt/gitlab`.
+> A GitLab server using Omnibus GitLab, with an LVM logical volume mounted at `/var/opt/gitlab`.
 > Replicating the `/var/opt/gitlab` directory using rsync would not be reliable because too many files would change while rsync is running.
 > Instead of rsync-ing `/var/opt/gitlab`, we create a temporary LVM snapshot, which we mount as a read-only filesystem at `/mnt/gitlab_backup`.
 > Now we can have a longer running rsync job which will create a consistent replica on the remote server.
@@ -804,7 +844,7 @@ will have all your repositories, but not any other data.
 
 ## Troubleshooting
 
-### Restoring database backup using omnibus packages outputs warnings
+### Restoring database backup using Omnibus packages outputs warnings
 
 If you are using backup restore procedures you might encounter the following warnings:
 
@@ -923,13 +963,36 @@ backup beforehand.
    UPDATE ci_runners SET token = null, token_encrypted = null;
    ```
 
+#### Reset pending pipeline jobs
+
+1. Enter the DB console:
+
+   For Omnibus GitLab packages:
+
+   ```sh
+   sudo gitlab-rails dbconsole
+   ```
+
+   For installations from source:
+
+   ```sh
+   sudo -u git -H bundle exec rails dbconsole RAILS_ENV=production
+   ```
+
+1. Clear all the tokens for pending jobs:
+
+   ```sql
+   -- Clear build tokens
+   UPDATE ci_builds SET token = null, token_encrypted = null;
+   ```
+
 A similar strategy can be employed for the remaining features - by removing the
 data that cannot be decrypted, GitLab can be brought back into working order,
 and the lost data can be manually replaced.
 
 ### Container Registry push failures after restoring from a backup
 
-If you use the [Container Registry](../user/project/container_registry.md), you
+If you use the [Container Registry](../user/packages/container_registry/index.md), you
 may see pushes to the registry fail after restoring your backup on an Omnibus
 GitLab instance after restoring the registry data.
 
@@ -945,7 +1008,7 @@ err.message="unknown error"
 
 This is caused by the restore being run as the unprivileged user `git` which was
 unable to assign the correct ownership to the registry files during the restore
-([issue 62759](https://gitlab.com/gitlab-org/gitlab-ce/issues/62759 "Incorrect permissions on registry filesystem after restore")).
+([issue 62759](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759 "Incorrect permissions on registry filesystem after restore")).
 
 To get your registry working again:
 
@@ -955,7 +1018,7 @@ sudo chown -R registry:registry /var/opt/gitlab/gitlab-rails/shared/registry/doc
 
 NOTE: **Note:**
 If you have changed the default filesystem location for the registry, you will
-want to run the chown against your custom location instead of
+want to run the `chown` against your custom location instead of
 `/var/opt/gitlab/gitlab-rails/shared/registry/docker`.
 
 [reconfigure GitLab]: ../administration/restart_gitlab.md#omnibus-gitlab-reconfigure
@@ -967,6 +1030,7 @@ While running the backup, you may receive a gzip error:
 
 ```sh
 sudo /opt/gitlab/bin/gitlab-backup create
+...
 Dumping ...
 ...
 gzip: stdout: Input/output error
@@ -976,6 +1040,5 @@ Backup failed
 
 If this happens, check the following:
 
-1. Confirm there is sufficent diskspace for the gzip operation.
-1. If NFS is being used, check if the mount option `timeo` is set. The default is `600`, and changing this to smaller values have resulted in this error.
-
+1. Confirm there is sufficient disk space for the gzip operation.
+1. If NFS is being used, check if the mount option `timeout` is set. The default is `600`, and changing this to smaller values have resulted in this error.

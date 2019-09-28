@@ -19,6 +19,7 @@ class Board < ApplicationRecord
   def parent
     @parent ||= group || project
   end
+  alias_method :resource_parent, :parent
 
   def group_board?
     group_id.present?
@@ -40,3 +41,5 @@ class Board < ApplicationRecord
     false
   end
 end
+
+Board.prepend_if_ee('EE::Board')

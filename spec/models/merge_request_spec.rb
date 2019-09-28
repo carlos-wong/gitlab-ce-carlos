@@ -195,7 +195,6 @@ describe MergeRequest do
       with_them do
         it "validates source_branch" do
           subject = build(:merge_request, source_branch: branch_name, target_branch: 'master')
-
           subject.valid?
 
           expect(subject.errors.added?(:source_branch)).to eq(!valid)
@@ -203,7 +202,6 @@ describe MergeRequest do
 
         it "validates target_branch" do
           subject = build(:merge_request, source_branch: 'master', target_branch: branch_name)
-
           subject.valid?
 
           expect(subject.errors.added?(:target_branch)).to eq(!valid)
@@ -652,8 +650,34 @@ describe MergeRequest do
     end
   end
 
-  describe '#preload_discussions_diff_highlight' do
+  describe '#discussions_diffs' do
     let(:merge_request) { create(:merge_request) }
+
+    shared_examples 'discussions diffs collection' do
+      it 'initializes Gitlab::DiscussionsDiff::FileCollection with correct data' do
+        note_diff_file = diff_note.note_diff_file
+
+        expect(Gitlab::DiscussionsDiff::FileCollection)
+          .to receive(:new)
+          .with([note_diff_file])
+          .and_call_original
+
+        result = merge_request.discussions_diffs
+
+        expect(result).to be_a(Gitlab::DiscussionsDiff::FileCollection)
+      end
+
+      it 'eager loads relations' do
+        result = merge_request.discussions_diffs
+
+        recorder = ActiveRecord::QueryRecorder.new do
+          result.first.diff_note
+          result.first.diff_note.project
+        end
+
+        expect(recorder.count).to be_zero
+      end
+    end
 
     context 'with commit diff note' do
       let(:other_merge_request) { create(:merge_request) }
@@ -666,40 +690,15 @@ describe MergeRequest do
         create(:diff_note_on_commit, project: other_merge_request.project)
       end
 
-      it 'preloads diff highlighting' do
-        expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
-          note_diff_file = diff_note.note_diff_file
-
-          expect(collection)
-            .to receive(:load_highlight)
-            .with([note_diff_file.id]).and_call_original
-        end
-
-        merge_request.preload_discussions_diff_highlight
-      end
+      it_behaves_like 'discussions diffs collection'
     end
 
     context 'with merge request diff note' do
-      let!(:unresolved_diff_note) do
+      let!(:diff_note) do
         create(:diff_note_on_merge_request, project: merge_request.project, noteable: merge_request)
       end
 
-      let!(:resolved_diff_note) do
-        create(:diff_note_on_merge_request, :resolved, project: merge_request.project, noteable: merge_request)
-      end
-
-      it 'preloads diff highlighting' do
-        expect_next_instance_of(Gitlab::DiscussionsDiff::FileCollection) do |collection|
-          note_diff_file = unresolved_diff_note.note_diff_file
-
-          expect(collection)
-            .to receive(:load_highlight)
-            .with([note_diff_file.id])
-            .and_call_original
-        end
-
-        merge_request.preload_discussions_diff_highlight
-      end
+      it_behaves_like 'discussions diffs collection'
     end
   end
 
@@ -3190,6 +3189,40 @@ describe MergeRequest do
 
     context 'when ref is merge ref path of a merge request' do
       let(:ref) { 'refs/merge-requests/1/merge' }
+
+      it { is_expected.to be_truthy }
+    end
+  end
+
+  describe '.merge_train_ref?' do
+    subject { described_class.merge_train_ref?(ref) }
+
+    context 'when ref is ref name of a branch' do
+      let(:ref) { 'feature' }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when ref is HEAD ref path of a branch' do
+      let(:ref) { 'refs/heads/feature' }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when ref is HEAD ref path of a merge request' do
+      let(:ref) { 'refs/merge-requests/1/head' }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when ref is merge ref path of a merge request' do
+      let(:ref) { 'refs/merge-requests/1/merge' }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when ref is train ref path of a merge request' do
+      let(:ref) { 'refs/merge-requests/1/train' }
 
       it { is_expected.to be_truthy }
     end

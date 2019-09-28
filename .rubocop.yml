@@ -50,7 +50,9 @@ Style/FrozenStringLiteralComment:
     - 'config/**/*'
     - 'danger/**/*'
     - 'db/**/*'
-    - 'ee/**/*'
+    - 'ee/db/**/*'
+    - 'ee/spec/**/*'
+    - 'ee/lib/tasks/**/*'
     - 'lib/tasks/**/*'
     - 'qa/**/*'
     - 'rubocop/**/*'
@@ -91,6 +93,7 @@ Naming/FileName:
     - JSON
     - LDAP
     - SAML
+    - SSO
     - IO
     - HMAC
     - QA
@@ -178,6 +181,9 @@ Gitlab/ModuleWithInstanceVariables:
 
 Gitlab/HTTParty:
   Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'ee/spec/**/*'
 
 GitlabSecurity/PublicSend:
   Enabled: true
@@ -211,3 +217,73 @@ ActiveRecordAssociationReload:
   Exclude:
     - 'spec/**/*'
     - 'ee/spec/**/*'
+
+RSpec/FactoriesInMigrationSpecs:
+  Enabled: true
+  Include:
+    - 'spec/migrations/**/*.rb'
+    - 'ee/spec/migrations/**/*.rb'
+    - 'spec/lib/gitlab/background_migration/**/*.rb'
+    - 'ee/spec/lib/gitlab/background_migration/**/*.rb'
+
+Cop/IncludeActionViewContext:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'ee/spec/**/*'
+
+Cop/IncludeSidekiqWorker:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'ee/spec/**/*'
+
+Gitlab/Union:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'ee/spec/**/*'
+
+Cop/SidekiqOptionsQueue:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+
+Graphql/AuthorizeTypes:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+
+RSpec/EnvAssignment:
+  Enable: true
+  Include:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+  Exclude:
+    - 'spec/**/fast_spec_helper.rb'
+    - 'ee/spec/**/fast_spec_helper.rb'
+    - 'spec/**/spec_helper.rb'
+    - 'ee/spec/**/spec_helper.rb'
+RSpec/BeSuccessMatcher:
+  Enabled: true
+  Include:
+    - 'spec/controllers/**/*'
+    - 'ee/spec/controllers/**/*'
+    - 'spec/support/shared_examples/controllers/**/*'
+    - 'ee/spec/support/shared_examples/controllers/**/*'
+    - 'spec/support/controllers/**/*'
+    - 'ee/spec/support/controllers/**/*'
+
+Scalability/FileUploads:
+  Enabled: true
+  Include:
+    - 'lib/api/**/*.rb'
+    - 'ee/lib/api/**/*.rb'
+
+Graphql/Descriptions:
+  Enabled: true
+  Include:
+    - 'app/graphql/**/*'
+    - 'ee/app/graphql/**/*'

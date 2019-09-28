@@ -37,7 +37,7 @@ module Clusters
     end
 
     def global_params
-      { user: current_user, namespace_per_environment: Feature.enabled?(:kubernetes_namespace_per_environment, default_enabled: true) }
+      { user: current_user }
     end
 
     def clusterable_params
@@ -59,3 +59,5 @@ module Clusters
     end
   end
 end
+
+Clusters::CreateService.prepend_if_ee('EE::Clusters::CreateService')

@@ -1,10 +1,6 @@
 # Feature Flags **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/11845) in GitLab 11.4.
-
-CAUTION: **Warning:**
-This an _alpha_ feature and is subject to change at any time without
-prior notice.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/11845) in GitLab 11.4.
 
 Feature flags allow you to ship a project in different flavors by
 dynamically toggling certain functionality.
@@ -59,7 +55,7 @@ and toggle the status for each [spec](#define-environment-specs).
 
 ## Define environment specs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/8621) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8621) in GitLab 11.8.
 
 In general, an application is deployed to multiple environments, such as
 production, staging and [review apps](../../../ci/review_apps/index.md).
@@ -67,15 +63,15 @@ For example, you may not want to enable a feature flag on production until your 
 first confirmed that the feature is working correctly on testing environments.
 
 To handle these situations, you can enable a feature flag on a particular environment
-with [Environment specs](../../../ci/environments.md#scoping-environments-with-specs-premium).
+with [Environment specs](../../../ci/environments.md#scoping-environments-with-specs).
 You can define multiple specs per flag so that you can control your feature flag more granularly.
 
 To define specs for each environment:
 
 1. Navigate to your project's **Operations > Feature Flags**.
 1. Click on the **New Feature Flag** button or edit an existing flag.
-1. Set the status of the default [spec](../../../ci/environments.md#scoping-environments-with-specs-premium) (`*`). Choose a rollout strategy. This status and rollout strategy combination will be used for _all_ environments.
-1. If you want to enable/disable the feature on a specific environment, create a new [spec](../../../ci/environments.md#scoping-environments-with-specs-premium) and type the environment name.
+1. Set the status of the default [spec](../../../ci/environments.md#scoping-environments-with-specs) (`*`). Choose a rollout strategy. This status and rollout strategy combination will be used for _all_ environments.
+1. If you want to enable/disable the feature on a specific environment, create a new [spec](../../../ci/environments.md#scoping-environments-with-specs) and type the environment name.
 1. Set the status and rollout strategy of the additional spec. This status and rollout strategy combination takes precedence over the default spec since we always use the most specific match available.
 1. Click **Create feature flag** or **Update feature flag**.
 
@@ -85,9 +81,9 @@ NOTE: **NOTE**
 We'd highly recommend you to use the [Environment](../../../ci/environments.md)
 feature in order to quickly assess which flag is enabled per environment.
 
-## Rollout Strategy
+## Rollout strategy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/8240) in GitLab 12.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8240) in GitLab 12.2.
 
 The selected rollout strategy affects which users will experience the feature enabled.
 
@@ -97,33 +93,40 @@ However, a feature will be enabled for 50% of logged-in users if the matching en
 
 ### All users
 
-Enables the feature for all users.
-
-**All users** is implemented using the Unleash [default](https://unleash.github.io/docs/activation_strategy#default) activation strategy.
+Enables the feature for all users. It is implemented using the Unleash
+[`default`](https://unleash.github.io/docs/activation_strategy#default)
+activation strategy.
 
 ### Percent rollout (logged in users)
 
-**Percent rollout (logged in users)** enables the feature for a percentage of authenticated users. Set a value of 15%, for example, to enable the feature for 15% of authenticated users.
+Enables the feature for a percentage of authenticated users. It is
+implemented using the Unleash
+[`gradualRolloutUserId`](https://unleash.github.io/docs/activation_strategy#gradualrolloutuserid)
+activation strategy.
+
+Set a value of 15%, for example, to enable the feature for 15% of authenticated users.
 
 A rollout percentage may be between 0% and 100%.
 
 CAUTION: **Caution:**
-If this strategy is selected, then the Unleash client **must** be given a user id for the feature to be enabled. See the [Ruby example](#ruby-application-example) below.
+If this strategy is selected, then the Unleash client **must** be given a user
+ID for the feature to be enabled. See the [Ruby example](#ruby-application-example) below.
 
-**Percent rollout (logged in users)** is implemented using the Unleash [gradualRolloutUserId](https://unleash.github.io/docs/activation_strategy#gradualrolloutuserid) activation strategy.
+## Target users
 
-## Target Users
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8240) in GitLab 12.2.
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/8240) in GitLab 12.2.
+A feature flag may be enabled for a list of target users. It is implemented
+using the Unleash [`userWithId`](https://unleash.github.io/docs/activation_strategy#userwithid)
+activation strategy.
 
-A feature flag may be enabled for a list of target users.
+The feature will always be enabled for all users in the list across all environments even if the matching environment spec **Status** is disabled.
 
 ![Feature flag target users](img/target_users_v12_2.png)
 
 CAUTION: **Caution:**
-The Unleash client **must** be given a user id for the feature to be enabled for target users. See the [Ruby example](#ruby-application-example) below.
-
-**Target users** is implemented using the Unleash [userWithId](https://unleash.github.io/docs/activation_strategy#userwithid) activation strategy.
+The Unleash client **must** be given a user ID for the feature to be enabled for
+target users. See the [Ruby example](#ruby-application-example) below.
 
 ## Integrating with your application
 

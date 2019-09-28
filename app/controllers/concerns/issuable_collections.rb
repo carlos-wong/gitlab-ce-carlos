@@ -2,8 +2,9 @@
 
 module IssuableCollections
   extend ActiveSupport::Concern
-  include CookiesHelper
+  include PaginatedCollection
   include SortingHelper
+  include SortingPreference
   include Gitlab::IssuableMetadata
   include Gitlab::Utils::StrongMemoize
 
@@ -17,8 +18,11 @@ module IssuableCollections
   def set_issuables_index
     @issuables = issuables_collection
 
-    set_pagination
-    return if redirect_out_of_range(@total_pages)
+    unless pagination_disabled?
+      set_pagination
+
+      return if redirect_out_of_range(@issuables, @total_pages)
+    end
 
     if params[:label_name].present? && @project
       labels_params = { project_id: @project.id, title: params[:label_name] }
@@ -38,12 +42,10 @@ module IssuableCollections
   end
 
   def set_pagination
-    return if pagination_disabled?
-
     @issuables          = @issuables.page(params[:page])
     @issuables          = per_page_for_relative_position if params[:sort] == 'relative_position'
     @issuable_meta_data = issuable_meta_data(@issuables, collection_type, current_user)
-    @total_pages        = issuable_page_count
+    @total_pages        = issuable_page_count(@issuables)
   end
   # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
@@ -57,20 +59,8 @@ module IssuableCollections
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
-  def redirect_out_of_range(total_pages)
-    return false if total_pages.nil? || total_pages.zero?
-
-    out_of_range = @issuables.current_page > total_pages # rubocop:disable Gitlab/ModuleWithInstanceVariables
-
-    if out_of_range
-      redirect_to(url_for(safe_params.merge(page: total_pages, only_path: true)))
-    end
-
-    out_of_range
-  end
-
-  def issuable_page_count
-    page_count_for_relation(@issuables, finder.row_count) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+  def issuable_page_count(relation)
+    page_count_for_relation(relation, finder.row_count)
   end
 
   def page_count_for_relation(relation, row_count)
@@ -127,47 +117,8 @@ module IssuableCollections
     'opened'
   end
 
-  def set_sort_order
-    set_sort_order_from_user_preference || set_sort_order_from_cookie || default_sort_order
-  end
-
-  def set_sort_order_from_user_preference
-    return unless current_user
-    return unless issuable_sorting_field
-
-    user_preference = current_user.user_preference
-
-    sort_param = params[:sort]
-    sort_param ||= user_preference[issuable_sorting_field]
-
-    return sort_param if Gitlab::Database.read_only?
-
-    if user_preference[issuable_sorting_field] != sort_param
-      user_preference.update(issuable_sorting_field => sort_param)
-    end
-
-    sort_param
-  end
-
-  # Implement issuable_sorting_field method on controllers
-  # to choose which column to store the sorting parameter.
-  def issuable_sorting_field
-    nil
-  end
-
-  def set_sort_order_from_cookie
-    sort_param = params[:sort] if params[:sort].present?
-    # fallback to legacy cookie value for backward compatibility
-    sort_param ||= cookies['issuable_sort']
-    sort_param ||= cookies[remember_sorting_key]
-
-    sort_value = update_cookie_value(sort_param)
-    set_secure_cookie(remember_sorting_key, sort_value)
-    sort_value
-  end
-
-  def remember_sorting_key
-    @remember_sorting_key ||= "#{collection_type.downcase}_sort"
+  def legacy_sort_cookie_name
+    'issuable_sort'
   end
 
   def default_sort_order
@@ -175,17 +126,6 @@ module IssuableCollections
     when 'opened', 'all'    then sort_value_created_date
     when 'merged', 'closed' then sort_value_recently_updated
     else sort_value_created_date
-    end
-  end
-
-  # Update old values to the actual ones.
-  def update_cookie_value(value)
-    case value
-    when 'id_asc'             then sort_value_oldest_created
-    when 'id_desc'            then sort_value_recently_created
-    when 'downvotes_asc'      then sort_value_popularity
-    when 'downvotes_desc'     then sort_value_popularity
-    else value
     end
   end
 
@@ -213,3 +153,5 @@ module IssuableCollections
   end
   # rubocop:enable Gitlab/ModuleWithInstanceVariables
 end
+
+IssuableCollections.prepend_if_ee('EE::IssuableCollections')

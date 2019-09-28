@@ -49,7 +49,7 @@ GET /issues?confidential=true
 | `my_reaction_emoji` | string           | no         | Return issues reacted by the authenticated user by the given `emoji`. `None` returns issues not given a reaction. `Any` returns issues given at least one reaction. _([Introduced][ce-14016] in GitLab 10.0)_ |
 | `weight` **(STARTER)** | integer       | no         | Return issues with the specified `weight`. `None` returns issues with no weight assigned. `Any` returns issues with a weight assigned.              |
 | `iids[]`            | integer array    | no         | Return only the issues having the given `iid`                                                                                                       |
-| `order_by`          | string           | no         | Return issues ordered by `created_at` or `updated_at` fields. Default is `created_at`                                                               |
+| `order_by`          | string           | no         | Return issues ordered by `created_at`, `updated_at`, `priority`, `due_date`, `relative_position`, `label_priority`, `milestone_due`, `popularity`, `weight` fields. Default is `created_at`                                                               |
 | `sort`              | string           | no         | Return issues sorted in `asc` or `desc` order. Default is `desc`                                                                                    |
 | `search`            | string           | no         | Search issues against their `title` and `description`                                                                                               |
 | `in`                | string           | no         | Modify the scope of the `search` attribute. `title`, `description`, or a string joining them with comma. Default is `title,description`             |
@@ -57,7 +57,8 @@ GET /issues?confidential=true
 | `created_before`    | datetime         | no         | Return issues created on or before the given time                                                                                                   |
 | `updated_after`     | datetime         | no         | Return issues updated on or after the given time                                                                                                    |
 | `updated_before`    | datetime         | no         | Return issues updated on or before the given time                                                                                                   |
-| `confidential`     | Boolean          | no         | Filter confidential or public issues.                                                                                                               |
+| `confidential`      | Boolean          | no         | Filter confidential or public issues.                                                                                                               |
+| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji`, `search`, `in` |  
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/issues
@@ -198,7 +199,7 @@ GET /groups/:id/issues?confidential=true
 | `assignee_username` | string array     | no         | Return issues assigned to the given `username`. Similar to `assignee_id` and mutually exclusive with `assignee_id`. In CE version `assignee_username` array should only contain a single value or an invalid param error will be returned otherwise. |
 | `my_reaction_emoji` | string           | no         | Return issues reacted by the authenticated user by the given `emoji`. `None` returns issues not given a reaction. `Any` returns issues given at least one reaction. _([Introduced][ce-14016] in GitLab 10.0)_ |
 | `weight` **(STARTER)** | integer       | no         | Return issues with the specified `weight`. `None` returns issues with no weight assigned. `Any` returns issues with a weight assigned. |
-| `order_by`          | string           | no         | Return issues ordered by `created_at` or `updated_at` fields. Default is `created_at`                                         |
+| `order_by`          | string           | no         | Return issues ordered by `created_at`, `updated_at`, `priority`, `due_date`, `relative_position`, `label_priority`, `milestone_due`, `popularity`, `weight` fields. Default is `created_at`                                                               |
 | `sort`              | string           | no         | Return issues sorted in `asc` or `desc` order. Default is `desc`                                                              |
 | `search`            | string           | no         | Search group issues against their `title` and `description`                                                                   |
 | `created_after`     | datetime         | no         | Return issues created on or after the given time                                                                              |
@@ -206,6 +207,7 @@ GET /groups/:id/issues?confidential=true
 | `updated_after`     | datetime         | no         | Return issues updated on or after the given time                                                                              |
 | `updated_before`    | datetime         | no         | Return issues updated on or before the given time                                                                             |
 | `confidential`     | Boolean          | no         | Filter confidential or public issues.                                                                                         |
+| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji`, `search`, `in` |  
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/4/issues
@@ -346,7 +348,7 @@ GET /projects/:id/issues?confidential=true
 | `assignee_username` | string array     | no         | Return issues assigned to the given `username`. Similar to `assignee_id` and mutually exclusive with `assignee_id`. In CE version `assignee_username` array should only contain a single value or an invalid param error will be returned otherwise. |
 | `my_reaction_emoji` | string           | no         | Return issues reacted by the authenticated user by the given `emoji`. `None` returns issues not given a reaction. `Any` returns issues given at least one reaction. _([Introduced][ce-14016] in GitLab 10.0)_ |
 | `weight` **(STARTER)** | integer       | no         | Return issues with the specified `weight`. `None` returns issues with no weight assigned. `Any` returns issues with a weight assigned. |
-| `order_by`          | string           | no         | Return issues ordered by `created_at` or `updated_at` fields. Default is `created_at`                                         |
+| `order_by`          | string           | no         | Return issues ordered by `created_at`, `updated_at`, `priority`, `due_date`, `relative_position`, `label_priority`, `milestone_due`, `popularity`, `weight` fields. Default is `created_at`                                                               |
 | `sort`              | string           | no         | Return issues sorted in `asc` or `desc` order. Default is `desc`                                                              |
 | `search`            | string           | no         | Search project issues against their `title` and `description`                                                                 |
 | `created_after`     | datetime         | no         | Return issues created on or after the given time                                                                              |
@@ -354,6 +356,7 @@ GET /projects/:id/issues?confidential=true
 | `updated_after`     | datetime         | no         | Return issues updated on or after the given time                                                                              |
 | `updated_before`    | datetime         | no         | Return issues updated on or before the given time                                                                             |
 | `confidential`     | Boolean          | no         | Filter confidential or public issues.                                                                                         |
+| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji`, `search`, `in` |
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/4/issues
@@ -573,6 +576,18 @@ the `weight` parameter:
 }
 ```
 
+Users on GitLab [Ultimate](https://about.gitlab.com/pricing/) will additionally see
+the `epic_iid` property:
+
+```json
+{
+   "project_id" : 4,
+   "description" : "Omnis vero earum sunt corporis dolor et placeat.",
+   "epic_iid" : 42,
+   ...
+}
+```
+
 **Note**: `assignee` column is deprecated, now we show it as a single-sized array `assignees` to conform to the GitLab EE API.
 
 **Note**: The `closed_by` attribute was [introduced in GitLab 10.6][ce-17042]. This value will only be present for issues which were closed after GitLab 10.6 and when the user account that closed the issue still exists.
@@ -787,7 +802,7 @@ the `weight` parameter:
 
 ## Delete an issue
 
-Only for admins and project owners. Soft deletes the issue in question.
+Only for admins and project owners. Deletes the issue in question.
 
 ```
 DELETE /projects/:id/issues/:issue_iid
@@ -1549,7 +1564,7 @@ Example response:
 }
 ```
 
-[ce-13004]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/13004
-[ce-14016]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/14016
-[ce-17042]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/17042
-[ce-18935]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/18935
+[ce-13004]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/13004
+[ce-14016]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/14016
+[ce-17042]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17042
+[ce-18935]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/18935

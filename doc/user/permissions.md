@@ -37,6 +37,8 @@ usernames. A GitLab administrator can configure the GitLab instance to
 NOTE: **Note:**
 In GitLab 11.0, the Master role was renamed to Maintainer.
 
+While Maintainer is the highest project-level role, some actions can only be performed by a personal namespace or group owner.
+
 The following table depicts the various user permission levels in a project.
 
 | Action                                            | Guest   | Reporter   | Developer   |Maintainer| Owner  |
@@ -48,6 +50,7 @@ The following table depicts the various user permission levels in a project.
 | View License Compliance reports **(ULTIMATE)**    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Security reports **(ULTIMATE)**              | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Dependency list **(ULTIMATE)**               | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View licenses in Dependency list **(ULTIMATE)**   | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View [Design Management](project/issues/design_management.md) pages **(PREMIUM)** | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View project code                                 | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | Pull project code                                 | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
@@ -73,8 +76,8 @@ The following table depicts the various user permission levels in a project.
 | See a list of merge requests                      |         | ✓          | ✓           | ✓        | ✓      |
 | View project statistics                           |         | ✓          | ✓           | ✓        | ✓      |
 | View Error Tracking list                          |         | ✓          | ✓           | ✓        | ✓      |
-| Pull from [Maven repository](project/packages/maven_repository.md) or [NPM registry](project/packages/npm_registry.md) **(PREMIUM)** |         | ✓          | ✓           | ✓        | ✓      |
-| Publish to [Maven repository](project/packages/maven_repository.md) or [NPM registry](project/packages/npm_registry.md) **(PREMIUM)** |         |            | ✓           | ✓        | ✓      ||
+| Pull from [Maven repository](packages/maven_repository/index.md) or [NPM registry](packages/npm_registry/index.md) **(PREMIUM)** |         | ✓          | ✓           | ✓        | ✓      |
+| Publish to [Maven repository](packages/maven_repository/index.md) or [NPM registry](packages/npm_registry/index.md) **(PREMIUM)** |         |            | ✓           | ✓        | ✓      |
 | Upload [Design Management](project/issues/design_management.md) files **(PREMIUM)** |         |            | ✓           | ✓        | ✓      |
 | Create new branches                               |         |            | ✓           | ✓        | ✓      |
 | Push to non-protected branches                    |         |            | ✓           | ✓        | ✓      |
@@ -149,13 +152,9 @@ which visibility level you select on project settings.
 
 ### Protected branches
 
-To prevent people from messing with history or pushing code without
-review, we've created protected branches. Read through the documentation on
-[protected branches](project/protected_branches.md)
-to learn more.
-
-Additionally, you can allow or forbid users with Maintainer and/or
-Developer permissions to push to a protected branch. Read through the documentation on
+Additional restrictions can be applied on a per-branch basis with [protected branches](project/protected_branches.md).
+Additionally, you can customize permissions to allow or prevent project
+Maintainers and Developers from pushing to a protected branch. Read through the documentation on
 [Allowed to Merge and Allowed to Push settings](project/protected_branches.md#using-the-allowed-to-merge-and-allowed-to-push-settings)
 to learn more.
 
@@ -204,27 +203,29 @@ Any user can remove themselves from a group, unless they are the last Owner of
 the group. The following table depicts the various user permission levels in a
 group.
 
-| Action                                          | Guest | Reporter | Developer | Maintainer | Owner |
-|-------------------------------------------------|-------|----------|-----------|------------|-------|
-| Browse group                                    | ✓     | ✓        | ✓         | ✓          | ✓     |
-| View Insights charts **(ULTIMATE)**             | ✓     | ✓        | ✓         | ✓          | ✓     |
-| View group epic **(ULTIMATE)**                  | ✓     | ✓        | ✓         | ✓          | ✓     |
-| Create/edit group epic **(ULTIMATE)**           |       | ✓        | ✓         | ✓          | ✓     |
-| Manage group labels                             |       | ✓        | ✓         | ✓          | ✓     |
-| Create project in group                         |       |          | ✓         | ✓          | ✓     |
-| Create/edit/delete group milestones             |       |          | ✓         | ✓          | ✓     |
-| Enable/disable a dependency proxy **(PREMIUM)** |       |          | ✓         | ✓          | ✓     |
-| Use security dashboard **(ULTIMATE)**           |       |          | ✓         | ✓          | ✓     |
-| Create subgroup                                 |       |          |           | ✓ (1)      | ✓     |
-| Edit group                                      |       |          |           |            | ✓     |
-| Manage group members                            |       |          |           |            | ✓     |
-| Remove group                                    |       |          |           |            | ✓     |
-| Delete group epic **(ULTIMATE)**                |       |          |           |            | ✓     |
-| View group Audit Events                         |       |          |           |            | ✓     |
-| Disable notification emails                     |       |          |           |            | ✓     |
+| Action                                                 | Guest | Reporter | Developer | Maintainer | Owner |
+|--------------------------------------------------------|-------|----------|-----------|------------|-------|
+| Browse group                                           | ✓     | ✓        | ✓         | ✓          | ✓     |
+| View Insights charts **(ULTIMATE)**                    | ✓     | ✓        | ✓         | ✓          | ✓     |
+| View group epic **(ULTIMATE)**                         | ✓     | ✓        | ✓         | ✓          | ✓     |
+| Create/edit group epic **(ULTIMATE)**                  |       | ✓        | ✓         | ✓          | ✓     |
+| Manage group labels                                    |       | ✓        | ✓         | ✓          | ✓     |
+| Create project in group                                |       |          | ✓         | ✓          | ✓     |
+| Create/edit/delete group milestones                    |       |          | ✓         | ✓          | ✓     |
+| Enable/disable a dependency proxy **(PREMIUM)**        |       |          | ✓         | ✓          | ✓     |
+| Use security dashboard **(ULTIMATE)**                  |       |          | ✓         | ✓          | ✓     |
+| Create subgroup                                        |       |          |           | ✓ (1)      | ✓     |
+| Edit group                                             |       |          |           |            | ✓     |
+| Manage group members                                   |       |          |           |            | ✓     |
+| Remove group                                           |       |          |           |            | ✓     |
+| Delete group epic **(ULTIMATE)**                       |       |          |           |            | ✓     |
+| Edit epic comments (posted by any user) **(ULTIMATE)** |       |          |           | ✓ (2)      | ✓ (2) |
+| View group Audit Events                                |       |          |           |            | ✓     |
+| Disable notification emails                            |       |          |           |            | ✓     |
 
 - (1): Groups can be set to [allow either Owners or Owners and
   Maintainers to create subgroups](group/subgroups/index.md#creating-a-subgroup)
+- (2): Introduced in GitLab 12.2.
 
 ### Subgroup permissions
 
@@ -289,7 +290,7 @@ Please be aware that this regex could lead to a DOS attack, [see](https://en.wik
 
 ## Auditor users **(PREMIUM ONLY)**
 
->[Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/998) in [GitLab Premium](https://about.gitlab.com/pricing/) 8.17.
+>[Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/998) in [GitLab Premium](https://about.gitlab.com/pricing/) 8.17.
 
 Auditor users are given read-only access to all projects, groups, and other
 resources on the GitLab instance.

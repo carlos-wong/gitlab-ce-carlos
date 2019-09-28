@@ -67,7 +67,7 @@ The following API resources are available in the project context:
 | [Search](search.md)                                                 | `/projects/:id/search` (also available for groups and standalone)                                                                                                                                     |
 | [Services](services.md)                                             | `/projects/:id/services`                                                                                                                                                                              |
 | [Tags](tags.md)                                                     | `/projects/:id/repository/tags`                                                                                                                                                                       |
-| [Vulnerabilities](vulnerabilities.md) **(ULTIMATE)**                | `/projects/:id/vulnerabilities` (also available for groups)                                                                                                                                           |
+| [Vulnerabilities](vulnerabilities.md) **(ULTIMATE)**                | `/projects/:id/vulnerabilities`
 | [Wikis](wikis.md)                                                   | `/projects/:id/wikis`                                                                                                                                                                                 |
 
 ## Group resources
@@ -126,6 +126,7 @@ The following API resources are available outside of project and group contexts 
 | [Runners](runners.md)                             | `/runners` (also available for projects)                                |
 | [Search](search.md)                               | `/search` (also available for groups and projects)                      |
 | [Settings](settings.md)                           | `/application/settings`                                                 |
+| [Statistics](statistics.md)                       | `/application/statistics`                                               |
 | [Sidekiq metrics](sidekiq_metrics.md)             | `/sidekiq`                                                              |
 | [Suggestions](suggestions.md)                     | `/suggestions`                                                          |
 | [System hooks](system_hooks.md)                   | `/hooks`                                                                |

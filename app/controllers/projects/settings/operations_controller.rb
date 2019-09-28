@@ -3,7 +3,7 @@
 module Projects
   module Settings
     class OperationsController < Projects::ApplicationController
-      before_action :authorize_update_environment!
+      before_action :authorize_admin_operations!
 
       helper_method :error_tracking_setting
 
@@ -69,3 +69,5 @@ module Projects
     end
   end
 end
+
+Projects::Settings::OperationsController.prepend_if_ee('::EE::Projects::Settings::OperationsController')

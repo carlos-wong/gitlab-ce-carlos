@@ -50,24 +50,24 @@ production: &base
     # Content Security Policy
     # See https://guides.rubyonrails.org/security.html#content-security-policy
     content_security_policy:
-      enabled: false
+      enabled: true
       report_only: false
       directives:
         base_uri:
         child_src:
-        connect_src: "'self' http://localhost:3808 ws://localhost:3808 wss://localhost:3000"
+        connect_src: "'self' http://localhost:* ws://localhost:* wss://localhost:*"
         default_src: "'self'"
         font_src:
         form_action:
         frame_ancestors: "'self'"
         frame_src: "'self' https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://content.googleapis.com https://content-compute.googleapis.com https://content-cloudbilling.googleapis.com https://content-cloudresourcemanager.googleapis.com"
-        img_src: "* data: blob"
+        img_src: "* data: blob:"
         manifest_src:
         media_src:
-        object_src: "'self' http://localhost:3808 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://www.gstatic.com/recaptcha/ https://apis.google.com"
-        script_src:
+        object_src: "'none'"
+        script_src: "'self' 'unsafe-eval' http://localhost:* https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://www.gstatic.com/recaptcha/ https://apis.google.com"
         style_src: "'self' 'unsafe-inline'"
-        worker_src: "http://localhost:3000 blob:"
+        worker_src: "'self' blob:"
         report_uri:
 
     # Trusted Proxies
@@ -95,6 +95,15 @@ production: &base
     email_display_name: GitLab
     email_reply_to: noreply@example.com
     email_subject_suffix: ''
+    email_smime:
+      # Uncomment and set to true if you need to enable email S/MIME signing (default: false)
+      # enabled: false
+      # S/MIME private key file in PEM format, unencrypted
+      # Default is '.gitlab_smime_key' relative to Rails.root (i.e. root of the GitLab app).
+      # key_file: /home/git/gitlab/.gitlab_smime_key
+      # S/MIME public certificate key in PEM format, will be attached to signed messages
+      # Default is '.gitlab_smime_cert' relative to Rails.root (i.e. root of the GitLab app).
+      # cert_file: /home/git/gitlab/.gitlab_smime_cert
 
     # Email server smtp settings are in config/initializers/smtp_settings.rb.sample
 
@@ -149,6 +158,7 @@ production: &base
 
     # The email address including the `%{key}` placeholder that will be replaced to reference the item being replied to.
     # The placeholder can be omitted but if present, it must appear in the "user" part of the address (before the `@`).
+    # Please be aware that a placeholder is required for the Service Desk feature to work.
     address: "gitlab-incoming+%{key}@gmail.com"
 
     # Email account username
@@ -311,6 +321,9 @@ production: &base
     # external_https: ["1.1.1.1:443", "[2001::1]:443"] # If defined, enables custom domain and certificate support in GitLab Pages
     admin:
       address: unix:/home/git/gitlab/tmp/sockets/private/pages-admin.socket # TCP connections are supported too (e.g. tcp://host:port)
+    # File that contains the shared secret key for verifying access for gitlab-pages.
+    # Default is '.gitlab_pages_shared_secret' relative to Rails.root (i.e. root of the GitLab app).
+    # secret_file: /home/git/gitlab/.gitlab_pages_shared_secret
 
   ## Mattermost
   ## For enabling Add to Mattermost button
@@ -329,7 +342,7 @@ production: &base
 
   ## Sidekiq
   sidekiq:
-    log_format: default # (json is also supported)
+    log_format: json # (default is the original format)
 
   ## Auxiliary jobs
   # Periodically executed jobs, to self-heal GitLab, do external synchronizations, etc.
@@ -422,6 +435,7 @@ production: &base
     # key: config/registry.key
     # path: shared/registry
     # issuer: gitlab-issuer
+    # notification_secret: '' # only set it when you use Geo replication feature without built-in Registry
 
     # Add notification settings if you plan to use Geo Replication for the registry
     # notifications:
@@ -704,6 +718,10 @@ production: &base
     # Browser session with smartcard sign-in is required for Git access
     # required_for_git_access: false
 
+    # Use X.509 SAN extensions certificates to identify GitLab users
+    # Add a subjectAltName to your certificates like: email:user
+    # san_extensions: true
+
   ## Kerberos settings
   kerberos:
     # Allow the HTTP Negotiate authentication method for Git clients
@@ -770,6 +788,14 @@ production: &base
     # Refer to the examples below for the full names of the supported providers.
     # (default: [])
     external_providers: []
+
+    # CAUTION!
+    # This allows users to login with the specified providers without two factor. Define the allowed providers
+    # using an array, e.g. ["twitter", 'google_oauth2'], or as true/false to allow all providers or none.
+    # This option should only be configured for providers which already have two factor. 
+    # This configration dose not apply to SAML.
+    # (default: false)
+    allow_bypass_two_factor: ["twitter", 'google_oauth2']
 
     ## Auth providers
     # Uncomment the following lines and fill in the data of the auth provider you want to use
@@ -956,6 +982,10 @@ production: &base
     # Default is '.gitlab_workhorse_secret' relative to Rails.root (i.e. root of the GitLab app).
     # secret_file: /home/git/gitlab/.gitlab_workhorse_secret
 
+  ## GitLab Elasticsearch settings
+  elasticsearch:
+    indexer_path: /home/git/gitlab-elasticsearch-indexer/
+
   ## Git settings
   # CAUTION!
   # Use the default values unless you really know what you are doing
@@ -1089,6 +1119,27 @@ test:
   gitlab:
     host: localhost
     port: 80
+
+    content_security_policy:
+      enabled: true
+      report_only: false
+      directives:
+        base_uri:
+        child_src:
+        connect_src:
+        default_src: "'self'"
+        font_src:
+        form_action:
+        frame_ancestors: "'self'"
+        frame_src: "'self' https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://content.googleapis.com https://content-compute.googleapis.com https://content-cloudbilling.googleapis.com https://content-cloudresourcemanager.googleapis.com"
+        img_src: "* data: blob:"
+        manifest_src:
+        media_src:
+        object_src: "'none'"
+        script_src: "'self' 'unsafe-eval' http://localhost:* https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://www.gstatic.com/recaptcha/ https://apis.google.com"
+        style_src: "'self' 'unsafe-inline'"
+        worker_src: "'self' blob:"
+        report_uri:
 
     # When you run tests we clone and set up gitlab-shell
     # In order to set it up correctly you need to specify

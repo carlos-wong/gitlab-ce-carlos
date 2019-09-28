@@ -6,6 +6,7 @@ module QA
   module Resource
     class Project < Base
       include Events::Project
+      include Members
 
       attr_writer :initialize_with_readme
       attr_writer :visibility
@@ -15,6 +16,7 @@ module QA
       attribute :add_name_uuid
       attribute :description
       attribute :standalone
+      attribute :runners_token
 
       attribute :group do
         Group.fabricate!
@@ -29,13 +31,13 @@ module QA
       end
 
       attribute :repository_ssh_location do
-        Page::Project::Show.perform do |page|
+        Page::Project::Show.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.repository_clone_ssh_location
         end
       end
 
       attribute :repository_http_location do
-        Page::Project::Show.perform do |page|
+        Page::Project::Show.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.repository_clone_http_location
         end
       end
@@ -58,7 +60,7 @@ module QA
           Page::Group::Show.perform(&:go_to_new_project)
         end
 
-        Page::Project::New.perform do |page|
+        Page::Project::New.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.choose_test_namespace
           page.choose_name(@name)
           page.add_description(@description)
@@ -82,6 +84,10 @@ module QA
         "#{api_get_path}/repository/archive.#{type}"
       end
 
+      def api_members_path
+        "#{api_get_path}/members"
+      end
+
       def api_post_path
         '/projects'
       end
@@ -100,6 +106,10 @@ module QA
         end
 
         post_body
+      end
+
+      def share_with_group(invitee, access_level = Resource::Members::AccessLevel::DEVELOPER)
+        post Runtime::API::Request.new(api_client, "/projects/#{id}/share").url, { group_id: invitee.id, group_access: access_level }
       end
 
       private

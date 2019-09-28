@@ -540,7 +540,7 @@ which would otherwise take much space.
 In particular, you can store in S3:
 
 - [The Git LFS objects](../../workflow/lfs/lfs_administration.md#s3-for-omnibus-installations) ((Omnibus GitLab installations))
-- [The Container Registry images](../../administration/container_registry.md#container-registry-storage-driver) (Omnibus GitLab installations)
+- [The Container Registry images](../../administration/packages/container_registry.md#container-registry-storage-driver) (Omnibus GitLab installations)
 - [The GitLab CI/CD job artifacts](../../administration/job_artifacts.md#using-object-storage) (Omnibus GitLab installations)
 
 ### Setting up a domain name
@@ -613,6 +613,9 @@ To back up GitLab:
    sudo gitlab-backup create
    ```
 
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
 ### Restoring GitLab from a backup
 
 To restore GitLab, first review the [restore documentation](../../raketasks/backup_restore.md#restore),
@@ -630,6 +633,9 @@ released, you can update your GitLab instance:
    ```sh
    sudo gitlab-backup create
    ```
+
+NOTE: **Note**
+For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
 1. Update the repositories and install GitLab:
 
@@ -651,7 +657,7 @@ And the more complex the solution, the more work is involved in setting up and
 maintaining it.
 
 Have a read through these other resources and feel free to
-[open an issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/new)
+[open an issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/new)
 to request additional material:
 
 - [GitLab High Availability](../../administration/high_availability/README.md):

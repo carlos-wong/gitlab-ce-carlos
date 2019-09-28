@@ -3,10 +3,14 @@
 class Projects::PipelinesController < Projects::ApplicationController
   before_action :whitelist_query_limiting, only: [:create, :retry]
   before_action :pipeline, except: [:index, :new, :create, :charts]
+  before_action :set_pipeline_path, only: [:show]
   before_action :authorize_read_pipeline!
   before_action :authorize_read_build!, only: [:index]
   before_action :authorize_create_pipeline!, only: [:new, :create]
   before_action :authorize_update_pipeline!, only: [:retry, :cancel]
+  before_action do
+    push_frontend_feature_flag(:hide_dismissed_vulnerabilities)
+  end
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show]
 
@@ -174,17 +178,34 @@ class Projects::PipelinesController < Projects::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def pipeline
-    @pipeline ||= project
-                    .all_pipelines
-                    .includes(user: :status)
-                    .find_by!(id: params[:id])
-                    .present(current_user: current_user)
+    @pipeline ||= if params[:id].blank? && params[:latest]
+                    latest_pipeline
+                  else
+                    project
+                      .all_pipelines
+                      .includes(builds: :tags, user: :status)
+                      .find_by!(id: params[:id])
+                      .present(current_user: current_user)
+                  end
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
+  def set_pipeline_path
+    @pipeline_path ||= if params[:id].blank? && params[:latest]
+                         latest_project_pipelines_path(@project, params['ref'])
+                       else
+                         project_pipeline_path(@project, @pipeline)
+                       end
+  end
+
+  def latest_pipeline
+    @project.latest_pipeline_for_ref(params['ref'])
+            &.present(current_user: current_user)
+  end
+
   def whitelist_query_limiting
-    # Also see https://gitlab.com/gitlab-org/gitlab-ce/issues/42343
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42339')
+    # Also see https://gitlab.com/gitlab-org/gitlab-foss/issues/42343
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42339')
   end
 
   def authorize_update_pipeline!
@@ -197,3 +218,5 @@ class Projects::PipelinesController < Projects::ApplicationController
     view_context.limited_counter_with_delimiter(finder.execute)
   end
 end
+
+Projects::PipelinesController.prepend_if_ee('EE::Projects::PipelinesController')

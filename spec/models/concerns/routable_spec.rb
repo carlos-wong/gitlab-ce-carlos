@@ -58,7 +58,7 @@ describe Group, 'Routable' do
     end
   end
 
-  describe '.find_by_full_path' do
+  context '.find_by_full_path' do
     let!(:nested_group) { create(:group, parent: group) }
 
     context 'without any redirect routes' do
@@ -66,6 +66,13 @@ describe Group, 'Routable' do
       it { expect(described_class.find_by_full_path(group.to_param.upcase)).to eq(group) }
       it { expect(described_class.find_by_full_path(nested_group.to_param)).to eq(nested_group) }
       it { expect(described_class.find_by_full_path('unknown')).to eq(nil) }
+
+      it 'includes route information when loading a record' do
+        path = group.to_param
+        control_count = ActiveRecord::QueryRecorder.new { described_class.find_by_full_path(path) }.count
+
+        expect { described_class.find_by_full_path(path).route }.not_to exceed_all_query_limit(control_count)
+      end
     end
 
     context 'with redirect routes' do

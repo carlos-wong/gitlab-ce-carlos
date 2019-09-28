@@ -55,10 +55,18 @@ module QA
           within_top_menu { click_element :admin_area_link }
         end
 
+        def signed_in?
+          has_personal_area?(wait: 0)
+        end
+
         def sign_out
           within_user_menu do
             click_element :sign_out_link
           end
+        end
+
+        def sign_out_if_signed_in
+          sign_out if signed_in?
         end
 
         def click_settings_link

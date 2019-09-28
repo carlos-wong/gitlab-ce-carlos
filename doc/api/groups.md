@@ -156,8 +156,10 @@ Parameters:
 | `with_issues_enabled`         | boolean        | no       | Limit by projects with issues feature enabled. Default is `false` |
 | `with_merge_requests_enabled` | boolean        | no       | Limit by projects with merge requests feature enabled. Default is `false` |
 | `with_shared`                 | boolean        | no       | Include projects shared to this group. Default is `true` |
-| `include_subgroups`           | boolean        | no       | Include projects in subgroups of this group. Default is `false` |
+| `include_subgroups`           | boolean        | no       | Include projects in subgroups of this group. Default is `false`   |
+| `min_access_level`            | integer        | no       | Limit to projects where current user has at least this [access level](members.md) |
 | `with_custom_attributes`      | boolean        | no       | Include [custom attributes](custom_attributes.md) in response (admins only) |
+| `with_security_reports`       | boolean        | no       | **(ULTIMATE)** Return only projects that have security reports artifacts present in any of their builds. This means "projects with security reports enabled". Default is `false` |
 
 Example response:
 
@@ -206,7 +208,7 @@ Example response:
 ## Details of a group
 
 Get all details of a group. This endpoint can be accessed without authentication
-if the group is publicly accessible.
+if the group is publicly accessible. In case the user that requests is admin of the group, it will return the `runners_token` for the group too.
 
 ```
 GET /groups/:id
@@ -238,6 +240,7 @@ Example response:
   "request_access_enabled": false,
   "full_name": "Twitter",
   "full_path": "twitter",
+  "runners_token": "ba324ca7b1c77fc20bb9",
   "file_template_project_id": 1,
   "parent_id": null,
   "projects": [
@@ -645,7 +648,7 @@ And to switch pages add:
 /groups?per_page=100&page=2
 ```
 
-[ce-15142]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/15142
+[ce-15142]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15142
 
 ## Group badges
 

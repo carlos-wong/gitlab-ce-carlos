@@ -85,7 +85,7 @@ The more we reflexively add useful information to the docs, the more (and more s
 
 If you have questions when considering, authoring, or editing docs, ask the Technical Writing team on Slack in `#docs` or in GitLab by mentioning the writer for the applicable [DevOps stage](https://about.gitlab.com/handbook/product/categories/#devops-stages). Otherwise, forge ahead with your best effort. It does not need to be perfect; the team is happy to review and improve upon your content. Please review the [Documentation guidelines](index.md) before you begin your first documentation MR.
 
-Having a knowledge base is any form that is separate from the documentation would be against the docs-first methodology because the content would overlap with the documentation.
+Having a knowledge base in any form that is separate from the documentation would be against the docs-first methodology because the content would overlap with the documentation.
 
 ## Markdown
 
@@ -110,18 +110,11 @@ Hard-coded HTML is valid, although it's discouraged to be used while we have `/h
 ### Markdown Rules
 
 GitLab ensures that the Markdown used across all documentation is consistent, as
-well as easy to review and maintain, by testing documentation changes with
-[Markdownlint (mdl)](https://github.com/markdownlint/markdownlint). This lint test
-checks many common problems with Markdown, and fails when any document has an issue
+well as easy to review and maintain, by [testing documentation changes](index.md#testing) with
+[`markdownlint`](index.md#markdownlint). This lint test fails when any document has an issue
 with Markdown formatting that may cause the page to render incorrectly within GitLab.
 It will also fail when a document is using non-standard Markdown (which may render
-correctly, but is not the current standard in GitLab documentation).
-
-Each formatting issue that mdl checks has an associated [rule](https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md),
-and the rules that are currently enabled for GitLab documentation are listed in the
-[`.mdlrc.style`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.mdlrc.style) file.
-Configuration options are set in the [`.mdlrc`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.mdlrc.style)
-file.
+correctly, but is not the current standard for GitLab documentation).
 
 ## Structure
 
@@ -131,8 +124,8 @@ Because we want documentation to be a SSOT, we should [organize by topic, not by
 
 ### Folder structure overview
 
-The documentation is separated by top-level audience folders [`user`](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/doc/user),
-[`administration`](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/doc/administration), and [`development`](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/doc/development) (contributing) folders.
+The documentation is separated by top-level audience folders [`user`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/doc/user),
+[`administration`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/doc/administration), and [`development`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/doc/development) (contributing) folders.
 
 Beyond that, we primarily follow the structure of the GitLab user interface or API.
 
@@ -269,7 +262,7 @@ table_display_block: true
 ## Punctuation
 
 Check the general punctuation rules for the GitLab documentation on the table below.
-Check specific punctuation rules for [list items](#list-items) below.
+Check specific punctuation rules for [lists](#lists) below.
 
 | Rule | Example |
 | ---- | ------- |
@@ -281,37 +274,44 @@ Check specific punctuation rules for [list items](#list-items) below.
 | Always add a space before and after dashes when using it in a sentence (for replacing a comma, for example). | _You should try this - or not._ |
 | Always use lowercase after a colon. | _Related Issues: a way to create a relationship between issues._ |
 
-## List items
+## Lists
 
 - Always start list items with a capital letter, unless they are parameters or commands
   that are in backticks, or similar.
 - Always leave a blank line before and after a list.
 - Begin a line with spaces (not tabs) to denote a [nested subitem](#nesting-inside-a-list-item).
-- Only use ordered lists when their items describe a sequence of steps to follow:
 
-  Do:
+### Ordered vs. unordered lists
 
-  These are the steps to do something:
+Only use ordered lists when their items describe a sequence of steps to follow.
 
-  1. First, do step 1
-  1. Then, do step 2
-  1. Finally, do step 3
+Do:
 
-  Don't:
+```md
+These are the steps to do something:
 
-  This is a list of different features:
+1. First, do the first step.
+1. Then, do the next step.
+1. Finally, do the last step.
+```
 
-  1. Feature 1
-  1. Feature 2
-  1. Feature 3
+Don't:
 
-**Markup:**
+```md
+This is a list of available features:
+
+1. Feature 1
+1. Feature 2
+1. Feature 3
+```
+
+### Markup
 
 - Use dashes (`-`) for unordered lists instead of asterisks (`*`).
-- Prefix `1.` to each item in an ordered list.
+- Prefix `1.` to every item in an ordered list.
   When rendered, the list items will appear with sequential numbering automatically.
 
-**Punctuation:**
+### Punctuation
 
 - Do not add commas (`,`) or semicolons (`;`) to the end of list items.
 - Only add periods to the end of a list item if the item consists of a complete sentence.
@@ -350,7 +350,7 @@ Do:
 - Let's say this is also a complete sentence.
 - Not a complete sentence.
 
-Don't (third item should have a `.` to match the first and second items):
+Don't (vary use of periods; majority rules):
 
 - Let's say this is a complete sentence.
 - Let's say this is also a complete sentence.
@@ -460,7 +460,7 @@ For other punctuation rules, please refer to the
   This is to ensure that no document with wrong heading is going
   live without an audit, thus preventing dead links and redirection issues when
   corrected.
-- Leave exactly one new line after a heading.
+- Leave exactly one blank line before and after a heading.
 - Do not use links in headings.
 - Add the corresponding [product badge](#product-badges) according to the tier the feature belongs.
 
@@ -503,16 +503,7 @@ Instead:
 Example:
 
 ```md
-For more information, see the [confidential issue](../../user/project/issues/confidential_issues.md) `https://gitlab.com/gitlab-org/gitlab-ce/issues/<issue_number>`.
-```
-
-### Unlinking emails
-
-By default, all email addresses will render in an email tag on docs.gitlab.com.
-To escape the code block and unlink email addresses, use two backticks:
-
-```md
-`` example@email.com ``
+For more information, see the [confidential issue](../../user/project/issues/confidential_issues.md) `https://gitlab.com/gitlab-org/gitlab-foss/issues/<issue_number>`.
 ```
 
 ## Navigation
@@ -535,7 +526,7 @@ To indicate the steps of navigation through the UI:
   number corresponding to the release milestone the image was added to,
   or corresponding to the release the screenshot was taken from, using the
   format `image_name_vX_Y.png`.
-  ([Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/61027) in GitLab 12.1.)
+  ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/61027) in GitLab 12.1.)
 - For example, for a screenshot taken from the pipelines page of
   GitLab 11.1, a valid name is `pipelines_v11_1.png`. If you're
   adding an illustration that does not include parts of the UI,
@@ -783,8 +774,6 @@ For multiple paragraphs, use the symbol `>` before every line:
 >
 > - This is a list item
 > - Second item in the list
->
-> ### This is an `h3`
 ```
 
 Which renders to:
@@ -795,9 +784,6 @@ Which renders to:
 >
 > - This is a list item
 > - Second item in the list
->
-> ### This is an `h3`
->{:.no_toc}
 
 ## Terms
 
@@ -1189,5 +1175,5 @@ curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" --data "domain_
 [cURL]: http://curl.haxx.se/ "cURL website"
 [single spaces]: http://www.slate.com/articles/technology/technology/2011/01/space_invaders.html
 [gfm]: ../../user/markdown.md#newlines "GitLab flavored markdown documentation"
-[ce-1242]: https://gitlab.com/gitlab-org/gitlab-ce/issues/1242
+[ce-1242]: https://gitlab.com/gitlab-org/gitlab-foss/issues/1242
 [doc-restart]: ../../administration/restart_gitlab.md "GitLab restart documentation"

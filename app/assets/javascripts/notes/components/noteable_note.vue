@@ -14,6 +14,7 @@ import NoteBody from './note_body.vue';
 import eventHub from '../event_hub';
 import noteable from '../mixins/noteable';
 import resolvable from '../mixins/resolvable';
+import httpStatusCodes from '~/lib/utils/http_status';
 
 export default {
   name: 'NoteableNote',
@@ -97,7 +98,7 @@ export default {
       // We need to do this to ensure we have the correct sentence order
       // when translating this as the sentence order may change from one
       // language to the next. See:
-      // https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/24427#note_133713771
+      // https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/24427#note_133713771
       const { id, url } = this.commit;
       const commitLink = `<a class="commit-sha monospace" href="${escape(url)}">${truncateSha(
         id,
@@ -122,7 +123,13 @@ export default {
   },
 
   methods: {
-    ...mapActions(['deleteNote', 'updateNote', 'toggleResolveNote', 'scrollToNoteIfNeeded']),
+    ...mapActions([
+      'deleteNote',
+      'removeNote',
+      'updateNote',
+      'toggleResolveNote',
+      'scrollToNoteIfNeeded',
+    ]),
     editHandler() {
       this.isEditing = true;
       this.$emit('handleEdit');
@@ -185,15 +192,21 @@ export default {
           this.updateSuccess();
           callback();
         })
-        .catch(() => {
-          this.isRequesting = false;
-          this.isEditing = true;
-          this.$nextTick(() => {
-            const msg = __('Something went wrong while editing your comment. Please try again.');
-            Flash(msg, 'alert', this.$el);
-            this.recoverNoteContent(noteText);
+        .catch(response => {
+          if (response.status === httpStatusCodes.GONE) {
+            this.removeNote(this.note);
+            this.updateSuccess();
             callback();
-          });
+          } else {
+            this.isRequesting = false;
+            this.isEditing = true;
+            this.$nextTick(() => {
+              const msg = __('Something went wrong while editing your comment. Please try again.');
+              Flash(msg, 'alert', this.$el);
+              this.recoverNoteContent(noteText);
+              callback();
+            });
+          }
         });
     },
     formCancelHandler(shouldConfirm, isDirty) {

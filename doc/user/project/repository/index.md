@@ -73,7 +73,7 @@ according to the markup language.
 | [Markdown](../../markdown.md) | `mdown`, `mkd`, `mkdn`, `md`, `markdown` |
 | [reStructuredText](http://docutils.sourceforge.net/rst.html) | `rst` |
 | [AsciiDoc](../../asciidoc.md) | `adoc`, `ad`, `asciidoc` |
-| [Textile](https://txstyle.org/) | `textile` |
+| [Textile](https://textile-lang.com/) | `textile` |
 | [rdoc](http://rdoc.sourceforge.net/doc/index.html)  | `rdoc` |
 | [Orgmode](https://orgmode.org/) | `org` |
 | [creole](http://www.wikicreole.org/) | `creole` |
@@ -99,7 +99,7 @@ Some things to note about precedence:
 
 ### Jupyter Notebook files
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/2508) in GitLab 9.1
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/2508) in GitLab 9.1
 
 [Jupyter](https://jupyter.org) Notebook (previously IPython Notebook) files are used for
 interactive computing in many fields and contain a complete record of the
@@ -182,7 +182,7 @@ were used and display this on the projects pages. If this information is missing
 be added after updating the default branch on the project. This process can take up to 5
 minutes.
 
-![Repository Languages bar](img/repository_languages.png)
+![Repository Languages bar](img/repository_languages_v12_2.gif)
 
 Not all files are detected, among others; documentation,
 vendored code, and most markup languages are excluded. This behaviour can be
@@ -202,7 +202,7 @@ You can access your repos via [repository API](../../../api/repositories.md).
 
 ## Clone in Apple Xcode
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/45820) in GitLab 11.0
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/45820) in GitLab 11.0
 
 Projects that contain a `.xcodeproj` or `.xcworkspace` directory can now be cloned
 in Xcode using the new **Open in Xcode** button, located next to the Git URL
@@ -210,7 +210,7 @@ used for cloning your project. The button is only shown on macOS.
 
 ## Download Source Code
 
-> Support for directory download was [introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/24704) in GitLab 11.11.
+> Support for directory download was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/24704) in GitLab 11.11.
 
 The source code stored in a repository can be downloaded from the UI.
 By clicking the download icon, a dropdown will open with links to download the following:

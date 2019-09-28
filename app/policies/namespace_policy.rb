@@ -11,7 +11,10 @@ class NamespacePolicy < BasePolicy
     enable :create_projects
     enable :admin_namespace
     enable :read_namespace
+    enable :read_statistics
   end
 
   rule { personal_project & ~can_create_personal_project }.prevent :create_projects
 end
+
+NamespacePolicy.prepend_if_ee('EE::NamespacePolicy')

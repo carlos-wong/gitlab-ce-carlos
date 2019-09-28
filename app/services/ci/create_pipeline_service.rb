@@ -18,7 +18,8 @@ module Ci
                 Gitlab::Ci::Pipeline::Chain::Limit::Activity,
                 Gitlab::Ci::Pipeline::Chain::Limit::JobActivity].freeze
 
-    def execute(source, ignore_skip_ci: false, save_on_errors: true, trigger_request: nil, schedule: nil, merge_request: nil, **options, &block)
+    # rubocop: disable Metrics/ParameterLists
+    def execute(source, ignore_skip_ci: false, save_on_errors: true, trigger_request: nil, schedule: nil, merge_request: nil, external_pull_request: nil, **options, &block)
       @pipeline = Ci::Pipeline.new
 
       command = Gitlab::Ci::Pipeline::Chain::Command.new(
@@ -32,6 +33,7 @@ module Ci
         trigger_request: trigger_request,
         schedule: schedule,
         merge_request: merge_request,
+        external_pull_request: external_pull_request,
         ignore_skip_ci: ignore_skip_ci,
         save_incompleted: save_on_errors,
         seeds_block: block,
@@ -62,6 +64,7 @@ module Ci
 
       pipeline
     end
+    # rubocop: enable Metrics/ParameterLists
 
     def execute!(*args, &block)
       execute(*args, &block).tap do |pipeline|
@@ -91,11 +94,21 @@ module Ci
 
     # rubocop: disable CodeReuse/ActiveRecord
     def auto_cancelable_pipelines
-      project.ci_pipelines
-        .where(ref: pipeline.ref)
-        .where.not(id: pipeline.id)
-        .where.not(sha: project.commit(pipeline.ref).try(:id))
-        .created_or_pending
+      # TODO: Introduced by https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/23464
+      if Feature.enabled?(:ci_support_interruptible_pipelines, project, default_enabled: true)
+        project.ci_pipelines
+          .where(ref: pipeline.ref)
+          .where.not(id: pipeline.id)
+          .where.not(sha: project.commit(pipeline.ref).try(:id))
+          .alive_or_scheduled
+          .with_only_interruptible_builds
+      else
+        project.ci_pipelines
+          .where(ref: pipeline.ref)
+          .where.not(id: pipeline.id)
+          .where.not(sha: project.commit(pipeline.ref).try(:id))
+          .created_or_pending
+      end
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -120,3 +133,5 @@ module Ci
     end
   end
 end
+
+Ci::CreatePipelineService.prepend_if_ee('EE::Ci::CreatePipelineService')

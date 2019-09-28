@@ -20,9 +20,7 @@ describe Projects::Ci::LintsController do
         get :show, params: { namespace_id: project.namespace, project_id: project }
       end
 
-      it 'is success' do
-        expect(response).to be_success
-      end
+      it { expect(response).to be_successful }
 
       it 'renders show page' do
         expect(response).to render_template :show
@@ -47,7 +45,7 @@ describe Projects::Ci::LintsController do
   end
 
   describe 'POST #create' do
-    let(:remote_file_path) { 'https://gitlab.com/gitlab-org/gitlab-ce/blob/1234/.gitlab-ci-1.yml' }
+    let(:remote_file_path) { 'https://gitlab.com/gitlab-org/gitlab-foss/blob/1234/.gitlab-ci-1.yml' }
 
     let(:remote_file_content) do
       <<~HEREDOC
@@ -78,9 +76,7 @@ describe Projects::Ci::LintsController do
         post :create, params: { namespace_id: project.namespace, project_id: project, content: content }
       end
 
-      it 'is success' do
-        expect(response).to be_success
-      end
+      it { expect(response).to be_successful }
 
       it 'render show page' do
         expect(response).to render_template :show

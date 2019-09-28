@@ -20,6 +20,7 @@ describe Ci::Pipeline, :mailer do
   it { is_expected.to belong_to(:auto_canceled_by) }
   it { is_expected.to belong_to(:pipeline_schedule) }
   it { is_expected.to belong_to(:merge_request) }
+  it { is_expected.to belong_to(:external_pull_request) }
 
   it { is_expected.to have_many(:statuses) }
   it { is_expected.to have_many(:trigger_requests) }
@@ -323,6 +324,25 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '#merge_train_pipeline?' do
+    subject { pipeline.merge_train_pipeline? }
+
+    let!(:pipeline) do
+      create(:ci_pipeline, source: :merge_request_event, merge_request: merge_request, ref: ref, target_sha: 'xxx')
+    end
+
+    let(:merge_request) { create(:merge_request) }
+    let(:ref) { 'refs/merge-requests/1/train' }
+
+    it { is_expected.to be_truthy }
+
+    context 'when ref is merge ref' do
+      let(:ref) { 'refs/merge-requests/1/merge' }
+
+      it { is_expected.to be_falsy }
+    end
+  end
+
   describe '#merge_request_ref?' do
     subject { pipeline.merge_request_ref? }
 
@@ -330,6 +350,48 @@ describe Ci::Pipeline, :mailer do
       expect(MergeRequest).to receive(:merge_request_ref?).with(pipeline.ref)
 
       subject
+    end
+  end
+
+  describe '#merge_train_ref?' do
+    subject { pipeline.merge_train_ref? }
+
+    it 'calls Mergetrain#merge_train_ref?' do
+      expect(MergeRequest).to receive(:merge_train_ref?).with(pipeline.ref)
+
+      subject
+    end
+  end
+
+  describe '#merge_request_event_type' do
+    subject { pipeline.merge_request_event_type }
+
+    before do
+      allow(pipeline).to receive(:merge_request_event?) { true }
+    end
+
+    context 'when pipeline is merge train pipeline' do
+      before do
+        allow(pipeline).to receive(:merge_train_pipeline?) { true }
+      end
+
+      it { is_expected.to eq(:merge_train) }
+    end
+
+    context 'when pipeline is merge request pipeline' do
+      before do
+        allow(pipeline).to receive(:merge_request_pipeline?) { true }
+      end
+
+      it { is_expected.to eq(:merged_result) }
+    end
+
+    context 'when pipeline is detached merge request pipeline' do
+      before do
+        allow(pipeline).to receive(:detached_merge_request_pipeline?) { true }
+      end
+
+      it { is_expected.to eq(:detached) }
     end
   end
 
@@ -517,14 +579,22 @@ describe Ci::Pipeline, :mailer do
   end
 
   describe 'Validations for merge request pipelines' do
-    let(:pipeline) { build(:ci_pipeline, source: source, merge_request: merge_request) }
+    let(:pipeline) do
+      build(:ci_pipeline, source: source, merge_request: merge_request)
+    end
+
+    let(:merge_request) do
+      create(:merge_request,
+        source_project: project,
+        source_branch:  'feature',
+        target_project: project,
+        target_branch:  'master')
+    end
 
     context 'when source is merge request' do
       let(:source) { :merge_request_event }
 
       context 'when merge request is specified' do
-        let(:merge_request) { create(:merge_request, source_project: project, source_branch: 'feature', target_project: project, target_branch: 'master') }
-
         it { expect(pipeline).to be_valid }
       end
 
@@ -539,8 +609,6 @@ describe Ci::Pipeline, :mailer do
       let(:source) { :web }
 
       context 'when merge request is specified' do
-        let(:merge_request) { create(:merge_request, source_project: project, source_branch: 'feature', target_project: project, target_branch: 'master') }
-
         it { expect(pipeline).not_to be_valid }
       end
 
@@ -782,7 +850,8 @@ describe Ci::Pipeline, :mailer do
             'CI_MERGE_REQUEST_TITLE' => merge_request.title,
             'CI_MERGE_REQUEST_ASSIGNEES' => merge_request.assignee_username_list,
             'CI_MERGE_REQUEST_MILESTONE' => milestone.title,
-            'CI_MERGE_REQUEST_LABELS' => labels.map(&:title).join(','))
+            'CI_MERGE_REQUEST_LABELS' => labels.map(&:title).join(','),
+            'CI_MERGE_REQUEST_EVENT_TYPE' => pipeline.merge_request_event_type.to_s)
       end
 
       context 'when source project does not exist' do
@@ -821,6 +890,25 @@ describe Ci::Pipeline, :mailer do
         it 'does not expose labels variable' do
           expect(subject.to_hash.keys).not_to include('CI_MERGE_REQUEST_LABELS')
         end
+      end
+    end
+
+    context 'when source is external pull request' do
+      let(:pipeline) do
+        create(:ci_pipeline, source: :external_pull_request_event, external_pull_request: pull_request)
+      end
+
+      let(:pull_request) { create(:external_pull_request, project: project) }
+
+      it 'exposes external pull request pipeline variables' do
+        expect(subject.to_hash)
+          .to include(
+            'CI_EXTERNAL_PULL_REQUEST_IID' => pull_request.pull_request_iid.to_s,
+            'CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_SHA' => pull_request.source_sha,
+            'CI_EXTERNAL_PULL_REQUEST_TARGET_BRANCH_SHA' => pull_request.target_sha,
+            'CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_NAME' => pull_request.source_branch,
+            'CI_EXTERNAL_PULL_REQUEST_TARGET_BRANCH_NAME' => pull_request.target_branch
+          )
       end
     end
   end

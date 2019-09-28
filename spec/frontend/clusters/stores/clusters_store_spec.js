@@ -51,6 +51,9 @@ describe('Clusters Store', () => {
       expect(store.state).toEqual({
         helpPath: null,
         ingressHelpPath: null,
+        environmentsHelpPath: null,
+        clustersHelpPath: null,
+        deployBoardsHelpPath: null,
         status: mockResponseData.status,
         statusReason: mockResponseData.status_reason,
         rbac: false,
@@ -86,7 +89,7 @@ describe('Clusters Store', () => {
             requestReason: null,
             version: mockResponseData.applications[2].version,
             updateAvailable: mockResponseData.applications[2].update_available,
-            chartRepo: 'https://gitlab.com/charts/gitlab-runner',
+            chartRepo: 'https://gitlab.com/gitlab-org/charts/gitlab-runner',
             installed: false,
             installFailed: false,
             updateFailed: false,
@@ -148,6 +151,8 @@ describe('Clusters Store', () => {
             uninstallFailed: false,
           },
         },
+        environments: [],
+        fetchingEnvironments: false,
       });
     });
 

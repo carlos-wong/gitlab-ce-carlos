@@ -8,9 +8,9 @@ module Projects
     class LfsObjectDownloadListService < BaseService
       include Gitlab::Utils::StrongMemoize
 
-      HEAD_REV = 'HEAD'.freeze
+      HEAD_REV = 'HEAD'
       LFS_ENDPOINT_PATTERN = /^\t?url\s*=\s*(.+)$/.freeze
-      LFS_BATCH_API_ENDPOINT = '/info/lfs/objects/batch'.freeze
+      LFS_BATCH_API_ENDPOINT = '/info/lfs/objects/batch'
 
       LfsObjectDownloadListError = Class.new(StandardError)
 
@@ -29,7 +29,7 @@ module Projects
         # Getting all Lfs pointers already in the database and linking them to the project
         linked_oids = LfsLinkService.new(project).execute(lfs_pointers_in_repository.keys)
         # Retrieving those oids not present in the database which we need to download
-        missing_oids = lfs_pointers_in_repository.except(*linked_oids) # rubocop: disable CodeReuse/ActiveRecord
+        missing_oids = lfs_pointers_in_repository.except(*linked_oids)
         # Downloading the required information and gathering it inside a LfsDownloadObject for each oid
         LfsDownloadLinkListService.new(project, remote_uri: current_endpoint_uri).execute(missing_oids)
       rescue LfsDownloadLinkListService::DownloadLinksError => e

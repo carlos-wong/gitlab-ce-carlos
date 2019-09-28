@@ -13,7 +13,7 @@ _Note:_ The action itself will not update the state, only a mutation should upda
 
 ## File structure
 
-When using Vuex at GitLab, separate this concerns into different files to improve readability:
+When using Vuex at GitLab, separate these concerns into different files to improve readability:
 
 ```
 └── store
@@ -26,7 +26,7 @@ When using Vuex at GitLab, separate this concerns into different files to improv
 ```
 
 The following example shows an application that lists and adds users to the state.
-(For a more complex example implementation take a look at the security applications store in [here](https://gitlab.com/gitlab-org/gitlab-ee/tree/master/ee/app/assets/javascripts/vue_shared/security_reports/store))
+(For a more complex example implementation take a look at the security applications store in [here](https://gitlab.com/gitlab-org/gitlab/tree/master/ee/app/assets/javascripts/vue_shared/security_reports/store))
 
 ### `index.js`
 
@@ -313,7 +313,7 @@ export default {
 
 1. Do not call a mutation directly. Always use an action to commit a mutation. Doing so will keep consistency throughout the application. From Vuex docs:
 
-   >  why don't we just call store.commit('action') directly? Well, remember that mutations must be synchronous? Actions aren't. We can perform asynchronous operations inside an action.
+   > Why don't we just call store.commit('action') directly? Well, remember that mutations must be synchronous? Actions aren't. We can perform asynchronous operations inside an action.
 
    ```javascript
      // component.vue

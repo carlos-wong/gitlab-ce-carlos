@@ -88,7 +88,7 @@ Introduced in GitLab 10.0, this file lives in
 It helps you see requests made directly to the API. For example:
 
 ```json
-{"time":"2018-10-29T12:49:42.123Z","severity":"INFO","duration":709.08,"db":14.59,"view":694.49,"status":200,"method":"GET","path":"/api/v4/projects","params":[{"key":"action","value":"git-upload-pack"},{"key":"changes","value":"_any"},{"key":"key_id","value":"secret"},{"key":"secret_token","value":"[FILTERED]"}],"host":"localhost","ip":"::1","ua":"Ruby","route":"/api/:version/projects","user_id":1,"username":"root","queue_duration":100.31,"gitaly_calls":30,"gitaly_duration":5.36}
+{"time":"2018-10-29T12:49:42.123Z","severity":"INFO","duration":709.08,"db":14.59,"view":694.49,"status":200,"method":"GET","path":"/api/v4/projects","params":[{"key":"action","value":"git-upload-pack"},{"key":"changes","value":"_any"},{"key":"key_id","value":"secret"},{"key":"secret_token","value":"[FILTERED]"}],"host":"localhost","remote_ip":"::1","ua":"Ruby","route":"/api/:version/projects","user_id":1,"username":"root","queue_duration":100.31,"gitaly_calls":30,"gitaly_duration":5.36}
 ```
 
 This entry above shows an access to an internal endpoint to check whether an
@@ -296,11 +296,11 @@ This log records:
 - Requests over the [Rate Limit] on raw endpoints.
 
 NOTE: **Note:**
-From [%12.1](https://gitlab.com/gitlab-org/gitlab-ce/issues/62756), user id and username are available on this log.
+From [%12.1](https://gitlab.com/gitlab-org/gitlab-foss/issues/62756), user id and username are available on this log.
 
 ## `graphql_json.log`
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/59587) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/59587) in GitLab 12.0.
 
 This file lives in `/var/log/gitlab/gitlab-rails/graphql_json.log` for
 Omnibus GitLab packages or in `/home/git/gitlab/log/graphql_json.log` for
@@ -338,3 +338,13 @@ installations from source.
 [repocheck]: repository_checks.md
 [Rack Attack]: ../security/rack_attack.md
 [Rate Limit]: ../user/admin_area/settings/rate_limits_on_raw_endpoints.md
+
+## `database_load_balancing.log` **(PREMIUM ONLY)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/15442) in GitLab 12.3.
+
+Contains details of GitLab's [Database Load Balancing](database_load_balancing.md).
+It is stored at:
+
+- `/var/log/gitlab/gitlab-rails/database_load_balancing.log` for Omnibus GitLab packages.
+- `/home/git/gitlab/log/database_load_balancing.log` for installations from source.

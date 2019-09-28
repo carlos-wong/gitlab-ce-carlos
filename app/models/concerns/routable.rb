@@ -29,12 +29,14 @@ module Routable
     #
     # Usage:
     #
-    #     Klass.find_by_full_path('gitlab-org/gitlab-ce')
+    #     Klass.find_by_full_path('gitlab-org/gitlab-foss')
     #
     # Returns a single object, or nil.
     def find_by_full_path(path, follow_redirects: false)
-      order_sql = Arel.sql("(CASE WHEN routes.path = #{connection.quote(path)} THEN 0 ELSE 1 END)")
-      found = where_full_path_in([path]).reorder(order_sql).take
+      # Case sensitive match first (it's cheaper and the usual case)
+      # If we didn't have an exact match, we perform a case insensitive search
+      found = includes(:route).find_by(routes: { path: path }) || where_full_path_in([path]).take
+
       return found if found
 
       if follow_redirects
@@ -46,7 +48,7 @@ module Routable
     #
     # Usage:
     #
-    #     Klass.where_full_path_in(%w{gitlab-org/gitlab-ce gitlab-org/gitlab-ee})
+    #     Klass.where_full_path_in(%w{gitlab-org/gitlab-foss gitlab-org/gitlab})
     #
     # Returns an ActiveRecord::Relation.
     def where_full_path_in(paths)
@@ -56,7 +58,7 @@ module Routable
         "(LOWER(routes.path) = LOWER(#{connection.quote(path)}))"
       end
 
-      joins(:route).where(wheres.join(' OR '))
+      includes(:route).where(wheres.join(' OR ')).references(:routes)
     end
   end
 

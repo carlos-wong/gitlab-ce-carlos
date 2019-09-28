@@ -1,30 +1,32 @@
 # frozen_string_literal: true
 
-require 'gt_one_coercion'
-
 module Blobs
   class UnfoldPresenter < BlobPresenter
-    include Virtus.model
+    include ActiveModel::Attributes
+    include ActiveModel::AttributeAssignment
     include Gitlab::Utils::StrongMemoize
 
-    attribute :full, Boolean, default: false
-    attribute :since, GtOneCoercion
-    attribute :to, Integer
-    attribute :bottom, Boolean
-    attribute :unfold, Boolean, default: true
-    attribute :offset, Integer
-    attribute :indent, Integer, default: 0
+    attribute :full, :boolean, default: false
+    attribute :since, :integer, default: 1
+    attribute :to, :integer, default: 1
+    attribute :bottom, :boolean, default: false
+    attribute :unfold, :boolean, default: true
+    attribute :offset, :integer, default: 0
+    attribute :indent, :integer, default: 0
+
+    alias_method :full?, :full
+    alias_method :bottom?, :bottom
+    alias_method :unfold?, :unfold
 
     def initialize(blob, params)
+      super(blob)
+      self.attributes = params
+
       # Load all blob data first as we need to ensure they're all loaded first
       # so we can accurately show the rest of the diff when unfolding.
       load_all_blob_data
 
-      @subject = blob
-      @all_lines = blob.data.lines
-      super(params)
-
-      self.attributes = prepare_attributes
+      handle_full_or_end!
     end
 
     # Returns an array of Gitlab::Diff::Line with match line added
@@ -42,7 +44,7 @@ module Blobs
 
     def lines
       strong_memoize(:lines) do
-        limit(highlight.lines).map(&:html_safe)
+        limit(highlight(to: to).lines).map(&:html_safe)
       end
     end
 
@@ -56,26 +58,23 @@ module Blobs
 
     private
 
-    def prepare_attributes
-      return attributes unless full? || to == -1
+    def handle_full_or_end!
+      return unless full? || to == -1
 
-      full_opts = {
-        since: 1,
+      self.since = 1 if full?
+
+      self.attributes = {
         to: all_lines_size,
         bottom: false,
         unfold: false,
         offset: 0,
         indent: 0
       }
-
-      return full_opts if full?
-
-      full_opts.merge(attributes.slice(:since))
     end
 
     def all_lines_size
       strong_memoize(:all_lines_size) do
-        @all_lines.size
+        all_lines.size
       end
     end
 
@@ -100,7 +99,7 @@ module Blobs
 
     def limited_blob_lines
       strong_memoize(:limited_blob_lines) do
-        limit(@all_lines)
+        limit(all_lines)
       end
     end
 

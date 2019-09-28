@@ -9,6 +9,8 @@ module Gitlab
   module Auth
     module OAuth
       class User
+        prepend_if_ee('::EE::Gitlab::Auth::OAuth::User') # rubocop: disable Cop/InjectEnterpriseEditionModule
+
         SignupDisabledError = Class.new(StandardError)
         SigninDisabledForProviderError = Class.new(StandardError)
 
@@ -77,7 +79,12 @@ module Gitlab
         end
 
         def bypass_two_factor?
-          false
+          providers = Gitlab.config.omniauth.allow_bypass_two_factor
+          if providers.is_a?(Array)
+            providers.include?(auth_hash.provider)
+          else
+            providers
+          end
         end
 
         protected

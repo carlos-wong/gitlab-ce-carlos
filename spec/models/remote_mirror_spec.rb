@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require 'spec_helper'
 
 describe RemoteMirror, :mailer do
   include GitHelpers
@@ -39,6 +39,13 @@ describe RemoteMirror, :mailer do
 
         expect(remote_mirror).to be_invalid
         expect(remote_mirror.errors[:url].first).to include('Requests to the local network are not allowed')
+      end
+
+      it 'returns a nil safe_url' do
+        remote_mirror = build(:remote_mirror, url: 'http://[0:0:0:0:ffff:123.123.123.123]/foo.git')
+
+        expect(remote_mirror.url).to eq('http://[0:0:0:0:ffff:123.123.123.123]/foo.git')
+        expect(remote_mirror.safe_url).to be_nil
       end
     end
   end

@@ -1,8 +1,8 @@
 # Code Owners **(STARTER)**
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6916)
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/6916)
 in [GitLab Starter](https://about.gitlab.com/pricing/) 11.3.
-> - [Support for group namespaces](https://gitlab.com/gitlab-org/gitlab-ce/issues/53182) added in GitLab Starter 12.1.
+> - [Support for group namespaces](https://gitlab.com/gitlab-org/gitlab-foss/issues/53182) added in GitLab Starter 12.1.
 
 You can use a `CODEOWNERS` file to specify users or
 [shared groups](members/share_project_with_groups.md)
@@ -58,7 +58,7 @@ Example `CODEOWNERS` file:
 \#file_with_pound.rb @owner-file-with-pound
 
 # Multiple codeowners can be specified, separated by spaces or tabs
-CODEOWNERS @multiple @code @owners 
+CODEOWNERS @multiple @code @owners
 
 # Both usernames or email addresses can be used to match
 # users. Everything else will be ignored. For example this will

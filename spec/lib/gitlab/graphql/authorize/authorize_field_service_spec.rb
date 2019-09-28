@@ -30,7 +30,11 @@ describe Gitlab::Graphql::Authorize::AuthorizeFieldService do
   describe '#authorized_resolve' do
     let(:presented_object) { double('presented object') }
     let(:presented_type) { double('parent type', object: presented_object) }
-    subject(:resolved) { service.authorized_resolve.call(presented_type, {}, { current_user: current_user }) }
+    let(:query_type) { GraphQL::ObjectType.new }
+    let(:schema) { GraphQL::Schema.define(query: query_type, mutation: nil)}
+    let(:query_context) { OpenStruct.new(schema: schema) }
+    let(:context) { GraphQL::Query::Context.new(query: OpenStruct.new(schema: schema, context: query_context), values: { current_user: current_user }, object: nil) }
+    subject(:resolved) { service.authorized_resolve.call(presented_type, {}, context) }
 
     context 'scalar types' do
       shared_examples 'checking permissions on the presented object' do

@@ -187,6 +187,22 @@ describe Notify do
         end
       end
 
+      describe 'that are due soon' do
+        subject { described_class.issue_due_email(recipient.id, issue.id) }
+
+        before do
+          issue.update(due_date: Date.tomorrow)
+        end
+
+        it_behaves_like 'an answer to an existing thread with reply-by-email enabled' do
+          let(:model) { issue }
+        end
+        it_behaves_like 'it should show Gmail Actions View Issue link'
+        it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
+      end
+
       describe 'status changed' do
         let(:status) { 'closed' }
         subject { described_class.issue_status_changed_email(recipient.id, issue.id, status, current_user.id) }
@@ -540,6 +556,73 @@ describe Notify do
         let(:existing_commits) { [merge_request.commits.first] }
 
         it_behaves_like 'a push to an existing merge request'
+      end
+    end
+
+    describe '#mail_thread' do
+      set(:mail_thread_note) { create(:note) }
+
+      let(:headers) do
+        {
+          from: 'someone@test.com',
+          to: 'someone-else@test.com',
+          subject: 'something',
+          template_name: '_note_email' # re-use this for testing
+        }
+      end
+
+      let(:mailer) do
+        mailer = described_class.new
+        mailer.instance_variable_set(:@note, mail_thread_note)
+        mailer
+      end
+
+      context 'the model has no namespace' do
+        class TopLevelThing
+          include Referable
+          include Noteable
+
+          def to_reference(*_args)
+            'tlt-ref'
+          end
+
+          def id
+            'tlt-id'
+          end
+        end
+
+        subject do
+          mailer.send(:mail_thread, TopLevelThing.new, headers)
+        end
+
+        it 'has X-GitLab-Namespaced-Thing-ID header' do
+          expect(subject.header['X-GitLab-TopLevelThing-ID'].value).to eq('tlt-id')
+        end
+      end
+
+      context 'the model has a namespace' do
+        module Namespaced
+          class Thing
+            include Referable
+            include Noteable
+
+            def to_reference(*_args)
+              'some-reference'
+            end
+
+            def id
+              'some-id'
+            end
+          end
+        end
+
+        subject do
+          mailer.send(:mail_thread, Namespaced::Thing.new, headers)
+        end
+
+        it 'has X-GitLab-Namespaced-Thing-ID header' do
+          expect(subject.header['X-GitLab-Namespaced-Thing-ID'].value).to eq('some-id')
+        end
       end
     end
 

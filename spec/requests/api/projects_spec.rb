@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 shared_examples 'languages and percentages JSON response' do
   let(:expected_languages) { project.repository.languages.map { |language| language.values_at(:label, :value)}.to_h }
 
   before do
+    allow(DetectRepositoryLanguagesWorker).to receive(:perform_async).and_call_original
+
     allow(project.repository).to receive(:languages).and_return(
       [{ value: 66.69, label: "Ruby", color: "#701516", highlight: "#701516" },
        { value: 22.98, label: "JavaScript", color: "#f1e05a", highlight: "#f1e05a" },
@@ -629,6 +630,33 @@ describe API::Projects do
       expect(project.project_feature.wiki_access_level).to eq(ProjectFeature::DISABLED)
     end
 
+    it 'creates a project using a template' do
+      expect { post api('/projects', user), params: { template_name: 'rails', name: 'rails-test' } }
+        .to change { Project.count }.by(1)
+
+      expect(response).to have_gitlab_http_status(201)
+
+      project = Project.find(json_response['id'])
+      expect(project).to be_saved
+      expect(project.import_type).to eq('gitlab_project')
+    end
+
+    it 'returns 400 for an invalid template' do
+      expect { post api('/projects', user), params: { template_name: 'unknown', name: 'rails-test' } }
+        .not_to change { Project.count }
+
+      expect(response).to have_gitlab_http_status(400)
+      expect(json_response['message']['template_name']).to eq(["'unknown' is unknown or invalid"])
+    end
+
+    it 'disallows creating a project with an import_url and template' do
+      project_params = { import_url: 'http://example.com', template_name: 'rails', name: 'rails-test' }
+      expect { post api('/projects', user), params: project_params }
+        .not_to change {  Project.count }
+
+      expect(response).to have_gitlab_http_status(400)
+    end
+
     it 'sets a project as public' do
       project = attributes_for(:project, visibility: 'public')
 
@@ -865,7 +893,7 @@ describe API::Projects do
       expect { post api("/projects/user/#{user.id}", admin), params: { name: 'Foo Project' } }.to change { Project.count }.by(1)
       expect(response).to have_gitlab_http_status(201)
 
-      project = Project.last
+      project = Project.find(json_response['id'])
 
       expect(project.name).to eq('Foo Project')
       expect(project.path).to eq('foo-project')
@@ -876,7 +904,7 @@ describe API::Projects do
         .to change { Project.count }.by(1)
       expect(response).to have_gitlab_http_status(201)
 
-      project = Project.last
+      project = Project.find(json_response['id'])
 
       expect(project.name).to eq('Foo Project')
       expect(project.path).to eq('path-project-Foo')
@@ -1493,6 +1521,17 @@ describe API::Projects do
         get api("/projects/#{project.id}/users", other_user)
 
         expect(response).to have_gitlab_http_status(404)
+      end
+
+      it 'filters out users listed in skip_users' do
+        other_user = create(:user)
+        project.team.add_developer(other_user)
+
+        get api("/projects/#{project.id}/users?skip_users=#{user.id}", user)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response.size).to eq(1)
+        expect(json_response[0]['id']).to eq(other_user.id)
       end
     end
   end

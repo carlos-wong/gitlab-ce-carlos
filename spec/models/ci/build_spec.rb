@@ -149,6 +149,56 @@ describe Ci::Build do
     end
   end
 
+  describe '.with_stale_live_trace' do
+    subject { described_class.with_stale_live_trace }
+
+    context 'when build has a stale live trace' do
+      let!(:build) { create(:ci_build, :success, :trace_live, finished_at: 1.day.ago) }
+
+      it 'selects the build' do
+        is_expected.to eq([build])
+      end
+    end
+
+    context 'when build does not have a stale live trace' do
+      let!(:build) { create(:ci_build, :success, :trace_live, finished_at: 1.hour.ago) }
+
+      it 'does not select the build' do
+        is_expected.to be_empty
+      end
+    end
+  end
+
+  describe '.finished_before' do
+    subject { described_class.finished_before(date) }
+
+    let(:date) { 1.hour.ago }
+
+    context 'when build has finished one day ago' do
+      let!(:build) { create(:ci_build, :success, finished_at: 1.day.ago) }
+
+      it 'selects the build' do
+        is_expected.to eq([build])
+      end
+    end
+
+    context 'when build has finished 30 minutes ago' do
+      let!(:build) { create(:ci_build, :success, finished_at: 30.minutes.ago) }
+
+      it 'returns an empty array' do
+        is_expected.to be_empty
+      end
+    end
+
+    context 'when build is still running' do
+      let!(:build) { create(:ci_build, :running) }
+
+      it 'returns an empty array' do
+        is_expected.to be_empty
+      end
+    end
+  end
+
   describe '.with_reports' do
     subject { described_class.with_reports(Ci::JobArtifact.test_reports) }
 
@@ -2165,6 +2215,7 @@ describe Ci::Build do
           { key: 'CI_PROJECT_NAMESPACE', value: project.namespace.full_path, public: true, masked: false },
           { key: 'CI_PROJECT_URL', value: project.web_url, public: true, masked: false },
           { key: 'CI_PROJECT_VISIBILITY', value: 'private', public: true, masked: false },
+          { key: 'CI_PROJECT_REPOSITORY_LANGUAGES', value: project.repository_languages.map(&:name).join(',').downcase, public: true, masked: false },
           { key: 'CI_PAGES_DOMAIN', value: Gitlab.config.pages.host, public: true, masked: false },
           { key: 'CI_PAGES_URL', value: project.pages_url, public: true, masked: false },
           { key: 'CI_API_V4_URL', value: 'http://localhost/api/v4', public: true, masked: false },

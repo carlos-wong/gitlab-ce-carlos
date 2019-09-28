@@ -18,12 +18,12 @@ class DeploymentEntity < Grape::Entity
   end
 
   expose :created_at
-  expose :finished_at
+  expose :deployed_at
   expose :tag
   expose :last?
-  expose :user, using: UserEntity
+  expose :deployed_by, as: :user, using: UserEntity
 
-  expose :deployable do |deployment, opts|
+  expose :deployable, if: -> (deployment) { deployment.deployable.present? } do |deployment, opts|
     deployment.deployable.yield_self do |deployable|
       if include_details?
         JobEntity.represent(deployable, opts)
@@ -37,6 +37,8 @@ class DeploymentEntity < Grape::Entity
   expose :commit, using: CommitEntity, if: -> (*) { include_details? }
   expose :manual_actions, using: JobEntity, if: -> (*) { include_details? && can_create_deployment? }
   expose :scheduled_actions, using: JobEntity, if: -> (*) { include_details? && can_create_deployment? }
+
+  expose :cluster, using: ClusterBasicEntity
 
   private
 

@@ -418,7 +418,7 @@ GET /projects/:id/services/flowdock
 
 Google GSuite team collaboration tool.
 
->**Note:** This service was [introduced in v11.2](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/20290)
+>**Note:** This service was [introduced in v11.2](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/20290)
 
 ### Create/Edit Hangouts Chat service
 
@@ -436,7 +436,8 @@ Parameters:
 | --------- | ---- | -------- | ----------- |
 | `webhook` | string | true | The Hangouts Chat webhook. For example, `https://chat.googleapis.com/v1/spaces...`. |
 | `notify_only_broken_pipelines` | boolean | false | Send notifications for broken pipelines |
-| `notify_only_default_branch` | boolean | false | Send notifications only for the default branch |
+| `notify_only_default_branch` | boolean | false | DEPRECATED: This parameter has been replaced with `branches_to_be_notified` |
+| `branches_to_be_notified` | string | all | Branches to send notifications for. Valid options are "all", "default", "protected", and "default_and_protected" |
 | `push_events` | boolean | false | Enable notifications for push events |
 | `issues_events` | boolean | false | Enable notifications for issue events |
 | `confidential_issues_events` | boolean | false | Enable notifications for confidential issue events |
@@ -745,7 +746,8 @@ Parameters:
 | `recipients` | string | yes | Comma-separated list of recipient email addresses |
 | `add_pusher` | boolean | no | Add pusher to recipients list |
 | `notify_only_broken_pipelines` | boolean | no | Notify only broken pipelines |
-| `notify_only_default_branch` | boolean | no | Send notifications only for the default branch ([introduced in GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/28271)) |
+| `branches_to_be_notified` | string | all | Branches to send notifications for. Valid options are "all", "default", "protected", and "default_and_protected" |
+| `notify_only_default_branch` | boolean | no | Send notifications only for the default branch ([introduced in GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/28271)) |
 | `pipeline_events` | boolean | false | Enable notifications for pipeline events |
 
 ### Delete Pipeline-Emails service
@@ -933,7 +935,8 @@ Parameters:
 | `username` | string | false | username |
 | `channel` | string | false | Default channel to use if others are not configured |
 | `notify_only_broken_pipelines` | boolean | false | Send notifications for broken pipelines |
-| `notify_only_default_branch` | boolean | false | Send notifications only for the default branch |
+| `notify_only_default_branch` | boolean | false | DEPRECATED: This parameter has been replaced with `branches_to_be_notified` |
+| `branches_to_be_notified` | string | all | Branches to send notifications for. Valid options are "all", "default", "protected", and "default_and_protected" |
 | `commit_events` | boolean | false | Enable notifications for commit events |
 | `confidential_issue_channel` | string | false | The name of the channel to receive confidential issues events notifications |
 | `confidential_issues_events` | boolean | false | Enable notifications for confidential issue events |
@@ -991,7 +994,8 @@ Parameters:
 | --------- | ---- | -------- | ----------- |
 | `webhook` | string | true | The Microsoft Teams webhook. For example, `https://outlook.office.com/webhook/...` |
 | `notify_only_broken_pipelines` | boolean | false | Send notifications for broken pipelines |
-| `notify_only_default_branch` | boolean | false | Send notifications only for the default branch |
+| `notify_only_default_branch` | boolean | false | DEPRECATED: This parameter has been replaced with `branches_to_be_notified` |
+| `branches_to_be_notified` | string | all | Branches to send notifications for. Valid options are "all", "default", "protected", and "default_and_protected" |
 | `push_events` | boolean | false | Enable notifications for push events |
 | `issues_events` | boolean | false | Enable notifications for issue events |
 | `confidential_issues_events` | boolean | false | Enable notifications for confidential issue events |
@@ -1040,7 +1044,8 @@ Parameters:
 | `username` | string | false | username |
 | `channel` | string | false | Default channel to use if others are not configured |
 | `notify_only_broken_pipelines` | boolean | false | Send notifications for broken pipelines |
-| `notify_only_default_branch` | boolean | false | Send notifications only for the default branch |
+| `notify_only_default_branch` | boolean | false | DEPRECATED: This parameter has been replaced with `branches_to_be_notified` |
+| `branches_to_be_notified` | string | all | Branches to send notifications for. Valid options are "all", "default", "protected", and "default_and_protected" |
 | `push_events` | boolean | false | Enable notifications for push events |
 | `issues_events` | boolean | false | Enable notifications for issue events |
 | `confidential_issues_events` | boolean | false | Enable notifications for confidential issue events |
@@ -1184,7 +1189,7 @@ GET /projects/:id/services/jenkins-deprecated
 ```
 
 [jira-doc]: ../user/project/integrations/jira.md
-[old-jira-api]: https://gitlab.com/gitlab-org/gitlab-ce/blob/8-13-stable/doc/api/services.md#jira
+[old-jira-api]: https://gitlab.com/gitlab-org/gitlab-foss/blob/8-13-stable/doc/api/services.md#jira
 
 ## MockCI
 
@@ -1222,7 +1227,7 @@ Get MockCI service settings for a project.
 GET /projects/:id/services/mock-ci
 ```
 
-[11435]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/11435
+[11435]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/11435
 
 ## YouTrack
 

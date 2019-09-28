@@ -1,4 +1,6 @@
 import $ from 'helpers/jquery';
+import AxiosMockAdapter from 'axios-mock-adapter';
+import axios from '~/lib/utils/axios_utils';
 import Vue from 'vue';
 import { mount, createLocalVue } from '@vue/test-utils';
 import NotesApp from '~/notes/components/notes_app.vue';
@@ -6,22 +8,13 @@ import service from '~/notes/services/notes_service';
 import createStore from '~/notes/stores';
 import '~/behaviors/markdown/render_gfm';
 import { setTestTimeout } from 'helpers/timeout';
-// TODO: use generated fixture (https://gitlab.com/gitlab-org/gitlab-ce/issues/62491)
+// TODO: use generated fixture (https://gitlab.com/gitlab-org/gitlab-foss/issues/62491)
 import * as mockData from '../../../javascripts/notes/mock_data';
-
-const originalInterceptors = [...Vue.http.interceptors];
-
-const emptyResponseInterceptor = (request, next) => {
-  next(
-    request.respondWith(JSON.stringify([]), {
-      status: 200,
-    }),
-  );
-};
 
 setTestTimeout(1000);
 
 describe('note_app', () => {
+  let axiosMock;
   let mountComponent;
   let wrapper;
   let store;
@@ -44,6 +37,8 @@ describe('note_app', () => {
 
   beforeEach(() => {
     $('body').attr('data-page', 'projects:merge_requests:show');
+
+    axiosMock = new AxiosMockAdapter(axios);
 
     store = createStore();
     mountComponent = data => {
@@ -74,12 +69,12 @@ describe('note_app', () => {
 
   afterEach(() => {
     wrapper.destroy();
-    Vue.http.interceptors = [...originalInterceptors];
+    axiosMock.restore();
   });
 
   describe('set data', () => {
     beforeEach(() => {
-      Vue.http.interceptors.push(emptyResponseInterceptor);
+      axiosMock.onAny().reply(200, []);
       wrapper = mountComponent();
       return waitForDiscussionsRequest();
     });
@@ -105,7 +100,7 @@ describe('note_app', () => {
     beforeEach(() => {
       setFixtures('<div class="js-discussions-count"></div>');
 
-      Vue.http.interceptors.push(mockData.individualNoteInterceptor);
+      axiosMock.onAny().reply(mockData.getIndividualNoteResponse);
       wrapper = mountComponent();
       return waitForDiscussionsRequest();
     });
@@ -113,7 +108,7 @@ describe('note_app', () => {
     it('should render list of notes', () => {
       const note =
         mockData.INDIVIDUAL_NOTE_RESPONSE_MAP.GET[
-          '/gitlab-org/gitlab-ce/issues/26/discussions.json'
+          '/gitlab-org/gitlab-foss/issues/26/discussions.json'
         ][0].notes[0];
 
       expect(
@@ -133,26 +128,6 @@ describe('note_app', () => {
       );
     });
 
-    it('should not render form when commenting is disabled', () => {
-      wrapper.destroy();
-
-      store.state.commentsDisabled = true;
-      wrapper = mountComponent();
-      return waitForDiscussionsRequest().then(() => {
-        expect(wrapper.find('.js-main-target-form').exists()).toBe(false);
-      });
-    });
-
-    it('should render discussion filter note `commentsDisabled` is true', () => {
-      wrapper.destroy();
-
-      store.state.commentsDisabled = true;
-      wrapper = mountComponent();
-      return waitForDiscussionsRequest().then(() => {
-        expect(wrapper.find('.js-discussion-filter-note').exists()).toBe(true);
-      });
-    });
-
     it('should render form comment button as disabled', () => {
       expect(wrapper.find('.js-note-new-discussion').attributes('disabled')).toEqual('disabled');
     });
@@ -162,9 +137,28 @@ describe('note_app', () => {
     });
   });
 
+  describe('render with comments disabled', () => {
+    beforeEach(() => {
+      setFixtures('<div class="js-discussions-count"></div>');
+
+      axiosMock.onAny().reply(mockData.getIndividualNoteResponse);
+      store.state.commentsDisabled = true;
+      wrapper = mountComponent();
+      return waitForDiscussionsRequest();
+    });
+
+    it('should not render form when commenting is disabled', () => {
+      expect(wrapper.find('.js-main-target-form').exists()).toBe(false);
+    });
+
+    it('should render discussion filter note `commentsDisabled` is true', () => {
+      expect(wrapper.find('.js-discussion-filter-note').exists()).toBe(true);
+    });
+  });
+
   describe('while fetching data', () => {
     beforeEach(() => {
-      Vue.http.interceptors.push(emptyResponseInterceptor);
+      axiosMock.onAny().reply(200, []);
       wrapper = mountComponent();
     });
 
@@ -185,7 +179,7 @@ describe('note_app', () => {
   describe('update note', () => {
     describe('individual note', () => {
       beforeEach(() => {
-        Vue.http.interceptors.push(mockData.individualNoteInterceptor);
+        axiosMock.onAny().reply(mockData.getIndividualNoteResponse);
         jest.spyOn(service, 'updateNote');
         wrapper = mountComponent();
         return waitForDiscussionsRequest().then(() => {
@@ -207,7 +201,7 @@ describe('note_app', () => {
 
     describe('discussion note', () => {
       beforeEach(() => {
-        Vue.http.interceptors.push(mockData.discussionNoteInterceptor);
+        axiosMock.onAny().reply(mockData.getDiscussionNoteResponse);
         jest.spyOn(service, 'updateNote');
         wrapper = mountComponent();
         return waitForDiscussionsRequest().then(() => {
@@ -230,7 +224,7 @@ describe('note_app', () => {
 
   describe('new note form', () => {
     beforeEach(() => {
-      Vue.http.interceptors.push(mockData.individualNoteInterceptor);
+      axiosMock.onAny().reply(mockData.getIndividualNoteResponse);
       wrapper = mountComponent();
       return waitForDiscussionsRequest();
     });
@@ -260,7 +254,7 @@ describe('note_app', () => {
 
   describe('edit form', () => {
     beforeEach(() => {
-      Vue.http.interceptors.push(mockData.individualNoteInterceptor);
+      axiosMock.onAny().reply(mockData.getIndividualNoteResponse);
       wrapper = mountComponent();
       return waitForDiscussionsRequest();
     });
@@ -288,7 +282,7 @@ describe('note_app', () => {
 
   describe('emoji awards', () => {
     beforeEach(() => {
-      Vue.http.interceptors.push(emptyResponseInterceptor);
+      axiosMock.onAny().reply(200, []);
       wrapper = mountComponent();
       return waitForDiscussionsRequest();
     });

@@ -9,7 +9,7 @@ module ApplicationSettings
     MARKDOWN_CACHE_INVALIDATING_PARAMS = %w(asset_proxy_enabled asset_proxy_url asset_proxy_secret_key asset_proxy_whitelist).freeze
 
     def execute
-      validate_classification_label(application_setting, :external_authorization_service_default_label)
+      validate_classification_label(application_setting, :external_authorization_service_default_label) unless bypass_external_auth?
 
       if application_setting.errors.any?
         return false
@@ -72,5 +72,11 @@ module ApplicationSettings
 
       Group.find_by_full_path(group_full_path)&.id if group_full_path.present?
     end
+
+    def bypass_external_auth?
+      params.key?(:external_authorization_service_enabled) && !Gitlab::Utils.to_boolean(params[:external_authorization_service_enabled])
+    end
   end
 end
+
+ApplicationSettings::UpdateService.prepend_if_ee('EE::ApplicationSettings::UpdateService')

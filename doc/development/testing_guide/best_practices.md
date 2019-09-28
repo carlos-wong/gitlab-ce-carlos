@@ -13,7 +13,7 @@ a level that is difficult to manage.
 Test heuristics can help solve this problem. They concisely address many of the common ways bugs
 manifest themselves within our code. When designing our tests, take time to review known test heuristics to inform
 our test design. We can find some helpful heuristics documented in the Handbook in the
-[Test Design](https://about.gitlab.com/handbook/engineering/quality/guidelines/test-engineering/test-design/) section.
+[Test Engineering](https://about.gitlab.com/handbook/engineering/quality/test-engineering/#test-heuristics) section.
 
 ## Test speed
 
@@ -148,7 +148,7 @@ Add `screenshot_and_open_image` in a `:js` spec to screenshot what Capybara
 
 The HTML dumps created by this are missing CSS.
 This results in them looking very different from the actual application.
-There is a [small hack](https://gitlab.com/gitlab-org/gitlab-ce/snippets/1718469) to add CSS which makes debugging easier.
+There is a [small hack](https://gitlab.com/gitlab-org/gitlab-foss/snippets/1718469) to add CSS which makes debugging easier.
 
 ### Fast unit tests
 
@@ -445,6 +445,19 @@ complexity of RSpec expectations.They should be placed under
 a certain type of specs only (e.g. features, requests etc.) but shouldn't be if
 they apply to multiple type of specs.
 
+#### `be_like_time`
+
+Time returned from a database can differ in precision from time objects
+in Ruby, so we need flexible tolerances when comparing in specs. We can
+use `be_like_time` to compare that times are within one second of each
+other.
+
+Example:
+
+```ruby
+expect(metrics.merged_at).to be_like_time(time)
+```
+
 #### `have_gitlab_http_status`
 
 Prefer `have_gitlab_http_status` over `have_http_status` because the former
@@ -525,7 +538,7 @@ GitLab uses [factory_bot] as a test fixture replacement.
 - When instantiating from a factory, don't supply attributes that aren't
   required by the test.
 - Factories don't have to be limited to `ActiveRecord` objects.
-  [See example](https://gitlab.com/gitlab-org/gitlab-ce/commit/0b8cefd3b2385a21cfed779bd659978c0402766d).
+  [See example](https://gitlab.com/gitlab-org/gitlab-foss/commit/0b8cefd3b2385a21cfed779bd659978c0402766d).
 
 [factory_bot]: https://github.com/thoughtbot/factory_bot
 [traits]: http://www.rubydoc.info/gems/factory_bot/file/GETTING_STARTED.md#Traits

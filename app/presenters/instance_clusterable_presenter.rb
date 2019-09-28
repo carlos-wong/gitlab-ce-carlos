@@ -18,8 +18,8 @@ class InstanceClusterablePresenter < ClusterablePresenter
   end
 
   override :new_path
-  def new_path
-    new_admin_cluster_path
+  def new_path(options = {})
+    new_admin_cluster_path(options)
   end
 
   override :cluster_status_cluster_path
@@ -67,3 +67,5 @@ class InstanceClusterablePresenter < ClusterablePresenter
     link_to(s_('ClusterIntegration|Learn more about instance Kubernetes clusters'), help_page_path('user/instance/clusters/index'), target: '_blank', rel: 'noopener noreferrer')
   end
 end
+
+InstanceClusterablePresenter.prepend_if_ee('EE::InstanceClusterablePresenter')

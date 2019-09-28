@@ -86,7 +86,7 @@ describe Gitlab::Auth do
         let(:project) { build.project }
 
         before do
-          expect(gl_auth).to receive(:rate_limit!).with('ip', success: true, login: 'gitlab-ci-token')
+          expect(gl_auth).not_to receive(:rate_limit!).with('ip', success: true, login: 'gitlab-ci-token')
         end
 
         it 'recognises user-less build' do
@@ -106,7 +106,7 @@ describe Gitlab::Auth do
           let(:project) { build.project }
 
           before do
-            expect(gl_auth).to receive(:rate_limit!).with('ip', success: false, login: 'gitlab-ci-token')
+            expect(gl_auth).not_to receive(:rate_limit!).with('ip', success: false, login: 'gitlab-ci-token')
           end
 
           it 'denies authentication' do
@@ -587,7 +587,8 @@ describe Gitlab::Auth do
       :read_project,
       :build_download_code,
       :build_read_container_image,
-      :build_create_container_image
+      :build_create_container_image,
+      :build_destroy_container_image
     ]
   end
 

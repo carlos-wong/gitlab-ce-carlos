@@ -377,6 +377,7 @@ $performance-bar-height: 35px;
 $system-header-height: 16px;
 $system-footer-height: $system-header-height;
 $flash-height: 52px;
+$flash-container-top: 48px;
 $context-header-height: 60px;
 $breadcrumb-min-height: 48px;
 $home-panel-title-row-height: 64px;
@@ -469,6 +470,7 @@ $link-active-background: rgba(0, 0, 0, 0.04);
 $link-hover-background: rgba(0, 0, 0, 0.06);
 $inactive-badge-background: rgba(0, 0, 0, 0.08);
 $sidebar-toggle-height: 60px;
+$sidebar-toggle-width: 40px;
 $sidebar-milestone-toggle-bottom-margin: 10px;
 
 /*
@@ -528,7 +530,7 @@ $award-emoji-width-xs: 90%;
  */
 $search-input-border-color: rgba($blue-400, 0.8);
 $search-input-width: 200px;
-$search-input-active-width: 320px;
+$search-input-xl-width: 320px;
 $location-icon-color: #e7e9ed;
 
 /*
@@ -604,6 +606,9 @@ $blame-blue: #254e77;
 */
 $builds-trace-bg: #111;
 $job-log-highlight-height: 18px;
+$job-log-line-padding: 62px;
+$job-line-number-width: 40px;
+$job-arrow-margin: 50px;
 
 /*
 * Commit Page
@@ -724,6 +729,7 @@ $pipeline-dropdown-line-height: 20px;
 $pipeline-dropdown-status-icon-size: 18px;
 $ci-action-dropdown-button-size: 24px;
 $ci-action-dropdown-svg-size: 12px;
+$pipelines-table-header-height: 40px;
 
 /*
 CI variable lists

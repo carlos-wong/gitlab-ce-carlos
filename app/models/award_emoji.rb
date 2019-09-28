@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class AwardEmoji < ApplicationRecord
-  DOWNVOTE_NAME = "thumbsdown".freeze
-  UPVOTE_NAME   = "thumbsup".freeze
+  DOWNVOTE_NAME = "thumbsdown"
+  UPVOTE_NAME   = "thumbsup"
 
   include Participable
   include GhostUser
@@ -16,8 +16,10 @@ class AwardEmoji < ApplicationRecord
 
   participant :user
 
-  scope :downvotes, -> { where(name: DOWNVOTE_NAME) }
-  scope :upvotes,   -> { where(name: UPVOTE_NAME) }
+  scope :downvotes, -> { named(DOWNVOTE_NAME) }
+  scope :upvotes, -> { named(UPVOTE_NAME) }
+  scope :named, -> (names) { where(name: names) }
+  scope :awarded_by, -> (users) { where(user: users) }
 
   after_save :expire_etag_cache
   after_destroy :expire_etag_cache

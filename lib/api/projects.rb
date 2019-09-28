@@ -68,6 +68,8 @@ module API
       params :create_params do
         optional :namespace_id, type: Integer, desc: 'Namespace ID for the new project. Default to the user namespace.'
         optional :import_url, type: String, desc: 'URL from which the project is imported'
+        optional :template_name, type: String, desc: "Name of template from which to create project"
+        mutually_exclusive :import_url, :template_name
       end
 
       def load_projects
@@ -155,7 +157,7 @@ module API
         optional :name, type: String, desc: 'The name of the project'
         optional :path, type: String, desc: 'The path of the repository'
         at_least_one_of :name, :path
-        use :optional_project_params
+        use :optional_create_project_params
         use :create_params
       end
       post do
@@ -247,7 +249,7 @@ module API
         optional :name, type: String, desc: 'The name that will be assigned to the fork'
       end
       post ':id/fork' do
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42284')
+        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42284')
 
         fork_params = declared_params(include_missing: false)
         namespace_id = fork_params[:namespace]
@@ -478,7 +480,8 @@ module API
 
       desc 'Upload a file'
       params do
-        requires :file, type: File, desc: 'The file to be uploaded'
+        # TODO: remove rubocop disable - https://gitlab.com/gitlab-org/gitlab/issues/14960
+        requires :file, type: File, desc: 'The file to be uploaded' # rubocop:disable Scalability/FileUploads
       end
       post ":id/uploads" do
         UploadService.new(user_project, params[:file]).execute.to_h
@@ -489,11 +492,13 @@ module API
       end
       params do
         optional :search, type: String, desc: 'Return list of users matching the search criteria'
+        optional :skip_users, type: Array[Integer], desc: 'Filter out users with the specified IDs'
         use :pagination
       end
       get ':id/users' do
         users = DeclarativePolicy.subject_scope { user_project.team.users }
         users = users.search(params[:search]) if params[:search].present?
+        users = users.where_not_in(params[:skip_users]) if params[:skip_users].present?
 
         present paginate(users), with: Entities::UserBasic
       end
@@ -530,3 +535,5 @@ module API
     end
   end
 end
+
+API::Projects.prepend_if_ee('EE::API::Projects')

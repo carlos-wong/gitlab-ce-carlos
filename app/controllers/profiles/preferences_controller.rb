@@ -46,7 +46,10 @@ class Profiles::PreferencesController < Profiles::ApplicationController
       :first_day_of_week,
       :preferred_language,
       :time_display_relative,
-      :time_format_in_24h
+      :time_format_in_24h,
+      :show_whitespace_in_diffs
     ]
   end
 end
+
+Profiles::PreferencesController.prepend_if_ee('::EE::Profiles::PreferencesController')

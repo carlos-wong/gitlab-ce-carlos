@@ -405,7 +405,11 @@ module IssuablesHelper
       placement: is_collapsed ? 'left' : nil,
       container: is_collapsed ? 'body' : nil,
       boundary: 'viewport',
-      is_collapsed: is_collapsed
+      is_collapsed: is_collapsed,
+      track_label: "right_sidebar",
+      track_property: "update_todo",
+      track_event: "click_button",
+      track_value: ""
     }
   end
 
@@ -443,3 +447,5 @@ module IssuablesHelper
     @project || @group
   end
 end
+
+IssuablesHelper.prepend_if_ee('EE::IssuablesHelper')

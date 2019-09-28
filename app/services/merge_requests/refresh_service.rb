@@ -14,7 +14,7 @@ module MergeRequests
     private
 
     def refresh_merge_requests!
-      # n + 1: https://gitlab.com/gitlab-org/gitlab-ce/issues/60289
+      # n + 1: https://gitlab.com/gitlab-org/gitlab-foss/issues/60289
       Gitlab::GitalyClient.allow_n_plus_1_calls(&method(:find_new_commits))
 
       # Be sure to close outstanding MRs before reloading them to avoid generating an
@@ -257,3 +257,5 @@ module MergeRequests
     end
   end
 end
+
+MergeRequests::RefreshService.prepend_if_ee('EE::MergeRequests::RefreshService')

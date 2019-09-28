@@ -5,7 +5,8 @@ require 'securerandom'
 module QA
   module Resource
     class MergeRequest < Base
-      attr_accessor :id,
+      attr_accessor :approval_rules,
+                    :id,
                     :title,
                     :description,
                     :source_branch,
@@ -16,6 +17,7 @@ module QA
                     :labels,
                     :file_name,
                     :file_content
+      attr_writer :no_preparation
 
       attribute :project do
         Project.fabricate! do |resource|
@@ -46,6 +48,7 @@ module QA
       end
 
       def initialize
+        @approval_rules = nil
         @title = 'QA test - merge request'
         @description = 'This is a test merge request'
         @source_branch = "qa-test-feature-#{SecureRandom.hex(8)}"
@@ -56,6 +59,7 @@ module QA
         @file_name = "added_file.txt"
         @file_content = "File Added"
         @target_new_branch = true
+        @no_preparation = false
       end
 
       def fabricate!
@@ -63,21 +67,22 @@ module QA
 
         project.visit!
         Page::Project::Show.perform(&:new_merge_request)
-        Page::MergeRequest::New.perform do |page|
-          page.fill_title(@title)
-          page.fill_description(@description)
-          page.choose_milestone(@milestone) if @milestone
-          page.assign_to_me if @assignee == 'me'
+        Page::MergeRequest::New.perform do |new|
+          new.fill_title(@title)
+          new.fill_description(@description)
+          new.choose_milestone(@milestone) if @milestone
+          new.assign_to_me if @assignee == 'me'
           labels.each do |label|
-            page.select_label(label)
+            new.select_label(label)
           end
+          new.add_approval_rules(approval_rules) if approval_rules
 
-          page.create_merge_request
+          new.create_merge_request
         end
       end
 
       def fabricate_via_api!
-        populate(:target, :source)
+        populate(:target, :source) unless @no_preparation
         super
       end
 

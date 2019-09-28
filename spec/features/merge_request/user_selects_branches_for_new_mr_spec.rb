@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require 'spec_helper'
 
 describe 'Merge request > User selects branches for new MR', :js do
   let(:project) { create(:project, :public, :repository) }
@@ -64,7 +64,7 @@ describe 'Merge request > User selects branches for new MR', :js do
 
     click_button "Check out branch"
 
-    expect(page).to have_content 'git checkout -b orphaned-branch origin/orphaned-branch'
+    expect(page).to have_content 'git checkout -b "orphaned-branch" "origin/orphaned-branch"'
   end
 
   it 'allows filtering multiple dropdowns' do

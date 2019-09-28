@@ -5,6 +5,7 @@ module QA
     module Project
       module WebIDE
         class Edit < Page::Base
+          prepend Page::Component::WebIDE::Alert
           include Page::Component::DropdownFilter
 
           view 'app/assets/javascripts/ide/components/activity_bar.vue' do
@@ -34,9 +35,17 @@ module QA
             element :dropdown_filter_input
           end
 
+          view 'app/assets/javascripts/ide/components/commit_sidebar/actions.vue' do
+            element :commit_to_current_branch_radio
+          end
+
           view 'app/assets/javascripts/ide/components/commit_sidebar/form.vue' do
             element :begin_commit_button
             element :commit_button
+          end
+
+          view 'app/assets/javascripts/ide/components/commit_sidebar/new_merge_request_option.vue' do
+            element :start_new_mr_checkbox
           end
 
           def has_file?(file_name)
@@ -100,6 +109,7 @@ module QA
             # animation is still in process even when the buttons have the
             # expected visibility.
             commit_success_msg_shown = retry_until do
+              click_element :commit_to_current_branch_radio
               click_element :commit_button
 
               wait(reload: false) do
@@ -114,3 +124,5 @@ module QA
     end
   end
 end
+
+QA::Page::Project::WebIDE::Edit.prepend_if_ee('QA::EE::Page::Component::WebIDE::WebTerminalPanel')

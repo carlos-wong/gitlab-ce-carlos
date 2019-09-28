@@ -15,8 +15,8 @@ describe('URL utility', () => {
 
     describe('without relative_url_root', () => {
       it('returns IDE path with route', () => {
-        expect(urlUtils.webIDEUrl('/gitlab-org/gitlab-ce/merge_requests/1')).toBe(
-          '/-/ide/project/gitlab-org/gitlab-ce/merge_requests/1',
+        expect(urlUtils.webIDEUrl('/gitlab-org/gitlab-foss/merge_requests/1')).toBe(
+          '/-/ide/project/gitlab-org/gitlab-foss/merge_requests/1',
         );
       });
     });
@@ -27,8 +27,8 @@ describe('URL utility', () => {
       });
 
       it('returns IDE path with route', () => {
-        expect(urlUtils.webIDEUrl('/gitlab/gitlab-org/gitlab-ce/merge_requests/1')).toBe(
-          '/gitlab/-/ide/project/gitlab-org/gitlab-ce/merge_requests/1',
+        expect(urlUtils.webIDEUrl('/gitlab/gitlab-org/gitlab-foss/merge_requests/1')).toBe(
+          '/gitlab/-/ide/project/gitlab-org/gitlab-foss/merge_requests/1',
         );
       });
     });
@@ -93,6 +93,12 @@ describe('URL utility', () => {
 
     it('adds and updates encoded params', () => {
       expect(urlUtils.mergeUrlParams({ a: '&', q: '?' }, '?a=%23#frag')).toBe('?a=%26&q=%3F#frag');
+    });
+
+    it('treats "+" as "%20"', () => {
+      expect(urlUtils.mergeUrlParams({ ref: 'bogus' }, '?a=lorem+ipsum&ref=charlie')).toBe(
+        '?a=lorem%20ipsum&ref=bogus',
+      );
     });
   });
 

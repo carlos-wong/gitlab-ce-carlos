@@ -35,6 +35,15 @@ module QA
             element :labels_block
             element :edit_link_labels
             element :dropdown_menu_labels
+            element :milestone_link
+          end
+
+          view 'app/views/shared/issuable/_close_reopen_button.html.haml' do
+            element :reopen_issue_button
+          end
+
+          def click_milestone_link
+            click_element(:milestone_link)
           end
 
           # Adds a comment to an issue
@@ -108,3 +117,5 @@ module QA
     end
   end
 end
+
+QA::Page::Project::Issue::Show.prepend_if_ee('QA::EE::Page::Project::Issue::Show')

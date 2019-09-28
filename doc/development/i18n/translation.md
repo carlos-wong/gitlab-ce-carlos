@@ -83,7 +83,7 @@ Therefore "create a new user" would translate into "Benutzer(in) anlegen".
 ### Updating the glossary
 
 To propose additions to the glossary please
-[open an issue](https://gitlab.com/gitlab-org/gitlab-ce/issues).
+[open an issue](https://gitlab.com/gitlab-org/gitlab-foss/issues).
 
 ## French Translation Guidelines
 
@@ -92,4 +92,3 @@ To propose additions to the glossary please
 In French, the "écriture inclusive" is now over (see on [Legifrance](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000036068906&categorieLien=id)).
 So, to include both genders, write “Utilisateurs et utilisatrices” instead of “Utilisateur·rice·s”.
 When space is missing, the male gender should be used alone.
-
