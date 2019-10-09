@@ -5449,6 +5449,9 @@ msgstr ""
 msgid "Email domain is not editable in subgroups. Value inherited from top-level parent group."
 msgstr ""
 
+msgid "Email not verified. Please verify your email in Salesforce."
+msgstr ""
+
 msgid "Email patch"
 msgstr ""
 
@@ -13027,6 +13030,9 @@ msgid "RepositorySettingsAccessLevel|Select"
 msgstr ""
 
 msgid "Request Access"
+msgstr ""
+
+msgid "Request to link SAML account must be authorized"
 msgstr ""
 
 msgid "Requested %{time_ago}"

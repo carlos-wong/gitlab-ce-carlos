@@ -7,9 +7,10 @@ describe OmniauthCallbacksController, type: :controller do
 
   describe 'omniauth' do
     let(:user) { create(:omniauth_user, extern_uid: extern_uid, provider: provider) }
+    let(:additional_info) { {} }
 
     before do
-      @original_env_config_omniauth_auth = mock_auth_hash(provider.to_s, +extern_uid, user.email)
+      @original_env_config_omniauth_auth = mock_auth_hash(provider.to_s, extern_uid, user.email, additional_info: additional_info )
       stub_omniauth_provider(provider, context: request)
     end
 
@@ -109,6 +110,14 @@ describe OmniauthCallbacksController, type: :controller do
     end
 
     context 'strategies' do
+      shared_context 'sign_up' do
+        let(:user) { double(email: 'new@example.com') }
+
+        before do
+          stub_omniauth_setting(block_auto_created_users: false)
+        end
+      end
+
       context 'github' do
         let(:extern_uid) { 'my-uid' }
         let(:provider) { :github }
@@ -143,14 +152,6 @@ describe OmniauthCallbacksController, type: :controller do
 
               expect(response).to have_gitlab_http_status(403)
             end
-          end
-        end
-
-        shared_context 'sign_up' do
-          let(:user) { double(email: +'new@example.com') }
-
-          before do
-            stub_omniauth_setting(block_auto_created_users: false)
           end
         end
 
@@ -215,38 +216,101 @@ describe OmniauthCallbacksController, type: :controller do
           expect(controller).to set_flash[:alert].to('Wrong extern UID provided. Make sure Auth0 is configured correctly.')
         end
       end
+
+      context 'salesforce' do
+        let(:extern_uid) { 'my-uid' }
+        let(:provider) { :salesforce }
+        let(:additional_info) { { extra: { email_verified: false } } }
+
+        context 'without verified email' do
+          it 'does not allow sign in' do
+            post 'salesforce'
+
+            expect(request.env['warden']).not_to be_authenticated
+            expect(response.status).to eq(302)
+            expect(controller).to set_flash[:alert].to('Email not verified. Please verify your email in Salesforce.')
+          end
+        end
+
+        context 'with verified email' do
+          include_context 'sign_up'
+          let(:additional_info) { { extra: { email_verified: true } } }
+
+          it 'allows sign in' do
+            post 'salesforce'
+
+            expect(request.env['warden']).to be_authenticated
+          end
+        end
+      end
     end
   end
 
   describe '#saml' do
+    let(:last_request_id) { 'ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685' }
     let(:user) { create(:omniauth_user, :two_factor, extern_uid: 'my-uid', provider: 'saml') }
     let(:mock_saml_response) { File.read('spec/fixtures/authentication/saml_response.xml') }
     let(:saml_config) { mock_saml_config_with_upstream_two_factor_authn_contexts }
 
+    def stub_last_request_id(id)
+      session['last_authn_request_id'] = id
+    end
+
     before do
+      stub_last_request_id(last_request_id)
       stub_omniauth_saml_config({ enabled: true, auto_link_saml_user: true, allow_single_sign_on: ['saml'],
                                   providers: [saml_config] })
       mock_auth_hash_with_saml_xml('saml', +'my-uid', user.email, mock_saml_response)
-      request.env["devise.mapping"] = Devise.mappings[:user]
+      request.env['devise.mapping'] = Devise.mappings[:user]
       request.env['omniauth.auth'] = Rails.application.env_config['omniauth.auth']
-      post :saml, params: { SAMLResponse: mock_saml_response }
     end
 
-    context 'when worth two factors' do
-      let(:mock_saml_response) do
-        File.read('spec/fixtures/authentication/saml_response.xml')
+    context 'with GitLab initiated request' do
+      before do
+        post :saml, params: { SAMLResponse: mock_saml_response }
+      end
+
+      context 'when worth two factors' do
+        let(:mock_saml_response) do
+          File.read('spec/fixtures/authentication/saml_response.xml')
             .gsub('urn:oasis:names:tc:SAML:2.0:ac:classes:Password', 'urn:oasis:names:tc:SAML:2.0:ac:classes:SecondFactorIGTOKEN')
+        end
+
+        it 'expects user to be signed_in' do
+          expect(request.env['warden']).to be_authenticated
+        end
       end
 
-      it 'expects user to be signed_in' do
-        expect(request.env['warden']).to be_authenticated
+      context 'when not worth two factors' do
+        it 'expects user to provide second factor' do
+          expect(response).to render_template('devise/sessions/two_factor')
+          expect(request.env['warden']).not_to be_authenticated
+        end
       end
     end
 
-    context 'when not worth two factors' do
-      it 'expects user to provide second factor' do
-        expect(response).to render_template('devise/sessions/two_factor')
-        expect(request.env['warden']).not_to be_authenticated
+    context 'with IdP initiated request' do
+      let(:user) { create(:user) }
+      let(:last_request_id) { '99999' }
+
+      before do
+        sign_in user
+      end
+
+      it 'lets the user know their account isn\'t linked yet' do
+        post :saml, params: { SAMLResponse: mock_saml_response }
+
+        expect(flash[:notice]).to eq 'Request to link SAML account must be authorized'
+      end
+
+      it 'redirects to profile account page' do
+        post :saml, params: { SAMLResponse: mock_saml_response }
+
+        expect(response).to redirect_to(profile_account_path)
+      end
+
+      it 'doesn\'t link a new identity to the user' do
+        expect { post :saml, params: { SAMLResponse: mock_saml_response } }.not_to change { user.identities.count }
       end
     end
   end
