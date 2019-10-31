@@ -16,10 +16,6 @@ module MergeRequests
         params.delete(:force_remove_source_branch)
       end
 
-      if params.has_key?(:force_remove_source_branch)
-        merge_request.merge_params['force_remove_source_branch'] = params.delete(:force_remove_source_branch)
-      end
-
       handle_wip_event(merge_request)
       update_task_event(merge_request) || update(merge_request)
     end
@@ -69,7 +65,8 @@ module MergeRequests
         )
       end
 
-      added_mentions = merge_request.mentioned_users - old_mentioned_users
+      added_mentions = merge_request.mentioned_users(current_user) - old_mentioned_users
+
       if added_mentions.present?
         notification_service.async.new_mentions_in_merge_request(
           merge_request,

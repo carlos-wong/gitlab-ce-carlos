@@ -145,6 +145,27 @@ describe Projects::Operations::UpdateService do
         end
       end
 
+      context 'with masked param token' do
+        let(:params) do
+          {
+            error_tracking_setting_attributes: {
+              enabled: false,
+              token: '*' * 8
+            }
+          }
+        end
+
+        before do
+          create(:project_error_tracking_setting, project: project, token: 'token')
+        end
+
+        it 'does not update token' do
+          expect(result[:status]).to eq(:success)
+
+          expect(project.error_tracking_setting.token).to eq('token')
+        end
+      end
+
       context 'with invalid parameters' do
         let(:params) { {} }
 
@@ -168,6 +189,62 @@ describe Projects::Operations::UpdateService do
       it 'ignores params' do
         expect(result[:status]).to eq(:success)
         expect(project.reload.name).to eq(original_name)
+      end
+    end
+
+    context 'grafana integration' do
+      let(:params) do
+        {
+          grafana_integration_attributes: {
+            grafana_url: 'http://new.grafana.com',
+            token: 'VerySecureToken='
+          }
+        }
+      end
+
+      context 'without existing grafana integration' do
+        it 'creates an integration' do
+          expect(result[:status]).to eq(:success)
+
+          expected_attrs = params[:grafana_integration_attributes]
+          integration = project.reload.grafana_integration
+
+          expect(integration.grafana_url).to eq(expected_attrs[:grafana_url])
+          expect(integration.token).to eq(expected_attrs[:token])
+        end
+      end
+
+      context 'with an existing grafana integration' do
+        before do
+          create(:grafana_integration, project: project)
+        end
+
+        it 'updates the settings' do
+          expect(result[:status]).to eq(:success)
+
+          expected_attrs = params[:grafana_integration_attributes]
+          integration = project.reload.grafana_integration
+
+          expect(integration.grafana_url).to eq(expected_attrs[:grafana_url])
+          expect(integration.token).to eq(expected_attrs[:token])
+        end
+
+        context 'with all grafana attributes blank in params' do
+          let(:params) do
+            {
+              grafana_integration_attributes: {
+                grafana_url: '',
+                token: ''
+              }
+            }
+          end
+
+          it 'destroys the metrics_setting entry in DB' do
+            expect(result[:status]).to eq(:success)
+
+            expect(project.reload.grafana_integration).to be_nil
+          end
+        end
       end
     end
   end

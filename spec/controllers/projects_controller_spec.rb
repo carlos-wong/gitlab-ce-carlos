@@ -149,7 +149,7 @@ describe ProjectsController do
     end
 
     context 'when the storage is not available', :broken_storage do
-      set(:project) { create(:project, :broken_storage) }
+      let_it_be(:project) { create(:project, :broken_storage) }
 
       before do
         project.add_developer(user)
@@ -1149,7 +1149,7 @@ describe ProjectsController do
   context 'private project with token authentication' do
     let(:private_project) { create(:project, :private) }
 
-    it_behaves_like 'authenticates sessionless user', :show, :atom do
+    it_behaves_like 'authenticates sessionless user', :show, :atom, ignore_incrementing: true do
       before do
         default_params.merge!(id: private_project, namespace_id: private_project.namespace)
 

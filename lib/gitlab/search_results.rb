@@ -2,7 +2,7 @@
 
 module Gitlab
   class SearchResults
-    COUNT_LIMIT = 101
+    COUNT_LIMIT = 100
     COUNT_LIMIT_MESSAGE = "#{COUNT_LIMIT - 1}+"
 
     attr_reader :current_user, :query, :per_page
@@ -163,7 +163,7 @@ module Gitlab
       return Milestone.none if project_ids.nil?
 
       authorized_project_ids_relation =
-        Project.where(id: project_ids).ids_with_milestone_available_for(current_user)
+        Project.where(id: project_ids).ids_with_issuables_available_for(current_user)
 
       milestones.where(project_id: authorized_project_ids_relation)
     end

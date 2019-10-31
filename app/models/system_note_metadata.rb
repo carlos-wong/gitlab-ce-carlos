@@ -10,6 +10,7 @@ class SystemNoteMetadata < ApplicationRecord
     commit cross_reference
     close duplicate
     moved merge
+    label milestone
   ].freeze
 
   ICON_TYPES = %w[
@@ -23,6 +24,7 @@ class SystemNoteMetadata < ApplicationRecord
   validates :action, inclusion: { in: :icon_types }, allow_nil: true
 
   belongs_to :note
+  belongs_to :description_version
 
   def icon_types
     ICON_TYPES

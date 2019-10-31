@@ -281,11 +281,20 @@ class NotificationService
   end
 
   def send_new_note_notifications(note)
-    notify_method = "note_#{note.to_ability_name}_email".to_sym
+    notify_method = "note_#{note.noteable_ability_name}_email".to_sym
 
     recipients = NotificationRecipientService.build_new_note_recipients(note)
     recipients.each do |recipient|
       mailer.send(notify_method, recipient.user.id, note.id, recipient.reason).deliver_later
+    end
+  end
+
+  # Notify users when a new release is created
+  def send_new_release_notifications(release)
+    recipients = NotificationRecipientService.build_new_release_recipients(release)
+
+    recipients.each do |recipient|
+      mailer.new_release_email(recipient.user.id, release, recipient.reason).deliver_later
     end
   end
 

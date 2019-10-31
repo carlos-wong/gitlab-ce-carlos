@@ -55,11 +55,13 @@ describe Note do
 
     context 'when noteable and note project are the same' do
       subject { create(:note) }
+
       it { is_expected.to be_valid }
     end
 
     context 'when project is missing for a project related note' do
       subject { build(:note, project: nil, noteable: build_stubbed(:issue)) }
+
       it { is_expected.to be_invalid }
     end
 
@@ -68,6 +70,37 @@ describe Note do
 
       it 'is valid without project' do
         is_expected.to be_valid
+      end
+    end
+
+    describe 'max notes limit' do
+      let_it_be(:noteable) { create(:issue) }
+      let_it_be(:existing_note) { create(:note, project: noteable.project, noteable: noteable) }
+
+      before do
+        stub_const('Noteable::MAX_NOTES_LIMIT', 1)
+      end
+
+      context 'when creating a system note' do
+        subject { build(:system_note, project: noteable.project, noteable: noteable) }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'when creating a user note' do
+        subject { build(:note, project: noteable.project, noteable: noteable) }
+
+        it { is_expected.not_to be_valid }
+      end
+
+      context 'when updating an existing note on a noteable that already exceeds the limit' do
+        subject { existing_note }
+
+        before do
+          create(:system_note, project: noteable.project, noteable: noteable)
+        end
+
+        it { is_expected.to be_valid }
       end
     end
   end
@@ -346,6 +379,63 @@ describe Note do
         expect(label_note.cross_reference?).to be_falsy
       end
     end
+
+    context 'when system note metadata is not present' do
+      let(:note) { build(:note, :system) }
+
+      before do
+        allow(note).to receive(:system_note_metadata).and_return(nil)
+      end
+
+      it 'delegates to the system note service' do
+        expect(SystemNotes::IssuablesService).to receive(:cross_reference?).with(note.note)
+
+        note.cross_reference?
+      end
+    end
+
+    context 'with a system note' do
+      let(:issue)     { create(:issue, project: create(:project, :repository)) }
+      let(:note)      { create(:system_note, note: "test", noteable: issue, project: issue.project) }
+
+      shared_examples 'system_note_metadata includes note action' do
+        it 'delegates to the cross-reference regex' do
+          expect(note).to receive(:matches_cross_reference_regex?)
+
+          note.cross_reference?
+        end
+      end
+
+      context 'with :label action' do
+        let!(:metadata) {create(:system_note_metadata, note: note, action: :label)}
+
+        it_behaves_like 'system_note_metadata includes note action'
+
+        it { expect(note.cross_reference?).to be_falsy }
+
+        context 'with cross reference label note' do
+          let(:label) { create(:label, project: issue.project)}
+          let(:note) { create(:system_note, note: "added #{label.to_reference} label", noteable: issue, project: issue.project) }
+
+          it { expect(note.cross_reference?).to be_truthy }
+        end
+      end
+
+      context 'with :milestone action' do
+        let!(:metadata) {create(:system_note_metadata, note: note, action: :milestone)}
+
+        it_behaves_like 'system_note_metadata includes note action'
+
+        it { expect(note.cross_reference?).to be_falsy }
+
+        context 'with cross reference milestone note' do
+          let(:milestone) { create(:milestone, project: issue.project)}
+          let(:note) { create(:system_note, note: "added #{milestone.to_reference} milestone", noteable: issue, project: issue.project) }
+
+          it { expect(note.cross_reference?).to be_truthy }
+        end
+      end
+    end
   end
 
   describe 'clear_blank_line_code!' do
@@ -545,24 +635,30 @@ describe Note do
   end
 
   describe '#to_ability_name' do
-    it 'returns snippet for a project snippet note' do
-      expect(build(:note_on_project_snippet).to_ability_name).to eq('project_snippet')
+    it 'returns note' do
+      expect(build(:note).to_ability_name).to eq('note')
+    end
+  end
+
+  describe '#noteable_ability_name' do
+    it 'returns project_snippet for a project snippet note' do
+      expect(build(:note_on_project_snippet).noteable_ability_name).to eq('project_snippet')
     end
 
     it 'returns personal_snippet for a personal snippet note' do
-      expect(build(:note_on_personal_snippet).to_ability_name).to eq('personal_snippet')
+      expect(build(:note_on_personal_snippet).noteable_ability_name).to eq('personal_snippet')
     end
 
     it 'returns merge_request for an MR note' do
-      expect(build(:note_on_merge_request).to_ability_name).to eq('merge_request')
+      expect(build(:note_on_merge_request).noteable_ability_name).to eq('merge_request')
     end
 
     it 'returns issue for an issue note' do
-      expect(build(:note_on_issue).to_ability_name).to eq('issue')
+      expect(build(:note_on_issue).noteable_ability_name).to eq('issue')
     end
 
-    it 'returns issue for a commit note' do
-      expect(build(:note_on_commit).to_ability_name).to eq('commit')
+    it 'returns commit for a commit note' do
+      expect(build(:note_on_commit).noteable_ability_name).to eq('commit')
     end
   end
 
@@ -710,6 +806,7 @@ describe Note do
 
   describe '#to_discussion' do
     subject { create(:discussion_note_on_merge_request) }
+
     let!(:note2) { create(:discussion_note_on_merge_request, project: subject.project, noteable: subject.noteable, in_reply_to: subject) }
 
     it "returns a discussion with just this note" do
@@ -777,6 +874,7 @@ describe Note do
     context 'for a note' do
       context 'when part of a discussion' do
         subject { create(:discussion_note_on_issue) }
+
         let(:note) { create(:discussion_note_on_issue, in_reply_to: subject) }
 
         it 'checks if the note is in reply to the other discussion' do
@@ -790,6 +888,7 @@ describe Note do
 
       context 'when not part of a discussion' do
         subject { create(:note) }
+
         let(:note) { create(:note, in_reply_to: subject) }
 
         it 'checks if the note is in reply to the other noteable' do
@@ -804,6 +903,7 @@ describe Note do
     context 'for a discussion' do
       context 'when part of the same discussion' do
         subject { create(:diff_note_on_merge_request) }
+
         let(:note) { create(:diff_note_on_merge_request, in_reply_to: subject) }
 
         it 'returns true' do
@@ -813,6 +913,7 @@ describe Note do
 
       context 'when not part of the same discussion' do
         subject { create(:diff_note_on_merge_request) }
+
         let(:note) { create(:diff_note_on_merge_request) }
 
         it 'returns false' do
@@ -824,6 +925,7 @@ describe Note do
     context 'for a noteable' do
       context 'when a comment on the same noteable' do
         subject { create(:note) }
+
         let(:note) { create(:note, in_reply_to: subject) }
 
         it 'returns true' do
@@ -833,6 +935,7 @@ describe Note do
 
       context 'when not a comment on the same noteable' do
         subject { create(:note) }
+
         let(:note) { create(:note) }
 
         it 'returns false' do
@@ -856,6 +959,7 @@ describe Note do
 
     context 'when not part of a discussion' do
       subject { create(:note) }
+
       let(:note) { create(:note, in_reply_to: subject) }
 
       it 'returns the noteable' do
@@ -941,13 +1045,64 @@ describe Note do
       project = create(:project)
       note = create(:note_on_issue, project: project)
 
-      expect(note.parent).to eq(project)
+      expect(note.resource_parent).to eq(project)
     end
 
     it 'returns nil for personal snippet note' do
       note = create(:note_on_personal_snippet)
 
-      expect(note.parent).to be_nil
+      expect(note.resource_parent).to be_nil
+    end
+  end
+
+  describe 'scopes' do
+    let_it_be(:note1) { create(:note, note: 'Test 345') }
+    let_it_be(:note2) { create(:note, note: 'Test 789') }
+
+    describe '#for_note_or_capitalized_note' do
+      it 'returns the expected matching note' do
+        notes = described_class.for_note_or_capitalized_note('Test 345')
+
+        expect(notes.count).to eq(1)
+        expect(notes.first.id).to eq(note1.id)
+      end
+
+      it 'returns the expected capitalized note' do
+        notes = described_class.for_note_or_capitalized_note('test 345')
+
+        expect(notes.count).to eq(1)
+        expect(notes.first.id).to eq(note1.id)
+      end
+
+      it 'does not support pattern matching' do
+        notes = described_class.for_note_or_capitalized_note('test%')
+
+        expect(notes.count).to eq(0)
+      end
+    end
+
+    describe '#like_note_or_capitalized_note' do
+      it 'returns the expected matching note' do
+        notes = described_class.like_note_or_capitalized_note('Test 345')
+
+        expect(notes.count).to eq(1)
+        expect(notes.first.id).to eq(note1.id)
+      end
+
+      it 'returns the expected capitalized note' do
+        notes = described_class.like_note_or_capitalized_note('test 345')
+
+        expect(notes.count).to eq(1)
+        expect(notes.first.id).to eq(note1.id)
+      end
+
+      it 'supports pattern matching' do
+        notes = described_class.like_note_or_capitalized_note('test%')
+
+        expect(notes.count).to eq(2)
+        expect(notes.first.id).to eq(note1.id)
+        expect(notes.second.id).to eq(note2.id)
+      end
     end
   end
 end

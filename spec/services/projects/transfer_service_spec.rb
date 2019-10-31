@@ -103,7 +103,7 @@ describe Projects::TransferService do
     it 'rolls back repo location' do
       attempt_project_transfer
 
-      expect(gitlab_shell.exists?(project.repository_storage, "#{project.disk_path}.git")).to be(true)
+      expect(gitlab_shell.repository_exists?(project.repository_storage, "#{project.disk_path}.git")).to be(true)
       expect(original_path).to eq current_path
     end
 
@@ -220,6 +220,24 @@ describe Projects::TransferService do
     it { expect(@result).to eq false }
     it { expect(project.namespace).to eq(user.namespace) }
     it { expect(project.errors[:new_namespace]).to include('Project with same name or path in target namespace already exists') }
+  end
+
+  context 'target namespace allows developers to create projects' do
+    let(:group) { create(:group, project_creation_level: ::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS) }
+
+    context 'the user is a member of the target namespace with developer permissions' do
+      subject(:transfer_project_result) { transfer_project(project, user, group) }
+
+      before do
+        group.add_developer(user)
+      end
+
+      it 'does not allow project transfer to the target namespace' do
+        expect(transfer_project_result).to eq false
+        expect(project.namespace).to eq(user.namespace)
+        expect(project.errors[:new_namespace]).to include('Transfer failed, please contact an admin.')
+      end
+    end
   end
 
   def transfer_project(project, user, new_namespace)

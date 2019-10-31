@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe Projects::ErrorTrackingController do
-  set(:project) { create(:project) }
-  set(:user) { create(:user) }
+  let_it_be(:project) { create(:project) }
+  let_it_be(:user) { create(:user) }
 
   before do
     sign_in(user)
@@ -146,7 +146,7 @@ describe Projects::ErrorTrackingController do
       it 'redirects to sign-in page' do
         post :list_projects, params: list_projects_params
 
-        expect(response).to have_gitlab_http_status(:unauthorized)
+        expect(response).to have_gitlab_http_status(:redirect)
       end
     end
 
