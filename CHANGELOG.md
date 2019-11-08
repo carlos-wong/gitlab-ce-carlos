@@ -2,12 +2,34 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 12.4.2
+
+### Fixed (10 changes)
+
+- Increase timeout for FetchInternalRemote RPC call. !18908
+- Clean up duplicate indexes on ci_trigger_requests. !19053
+- Fix project imports not working with serialized data. !19124
+- Fixed welcome screen icons not showing. !19148
+- Disable protected path throttling by default. !19185
+- Fix Prometheus duplicate metrics. !19327
+- Fix ref switcher not working on Microsoft Edge. !19335
+- Extend gRPC timeouts for Rake tasks. !19461
+- Disable upload HTTP caching to fix case when object storage is enabled and proxy_download is disabled. !19494
+- Removes arrow icons for old collapsible sections.
+
+### Changed (2 changes)
+
+- Increased deactivation threshold to 180 days. !18902
+- Add extra sentence about registry to AutoDevOps popup. !19092
+
+
 ## 12.4.1
 
-### Security (12 changes)
+### Security (14 changes)
 
 - Standardize error response when route is missing.
 - Do not display project labels that are not visible for user accessing group labels.
+- Show cross-referenced label and milestones in issues' activities only to authorized users.
 - Show cross-referenced label and milestones in issues' activities only to authorized users.
 - Analyze incoming GraphQL queries and check for recursion.
 - Disallow unprivileged users from commenting on private repository commits.
@@ -17,6 +39,7 @@ entry.
 - Return 404 on LFS request if project doesn't exist.
 - Mask sentry auth token in Error Tracking dashboard.
 - Fixes a Open Redirect issue in `InternalRedirect`.
+- Remove deploy access level when project/group link is deleted.
 - Sanitize all wiki markup formats with GitLab sanitization pipelines.
 
 
