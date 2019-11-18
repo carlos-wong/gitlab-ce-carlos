@@ -25,7 +25,7 @@ module MergeRequests
 
     def close_issues(merge_request)
 			#puts "\n\n Carlos Dump close issue mergeRequest inspect is: %s project protect branch is:%s is source branch protect?:%s target_branch is protect?:%s " % [merge_request.inspect, project.protected_branches,ProtectedBranch.protected?(project, merge_request.source_branch),ProtectedBranch.protected?(project, merge_request.target_branch)]
-      return unless ProtectedBranch.protected?(project, merge_request.target_branch) && !ProtectedBranch.protected?(project, merge_request.source_branch)
+      return unless ProtectedBranch.protected?(project, merge_request.target_branch) && (merge_request.target_branch == project.default_branch || !ProtectedBranch.protected?(project, merge_request.source_branch))
 
       closed_issues = merge_request.visible_closing_issues_for(current_user)
 
