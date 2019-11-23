@@ -24,7 +24,7 @@ class IssuablePolicy < BasePolicy
     enable :reopen_merge_request
   end
 
-  rule { is_author }.policy do
+  rule {can?(:maintainer_access) }.policy do
     enable :resolve_note
   end
 

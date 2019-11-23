@@ -220,7 +220,8 @@ class ProjectPolicy < BasePolicy
     enable :remove_project
     enable :archive_project
     enable :remove_fork_project
-    #enable :destroy_merge_request
+
+		enable :resolve_note
 
     enable :set_issue_iid
     enable :set_issue_created_at
@@ -251,8 +252,6 @@ class ProjectPolicy < BasePolicy
     enable :award_emoji
     enable :read_pages_content
     enable :read_release
-    enable :read_analytics
-    enable :read_insights
   end
 
   rule { can?(:reporter_access) & can?(:create_issue) }.enable :create_incident
@@ -260,6 +259,7 @@ class ProjectPolicy < BasePolicy
   rule { can?(:guest_access) & can?(:create_issue) }.policy do
     enable :create_task
     enable :create_work_item
+		prevent :resolve_note
   end
 
   # These abilities are not allowed to admins that are not members of the project,
@@ -269,12 +269,9 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:reporter_access) }.policy do
     enable :admin_issue_board
-    enable :download_code
     enable :read_statistics
     enable :daily_statistics
     enable :download_wiki_code
-    enable :update_issue
-    enable :reopen_issue
     enable :admin_label
     enable :admin_issue_board_list
     enable :admin_issue_link
@@ -317,7 +314,7 @@ class ProjectPolicy < BasePolicy
     enable :build_read_container_image
   end
 
-  rule { (can?(:public_user_access) | can?(:reporter_access)) & forking_allowed }.policy do
+  rule { (can?(:public_user_access) | can?(:developer_access)) & forking_allowed }.policy do
     enable :fork_project
   end
 
@@ -372,7 +369,7 @@ class ProjectPolicy < BasePolicy
     enable :create_merge_request_from
     enable :create_wiki
     enable :push_code
-    enable :resolve_note
+    prevent :resolve_note
     enable :create_container_image
     enable :update_container_image
     enable :destroy_container_image
@@ -417,8 +414,10 @@ class ProjectPolicy < BasePolicy
     enable :admin_snippet
     enable :admin_merge_request
 
-    enable :update_issue
+
     enable :admin_issue
+
+		enable :resolve_note
 
     enable :update_project_snippet
     enable :update_environment
