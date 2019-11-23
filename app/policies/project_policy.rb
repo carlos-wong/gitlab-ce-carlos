@@ -246,9 +246,10 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:developer_access) }.policy do
 		enable :update_issue
+		enable :admin_issue
 
     enable :admin_merge_request
-    enable :admin_milestone
+
     enable :update_merge_request
     enable :reopen_merge_request
     enable :create_commit_status
@@ -277,8 +278,11 @@ class ProjectPolicy < BasePolicy
     enable :admin_board
     enable :push_to_delete_protected_branch
 
+		enable :admin_milestone
 
-    enable :admin_issue
+
+
+		enable :close_issue
 
 		enable :resolve_note
 
