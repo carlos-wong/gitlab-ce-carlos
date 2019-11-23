@@ -221,8 +221,6 @@ class ProjectPolicy < BasePolicy
     enable :archive_project
     enable :remove_fork_project
 
-		enable :resolve_note
-
     enable :set_issue_iid
     enable :set_issue_created_at
     enable :set_issue_updated_at
@@ -420,6 +418,7 @@ class ProjectPolicy < BasePolicy
 
 		enable :change_due_date
 		enable :resolve_note
+
     enable :update_project_snippet
     enable :update_environment
     enable :update_deployment

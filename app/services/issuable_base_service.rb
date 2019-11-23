@@ -48,6 +48,11 @@ class IssuableBaseService < ::BaseProjectService
         params.delete(:due_date)
       end
 
+      unless can?(current_user, :assignee_issue, issuable)
+        params.delete(:assignee_ids)
+        params.delete(:assignee_id)
+      end
+
       params.delete(:milestone_id)
       params.delete(:assignee_ids)
       params.delete(:assignee_id)

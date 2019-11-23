@@ -8,7 +8,8 @@ module Types
 
       abilities :read_issue, :admin_issue, :update_issue, :reopen_issue,
                 :read_design, :create_design, :destroy_design,
-                :create_note, :close_issue, :change_due_date
+                :create_note, :close_issue, :change_due_date,
+                :assignee_issue
     end
   end
 end
