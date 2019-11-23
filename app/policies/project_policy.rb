@@ -278,9 +278,9 @@ class ProjectPolicy < BasePolicy
     enable :admin_board
     enable :push_to_delete_protected_branch
 
+		enable :change_due_date
+
 		enable :admin_milestone
-
-
 
 		enable :close_issue
 

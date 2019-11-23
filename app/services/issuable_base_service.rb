@@ -14,6 +14,10 @@ class IssuableBaseService < BaseService
   def filter_params(issuable)
     ability_name = :"admin_#{issuable.to_ability_name}"
 
+    unless can?(current_user, :change_due_date, issuable)
+      params.delete(:due_date)
+    end
+
     unless can?(current_user, ability_name, issuable)
       params.delete(:milestone_id)
       params.delete(:labels)
