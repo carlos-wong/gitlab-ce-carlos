@@ -278,13 +278,12 @@ class ProjectPolicy < BasePolicy
     enable :admin_board
     enable :push_to_delete_protected_branch
 
-		enable :change_due_date
+    enable :assignee_issue
+    enable :change_due_date
 
-		enable :admin_milestone
-
-		enable :close_issue
-
-		enable :resolve_note
+    enable :admin_milestone
+    enable :close_issue
+    enable :resolve_note
 
     enable :update_project_snippet
     enable :update_environment

@@ -17,7 +17,7 @@ module Types
                 :admin_wiki, :admin_project, :update_pages,
                 :admin_remote_mirror, :create_label, :update_wiki, :destroy_wiki,
                 :create_pages, :destroy_pages, :read_pages_content, :admin_operations,
-                :change_due_date
+                :change_due_date, :assignee_issue
     end
   end
 end

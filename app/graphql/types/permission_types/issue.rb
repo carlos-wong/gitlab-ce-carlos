@@ -9,7 +9,7 @@ module Types
       abilities :read_issue, :admin_issue,
                 :update_issue, :create_note,
                 :reopen_issue, :close_issue,
-                :change_due_date
+                :change_due_date, :assignee_issue
     end
   end
 end
