@@ -5,7 +5,6 @@ module Issues
     # Closes the supplied issue if the current user is able to do so.
     def execute(issue, commit: nil, notifications: true, system_note: true, skip_authorization: false)
       return issue unless can_close?(issue, skip_authorization: skip_authorization)
-
       close_issue(issue,
                   closed_via: commit,
                   notifications: notifications,
@@ -57,7 +56,7 @@ module Issues
     end
 
     def can_close?(issue, skip_authorization: false)
-      skip_authorization || can?(current_user, :push_to_delete_protected_branch, issue) || issue.is_a?(ExternalIssue)
+      skip_authorization || can?(current_user, :close_issue, issue) || issue.is_a?(ExternalIssue)
     end
 
     def perform_incident_management_actions(issue)

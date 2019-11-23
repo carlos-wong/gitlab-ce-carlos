@@ -358,6 +358,8 @@ class ProjectPolicy < BasePolicy
     enable :create_package
     enable :admin_issue_board
     enable :admin_milestone
+		enable :update_issue
+		enable :admin_issue
     enable :update_merge_request
     enable :reopen_merge_request
     enable :create_commit_status
@@ -414,11 +416,9 @@ class ProjectPolicy < BasePolicy
     enable :admin_snippet
     enable :admin_merge_request
 
-
-    enable :admin_issue
+		enable :admin_milestone
 
 		enable :resolve_note
-
     enable :update_project_snippet
     enable :update_environment
     enable :update_deployment
