@@ -23,7 +23,6 @@ class IssuableBaseService < ::BaseProjectService
 
   def can_admin_issuable?(issuable)
     ability_name = :"admin_#{issuable.to_ability_name}"
-
     can?(current_user, ability_name, issuable)
   end
 
@@ -43,6 +42,10 @@ class IssuableBaseService < ::BaseProjectService
           params.delete(:remove_label_ids)
           params.delete(:label_ids)
         end
+      end
+
+      unless can?(current_user, :change_due_date, issuable)
+        params.delete(:due_date)
       end
 
       params.delete(:milestone_id)

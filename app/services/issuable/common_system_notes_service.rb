@@ -21,7 +21,7 @@ module Issuable
           create_discussion_lock_note if issuable.previous_changes.include?('discussion_locked')
         end
 
-        create_due_date_note if issuable.previous_changes.include?('due_date')
+        create_due_date_note if issuable.previous_changes.include?('due_date') && can?(current_user, :change_due_date, issuable)
         create_milestone_change_event(old_milestone) if issuable.previous_changes.include?('milestone_id')
         create_labels_note(old_labels) if old_labels && issuable.labels != old_labels
       end
