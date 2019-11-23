@@ -159,6 +159,8 @@ class ProjectPolicy < BasePolicy
     enable :remove_fork_project
     #enable :destroy_merge_request
 
+		enable :resolve_note
+
     enable :set_issue_iid
     enable :set_issue_created_at
     enable :set_issue_updated_at
@@ -186,6 +188,8 @@ class ProjectPolicy < BasePolicy
     enable :award_emoji
     enable :read_pages_content
     enable :read_release
+
+		prevent :resolve_note
   end
 
   # These abilities are not allowed to admins that are not members of the project,
@@ -195,13 +199,15 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:reporter_access) }.policy do
     enable :admin_board
-    enable :download_code
+    #enable :download_code
     enable :read_statistics
     enable :download_wiki_code
-    enable :fork_project
+    #enable :fork_project
     enable :create_project_snippet
     
     enable :reopen_issue
+
+		prevent :resolve_note
     
     enable :admin_label
     enable :admin_list
@@ -239,6 +245,8 @@ class ProjectPolicy < BasePolicy
   rule { can?(:developer_access) & can?(:create_issue) }.enable :import_issues
 
   rule { can?(:developer_access) }.policy do
+		enable :update_issue
+
     enable :admin_merge_request
     enable :admin_milestone
     enable :update_merge_request
@@ -254,7 +262,7 @@ class ProjectPolicy < BasePolicy
     enable :create_merge_request_from
     enable :create_wiki
     enable :push_code
-    enable :resolve_note
+    prevent :resolve_note
     enable :create_container_image
     enable :update_container_image
     enable :destroy_container_image
@@ -269,8 +277,10 @@ class ProjectPolicy < BasePolicy
     enable :admin_board
     enable :push_to_delete_protected_branch
 
-    enable :update_issue
+
     enable :admin_issue
+
+		enable :resolve_note
 
     enable :update_project_snippet
     enable :update_environment
