@@ -16,7 +16,7 @@ describe ProjectPolicy do
       read_project read_board read_list read_wiki read_issue
       read_project_for_iids read_issue_iid read_label
       read_milestone read_project_snippet read_project_member read_note
-      create_project create_issue create_note upload_file create_merge_request_in
+      create_project create_issue create_note upload_file 
       award_emoji read_release
     ]
   end
@@ -41,7 +41,7 @@ describe ProjectPolicy do
       update_pipeline create_merge_request_from create_wiki push_code
       create_container_image update_container_image destroy_container_image
       create_environment create_deployment update_deployment create_release update_release
-      download_code build_download_code
+      download_code build_download_code create_merge_request_in
     ]
   end
 
