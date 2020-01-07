@@ -355,7 +355,6 @@ class ProjectPolicy < BasePolicy
     enable :admin_issue_board
     enable :admin_milestone
 		enable :update_issue
-		# enable :admin_issue
     enable :create_merge_request_in
     enable :download_code
     enable :build_download_code

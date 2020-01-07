@@ -11,6 +11,7 @@ RSpec.describe ProjectPolicy do
 
   subject { described_class.new(current_user, project) }
 
+
   def expect_allowed(*permissions)
     permissions.each { |p| is_expected.to be_allowed(p) }
   end
