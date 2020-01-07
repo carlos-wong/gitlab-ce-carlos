@@ -257,6 +257,7 @@ class ProjectPolicy < BasePolicy
   # that's why they are defined separately.
   rule { guest & can?(:download_code) }.enable :build_download_code
   rule { guest & can?(:read_container_image) }.enable :build_read_container_image
+  rule { developer & can?(:download_code) }.enable :build_download_code
 
   rule { can?(:reporter_access) }.policy do
     enable :admin_issue_board
@@ -355,6 +356,8 @@ class ProjectPolicy < BasePolicy
     enable :admin_milestone
 		enable :update_issue
 		enable :admin_issue
+    enable :download_code
+    enable :build_download_code
     enable :admin_board
     enable :admin_merge_request
     enable :update_merge_request
