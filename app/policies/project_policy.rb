@@ -206,7 +206,7 @@ class ProjectPolicy < BasePolicy
   rule { reporter }.enable :reporter_access
   rule { developer }.enable :developer_access
   rule { maintainer }.enable :maintainer_access
-  rule { admin }.enable :owner_access
+  rule { owner | admin }.enable :owner_access
 
   rule { can?(:owner_access) }.policy do
     enable :guest_access
@@ -220,6 +220,7 @@ class ProjectPolicy < BasePolicy
     enable :remove_project
     enable :archive_project
     enable :remove_fork_project
+    enable :destroy_merge_request
 
     enable :set_issue_iid
     enable :set_issue_created_at
@@ -252,14 +253,6 @@ class ProjectPolicy < BasePolicy
     enable :read_release
   end
 
-  rule { can?(:reporter_access) & can?(:create_issue) }.enable :create_incident
-
-  rule { can?(:guest_access) & can?(:create_issue) }.policy do
-    enable :create_task
-    enable :create_work_item
-		prevent :resolve_note
-  end
-
   # These abilities are not allowed to admins that are not members of the project,
   # that's why they are defined separately.
   rule { guest & can?(:download_code) }.enable :build_download_code
@@ -267,9 +260,13 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:reporter_access) }.policy do
     enable :admin_issue_board
+    enable :admin_board
     enable :read_statistics
     enable :daily_statistics
     enable :download_wiki_code
+    enable :create_project_snippet
+    enable :update_issue
+    enable :reopen_issue
     enable :admin_label
     enable :admin_issue_board_list
     enable :admin_issue_link
@@ -358,7 +355,10 @@ class ProjectPolicy < BasePolicy
     enable :admin_milestone
 		enable :update_issue
 		enable :admin_issue
+    enable :admin_board
+    enable :admin_merge_request
     enable :update_merge_request
+
     enable :reopen_merge_request
     enable :create_commit_status
     enable :update_commit_status
@@ -369,7 +369,7 @@ class ProjectPolicy < BasePolicy
     enable :create_merge_request_from
     enable :create_wiki
     enable :push_code
-    prevent :resolve_note
+
     enable :create_container_image
     enable :update_container_image
     enable :destroy_container_image
@@ -424,7 +424,7 @@ class ProjectPolicy < BasePolicy
     enable :update_deployment
     enable :admin_project_snippet
     enable :admin_project_member
-    #enable :admin_note
+    # enable :admin_note
     enable :admin_wiki
     enable :admin_project
     enable :admin_commit_status
