@@ -260,6 +260,9 @@ class ProjectPolicy < BasePolicy
   rule { developer & can?(:download_code) }.enable :build_download_code
 
   rule { can?(:reporter_access) }.policy do
+    enable :create_merge_request_in
+    enable :download_code
+
     enable :admin_issue_board
     enable :admin_board
     enable :read_statistics
@@ -279,7 +282,9 @@ class ProjectPolicy < BasePolicy
     enable :read_pipeline_schedule
     enable :read_environment
     enable :read_deployment
+
     enable :read_merge_request
+
     enable :read_sentry_issue
     enable :update_sentry_issue
     enable :read_prometheus
@@ -355,8 +360,7 @@ class ProjectPolicy < BasePolicy
     enable :admin_issue_board
     enable :admin_milestone
 		enable :update_issue
-    enable :create_merge_request_in
-    enable :download_code
+
     enable :build_download_code
     enable :admin_board
     enable :admin_merge_request
