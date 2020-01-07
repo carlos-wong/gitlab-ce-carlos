@@ -54,27 +54,66 @@ describe TagsFinder do
 
         expect(result.count).to eq(0)
       end
-    end
 
-    context 'filter and sort' do
-      it 'filters tags by name and sorts by recently_updated' do
-        params = { sort: 'updated_desc', search: 'v1' }
-        tags_finder = described_class.new(repository, params)
-
-        result = tags_finder.execute
-
-        expect(result.first.name).to eq('v1.1.0')
-        expect(result.count).to eq(2)
-      end
-
-      it 'filters tags by name and sorts by last_updated' do
-        params = { sort: 'updated_asc', search: 'v1' }
+      it 'filters tags by name that begins with' do
+        params = { search: '^v1.0' }
         tags_finder = described_class.new(repository, params)
 
         result = tags_finder.execute
 
         expect(result.first.name).to eq('v1.0.0')
-        expect(result.count).to eq(2)
+        expect(result.count).to eq(1)
+      end
+
+      it 'filters tags by name that ends with' do
+        params = { search: '0.0$' }
+        tags_finder = described_class.new(repository, params)
+
+        result = tags_finder.execute
+
+        expect(result.first.name).to eq('v1.0.0')
+        expect(result.count).to eq(1)
+      end
+
+      it 'filters tags by nonexistent name that begins with' do
+        params = { search: '^nope' }
+        tags_finder = described_class.new(repository, params)
+
+        result = tags_finder.execute
+
+        expect(result.count).to eq(0)
+      end
+
+      it 'filters tags by nonexistent name that ends with' do
+        params = { search: 'nope$' }
+        tags_finder = described_class.new(repository, params)
+
+        result = tags_finder.execute
+
+        expect(result.count).to eq(0)
+      end
+    end
+
+    context 'filter and sort' do
+      let(:tags_to_compare) { %w[v1.0.0 v1.1.0] }
+      subject { described_class.new(repository, params).execute.select { |tag| tags_to_compare.include?(tag.name) } }
+
+      context 'when sort by updated_desc' do
+        let(:params) { { sort: 'updated_desc', search: 'v1' } }
+
+        it 'filters tags by name' do
+          expect(subject.first.name).to eq('v1.1.0')
+          expect(subject.count).to eq(2)
+        end
+      end
+
+      context 'when sort by updated_asc' do
+        let(:params) { { sort: 'updated_asc', search: 'v1' } }
+
+        it 'filters tags by name' do
+          expect(subject.first.name).to eq('v1.0.0')
+          expect(subject.count).to eq(2)
+        end
       end
     end
   end

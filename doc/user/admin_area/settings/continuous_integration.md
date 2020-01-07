@@ -134,6 +134,19 @@ Once that time passes, the jobs will be archived and no longer able to be
 retried. Make it empty to never expire jobs. It has to be no less than 1 day,
 for example: <code>15 days</code>, <code>1 month</code>, <code>2 years</code>.
 
+## Default CI configuration path
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/18073) in GitLab 12.5.
+
+The default CI configuration file path for new projects can be set in the Admin
+area of your GitLab instance (`.gitlab-ci.yml` if not set):
+
+1. Go to **Admin area > Settings > Continuous Integration and Deployment**.
+1. Input the new path in the **Default CI configuration path** field.
+1. Hit **Save changes** for the changes to take effect.
+
+It is also possible to specify a [custom CI configuration path for a specific project](../../project/pipelines/settings.md#custom-ci-configuration-path).
+
 <!-- ## Troubleshooting
 
 Include any troubleshooting steps that you can foresee. If you know beforehand what issues
@@ -147,6 +160,11 @@ If you have none to add when creating a doc, leave this section in place
 but commented out to help encourage others to add to it in the future. -->
 
 ## Required pipeline configuration **(PREMIUM ONLY)**
+
+CAUTION: **Caution:**
+The Required Pipeline Configuration feature is deprecated and will be removed when an
+[improved compliance solution](https://gitlab.com/gitlab-org/gitlab/issues/34830)
+is added to GitLab. It is recommended to avoid using this feature.
 
 GitLab administrators can force a pipeline configuration to run on every
 pipeline.

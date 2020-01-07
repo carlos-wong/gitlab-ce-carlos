@@ -40,7 +40,9 @@ describe 'Cycle Analytics', :js do
 
     context "when there's cycle analytics data" do
       before do
-        allow_any_instance_of(Gitlab::ReferenceExtractor).to receive(:issues).and_return([issue])
+        allow_next_instance_of(Gitlab::ReferenceExtractor) do |instance|
+          allow(instance).to receive(:issues).and_return([issue])
+        end
         project.add_maintainer(user)
 
         @build = create_cycle(user, project, issue, mr, milestone, pipeline)
@@ -56,7 +58,7 @@ describe 'Cycle Analytics', :js do
         expect(deploys_counter).to have_content('1')
       end
 
-      it 'shows data on each stage' do
+      it 'shows data on each stage', :sidekiq_might_not_need_inline do
         expect_issue_to_be_present
 
         click_stage('Plan')
@@ -99,13 +101,19 @@ describe 'Cycle Analytics', :js do
       project.add_developer(user)
       project.add_guest(guest)
 
-      allow_any_instance_of(Gitlab::ReferenceExtractor).to receive(:issues).and_return([issue])
+      allow_next_instance_of(Gitlab::ReferenceExtractor) do |instance|
+        allow(instance).to receive(:issues).and_return([issue])
+      end
       create_cycle(user, project, issue, mr, milestone, pipeline)
       deploy_master(user, project)
 
       sign_in(guest)
       visit project_cycle_analytics_path(project)
       wait_for_requests
+    end
+
+    it 'does not show the commit stats' do
+      expect(page).to have_no_selector(:xpath, commits_counter_selector)
     end
 
     it 'needs permissions to see restricted stages' do
@@ -123,8 +131,12 @@ describe 'Cycle Analytics', :js do
     find(:xpath, "//p[contains(text(),'New Issue')]/preceding-sibling::h3")
   end
 
+  def commits_counter_selector
+    "//p[contains(text(),'Commits')]/preceding-sibling::h3"
+  end
+
   def commits_counter
-    find(:xpath, "//p[contains(text(),'Commits')]/preceding-sibling::h3")
+    find(:xpath, commits_counter_selector)
   end
 
   def deploys_counter

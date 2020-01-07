@@ -10,7 +10,7 @@ Epics let you manage your portfolio of projects more efficiently and with less
 effort by tracking groups of issues that share a theme, across projects and
 milestones.
 
-![epics list view](img/epics_list_view_v12.3.png)
+![epics list view](img/epics_list_view_v12.5.png)
 
 ## Use cases
 
@@ -50,14 +50,17 @@ Any issue that belongs to a project in the epic's group, or any of the epic's
 subgroups, are eligible to be added.  New issues appear at the top of the list of issues in the **Epics and Issues** tab.
 
 An epic contains a list of issues and an issue can be associated with at most
-one epic. When you add an issue to an epic that is already associated with another epic,
-the issue is automatically removed from the previous epic.
+one epic. When you add an issue that is already linked to an epic,
+the issue is automatically unlinked from its current parent.
 
 To add an issue to an epic:
 
 1. Click **Add an issue**.
-1. Paste the link of the issue.
-   - Press <kbd>Spacebar</kbd> and repeat this step if there are multiple issues.
+1. Identify the issue to be added, using either of the following methods:
+   - Paste the link of the issue.
+   - Search for the desired issue by entering part of the issue's title, then selecting the desired match. ([From GitLab 12.5](https://gitlab.com/gitlab-org/gitlab/issues/9126))
+
+   If there are multiple issues to be added, press <kbd>Spacebar</kbd> and repeat this step.
 1. Click **Add**.
 
 To remove an issue from an epic:
@@ -72,17 +75,19 @@ To remove an issue from an epic:
 Any epic that belongs to a group, or subgroup of the parent epic's group, is
 eligible to be added. New child epics appear at the top of the list of epics in the **Epics and Issues** tab.
 
-When you add a child epic that is already associated with another epic,
-that epic is automatically removed from the previous epic.
+When you add an epic that is already linked to a parent epic, the link to its current parent is removed.
 
 An epic can have multiple child epics with
 the maximum depth being 5.
 
-To add a child epic:
+To add a child epic to an epic:
 
 1. Click **Add an epic**.
-1. Paste the link of the epic.
-   - Press <kbd>Spacebar</kbd> and repeat this step if there are multiple issues.
+1. Identify the epic to be added, using either of the following methods:
+   - Paste the link of the epic.
+   - Search for the desired issue by entering part of the epic's title, then selecting the desired match. ([From GitLab 12.5](https://gitlab.com/gitlab-org/gitlab/issues/9126))
+
+   If there are multiple epics to be added, press <kbd>Spacebar</kbd> and repeat this step.
 1. Click **Add**.
 
 To remove a child epic from a parent epic:
@@ -92,24 +97,44 @@ To remove a child epic from a parent epic:
 
 ## Start date and due date
 
-To set a **Start date** and **Due date** for an epic, you can choose either of the following:
+To set a **Start date** and **Due date** for an epic, select one of the following:
 
 - **Fixed**: Enter a fixed value.
-- **From milestones:** Inherit a dynamic value from the issues added to the epic.
+- **From milestones**: Inherit a dynamic value from the issues added to the epic.
+- **Inherited**: Inherit a dynamic value from the issues added to the epic. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7332) in GitLab 12.5 to replace **From milestones**).
 
-If you select **From milestones** for the start date, GitLab will automatically set the
-date to be earliest start date across all milestones that are currently assigned
-to the issues that are added to the epic. Similarly, if you select "From milestones"
-for the due date, GitLab will set it to be the latest due date across all
-milestones that are currently assigned to those issues.
+### Milestones
 
-These are dynamic dates which are recalculated immediately if any of the following occur:
+If you select **From milestones** for the start date, GitLab will automatically set the date to be earliest
+start date across all milestones that are currently assigned to the issues that are added to the epic.
+Similarly, if you select **From milestones** for the due date, GitLab will set it to be the latest due date across
+all milestones that are currently assigned to those issues.
+
+These are dynamic dates which are recalculated if any of the following occur:
 
 - Milestones are re-assigned to the issues.
 - Milestone dates change.
 - Issues are added or removed from the epic.
 
-## Roadmap
+### Inherited
+
+If you select **Inherited** for the start date, GitLab will scan all child epics and issues assigned to the epic,
+and will set the start date to match the earliest found start date or milestone. Similarly, if you select
+**Inherited** for the due date, GitLab will set the due date to match the latest due date or milestone
+found among its child epics and issues.
+
+These are dynamic dates and recalculated if any of the following occur:
+
+- A child epic's dates change.
+- Milestones are reassigned to an issue.
+- A milestone's dates change.
+- Issues are added to, or removed from, the epic.
+
+Because the epic's dates can inherit dates from its children, the start date and due date propagate from the bottom to the top.
+If the start date of a child epic on the lowest level changes, that becomes the earliest possible start date for its parent epic,
+then the parent epic's start date will reflect the change and this will propagate upwards to the top epic.
+
+## Roadmap in epics
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7327) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.10.
 
@@ -120,6 +145,8 @@ have a [start or due date](#start-date-and-due-date), a
 ![Child epics roadmap](img/epic_view_roadmap_v12.3.png)
 
 ## Reordering issues and child epics
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9367) in GitLab 12.5.
 
 New issues and child epics are added to the top of their respective lists in the **Epics and Issues** tab. You can reorder the list of issues and the list of child epics. Issues and child epics cannot be intermingled.
 
@@ -267,7 +294,7 @@ Once you wrote your comment, you can either:
 
 ## Notifications
 
-- [Receive notifications](../../../workflow/notifications.md) for epic events.
+- [Receive notifications](../../profile/notifications.md) for epic events.
 
 <!-- ## Troubleshooting
 

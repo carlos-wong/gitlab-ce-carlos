@@ -46,7 +46,7 @@ describe MergeRequests::PushOptionsHandlerService do
       expect(last_mr.assignees).to contain_exactly(user)
     end
 
-    context 'when project has been forked' do
+    context 'when project has been forked', :sidekiq_might_not_need_inline do
       let(:forked_project) { fork_project(project, user, repository: true) }
       let(:service) { described_class.new(forked_project, user, changes, push_options) }
 
@@ -101,17 +101,15 @@ describe MergeRequests::PushOptionsHandlerService do
   shared_examples_for 'a service that can set the merge request to merge when pipeline succeeds' do
     subject(:last_mr) { MergeRequest.last }
 
+    let(:change) { Gitlab::ChangesList.new(changes).changes.first }
+
     it 'sets auto_merge_enabled' do
       service.execute
 
       expect(last_mr.auto_merge_enabled).to eq(true)
       expect(last_mr.auto_merge_strategy).to eq(AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS)
-    end
-
-    it 'sets merge_user to the user' do
-      service.execute
-
       expect(last_mr.merge_user).to eq(user)
+      expect(last_mr.merge_params['sha']).to eq(change[:newrev])
     end
   end
 

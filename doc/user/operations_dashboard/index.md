@@ -5,10 +5,7 @@
 The Operations Dashboard provides a summary of each project's operational health,
 including pipeline and alert status.
 
-The dashboard can be accessed via the top bar, by clicking on the new
-dashboard icon:
-
-![Operations Dashboard icon in top bar](img/index_operations_dashboard_top_bar_icon.png)
+The dashboard can be accessed via the top bar, by clicking **More > Operations**.
 
 ## Adding a project to the dashboard
 
@@ -26,7 +23,13 @@ To add a project to the dashboard:
 Once added, the dashboard will display the project's number of active alerts,
 last commit, pipeline status, and when it was last deployed.
 
+The Operations and [Environments](../../ci/environments/environments_dashboard.md) dashboards share the same list of projects. Adding or removing a project from one adds or removes the project from the other.
+
 ![Operations Dashboard with projects](img/index_operations_dashboard_with_projects.png)
+
+## Arranging projects on a dashboard
+
+You can drag project cards to change their order. The card order is currently only saved to your browser, so will not change the dashboard for other people.
 
 ## Making it the default dashboard when you sign in
 

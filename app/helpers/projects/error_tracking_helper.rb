@@ -13,4 +13,13 @@ module Projects::ErrorTrackingHelper
       'illustration-path' => image_path('illustrations/cluster_popover.svg')
     }
   end
+
+  def error_details_data(project, issue_id)
+    opts = [project, issue_id, { format: :json }]
+
+    {
+      'issue-details-path' => details_project_error_tracking_index_path(*opts),
+      'issue-stack-trace-path' => stack_trace_project_error_tracking_index_path(*opts)
+    }
+  end
 end

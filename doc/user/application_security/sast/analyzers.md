@@ -15,7 +15,7 @@ SAST supports the following official analyzers:
 
 - [`bandit`](https://gitlab.com/gitlab-org/security-products/analyzers/bandit) (Bandit)
 - [`brakeman`](https://gitlab.com/gitlab-org/security-products/analyzers/brakeman) (Brakeman)
-- [`eslint`](https://gitlab.com/gitlab-org/security-products/analyzers/eslint) (ESLint (JavaScript))
+- [`eslint`](https://gitlab.com/gitlab-org/security-products/analyzers/eslint) (ESLint (JavaScript and React))
 - [`flawfinder`](https://gitlab.com/gitlab-org/security-products/analyzers/flawfinder) (Flawfinder)
 - [`gosec`](https://gitlab.com/gitlab-org/security-products/analyzers/gosec) (Gosec)
 - [`nodejs-scan`](https://gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan) (NodeJsScan)
@@ -25,7 +25,7 @@ SAST supports the following official analyzers:
 - [`security-code-scan`](https://gitlab.com/gitlab-org/security-products/analyzers/security-code-scan) (Security Code Scan (.NET))
 - [`sobelow`](https://gitlab.com/gitlab-org/security-products/analyzers/sobelow) (Sobelow (Elixir Phoenix))
 - [`spotbugs`](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs) (SpotBugs with the Find Sec Bugs plugin (Ant, Gradle and wrapper, Grails, Maven and wrapper, SBT))
-- [`tslint`](https://gitlab.com/gitlab-org/security-products/analyzers/tslint) (TSLint (Typescript))
+- [`tslint`](https://gitlab.com/gitlab-org/security-products/analyzers/tslint) (TSLint (TypeScript))
 
 The analyzers are published as Docker images that SAST will use to launch
 dedicated containers for each analysis.
@@ -110,6 +110,9 @@ NOTE: **Note:**
 This configuration doesn't benefit from the integrated detection step.
 SAST has to fetch and spawn each Docker image to establish whether the
 custom analyzer can scan the source code.
+
+CAUTION: **Caution:**
+Custom analyzers are not spawned automatically when [Docker In Docker](index.md#disabling-docker-in-docker-for-sast) is disabled.
 
 ## Analyzers Data
 

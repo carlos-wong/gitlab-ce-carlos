@@ -61,6 +61,8 @@ module API
         optional :with_merge_requests_enabled, type: Boolean, default: false, desc: 'Limit by enabled merge requests feature'
         optional :with_programming_language, type: String, desc: 'Limit to repositories which use the given programming language'
         optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Limit by minimum access level of authenticated user'
+        optional :id_after, type: Integer, desc: 'Limit results to projects with IDs greater than the specified ID'
+        optional :id_before, type: Integer, desc: 'Limit results to projects with IDs less than the specified ID'
 
         use :optional_filter_params_ee
       end
@@ -69,7 +71,8 @@ module API
         optional :namespace_id, type: Integer, desc: 'Namespace ID for the new project. Default to the user namespace.'
         optional :import_url, type: String, desc: 'URL from which the project is imported'
         optional :template_name, type: String, desc: "Name of template from which to create project"
-        mutually_exclusive :import_url, :template_name
+        optional :template_project_id, type: Integer, desc: "Project ID of template from which to create project"
+        mutually_exclusive :import_url, :template_name, :template_project_id
       end
 
       def load_projects
@@ -188,6 +191,7 @@ module API
         optional :path, type: String, desc: 'The path of the repository'
         optional :default_branch, type: String, desc: 'The default branch of the project'
         use :optional_project_params
+        use :optional_create_project_params
         use :create_params
       end
       # rubocop: disable CodeReuse/ActiveRecord

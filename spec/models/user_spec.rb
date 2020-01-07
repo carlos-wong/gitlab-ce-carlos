@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe User do
+describe User, :do_not_mock_admin_mode do
   include ProjectForksHelper
   include TermsHelper
 
@@ -2533,8 +2533,8 @@ describe User do
           add_user(:maintainer)
         end
 
-        it 'loads' do
-          expect(user.ci_owned_runners).to contain_exactly(runner)
+        it 'does not load' do
+          expect(user.ci_owned_runners).to be_empty
         end
       end
 
@@ -2549,6 +2549,20 @@ describe User do
       end
     end
 
+    shared_examples :group_member do
+      context 'when the user is owner' do
+        before do
+          add_user(:owner)
+        end
+
+        it 'loads' do
+          expect(user.ci_owned_runners).to contain_exactly(runner)
+        end
+      end
+
+      it_behaves_like :member
+    end
+
     context 'with groups projects runners' do
       let(:group) { create(:group) }
       let!(:project) { create(:project, group: group) }
@@ -2557,7 +2571,7 @@ describe User do
         group.add_user(user, access)
       end
 
-      it_behaves_like :member
+      it_behaves_like :group_member
     end
 
     context 'with groups runners' do
@@ -2568,14 +2582,14 @@ describe User do
         group.add_user(user, access)
       end
 
-      it_behaves_like :member
+      it_behaves_like :group_member
     end
 
     context 'with other projects runners' do
       let!(:project) { create(:project) }
 
       def add_user(access)
-        project.add_role(user, access)
+        project.add_user(user, access)
       end
 
       it_behaves_like :member
@@ -2593,7 +2607,7 @@ describe User do
         subgroup.add_user(another_user, :owner)
       end
 
-      it_behaves_like :member
+      it_behaves_like :group_member
     end
   end
 
@@ -2797,10 +2811,26 @@ describe User do
       expect(user.full_private_access?).to be_falsy
     end
 
-    it 'returns true for admin user' do
-      user = build(:user, :admin)
+    context 'for admin user' do
+      include_context 'custom session'
 
-      expect(user.full_private_access?).to be_truthy
+      let(:user) { build(:user, :admin) }
+
+      context 'when admin mode is disabled' do
+        it 'returns false' do
+          expect(user.full_private_access?).to be_falsy
+        end
+      end
+
+      context 'when admin mode is enabled' do
+        before do
+          Gitlab::Auth::CurrentUserMode.new(user).enable_admin_mode!(password: user.password)
+        end
+
+        it 'returns true' do
+          expect(user.full_private_access?).to be_truthy
+        end
+      end
     end
   end
 
