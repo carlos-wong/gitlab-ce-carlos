@@ -213,7 +213,7 @@ class ProjectPolicy < BasePolicy
     enable :read_pipeline
     enable :read_environment
     enable :read_deployment
-    enable :read_merge_request
+
     enable :read_sentry_issue
     enable :read_prometheus
   end
@@ -241,6 +241,7 @@ class ProjectPolicy < BasePolicy
   rule { can?(:developer_access) & can?(:create_issue) }.enable :import_issues
 
   rule { can?(:developer_access) }.policy do
+    enable :read_merge_request
     enable :create_merge_request_in
     enable :download_code
     enable :build_download_code

@@ -26,7 +26,7 @@ describe ProjectPolicy do
       fork_project create_project_snippet update_issue
       admin_issue admin_label admin_list read_commit_status read_build
       read_container_image read_pipeline read_environment read_deployment
-      read_merge_request download_wiki_code read_sentry_issue
+      download_wiki_code read_sentry_issue
     ]
   end
 
@@ -41,7 +41,7 @@ describe ProjectPolicy do
       update_pipeline create_merge_request_from create_wiki push_code
       create_container_image update_container_image destroy_container_image
       create_environment create_deployment update_deployment create_release update_release
-      download_code build_download_code create_merge_request_in
+      download_code build_download_code create_merge_request_in read_merge_request
     ]
   end
 
