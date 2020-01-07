@@ -337,18 +337,18 @@ ActiveRecord::Schema.define(version: 2019_11_22_135327) do
     t.integer "push_event_activities_limit", default: 3, null: false
     t.string "custom_http_clone_url_root", limit: 511
     t.integer "deletion_adjourned_period", default: 7, null: false
-    t.date "license_trial_ends_on"
+    t.boolean "sourcegraph_enabled", default: false, null: false
+    t.string "sourcegraph_url", limit: 255
+    t.datetime_with_timezone "productivity_analytics_start_date"
+    t.string "snowplow_app_id"
     t.boolean "eks_integration_enabled", default: false, null: false
     t.string "eks_account_id", limit: 128
     t.string "eks_access_key_id", limit: 128
     t.string "encrypted_eks_secret_access_key_iv", limit: 255
     t.text "encrypted_eks_secret_access_key"
-    t.string "snowplow_app_id"
-    t.datetime_with_timezone "productivity_analytics_start_date"
-    t.string "default_ci_config_path", limit: 255
-    t.boolean "sourcegraph_enabled", default: false, null: false
-    t.string "sourcegraph_url", limit: 255
+    t.date "license_trial_ends_on"
     t.boolean "sourcegraph_public_only", default: true, null: false
+    t.string "default_ci_config_path", limit: 255
     t.text "encrypted_akismet_api_key"
     t.string "encrypted_akismet_api_key_iv", limit: 255
     t.text "encrypted_elasticsearch_aws_secret_access_key"
@@ -1084,7 +1084,7 @@ ActiveRecord::Schema.define(version: 2019_11_22_135327) do
     t.index ["cluster_id"], name: "index_clusters_applications_cert_managers_on_cluster_id", unique: true
   end
 
-  create_table "clusters_applications_crossplane", id: :serial, force: :cascade do |t|
+  create_table "clusters_applications_crossplane", force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
     t.bigint "cluster_id", null: false
@@ -2829,7 +2829,7 @@ ActiveRecord::Schema.define(version: 2019_11_22_135327) do
     t.index ["user_id"], name: "index_personal_access_tokens_on_user_id"
   end
 
-  create_table "plan_limits", force: :cascade do |t|
+  create_table "plan_limits", id: false, force: :cascade do |t|
     t.bigint "plan_id", null: false
     t.integer "ci_active_pipelines", default: 0, null: false
     t.integer "ci_pipeline_size", default: 0, null: false
@@ -3792,8 +3792,8 @@ ActiveRecord::Schema.define(version: 2019_11_22_135327) do
     t.boolean "time_format_in_24h"
     t.string "projects_sort", limit: 64
     t.boolean "show_whitespace_in_diffs", default: true, null: false
-    t.boolean "sourcegraph_enabled"
     t.boolean "setup_for_company"
+    t.boolean "sourcegraph_enabled"
     t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
   end
 
@@ -3974,10 +3974,10 @@ ActiveRecord::Schema.define(version: 2019_11_22_135327) do
     t.boolean "severity_overridden", default: false
     t.integer "confidence", limit: 2, null: false
     t.boolean "confidence_overridden", default: false
-    t.bigint "resolved_by_id"
-    t.datetime_with_timezone "resolved_at"
     t.integer "report_type", limit: 2, null: false
     t.integer "cached_markdown_version"
+    t.bigint "resolved_by_id"
+    t.datetime_with_timezone "resolved_at"
     t.index ["author_id"], name: "index_vulnerabilities_on_author_id"
     t.index ["closed_by_id"], name: "index_vulnerabilities_on_closed_by_id"
     t.index ["due_date_sourcing_milestone_id"], name: "index_vulnerabilities_on_due_date_sourcing_milestone_id"
