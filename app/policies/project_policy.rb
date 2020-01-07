@@ -233,9 +233,9 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:guest_access) }.policy do
     enable :read_project
-    enable :create_merge_request_in
     enable :read_issue_board
     enable :read_issue_board_list
+
     enable :read_wiki
     enable :read_issue
     enable :read_label
@@ -355,7 +355,8 @@ class ProjectPolicy < BasePolicy
     enable :admin_issue_board
     enable :admin_milestone
 		enable :update_issue
-		enable :admin_issue
+		# enable :admin_issue
+    enable :create_merge_request_in
     enable :download_code
     enable :build_download_code
     enable :admin_board
