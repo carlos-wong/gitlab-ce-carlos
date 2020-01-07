@@ -23,7 +23,7 @@ describe ProjectPolicy do
 
   let(:base_reporter_permissions) do
     %i[
-      download_code fork_project create_project_snippet update_issue
+      fork_project create_project_snippet update_issue
       admin_issue admin_label admin_list read_commit_status read_build
       read_container_image read_pipeline read_environment read_deployment
       read_merge_request download_wiki_code read_sentry_issue
@@ -31,7 +31,7 @@ describe ProjectPolicy do
   end
 
   let(:team_member_reporter_permissions) do
-    %i[build_download_code build_read_container_image]
+    %i[build_read_container_image]
   end
 
   let(:developer_permissions) do
@@ -41,6 +41,7 @@ describe ProjectPolicy do
       update_pipeline create_merge_request_from create_wiki push_code
       create_container_image update_container_image destroy_container_image
       create_environment create_deployment update_deployment create_release update_release
+      download_code build_download_code
     ]
   end
 

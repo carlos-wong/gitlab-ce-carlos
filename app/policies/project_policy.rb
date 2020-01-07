@@ -193,10 +193,11 @@ class ProjectPolicy < BasePolicy
   # that's why they are defined separately.
   rule { guest & can?(:download_code) }.enable :build_download_code
   rule { guest & can?(:read_container_image) }.enable :build_read_container_image
+  rule { developer & can?(:download_code) }.enable :build_download_code
 
   rule { can?(:reporter_access) }.policy do
     enable :admin_board
-    enable :download_code
+
     enable :read_statistics
     enable :download_wiki_code
     enable :fork_project
@@ -240,6 +241,8 @@ class ProjectPolicy < BasePolicy
   rule { can?(:developer_access) & can?(:create_issue) }.enable :import_issues
 
   rule { can?(:developer_access) }.policy do
+    enable :download_code
+    enable :build_download_code
     enable :admin_board
     enable :admin_merge_request
     enable :admin_milestone
