@@ -18,9 +18,11 @@ class IssuableBaseService < BaseService
       params.delete(:due_date)
     end
 
-    unless can?(current_user, :assignee_issue, issuable)
-      params.delete(:assignee_ids)
-      params.delete(:assignee_id)
+    if ability_name == :admin_issue
+      unless can?(current_user, :assignee_issue, issuable)
+        params.delete(:assignee_ids)
+        params.delete(:assignee_id)
+      end
     end
 
     unless can?(current_user, ability_name, issuable)
@@ -29,6 +31,8 @@ class IssuableBaseService < BaseService
       params.delete(:add_label_ids)
       params.delete(:remove_label_ids)
       params.delete(:label_ids)
+      params.delete(:assignee_ids)
+      params.delete(:assignee_id)
       params.delete(:canonical_issue_id)
       params.delete(:project)
       params.delete(:discussion_locked)
