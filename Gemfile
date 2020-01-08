@@ -64,7 +64,7 @@ gem 'u2f', '~> 0.2.1'
 
 # GitLab Pages
 gem 'validates_hostname', '~> 1.0.6'
-gem 'rubyzip', '~> 1.3.0', require: 'zip'
+gem 'rubyzip', '~> 2.0.0', require: 'zip'
 # GitLab Pages letsencrypt support
 gem 'acme-client', '~> 2.0.2'
 
@@ -370,7 +370,7 @@ group :development, :test do
 
   gem 'capybara', '~> 3.22.0'
   gem 'capybara-screenshot', '~> 1.0.22'
-  gem 'selenium-webdriver', '~> 3.141'
+  gem 'selenium-webdriver', '~> 3.142'
 
   gem 'spring', '~> 2.0.0'
   gem 'spring-commands-rspec', '~> 1.0.4'
