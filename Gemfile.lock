@@ -106,7 +106,7 @@ GEM
       coderay (>= 1.0.0)
       erubi (>= 1.0.0)
       rack (>= 0.9.0)
-    bindata (2.4.3)
+    bindata (2.4.4)
     binding_ninja (0.2.3)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
@@ -503,7 +503,7 @@ GEM
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
     httpclient (2.8.3)
-    i18n (1.7.0)
+    i18n (1.7.1)
       concurrent-ruby (~> 1.0)
     i18n_data (0.8.0)
     icalendar (2.4.1)
@@ -529,8 +529,8 @@ GEM
       regexp_parser (~> 1.1)
       regexp_property_values (~> 0.3)
     json (1.8.6)
-    json-jwt (1.9.4)
-      activesupport
+    json-jwt (1.11.0)
+      activesupport (>= 4.2)
       aes_key_wrap
       bindata
     json-schema (2.8.0)
@@ -1039,7 +1039,7 @@ GEM
     truncato (0.7.11)
       htmlentities (~> 4.3.1)
       nokogiri (>= 1.7.0, <= 2.0)
-    tzinfo (1.2.5)
+    tzinfo (1.2.6)
       thread_safe (~> 0.1)
     u2f (0.2.1)
     uber (0.1.0)
