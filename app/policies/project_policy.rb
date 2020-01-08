@@ -314,6 +314,7 @@ class ProjectPolicy < BasePolicy
     enable :resolve_note
     enable :assignee_issue
     enable :change_due_date
+    enable :close_issue
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
