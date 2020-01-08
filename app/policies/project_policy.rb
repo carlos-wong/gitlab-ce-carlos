@@ -469,6 +469,7 @@ class ProjectPolicy < BasePolicy
     enable :change_due_date
     enable :close_issue
     enable :edit_merge_request_label
+
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do
