@@ -287,7 +287,7 @@ class ProjectPolicy < BasePolicy
     enable :update_deployment
     enable :admin_project_snippet
     enable :admin_project_member
-    enable :admin_note
+    #enable :admin_note
     enable :admin_wiki
     enable :admin_project
     enable :admin_commit_status
