@@ -360,7 +360,6 @@ class ProjectPolicy < BasePolicy
   rule { can?(:developer_access) }.policy do
     enable :create_package
     enable :admin_issue_board
-    enable :admin_merge_request
     enable :admin_milestone
     enable :update_merge_request
     enable :reopen_merge_request
@@ -416,6 +415,7 @@ class ProjectPolicy < BasePolicy
     enable :push_to_delete_protected_branch
     enable :update_snippet
     enable :admin_snippet
+    enable :admin_merge_request
 
     enable :update_issue
     enable :admin_issue
@@ -459,6 +459,10 @@ class ProjectPolicy < BasePolicy
     enable :admin_feature_flags_client
     enable :update_runners_registration_token
     enable :admin_project_google_cloud
+    enable :assignee_issue
+    enable :change_due_date
+    enable :close_issue
+    enable :edit_merge_request_label
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do

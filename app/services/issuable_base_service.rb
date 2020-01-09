@@ -36,13 +36,16 @@ class IssuableBaseService < ::BaseProjectService
   def filter_params(issuable)
     unless can_set_issuable_metadata?(issuable)
       params.delete(:milestone)
+      if ability_name == :admin_merge_request
+        unless can?(current_user, :edit_merge_request_label, issuable)
+          params.delete(:labels)
+          params.delete(:add_label_ids)
+          params.delete(:remove_label_ids)
+          params.delete(:label_ids)
+        end
+      end
+
       params.delete(:milestone_id)
-      params.delete(:labels)
-      params.delete(:add_label_ids)
-      params.delete(:add_labels)
-      params.delete(:remove_label_ids)
-      params.delete(:remove_labels)
-      params.delete(:label_ids)
       params.delete(:assignee_ids)
       params.delete(:assignee_id)
       params.delete(:add_assignee_ids)
