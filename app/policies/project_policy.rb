@@ -315,6 +315,8 @@ class ProjectPolicy < BasePolicy
     enable :assignee_issue
     enable :change_due_date
     enable :close_issue
+
+    enable :edit_merge_request_label
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror

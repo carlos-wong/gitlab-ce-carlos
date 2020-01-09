@@ -25,6 +25,15 @@ class IssuableBaseService < BaseService
       end
     end
 
+    if ability_name == :admin_merge_request
+      unless can?(current_user, :edit_merge_request_label, issuable)
+        params.delete(:labels)
+        params.delete(:add_label_ids)
+        params.delete(:remove_label_ids)
+        params.delete(:label_ids)
+      end
+    end
+
     unless can?(current_user, ability_name, issuable)
       params.delete(:milestone_id)
       params.delete(:labels)
