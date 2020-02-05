@@ -88,6 +88,7 @@ export default {
       :number-of-assignees="store.assignees.length"
       :loading="loading || store.isFetching.assignees"
       :editable="store.editable"
+      :assigneeable="store.assigneeable"
       :show-toggle="!signedIn"
     />
     <assignees

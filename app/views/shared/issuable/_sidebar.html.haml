@@ -4,6 +4,7 @@
 - issuable_type = issuable_sidebar[:type]
 - signed_in = !!issuable_sidebar.dig(:current_user, :id)
 - can_edit_issuable = issuable_sidebar.dig(:current_user, :can_edit)
+- can_assign_issue = issuable_sidebar.dig(:current_user, :can_assignee)
 
 - if Feature.enabled?(:vue_issuable_sidebar, @project.group)
   %aside#js-vue-issuable-sidebar{ data: { signed_in: signed_in,

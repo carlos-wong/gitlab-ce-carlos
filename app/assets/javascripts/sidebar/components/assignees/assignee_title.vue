@@ -17,6 +17,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    assigneeable: {
+      type: Boolean,
+      required: true,
+    },
     showToggle: {
       type: Boolean,
       required: false,
@@ -36,7 +40,7 @@ export default {
     {{ assigneeTitle }}
     <i v-if="loading" aria-hidden="true" class="fa fa-spinner fa-spin block-loading"></i>
     <a
-      v-if="editable"
+      v-if="assigneeable"
       class="js-sidebar-dropdown-toggle edit-link float-right"
       href="#"
       data-qa-selector="assignee_edit_link"
