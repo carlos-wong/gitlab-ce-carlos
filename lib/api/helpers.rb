@@ -213,9 +213,9 @@ module API
       unauthorized! unless Devise.secure_compare(secret_token, input)
     end
 
-    def authenticated_with_full_private_access!
+    def authenticated_with_can_read_all_resources!
       authenticate!
-      forbidden! unless current_user.full_private_access?
+      forbidden! unless current_user.can_read_all_resources?
     end
 
     def authenticated_as_admin!
@@ -256,9 +256,19 @@ module API
     end
 
     def require_gitlab_workhorse!
+      verify_workhorse_api!
+
       unless env['HTTP_GITLAB_WORKHORSE'].present?
         forbidden!('Request should be executed via GitLab Workhorse')
       end
+    end
+
+    def verify_workhorse_api!
+      Gitlab::Workhorse.verify_api_request!(request.headers)
+    rescue => e
+      Gitlab::ErrorTracking.track_exception(e)
+
+      forbidden!
     end
 
     def require_pages_enabled!
@@ -384,8 +394,9 @@ module API
     def handle_api_exception(exception)
       if report_exception?(exception)
         define_params_for_grape_middleware
-        Gitlab::Sentry.context(current_user)
-        Gitlab::Sentry.track_acceptable_exception(exception, extra: params)
+        Gitlab::ErrorTracking.with_context(current_user) do
+          Gitlab::ErrorTracking.track_exception(exception, params)
+        end
       end
 
       # This is used with GrapeLogging::Loggers::ExceptionLogger

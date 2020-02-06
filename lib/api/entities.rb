@@ -166,6 +166,18 @@ module API
       end
     end
 
+    class RemoteMirror < Grape::Entity
+      expose :id
+      expose :enabled
+      expose :safe_url, as: :url
+      expose :update_status
+      expose :last_update_at
+      expose :last_update_started_at
+      expose :last_successful_update_at
+      expose :last_error
+      expose :only_protected_branches
+    end
+
     class ProjectImportStatus < ProjectIdentity
       expose :import_status
 
@@ -415,7 +427,7 @@ module API
         projects = GroupProjectsFinder.new(
           group: group,
           current_user: options[:current_user],
-          options: { only_owned: true }
+          options: { only_owned: true, limit: projects_limit }
         ).execute
 
         Entities::Project.prepare_relation(projects)
@@ -425,10 +437,18 @@ module API
         projects = GroupProjectsFinder.new(
           group: group,
           current_user: options[:current_user],
-          options: { only_shared: true }
+          options: { only_shared: true, limit: projects_limit }
         ).execute
 
         Entities::Project.prepare_relation(projects)
+      end
+
+      def projects_limit
+        if ::Feature.enabled?(:limit_projects_in_groups_api, default_enabled: true)
+          GroupProjectsFinder::DEFAULT_PROJECTS_LIMIT
+        else
+          nil
+        end
       end
     end
 
@@ -456,8 +476,18 @@ module API
     class CommitDetail < Commit
       expose :stats, using: Entities::CommitStats, if: :stats
       expose :status
-      expose :last_pipeline, using: 'API::Entities::PipelineBasic'
       expose :project_id
+
+      expose :last_pipeline do |commit, options|
+        pipeline = commit.last_pipeline if can_read_pipeline?
+        ::API::Entities::PipelineBasic.represent(pipeline, options)
+      end
+
+      private
+
+      def can_read_pipeline?
+        Ability.allowed?(options[:current_user], :read_pipeline, object.last_pipeline)
+      end
     end
 
     class CommitSignature < Grape::Entity
@@ -532,7 +562,7 @@ module API
 
     class PersonalSnippet < Snippet
       expose :raw_url do |snippet|
-        Gitlab::UrlBuilder.build(snippet) + "/raw"
+        Gitlab::UrlBuilder.build(snippet, raw: true)
       end
     end
 
@@ -662,6 +692,8 @@ module API
       expose :subscribed, if: -> (_, options) { options.fetch(:include_subscribed, true) } do |issue, options|
         issue.subscribed?(options[:current_user], options[:project] || issue.project)
       end
+
+      expose :moved_to_id
     end
 
     class IssuableTimeStats < Grape::Entity
@@ -1195,7 +1227,7 @@ module API
     end
 
     class BroadcastMessage < Grape::Entity
-      expose :message, :starts_at, :ends_at, :color, :font
+      expose :message, :starts_at, :ends_at, :color, :font, :target_path
     end
 
     class ApplicationStatistics < Grape::Entity
@@ -1314,9 +1346,10 @@ module API
       expose :author, using: Entities::UserBasic, if: -> (release, _) { release.author.present? }
       expose :commit, using: Entities::Commit, if: ->(_, _) { can_download_code? }
       expose :upcoming_release?, as: :upcoming_release
-      expose :milestones, using: Entities::Milestone, if: -> (release, _) { release.milestones.present? }
+      expose :milestones, using: Entities::Milestone, if: -> (release, _) { release.milestones.present? && can_read_milestone? }
       expose :commit_path, expose_nil: false
       expose :tag_path, expose_nil: false
+      expose :evidence_sha, expose_nil: false, if: ->(_, _) { can_download_code? }
       expose :assets do
         expose :assets_count, as: :count do |release, _|
           assets_to_exclude = can_download_code? ? [] : [:sources]
@@ -1326,6 +1359,7 @@ module API
         expose :links, using: Entities::Releases::Link do |release, options|
           release.links.sorted
         end
+        expose :evidence_file_path, expose_nil: false, if: ->(_, _) { can_download_code? }
       end
       expose :_links do
         expose :merge_requests_url, expose_nil: false
@@ -1337,6 +1371,10 @@ module API
 
       def can_download_code?
         Ability.allowed?(options[:current_user], :download_code, object.project)
+      end
+
+      def can_read_milestone?
+        Ability.allowed?(options[:current_user], :read_milestone, object.project)
       end
     end
 
@@ -1648,7 +1686,7 @@ module API
         expose :artifacts, using: Artifacts
         expose :cache, using: Cache
         expose :credentials, using: Credentials
-        expose :dependencies, using: Dependency
+        expose :all_dependencies, as: :dependencies, using: Dependency
         expose :features
       end
     end
@@ -1736,6 +1774,7 @@ module API
     end
 
     class BasicBadgeDetails < Grape::Entity
+      expose :name
       expose :link_url
       expose :image_url
       expose :rendered_link_url do |badge, options|
@@ -1838,6 +1877,7 @@ end
 ::API::Entities::Issue.prepend_if_ee('EE::API::Entities::Issue')
 ::API::Entities::List.prepend_if_ee('EE::API::Entities::List')
 ::API::Entities::MergeRequestBasic.prepend_if_ee('EE::API::Entities::MergeRequestBasic', with_descendants: true)
+::API::Entities::Member.prepend_if_ee('EE::API::Entities::Member', with_descendants: true)
 ::API::Entities::Namespace.prepend_if_ee('EE::API::Entities::Namespace')
 ::API::Entities::Project.prepend_if_ee('EE::API::Entities::Project', with_descendants: true)
 ::API::Entities::ProtectedRefAccess.prepend_if_ee('EE::API::Entities::ProtectedRefAccess')

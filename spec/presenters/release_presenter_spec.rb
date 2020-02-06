@@ -90,12 +90,34 @@ describe ReleasePresenter do
       is_expected.to match /#{edit_project_release_url(project, release)}/
     end
 
-    context 'when release_edit_page feature flag is disabled' do
-      before do
-        stub_feature_flags(release_edit_page: false)
-      end
+    context 'when a user is not allowed to update a release' do
+      let(:presenter) { described_class.new(release, current_user: guest) }
 
       it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#evidence_file_path' do
+    subject { presenter.evidence_file_path }
+
+    context 'without evidence' do
+      it { is_expected.to be_falsy }
+    end
+
+    context 'with evidence' do
+      let(:release) { create :release, :with_evidence, project: project }
+
+      specify do
+        is_expected.to match /#{evidence_project_release_url(project, release.tag, format: :json)}/
+      end
+    end
+
+    context 'when a tag contains a slash' do
+      let(:release) { create :release, :with_evidence, project: project, tag: 'debian/2.4.0-1' }
+
+      specify do
+        is_expected.to match /#{evidence_project_release_url(project, CGI.escape(release.tag), format: :json)}/
+      end
     end
   end
 end

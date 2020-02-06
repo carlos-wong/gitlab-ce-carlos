@@ -21,6 +21,14 @@ class BasePolicy < DeclarativePolicy::Base
   with_options scope: :user, score: 0
   condition(:deactivated) { @user&.deactivated? }
 
+  desc "User email is unconfirmed or user account is locked"
+  with_options scope: :user, score: 0
+  condition(:inactive) do
+    Feature.enabled?(:inactive_policy_condition, default_enabled: true) &&
+      @user &&
+      !@user&.active_for_authentication?
+  end
+
   with_options scope: :user, score: 0
   condition(:external_user) { @user.nil? || @user.external? }
 
@@ -40,6 +48,7 @@ class BasePolicy < DeclarativePolicy::Base
     prevent :read_cross_project
   end
 
+  # Policy extended in EE to also enable auditors
   rule { admin }.enable :read_all_resources
 
   rule { default }.enable :read_cross_project

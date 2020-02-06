@@ -36,6 +36,13 @@ class GlobalPolicy < BasePolicy
     enable :use_slash_commands
   end
 
+  rule { inactive }.policy do
+    prevent :log_in
+    prevent :access_api
+    prevent :access_git
+    prevent :use_slash_commands
+  end
+
   rule { blocked | internal }.policy do
     prevent :log_in
     prevent :access_api
@@ -75,12 +82,15 @@ class GlobalPolicy < BasePolicy
 
   rule { ~anonymous }.policy do
     enable :read_instance_metadata
+    enable :create_personal_snippet
   end
 
   rule { admin }.policy do
     enable :read_custom_attribute
     enable :update_custom_attribute
   end
+
+  rule { external_user }.prevent :create_personal_snippet
 end
 
 GlobalPolicy.prepend_if_ee('EE::GlobalPolicy')

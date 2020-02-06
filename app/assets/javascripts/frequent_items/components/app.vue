@@ -1,11 +1,11 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex';
-import AccessorUtilities from '~/lib/utils/accessor';
 import { GlLoadingIcon } from '@gitlab/ui';
+import AccessorUtilities from '~/lib/utils/accessor';
 import eventHub from '../event_hub';
 import store from '../store/';
 import { FREQUENT_ITEMS, STORAGE_KEY } from '../constants';
-import { isMobile, updateExistingFrequentItem } from '../utils';
+import { isMobile, updateExistingFrequentItem, sanitizeItem } from '../utils';
 import FrequentItemsSearchInput from './frequent_items_search_input.vue';
 import FrequentItemsList from './frequent_items_list.vue';
 import frequentItemsMixin from './frequent_items_mixin';
@@ -64,7 +64,9 @@ export default {
         this.fetchFrequentItems();
       }
     },
-    logItemAccess(storageKey, item) {
+    logItemAccess(storageKey, unsanitizedItem) {
+      const item = sanitizeItem(unsanitizedItem);
+
       if (!AccessorUtilities.isLocalStorageAccessSafe()) {
         return false;
       }

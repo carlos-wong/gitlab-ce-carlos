@@ -34,7 +34,7 @@ You can either use the user interface (UI), or connect your local computer
 with GitLab [through the command line](../../../gitlab-basics/command-line-commands.md#start-working-on-your-project).
 
 To configure [GitLab CI/CD](../../../ci/README.md) to build, test, and deploy
-you code, add a file called [`.gitlab-ci.yml`](../../../ci/quick_start/README.md)
+your code, add a file called [`.gitlab-ci.yml`](../../../ci/quick_start/README.md)
 to your repository's root.
 
 **From the user interface:**
@@ -48,6 +48,8 @@ it's easier to do so [via GitLab UI](web_editor.md):
 - [File templates](web_editor.md#template-dropdowns)
 - [Create a directory](web_editor.md#create-a-directory)
 - [Start a merge request](web_editor.md#tips)
+- [Find file history](git_history.md)
+- [Identify changes by line (Git blame)](git_blame.md)
 
 **From the command line:**
 
@@ -113,6 +115,35 @@ rendered to HTML when viewed.
 
 Interactive features, including JavaScript plots, will not work when viewed in
 GitLab.
+
+### OpenAPI viewer
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/19515) in GitLab 12.6.
+
+GitLab can render OpenAPI specification files with its file viewer, provided
+their filenames include `openapi` or `swagger` and their extension is `yaml`,
+`yml`, or `json`. The following examples are all correct:
+
+- `openapi.yml`
+- `openapi.yaml`
+- `openapi.json`
+- `swagger.yml`
+- `swagger.yaml`
+- `swagger.json`
+- `gitlab_swagger.yml`
+- `openapi_gitlab.yml`
+- `OpenAPI.YML`
+- `openapi.Yaml`
+- `openapi.JSON`
+- `openapi.gitlab.yml`
+- `gitlab.openapi.yml`
+
+Then, to render them:
+
+1. Navigate to the OpenAPI file in your repository in GitLab's UI.
+1. Click the "Display OpenAPI" button which is located between the "Display source"
+   and "Edit" buttons (when an OpenAPI file is found, it replaces the
+   "Display rendered file" button).
 
 ## Branches
 

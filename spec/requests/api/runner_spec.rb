@@ -513,6 +513,16 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(json_response['features']).to eq(expected_features)
           end
 
+          it 'creates persistent ref' do
+            expect_any_instance_of(Ci::PersistentRef).to receive(:create_ref)
+              .with(job.sha, "refs/#{Repository::REF_PIPELINES}/#{job.commit_id}")
+
+            request_job info: { platform: :darwin }
+
+            expect(response).to have_gitlab_http_status(201)
+            expect(json_response['id']).to eq(job.id)
+          end
+
           context 'when job is made for tag' do
             let!(:job) { create(:ci_build, :tag, pipeline: pipeline, name: 'spinach', stage: 'test', stage_idx: 0) }
 
@@ -1499,7 +1509,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
           authorize_artifacts
 
-          expect(response).to have_gitlab_http_status(500)
+          expect(response).to have_gitlab_http_status(:forbidden)
         end
 
         context 'authorization token is invalid' do
@@ -1626,6 +1636,18 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               post api("/jobs/#{job.id}/artifacts"), params: { token: job.token }, headers: {}
 
               expect(response).to have_gitlab_http_status(403)
+            end
+          end
+
+          context 'Is missing GitLab Workhorse token headers' do
+            let(:jwt_token) { JWT.encode({ 'iss' => 'invalid-header' }, Gitlab::Workhorse.secret, 'HS256') }
+
+            it 'fails to post artifacts without GitLab-Workhorse' do
+              expect(Gitlab::ErrorTracking).to receive(:track_exception).once
+
+              upload_artifacts(file_upload, headers_with_token)
+
+              expect(response).to have_gitlab_http_status(:forbidden)
             end
           end
 

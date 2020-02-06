@@ -14,6 +14,7 @@ module Ci
     include HasRef
     include ShaAttribute
     include FromUnion
+    include UpdatedAtFilterable
 
     sha_attribute :source_sha
     sha_attribute :target_sha
@@ -31,6 +32,7 @@ module Ci
 
     has_many :stages, -> { order(position: :asc) }, inverse_of: :pipeline
     has_many :statuses, class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline
+    has_many :latest_statuses_ordered_by_stage, -> { latest.order(:stage_idx, :stage) }, class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline
     has_many :processables, -> { processables },
              class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline
     has_many :builds, foreign_key: :commit_id, inverse_of: :pipeline
@@ -44,6 +46,7 @@ module Ci
     has_many :merge_requests_as_head_pipeline, foreign_key: "head_pipeline_id", class_name: 'MergeRequest'
 
     has_many :pending_builds, -> { pending }, foreign_key: :commit_id, class_name: 'Ci::Build'
+    has_many :failed_builds, -> { latest.failed }, foreign_key: :commit_id, class_name: 'Ci::Build', inverse_of: :pipeline
     has_many :retryable_builds, -> { latest.failed_or_canceled.includes(:project) }, foreign_key: :commit_id, class_name: 'Ci::Build'
     has_many :cancelable_statuses, -> { cancelable }, foreign_key: :commit_id, class_name: 'CommitStatus'
     has_many :manual_actions, -> { latest.manual_actions.includes(:project) }, foreign_key: :commit_id, class_name: 'Ci::Build'
@@ -204,15 +207,7 @@ module Ci
     end
 
     scope :internal, -> { where(source: internal_sources) }
-    scope :ci_sources, -> { where(config_source: ci_sources_values) }
-
-    scope :sort_by_merge_request_pipelines, -> do
-      sql = 'CASE ci_pipelines.source WHEN (?) THEN 0 ELSE 1 END, ci_pipelines.id DESC'
-      query = ApplicationRecord.send(:sanitize_sql_array, [sql, sources[:merge_request_event]]) # rubocop:disable GitlabSecurity/PublicSend
-
-      order(Arel.sql(query))
-    end
-
+    scope :ci_sources, -> { where(config_source: ::Ci::PipelineEnums.ci_config_sources_values) }
     scope :for_user, -> (user) { where(user: user) }
     scope :for_sha, -> (sha) { where(sha: sha) }
     scope :for_source_sha, -> (source_sha) { where(source_sha: source_sha) }
@@ -220,22 +215,6 @@ module Ci
     scope :for_ref, -> (ref) { where(ref: ref) }
     scope :for_id, -> (id) { where(id: id) }
     scope :created_after, -> (time) { where('ci_pipelines.created_at > ?', time) }
-
-    scope :triggered_by_merge_request, -> (merge_request) do
-      where(source: :merge_request_event, merge_request: merge_request)
-    end
-
-    scope :detached_merge_request_pipelines, -> (merge_request, sha) do
-      triggered_by_merge_request(merge_request).for_sha(sha)
-    end
-
-    scope :merge_request_pipelines, -> (merge_request, source_sha) do
-      triggered_by_merge_request(merge_request).for_source_sha(source_sha)
-    end
-
-    scope :triggered_for_branch, -> (ref) do
-      where(source: branch_pipeline_sources).where(ref: ref, tag: false)
-    end
 
     scope :with_reports, -> (reports_scope) do
       where('EXISTS (?)', ::Ci::Build.latest.with_reports(reports_scope).where('ci_pipelines.id=ci_builds.commit_id').select(1))
@@ -323,11 +302,6 @@ module Ci
       end
     end
 
-    def self.latest_for_shas(shas)
-      max_id_per_sha = for_sha(shas).group(:sha).select("max(id)")
-      where(id: max_id_per_sha)
-    end
-
     def self.latest_successful_ids_per_project
       success.group(:project_id).select('max(id) as id')
     end
@@ -342,14 +316,6 @@ module Ci
 
     def self.internal_sources
       sources.reject { |source| source == "external" }.values
-    end
-
-    def self.branch_pipeline_sources
-      @branch_pipeline_sources ||= sources.reject { |source| source == 'merge_request_event' }.values
-    end
-
-    def self.ci_sources_values
-      config_sources.values_at(:repository_source, :auto_devops_source, :unknown_source)
     end
 
     def self.bridgeable_statuses
@@ -413,9 +379,7 @@ module Ci
     end
 
     def legacy_stages_using_composite_status
-      stages = statuses.latest
-        .order(:stage_idx, :stage)
-        .group_by(&:stage)
+      stages = latest_statuses_ordered_by_stage.group_by(&:stage)
 
       stages.map do |stage_name, jobs|
         composite_status = Gitlab::Ci::Status::Composite
@@ -478,6 +442,10 @@ module Ci
       end
     end
 
+    def before_sha
+      super || Gitlab::Git::BLANK_SHA
+    end
+
     def short_sha
       Ci::Pipeline.truncate_sha(sha)
     end
@@ -532,6 +500,10 @@ module Ci
 
     def mark_as_processable_after_stage(stage_idx)
       builds.skipped.after_stage(stage_idx).find_each(&:process)
+    end
+
+    def child?
+      false
     end
 
     def latest?
@@ -599,12 +571,6 @@ module Ci
       project.notes.for_commit_id(sha)
     end
 
-    # rubocop: disable CodeReuse/ServiceClass
-    def process!(trigger_build_ids = nil)
-      Ci::ProcessPipelineService.new(project, user).execute(self, trigger_build_ids)
-    end
-    # rubocop: enable CodeReuse/ServiceClass
-
     def update_status
       retry_optimistic_lock(self) do
         new_status = latest_builds_status.to_s
@@ -646,12 +612,11 @@ module Ci
     def predefined_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
-        variables.append(key: 'CI_CONFIG_PATH', value: config_path)
         variables.append(key: 'CI_PIPELINE_SOURCE', value: source.to_s)
-        variables.append(key: 'CI_COMMIT_MESSAGE', value: git_commit_message.to_s)
-        variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
-        variables.append(key: 'CI_COMMIT_DESCRIPTION', value: git_commit_description.to_s)
-        variables.append(key: 'CI_COMMIT_REF_PROTECTED', value: (!!protected_ref?).to_s)
+
+        variables.append(key: 'CI_CONFIG_PATH', value: config_path)
+
+        variables.concat(predefined_commit_variables)
 
         if merge_request_event? && merge_request
           variables.append(key: 'CI_MERGE_REQUEST_EVENT_TYPE', value: merge_request_event_type.to_s)
@@ -663,6 +628,29 @@ module Ci
         if external_pull_request_event? && external_pull_request
           variables.concat(external_pull_request.predefined_variables)
         end
+      end
+    end
+
+    def predefined_commit_variables
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        variables.append(key: 'CI_COMMIT_SHA', value: sha)
+        variables.append(key: 'CI_COMMIT_SHORT_SHA', value: short_sha)
+        variables.append(key: 'CI_COMMIT_BEFORE_SHA', value: before_sha)
+        variables.append(key: 'CI_COMMIT_REF_NAME', value: source_ref)
+        variables.append(key: 'CI_COMMIT_REF_SLUG', value: source_ref_slug)
+        variables.append(key: 'CI_COMMIT_BRANCH', value: ref) if branch?
+        variables.append(key: 'CI_COMMIT_TAG', value: ref) if tag?
+        variables.append(key: 'CI_COMMIT_MESSAGE', value: git_commit_message.to_s)
+        variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
+        variables.append(key: 'CI_COMMIT_DESCRIPTION', value: git_commit_description.to_s)
+        variables.append(key: 'CI_COMMIT_REF_PROTECTED', value: (!!protected_ref?).to_s)
+
+        # legacy variables
+        variables.append(key: 'CI_BUILD_REF', value: sha)
+        variables.append(key: 'CI_BUILD_BEFORE_SHA', value: before_sha)
+        variables.append(key: 'CI_BUILD_REF_NAME', value: source_ref)
+        variables.append(key: 'CI_BUILD_REF_SLUG', value: source_ref_slug)
+        variables.append(key: 'CI_BUILD_TAG', value: ref) if tag?
       end
     end
 
@@ -781,16 +769,8 @@ module Ci
       triggered_by_merge_request? && target_sha.present?
     end
 
-    def merge_train_pipeline?
-      merge_request_pipeline? && merge_train_ref?
-    end
-
     def merge_request_ref?
       MergeRequest.merge_request_ref?(ref)
-    end
-
-    def merge_train_ref?
-      MergeRequest.merge_train_ref?(ref)
     end
 
     def matches_sha_or_source_sha?(sha)
@@ -825,9 +805,7 @@ module Ci
       return unless merge_request_event?
 
       strong_memoize(:merge_request_event_type) do
-        if merge_train_pipeline?
-          :merge_train
-        elsif merge_request_pipeline?
+        if merge_request_pipeline?
           :merged_result
         elsif detached_merge_request_pipeline?
           :detached
@@ -837,6 +815,10 @@ module Ci
 
     def persistent_ref
       @persistent_ref ||= PersistentRef.new(pipeline: self)
+    end
+
+    def find_successful_build_ids_by_names(names)
+      statuses.latest.success.where(name: names).pluck(:id)
     end
 
     private
