@@ -41,7 +41,7 @@ describe ProjectPolicy do
       admin_tag admin_milestone admin_merge_request update_merge_request create_commit_status
       update_commit_status create_build update_build create_pipeline
       update_pipeline create_merge_request_from create_wiki push_code
-      resolve_note create_container_image update_container_image destroy_container_image
+      create_container_image update_container_image destroy_container_image
       create_environment update_environment create_deployment update_deployment create_release update_release
       download_code build_download_code create_merge_request_in read_merge_request
     ]
@@ -50,7 +50,7 @@ describe ProjectPolicy do
   let(:base_maintainer_permissions) do
     %i[
       push_to_delete_protected_branch update_project_snippet
-      admin_project_snippet admin_project_member admin_note admin_wiki admin_project
+      admin_project_snippet admin_project_member admin_wiki admin_project
       admin_commit_status admin_build admin_container_image
       admin_pipeline admin_environment admin_deployment destroy_release add_cluster
       daily_statistics resolve_note assignee_issue change_due_date edit_merge_request_label
