@@ -140,7 +140,7 @@
     "webpack-cli": "^3.3.9",
     "webpack-stats-plugin": "^0.3.0",
     "worker-loader": "^2.0.0",
-    "xterm": "^3.5.0"
+    "xterm": "^3.8.1"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.5.0",
