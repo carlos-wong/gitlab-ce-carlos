@@ -1,2 +1,3 @@
 [lfs]
-	url = http://matrix:matrix@192.168.2.21:9999
+	url = https://lfs.example.com/foo/bar/info/lfs
+        allowincompletepush = true
