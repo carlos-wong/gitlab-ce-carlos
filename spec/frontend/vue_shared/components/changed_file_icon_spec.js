@@ -18,8 +18,6 @@ describe('Changed file icon', () => {
         showTooltip: true,
         ...props,
       },
-      sync: false,
-      attachToDocument: true,
     });
   };
 
@@ -30,7 +28,7 @@ describe('Changed file icon', () => {
   const findIcon = () => wrapper.find(Icon);
   const findIconName = () => findIcon().props('name');
   const findIconClasses = () => findIcon().classes();
-  const findTooltipText = () => wrapper.attributes('data-original-title');
+  const findTooltipText = () => wrapper.attributes('title');
 
   it('with isCentered true, adds center class', () => {
     factory({
@@ -89,7 +87,7 @@ describe('Changed file icon', () => {
     });
 
     it('does not have tooltip text', () => {
-      expect(findTooltipText()).toBe('');
+      expect(findTooltipText()).toBeFalsy();
     });
   });
 

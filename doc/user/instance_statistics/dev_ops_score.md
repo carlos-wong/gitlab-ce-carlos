@@ -1,5 +1,6 @@
 # DevOps Score
 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/30469) in GitLab 9.3.
 > [Renamed from Conversational Development Index](https://gitlab.com/gitlab-org/gitlab/issues/20976) in GitLab 12.6.
 
 NOTE: **Note:**
@@ -16,7 +17,7 @@ of top-performing instances based on [usage ping data](../admin_area/settings/us
 collected. Your score is compared to the lead score of each feature and then expressed as a percentage at the bottom of said feature.
 Your overall index score is an average of all your feature score percentages - this percentage value is presented above all the of features on the page.
 
-![DevOps Score](img/dev_ops_score.png)
+![DevOps Score](img/dev_ops_score_v12_6.png)
 
 The page also provides helpful links to articles and GitLab docs, to help you
 improve your scores.

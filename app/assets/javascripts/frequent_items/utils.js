@@ -1,13 +1,9 @@
 import _ from 'underscore';
-import bp from '~/breakpoints';
+import { GlBreakpointInstance as bp } from '@gitlab/ui/dist/utils';
 import sanitize from 'sanitize-html';
 import { FREQUENT_ITEMS, HOUR_IN_MS } from './constants';
 
-export const isMobile = () => {
-  const screenSize = bp.getBreakpointSize();
-
-  return screenSize === 'sm' || screenSize === 'xs';
-};
+export const isMobile = () => ['md', 'sm', 'xs'].includes(bp.getBreakpointSize());
 
 export const getTopFrequentItems = items => {
   if (!items) {

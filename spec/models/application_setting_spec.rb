@@ -19,6 +19,7 @@ describe ApplicationSetting do
     let(:http)  { 'http://example.com' }
     let(:https) { 'https://example.com' }
     let(:ftp)   { 'ftp://example.com' }
+    let(:javascript) { 'javascript:alert(window.opener.document.location)' }
 
     it { is_expected.to allow_value(nil).for(:home_page_url) }
     it { is_expected.to allow_value(http).for(:home_page_url) }
@@ -67,12 +68,66 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(nil).for(:push_event_activities_limit) }
 
     it { is_expected.to validate_numericality_of(:snippet_size_limit).only_integer.is_greater_than(0) }
+    it { is_expected.to validate_presence_of(:max_artifacts_size) }
+    it do
+      is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than(0)
+                       .is_less_than(::Gitlab::Pages::MAX_SIZE / 1.megabyte)
+    end
+    it { is_expected.to validate_numericality_of(:max_artifacts_size).only_integer.is_greater_than(0) }
+    it { is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than(0) }
 
     it { is_expected.not_to allow_value(7).for(:minimum_password_length) }
     it { is_expected.not_to allow_value(129).for(:minimum_password_length) }
     it { is_expected.not_to allow_value(nil).for(:minimum_password_length) }
     it { is_expected.not_to allow_value('abc').for(:minimum_password_length) }
     it { is_expected.to allow_value(10).for(:minimum_password_length) }
+
+    context 'grafana_url validations' do
+      before do
+        subject.instance_variable_set(:@parsed_grafana_url, nil)
+      end
+
+      it { is_expected.to allow_value(http).for(:grafana_url) }
+      it { is_expected.to allow_value(https).for(:grafana_url) }
+      it { is_expected.not_to allow_value(ftp).for(:grafana_url) }
+      it { is_expected.not_to allow_value(javascript).for(:grafana_url) }
+      it { is_expected.to allow_value('/-/grafana').for(:grafana_url) }
+      it { is_expected.to allow_value('http://localhost:9000').for(:grafana_url) }
+
+      context 'when local URLs are not allowed in system hooks' do
+        before do
+          stub_application_setting(allow_local_requests_from_system_hooks: false)
+        end
+
+        it { is_expected.not_to allow_value('http://localhost:9000').for(:grafana_url) }
+      end
+
+      context 'with invalid grafana URL' do
+        it 'adds an error' do
+          subject.grafana_url = ' ' + http
+          expect(subject.save).to be false
+
+          expect(subject.errors[:grafana_url]).to eq([
+            'must be a valid relative or absolute URL. ' \
+            'Please check your Grafana URL setting in ' \
+            'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
+          ])
+        end
+      end
+
+      context 'with blocked grafana URL' do
+        it 'adds an error' do
+          subject.grafana_url = javascript
+          expect(subject.save).to be false
+
+          expect(subject.errors[:grafana_url]).to eq([
+            'is blocked: Only allowed schemes are http, https. Please check your ' \
+            'Grafana URL setting in ' \
+            'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
+          ])
+        end
+      end
+    end
 
     context 'when snowplow is enabled' do
       before do
@@ -312,6 +367,11 @@ describe ApplicationSetting do
     end
 
     context 'gitaly timeouts' do
+      it "validates that the default_timeout is lower than the max_request_duration" do
+        is_expected.to validate_numericality_of(:gitaly_timeout_default)
+          .is_less_than_or_equal_to(Settings.gitlab.max_request_duration_seconds)
+      end
+
       [:gitaly_timeout_default, :gitaly_timeout_medium, :gitaly_timeout_fast].each do |timeout_name|
         it do
           is_expected.to validate_presence_of(timeout_name)

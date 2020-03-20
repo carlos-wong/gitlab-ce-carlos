@@ -98,7 +98,9 @@ describe Projects::ImportExport::ExportService do
         end
 
         it 'notifies the user' do
-          expect_any_instance_of(NotificationService).to receive(:project_not_exported)
+          expect_next_instance_of(NotificationService) do |instance|
+            expect(instance).to receive(:project_not_exported)
+          end
         end
 
         it 'notifies logger' do
@@ -126,7 +128,9 @@ describe Projects::ImportExport::ExportService do
       end
 
       it 'notifies the user' do
-        expect_any_instance_of(NotificationService).to receive(:project_not_exported)
+        expect_next_instance_of(NotificationService) do |instance|
+          expect(instance).to receive(:project_not_exported)
+        end
       end
 
       it 'notifies logger' do

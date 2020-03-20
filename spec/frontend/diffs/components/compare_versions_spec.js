@@ -22,13 +22,12 @@ describe('CompareVersions', () => {
     store.state.diffs.diffFiles.push('test');
 
     wrapper = mount(CompareVersionsComponent, {
-      sync: false,
-      attachToDocument: true,
       localVue,
       store,
       propsData: {
         mergeRequestDiffs: diffsMockData,
         mergeRequestDiff: diffsMockData[0],
+        diffFilesLength: 0,
         targetBranch,
         ...props,
       },
@@ -49,7 +48,7 @@ describe('CompareVersions', () => {
       const treeListBtn = wrapper.find('.js-toggle-tree-list');
 
       expect(treeListBtn.exists()).toBe(true);
-      expect(treeListBtn.attributes('data-original-title')).toBe('Hide file browser');
+      expect(treeListBtn.attributes('title')).toBe('Hide file browser');
       expect(treeListBtn.findAll(Icon).length).not.toBe(0);
       expect(treeListBtn.find(Icon).props('name')).toBe('collapse-left');
     });

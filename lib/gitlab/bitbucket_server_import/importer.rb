@@ -172,6 +172,7 @@ module Gitlab
               stage: 'import_pull_requests', iid: pull_request.iid, error: e.message
             )
 
+            backtrace = Gitlab::BacktraceCleaner.clean_backtrace(e.backtrace)
             errors << { type: :pull_request, iid: pull_request.iid, errors: e.message, backtrace: backtrace.join("\n"), raw_response: pull_request.raw }
           end
         end
@@ -211,7 +212,6 @@ module Gitlab
           target_branch_sha: pull_request.target_branch_sha,
           state_id: MergeRequest.available_states[pull_request.state],
           author_id: author_id,
-          assignee_id: nil,
           created_at: pull_request.created_at,
           updated_at: pull_request.updated_at
         }

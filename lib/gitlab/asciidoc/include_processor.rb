@@ -118,7 +118,7 @@ module Gitlab
       end
 
       def ref
-        context[:ref] || context[:project].default_branch
+        context[:ref] || repository&.root_ref
       end
 
       def requested_path

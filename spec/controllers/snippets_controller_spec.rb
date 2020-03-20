@@ -242,8 +242,10 @@ describe SnippetsController do
     context 'when the snippet description contains a file' do
       include FileMoverHelpers
 
-      let(:picture_file) { "/-/system/user/#{user.id}/secret56/picture.jpg" }
-      let(:text_file) { "/-/system/user/#{user.id}/secret78/text.txt" }
+      let(:picture_secret) { SecureRandom.hex }
+      let(:text_secret) { SecureRandom.hex }
+      let(:picture_file) { "/-/system/user/#{user.id}/#{picture_secret}/picture.jpg" }
+      let(:text_file) { "/-/system/user/#{user.id}/#{text_secret}/text.txt" }
       let(:description) do
         "Description with picture: ![picture](/uploads#{picture_file}) and "\
         "text: [text.txt](/uploads#{text_file})"
@@ -266,8 +268,8 @@ describe SnippetsController do
         snippet = subject
 
         expected_description = "Description with picture: "\
-          "![picture](/uploads/-/system/personal_snippet/#{snippet.id}/secret56/picture.jpg) and "\
-          "text: [text.txt](/uploads/-/system/personal_snippet/#{snippet.id}/secret78/text.txt)"
+          "![picture](/uploads/-/system/personal_snippet/#{snippet.id}/#{picture_secret}/picture.jpg) and "\
+          "text: [text.txt](/uploads/-/system/personal_snippet/#{snippet.id}/#{text_secret}/text.txt)"
 
         expect(snippet.description).to eq(expected_description)
       end
@@ -662,6 +664,58 @@ describe SnippetsController do
       post :preview_markdown, params: { id: snippet, text: '*Markdown* text' }
 
       expect(json_response.keys).to match_array(%w(body references))
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    let!(:snippet) { create :personal_snippet, author: user }
+
+    context 'when current user has ability to destroy the snippet' do
+      before do
+        sign_in(user)
+      end
+
+      it 'removes the snippet' do
+        delete :destroy, params: { id: snippet.to_param }
+
+        expect { snippet.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      context 'when snippet is succesfuly destroyed' do
+        it 'redirects to the project snippets page' do
+          delete :destroy, params: { id: snippet.to_param }
+
+          expect(response).to redirect_to(dashboard_snippets_path)
+        end
+      end
+
+      context 'when snippet is not destroyed' do
+        before do
+          allow(snippet).to receive(:destroy).and_return(false)
+          controller.instance_variable_set(:@snippet, snippet)
+        end
+
+        it 'renders the snippet page with errors' do
+          delete :destroy, params: { id: snippet.to_param }
+
+          expect(flash[:alert]).to eq('Failed to remove snippet.')
+          expect(response).to redirect_to(snippet_path(snippet))
+        end
+      end
+    end
+
+    context 'when current_user does not have ability to destroy the snippet' do
+      let(:another_user) { create(:user) }
+
+      before do
+        sign_in(another_user)
+      end
+
+      it 'responds with status 404' do
+        delete :destroy, params: { id: snippet.to_param }
+
+        expect(response).to have_gitlab_http_status(404)
+      end
     end
   end
 end
