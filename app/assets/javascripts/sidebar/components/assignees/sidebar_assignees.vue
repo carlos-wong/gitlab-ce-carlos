@@ -90,6 +90,7 @@ export default {
       :editable="store.editable"
       :assigneeable="store.assigneeable"
       :show-toggle="!signedIn"
+      :issuableType="issuableType"
     />
     <assignees
       v-if="!store.isFetching.assignees"

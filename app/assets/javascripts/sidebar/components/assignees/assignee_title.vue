@@ -26,11 +26,19 @@ export default {
       required: false,
       default: false,
     },
+    issuableType: {
+      type: String,
+      required: false,
+      default: 'issue',
+    }
   },
   computed: {
     assigneeTitle() {
       const assignees = this.numberOfAssignees;
       return n__('Assignee', `%d Assignees`, assignees);
+    },
+    assigneeableByIssueableType(){
+        return this.issuableType === "merge_request" ?  this.editable : this.assigneeable;
     },
   },
 };
@@ -40,7 +48,7 @@ export default {
     {{ assigneeTitle }}
     <i v-if="loading" aria-hidden="true" class="fa fa-spinner fa-spin block-loading"></i>
     <a
-      v-if="assigneeable"
+      v-if="assigneeableByIssueableType"
       class="js-sidebar-dropdown-toggle edit-link float-right"
       href="#"
       data-track-event="click_edit_button"
