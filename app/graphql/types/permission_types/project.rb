@@ -8,7 +8,7 @@ module Types
       abilities :change_namespace, :change_visibility_level, :rename_project,
                 :remove_project, :archive_project, :remove_fork_project,
                 :remove_pages, :read_project, :create_merge_request_in,
-                :read_wiki, :read_project_member, :create_issue, :upload_file, :close_issue,
+                :read_wiki, :read_project_member, :create_issue, :upload_file,
                 :read_cycle_analytics, :download_code, :download_wiki_code,
                 :fork_project, :read_commit_status,
                 :request_access, :create_pipeline, :create_pipeline_schedule,
@@ -17,12 +17,12 @@ module Types
                 :admin_wiki, :admin_project, :update_pages,
                 :admin_remote_mirror, :create_label, :update_wiki, :destroy_wiki,
                 :create_pages, :destroy_pages, :read_pages_content, :admin_operations,
-                :change_due_date, :assignee_issue
+                :read_merge_request
 
       permission_field :create_snippet
 
       def create_snippet
-        Ability.allowed?(context[:current_user], :create_project_snippet, object)
+        Ability.allowed?(context[:current_user], :create_snippet, object)
       end
     end
   end

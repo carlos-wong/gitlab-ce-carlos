@@ -165,7 +165,7 @@ module Gitlab
           helpers :before_script, :script, :stage, :type, :after_script,
                   :cache, :image, :services, :only, :except, :variables,
                   :artifacts, :environment, :coverage, :retry, :rules,
-                  :parallel, :needs, :interruptible, :release
+                  :parallel, :needs, :interruptible, :release, :tags
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
                      :needs, :retry, :parallel, :extends, :start_in, :rules,
@@ -242,6 +242,7 @@ module Gitlab
               services: services_value,
               stage: stage_value,
               cache: cache_value,
+              tags: tags_value,
               only: only_value,
               except: except_value,
               rules: has_rules? ? rules_value : nil,
@@ -258,7 +259,8 @@ module Gitlab
               after_script: after_script_value,
               ignore: ignored?,
               needs: needs_defined? ? needs_value : nil,
-              resource_group: resource_group }
+              resource_group: resource_group,
+              scheduling_type: needs_defined? ? :dag : :stage }
           end
         end
       end

@@ -74,6 +74,8 @@ module API
                               desc: 'The visibility of the snippet'
       end
       post do
+        authorize! :create_snippet
+
         attrs = declared_params(include_missing: false).merge(request: request, api: true)
         service_response = ::Snippets::CreateService.new(nil, current_user, attrs).execute
         snippet = service_response.payload[:snippet]
@@ -106,7 +108,7 @@ module API
         snippet = snippets_for_current_user.find_by_id(params.delete(:id))
         break not_found!('Snippet') unless snippet
 
-        authorize! :update_personal_snippet, snippet
+        authorize! :update_snippet, snippet
 
         attrs = declared_params(include_missing: false).merge(request: request, api: true)
         service_response = ::Snippets::UpdateService.new(nil, current_user, attrs).execute(snippet)
@@ -132,7 +134,7 @@ module API
         snippet = snippets_for_current_user.find_by_id(params.delete(:id))
         break not_found!('Snippet') unless snippet
 
-        authorize! :admin_personal_snippet, snippet
+        authorize! :admin_snippet, snippet
 
         destroy_conditionally!(snippet) do |snippet|
           service = ::Snippets::DestroyService.new(current_user, snippet)

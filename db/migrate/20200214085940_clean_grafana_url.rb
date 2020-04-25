@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CleanGrafanaUrl < ActiveRecord::Migration[5.2]
+class CleanGrafanaUrl < ActiveRecord::Migration[6.0]
   DOWNTIME = false
 
   def up

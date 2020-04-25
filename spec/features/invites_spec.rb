@@ -135,7 +135,9 @@ describe 'Invites' do
 
         expect(current_path).to eq(dashboard_projects_path)
         expect(page).to have_content(project.full_name)
+
         visit group_path(group)
+
         expect(page).to have_content(group.full_name)
       end
 
@@ -155,7 +157,6 @@ describe 'Invites' do
 
       context 'when soft email confirmation is not enabled' do
         before do
-          # stub_feature_flags(soft_email_confirmation: false)
           allow(User).to receive(:allow_unconfirmed_access_for).and_return 0
         end
 
@@ -166,7 +167,9 @@ describe 'Invites' do
 
           expect(current_path).to eq(root_path)
           expect(page).to have_content(project.full_name)
+
           visit group_path(group)
+
           expect(page).to have_content(group.full_name)
         end
       end
@@ -182,12 +185,14 @@ describe 'Invites' do
 
           expect(current_path).to eq(root_path)
           expect(page).to have_content(project.full_name)
+
           visit group_path(group)
+
           expect(page).to have_content(group.full_name)
         end
       end
 
-      it "doesn't accept invitations until the user confirms his email" do
+      it "doesn't accept invitations until the user confirms their email" do
         fill_in_sign_up_form(new_user)
         sign_in(owner)
 

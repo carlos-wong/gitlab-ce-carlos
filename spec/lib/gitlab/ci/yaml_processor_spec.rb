@@ -36,7 +36,8 @@ module Gitlab
               interruptible: true,
               allow_failure: false,
               when: "on_success",
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end
@@ -66,7 +67,8 @@ module Gitlab
               ],
               allow_failure: false,
               when: 'on_success',
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end
@@ -82,6 +84,29 @@ module Gitlab
               expect(subject)
                 .to include(coverage_regex: 'Code coverage: \d+\.\d+')
             end
+          end
+        end
+
+        describe 'tags entry with default values' do
+          it 'applies default values' do
+            config = YAML.dump({ default: { tags: %w[A B] },
+                                 rspec: { script: "rspec" } })
+
+            config_processor = Gitlab::Ci::YamlProcessor.new(config)
+
+            expect(config_processor.stage_builds_attributes("test").size).to eq(1)
+            expect(config_processor.stage_builds_attributes("test").first).to eq({
+              stage: "test",
+              stage_idx: 2,
+              name: "rspec",
+              only: { refs: %w[branches tags] },
+              options: { script: ["rspec"] },
+              scheduling_type: :stage,
+              tag_list: %w[A B],
+              allow_failure: false,
+              when: "on_success",
+              yaml_variables: []
+            })
           end
         end
 
@@ -126,7 +151,8 @@ module Gitlab
               interruptible: true,
               allow_failure: false,
               when: "on_success",
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end
@@ -282,6 +308,7 @@ module Gitlab
                   allow_failure: false,
                   when: "on_success",
                   yaml_variables: [],
+                  scheduling_type: :stage,
                   options: { script: ["rspec"] },
                   only: { refs: ["branches"] } }] },
            { name: "deploy",
@@ -293,6 +320,7 @@ module Gitlab
                   allow_failure: false,
                   when: "on_success",
                   yaml_variables: [],
+                  scheduling_type: :stage,
                   options: { script: ["cap prod"] },
                   only: { refs: ["tags"] } }] },
            { name: ".post",
@@ -642,7 +670,8 @@ module Gitlab
               },
               allow_failure: false,
               when: "on_success",
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
 
@@ -674,7 +703,8 @@ module Gitlab
               },
               allow_failure: false,
               when: "on_success",
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end
@@ -702,7 +732,8 @@ module Gitlab
               },
               allow_failure: false,
               when: "on_success",
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
 
@@ -728,7 +759,8 @@ module Gitlab
               },
               allow_failure: false,
               when: "on_success",
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end
@@ -1250,7 +1282,8 @@ module Gitlab
             },
             when: "on_success",
             allow_failure: false,
-            yaml_variables: []
+            yaml_variables: [],
+            scheduling_type: :stage
           })
         end
 
@@ -1604,7 +1637,8 @@ module Gitlab
               },
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             )
             expect(subject.builds[4]).to eq(
               stage: "test",
@@ -1618,7 +1652,8 @@ module Gitlab
               ],
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :dag
             )
           end
         end
@@ -1644,7 +1679,8 @@ module Gitlab
               },
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             )
             expect(subject.builds[4]).to eq(
               stage: "test",
@@ -1660,7 +1696,8 @@ module Gitlab
               ],
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :dag
             )
           end
         end
@@ -1682,7 +1719,8 @@ module Gitlab
               ],
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :dag
             )
           end
         end
@@ -1712,7 +1750,8 @@ module Gitlab
               ],
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :dag
             )
           end
         end
@@ -1849,7 +1888,8 @@ module Gitlab
               },
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end
@@ -1895,7 +1935,8 @@ module Gitlab
               },
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
             expect(subject.second).to eq({
               stage: "build",
@@ -1907,7 +1948,8 @@ module Gitlab
               },
               when: "on_success",
               allow_failure: false,
-              yaml_variables: []
+              yaml_variables: [],
+              scheduling_type: :stage
             })
           end
         end

@@ -196,16 +196,6 @@ describe('Multi-file store mutations', () => {
     });
   });
 
-  describe('BURST_UNUSED_SEAL', () => {
-    it('updates unusedSeal', () => {
-      expect(localState.unusedSeal).toBe(true);
-
-      mutations.BURST_UNUSED_SEAL(localState);
-
-      expect(localState.unusedSeal).toBe(false);
-    });
-  });
-
   describe('SET_ERROR_MESSAGE', () => {
     it('updates error message', () => {
       mutations.SET_ERROR_MESSAGE(localState, 'error');
@@ -296,6 +286,16 @@ describe('Multi-file store mutations', () => {
       mutations.DELETE_ENTRY(localState, 'filePath');
 
       expect(localState.changedFiles).toEqual([]);
+    });
+
+    it('bursts unused seal', () => {
+      localState.entries.test = file('test');
+
+      expect(localState.unusedSeal).toBe(true);
+
+      mutations.DELETE_ENTRY(localState, 'test');
+
+      expect(localState.unusedSeal).toBe(false);
     });
   });
 
@@ -494,7 +494,7 @@ describe('Multi-file store mutations', () => {
     it('properly handles files with spaces in name', () => {
       const path = 'my fancy path';
       const newPath = 'new path';
-      const oldEntry = { ...file(path, path, 'blob'), url: `project/-/${encodeURI(path)}` };
+      const oldEntry = { ...file(path, path, 'blob'), url: `project/-/${path}` };
 
       localState.entries[path] = oldEntry;
 
@@ -510,12 +510,12 @@ describe('Multi-file store mutations', () => {
         id: newPath,
         path: newPath,
         name: newPath,
-        url: `project/-/new%20path`,
+        url: `project/-/new path`,
         key: expect.stringMatching(newPath),
         prevId: path,
         prevName: path,
         prevPath: path,
-        prevUrl: `project/-/my%20fancy%20path`,
+        prevUrl: `project/-/my fancy path`,
         prevKey: oldEntry.key,
         prevParentPath: oldEntry.parentPath,
       });

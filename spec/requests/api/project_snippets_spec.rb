@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 describe API::ProjectSnippets do
-  set(:project) { create(:project, :public) }
-  set(:user) { create(:user) }
-  set(:admin) { create(:admin) }
+  let_it_be(:project) { create(:project, :public) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:admin) { create(:admin) }
 
   describe "GET /projects/:project_id/snippets/:id/user_agent_detail" do
     let(:snippet) { create(:project_snippet, :public, project: project) }
@@ -98,6 +98,30 @@ describe API::ProjectSnippets do
       }
     end
 
+    context 'with an external user' do
+      let(:user) { create(:user, :external) }
+
+      context 'that belongs to the project' do
+        before do
+          project.add_developer(user)
+        end
+
+        it 'creates a new snippet' do
+          post api("/projects/#{project.id}/snippets/", user), params: params
+
+          expect(response).to have_gitlab_http_status(201)
+        end
+      end
+
+      context 'that does not belong to the project' do
+        it 'does not create a new snippet' do
+          post api("/projects/#{project.id}/snippets/", user), params: params
+
+          expect(response).to have_gitlab_http_status(403)
+        end
+      end
+    end
+
     context 'with a regular user' do
       let(:user) { create(:user) }
 
@@ -179,7 +203,7 @@ describe API::ProjectSnippets do
       end
 
       before do
-        allow_next_instance_of(AkismetService) do |instance|
+        allow_next_instance_of(Spam::AkismetService) do |instance|
           allow(instance).to receive(:spam?).and_return(true)
         end
       end
@@ -271,7 +295,7 @@ describe API::ProjectSnippets do
       end
 
       before do
-        allow_next_instance_of(AkismetService) do |instance|
+        allow_next_instance_of(Spam::AkismetService) do |instance|
           allow(instance).to receive(:spam?).and_return(true)
         end
       end

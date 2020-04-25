@@ -17,20 +17,16 @@ describe Groups::GroupLinksController do
 
   describe '#create' do
     let(:shared_with_group_id) { shared_with_group.id }
+    let(:shared_group_access) { GroupGroupLink.default_access }
 
     subject do
       post(:create,
            params: { group_id: shared_group,
                      shared_with_group_id: shared_with_group_id,
-                     shared_group_access: GroupGroupLink.default_access })
+                     shared_group_access: shared_group_access })
     end
 
-    context 'when user has correct access to both groups' do
-      before do
-        shared_with_group.add_developer(user)
-        shared_group.add_owner(user)
-      end
-
+    shared_examples 'creates group group link' do
       it 'links group with selected group' do
         expect { subject }.to change { shared_with_group.shared_groups.include?(shared_group) }.from(false).to(true)
       end
@@ -42,7 +38,34 @@ describe Groups::GroupLinksController do
       end
 
       it 'allows access for group member' do
-        expect { subject }.to change { group_member.can?(:read_group, shared_group) }.from(false).to(true)
+        expect { subject }.to(
+          change { group_member.can?(:read_group, shared_group) }.from(false).to(true))
+      end
+    end
+
+    context 'when user has correct access to both groups' do
+      before do
+        shared_with_group.add_developer(user)
+        shared_group.add_owner(user)
+      end
+
+      context 'when default access level is requested' do
+        include_examples 'creates group group link'
+      end
+
+      context 'when owner access is requested' do
+        let(:shared_group_access) { Gitlab::Access::OWNER }
+
+        before do
+          shared_with_group.add_owner(group_member)
+        end
+
+        include_examples 'creates group group link'
+
+        it 'allows admin access for group member' do
+          expect { subject }.to(
+            change { group_member.can?(:admin_group, shared_group) }.from(false).to(true))
+        end
       end
 
       it 'updates project permissions' do
@@ -85,7 +108,7 @@ describe Groups::GroupLinksController do
         it 'renders 404' do
           subject
 
-          expect(response).to have_gitlab_http_status(404)
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
     end
@@ -98,7 +121,7 @@ describe Groups::GroupLinksController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -111,7 +134,7 @@ describe Groups::GroupLinksController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
   end
@@ -158,7 +181,7 @@ describe Groups::GroupLinksController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -170,7 +193,7 @@ describe Groups::GroupLinksController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
   end
@@ -205,7 +228,7 @@ describe Groups::GroupLinksController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -217,7 +240,7 @@ describe Groups::GroupLinksController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
   end

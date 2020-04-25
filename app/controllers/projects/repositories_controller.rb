@@ -3,11 +3,13 @@
 class Projects::RepositoriesController < Projects::ApplicationController
   include ExtractsPath
   include StaticObjectExternalStorage
+  include HotlinkInterceptor
 
   prepend_before_action(only: [:archive]) { authenticate_sessionless_user!(:archive) }
 
   # Authorize
   before_action :require_non_empty_project, except: :create
+  before_action :intercept_hotlinking!, only: :archive
   before_action :assign_archive_vars, only: :archive
   before_action :assign_append_sha, only: :archive
   before_action :authorize_download_code!
@@ -21,6 +23,8 @@ class Projects::RepositoriesController < Projects::ApplicationController
   end
 
   def archive
+    return render_404 if html_request?
+
     set_cache_headers
     return if archive_not_modified?
 
@@ -81,13 +85,33 @@ class Projects::RepositoriesController < Projects::ApplicationController
 
   def assign_archive_vars
     if params[:id]
-      @ref, @filename = extract_ref(params[:id])
+      @ref, @filename = extract_ref_and_filename(params[:id])
     else
       @ref = params[:ref]
       @filename = nil
     end
   rescue InvalidPathError
     render_404
+  end
+
+  # path can be of the form:
+  # master
+  # master/first.zip
+  # master/first/second.tar.gz
+  # master/first/second/third.zip
+  #
+  # In the archive case, we know that the last value is always the filename, so we
+  # do a greedy match to extract the ref. This avoid having to pull all ref names
+  # from Redis.
+  def extract_ref_and_filename(id)
+    path = id.strip
+    data = path.match(/(.*)\/(.*)/)
+
+    if data
+      [data[1], data[2]]
+    else
+      [path, nil]
+    end
   end
 end
 

@@ -89,6 +89,8 @@ module API
         optional :format, type: String, desc: 'The archive format'
       end
       get ':id/repository/archive', requirements: { format: Gitlab::PathRegex.archive_formats_regex } do
+        not_acceptable! if Gitlab::HotlinkingDetector.intercept_hotlinking?(request)
+
         send_git_archive user_project.repository, ref: params[:sha], format: params[:format], append_sha: true
       rescue
         not_found!('File')
@@ -103,8 +105,13 @@ module API
         optional :straight, type: Boolean, desc: 'Comparison method, `true` for direct comparison between `from` and `to` (`from`..`to`), `false` to compare using merge base (`from`...`to`)', default: false
       end
       get ':id/repository/compare' do
-        compare = Gitlab::Git::Compare.new(user_project.repository.raw_repository, params[:from], params[:to], straight: params[:straight])
-        present compare, with: Entities::Compare
+        compare = CompareService.new(user_project, params[:to]).execute(user_project, params[:from], straight: params[:straight])
+
+        if compare
+          present compare, with: Entities::Compare
+        else
+          not_found!("Ref")
+        end
       end
 
       desc 'Get repository contributors' do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples 'handle uploads' do
+RSpec.shared_examples 'handle uploads' do
   let(:user)  { create(:user) }
   let(:jpg)   { fixture_file_upload('spec/fixtures/rails_sample.jpg', 'image/jpg') }
   let(:txt)   { fixture_file_upload('spec/fixtures/doc_sample.txt', 'text/plain') }
@@ -27,7 +27,7 @@ shared_examples 'handle uploads' do
         it "returns an error" do
           post :create, params: params, format: :json
 
-          expect(response).to have_gitlab_http_status(422)
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
         end
       end
 
@@ -110,7 +110,7 @@ shared_examples 'handle uploads' do
 
         show_upload
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -136,7 +136,7 @@ shared_examples 'handle uploads' do
           it "responds with status 200" do
             show_upload
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
         end
 
@@ -149,7 +149,7 @@ shared_examples 'handle uploads' do
           it "responds with status 404" do
             show_upload
 
-            expect(response).to have_gitlab_http_status(404)
+            expect(response).to have_gitlab_http_status(:not_found)
           end
         end
 
@@ -161,7 +161,7 @@ shared_examples 'handle uploads' do
           it "responds with status 404" do
             show_upload
 
-            expect(response).to have_gitlab_http_status(404)
+            expect(response).to have_gitlab_http_status(:not_found)
           end
         end
       end
@@ -175,7 +175,7 @@ shared_examples 'handle uploads' do
           it "responds with status 200" do
             show_upload
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
         end
 
@@ -187,7 +187,7 @@ shared_examples 'handle uploads' do
           it "responds with status 404" do
             show_upload
 
-            expect(response).to have_gitlab_http_status(404)
+            expect(response).to have_gitlab_http_status(:not_found)
           end
         end
       end
@@ -208,7 +208,7 @@ shared_examples 'handle uploads' do
             it "responds with status 200" do
               show_upload
 
-              expect(response).to have_gitlab_http_status(200)
+              expect(response).to have_gitlab_http_status(:ok)
             end
           end
 
@@ -252,7 +252,7 @@ shared_examples 'handle uploads' do
             it "responds with status 200" do
               show_upload
 
-              expect(response).to have_gitlab_http_status(200)
+              expect(response).to have_gitlab_http_status(:ok)
             end
           end
 
@@ -264,7 +264,7 @@ shared_examples 'handle uploads' do
             it "responds with status 404" do
               show_upload
 
-              expect(response).to have_gitlab_http_status(404)
+              expect(response).to have_gitlab_http_status(:not_found)
             end
           end
         end
@@ -279,7 +279,7 @@ shared_examples 'handle uploads' do
               it "responds with status 200" do
                 show_upload
 
-                expect(response).to have_gitlab_http_status(200)
+                expect(response).to have_gitlab_http_status(:ok)
               end
             end
 
@@ -291,7 +291,7 @@ shared_examples 'handle uploads' do
               it "responds with status 404" do
                 show_upload
 
-                expect(response).to have_gitlab_http_status(404)
+                expect(response).to have_gitlab_http_status(:not_found)
               end
             end
           end
@@ -304,7 +304,7 @@ shared_examples 'handle uploads' do
             it "responds with status 404" do
               show_upload
 
-              expect(response).to have_gitlab_http_status(404)
+              expect(response).to have_gitlab_http_status(:not_found)
             end
           end
         end
@@ -313,7 +313,7 @@ shared_examples 'handle uploads' do
   end
 end
 
-shared_examples 'handle uploads authorize' do
+RSpec.shared_examples 'handle uploads authorize' do
   describe "POST #authorize" do
     context 'when a user is not authorized to upload a file' do
       it 'returns 404 status' do
@@ -347,7 +347,7 @@ shared_examples 'handle uploads authorize' do
           end
 
           it 'responds with status 200' do
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
 
           it 'uses the gitlab-workhorse content type' do

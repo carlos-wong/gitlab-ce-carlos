@@ -369,7 +369,7 @@ describe Banzai::Filter::LabelReferenceFilter do
     end
 
     context 'with project reference' do
-      let(:reference) { "#{project.to_reference}#{group_label.to_reference(format: :name)}" }
+      let(:reference) { "#{project.to_reference_base}#{group_label.to_reference(format: :name)}" }
 
       it 'links to a valid reference' do
         doc = reference_filter("See #{reference}", project: project)
@@ -385,7 +385,7 @@ describe Banzai::Filter::LabelReferenceFilter do
       end
 
       it 'ignores invalid label names' do
-        exp = act = %(Label #{project.to_reference}#{Label.reference_prefix}"#{group_label.name.reverse}")
+        exp = act = %(Label #{project.to_reference_base}#{Label.reference_prefix}"#{group_label.name.reverse}")
 
         expect(reference_filter(act).to_html).to eq exp
       end
@@ -523,7 +523,12 @@ describe Banzai::Filter::LabelReferenceFilter do
     end
 
     context 'when group name has HTML entities' do
-      let(:another_group) { create(:group, name: '<img src=x onerror=alert(1)>', path: 'another_group') }
+      let(:another_group) { create(:group, name: 'random', path: 'another_group') }
+
+      before do
+        another_group.name = "<img src=x onerror=alert(1)>"
+        another_group.save!(validate: false)
+      end
 
       it 'escapes the HTML entities' do
         expect(result.text)

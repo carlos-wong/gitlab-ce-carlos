@@ -8,7 +8,7 @@ describe Sentry::Client::Issue do
   let(:token) { 'test-token' }
   let(:sentry_url) { 'https://sentrytest.gitlab.com/api/0' }
   let(:client) { Sentry::Client.new(sentry_url, token) }
-  let(:issue_id) { 503504 }
+  let(:issue_id) { 11 }
 
   describe '#list_issues' do
     shared_examples 'issues have correct return type' do |klass|
@@ -49,7 +49,7 @@ describe Sentry::Client::Issue do
     it_behaves_like 'calls sentry api'
 
     it_behaves_like 'issues have correct return type', Gitlab::ErrorTracking::Error
-    it_behaves_like 'issues have correct length', 1
+    it_behaves_like 'issues have correct length', 2
 
     shared_examples 'has correct external_url' do
       context 'external_url' do
@@ -184,7 +184,7 @@ describe Sentry::Client::Issue do
       it_behaves_like 'calls sentry api'
 
       it_behaves_like 'issues have correct return type', Gitlab::ErrorTracking::Error
-      it_behaves_like 'issues have correct length', 1
+      it_behaves_like 'issues have correct length', 2
     end
 
     context 'when cursor is present' do
@@ -194,7 +194,7 @@ describe Sentry::Client::Issue do
       it_behaves_like 'calls sentry api'
 
       it_behaves_like 'issues have correct return type', Gitlab::ErrorTracking::Error
-      it_behaves_like 'issues have correct length', 1
+      it_behaves_like 'issues have correct length', 2
     end
   end
 
@@ -243,7 +243,7 @@ describe Sentry::Client::Issue do
       end
 
       it 'has a correct external URL' do
-        expect(subject.external_url).to eq('https://sentrytest.gitlab.com/api/0/issues/503504')
+        expect(subject.external_url).to eq('https://sentrytest.gitlab.com/api/0/issues/11')
       end
 
       it 'issue has a correct external base url' do

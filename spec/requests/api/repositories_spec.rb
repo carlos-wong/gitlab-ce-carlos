@@ -263,6 +263,18 @@ describe API::Repositories do
           let(:message) { '404 File Not Found' }
         end
       end
+
+      context "when hotlinking detection is enabled" do
+        before do
+          Feature.enable(:repository_archive_hotlinking_interception)
+        end
+
+        it_behaves_like "hotlink interceptor" do
+          let(:http_request) do
+            get api(route, current_user), headers: headers
+          end
+        end
+      end
     end
 
     context 'when unauthenticated', 'and project is public' do
@@ -361,6 +373,29 @@ describe API::Repositories do
         expect(json_response['commits']).to be_empty
         expect(json_response['diffs']).to be_empty
         expect(json_response['compare_same_ref']).to be_truthy
+      end
+
+      it "returns an empty string when the diff overflows" do
+        stub_const('Gitlab::Git::DiffCollection::DEFAULT_LIMITS', { max_files: 2, max_lines: 2 })
+
+        get api(route, current_user), params: { from: 'master', to: 'feature' }
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response['commits']).to be_present
+        expect(json_response['diffs']).to be_present
+        expect(json_response['diffs'].first['diff']).to be_empty
+      end
+
+      it "returns a 404 when from ref is unknown" do
+        get api(route, current_user), params: { from: 'unknown_ref', to: 'master' }
+
+        expect(response).to have_gitlab_http_status(404)
+      end
+
+      it "returns a 404 when to ref is unknown" do
+        get api(route, current_user), params: { from: 'master', to: 'unknown_ref' }
+
+        expect(response).to have_gitlab_http_status(404)
       end
     end
 

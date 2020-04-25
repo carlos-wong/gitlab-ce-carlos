@@ -64,7 +64,7 @@ GitLab Pages expect to run on their own virtual host. In your DNS server/provide
 you need to add a [wildcard DNS A record][wiki-wildcard-dns] pointing to the
 host that GitLab runs. For example, an entry would look like this:
 
-```
+```plaintext
 *.example.io. 1800 IN A 192.0.2.1
 ```
 
@@ -98,7 +98,7 @@ The Pages daemon doesn't listen to the outside world.
 
 1. Install the Pages daemon:
 
-   ```
+   ```shell
    cd /home/git
    sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-pages.git
    cd gitlab-pages
@@ -108,7 +108,7 @@ The Pages daemon doesn't listen to the outside world.
 
 1. Go to the GitLab installation directory:
 
-   ```bash
+   ```shell
    cd /home/git/gitlab
    ```
 
@@ -131,14 +131,14 @@ The Pages daemon doesn't listen to the outside world.
    order to enable the pages daemon. In `gitlab_pages_options` the
    `-pages-domain` must match the `host` setting that you set above.
 
-   ```
+   ```ini
    gitlab_pages_enabled=true
    gitlab_pages_options="-pages-domain example.io -pages-root $app_root/shared/pages -listen-proxy 127.0.0.1:8090"
    ```
 
 1. Copy the `gitlab-pages` NGINX configuration file:
 
-   ```bash
+   ```shell
    sudo cp lib/support/nginx/gitlab-pages /etc/nginx/sites-available/gitlab-pages.conf
    sudo ln -sf /etc/nginx/sites-{available,enabled}/gitlab-pages.conf
    ```
@@ -160,7 +160,7 @@ outside world.
 
 1. Install the Pages daemon:
 
-   ```
+   ```shell
    cd /home/git
    sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-pages.git
    cd gitlab-pages
@@ -170,7 +170,7 @@ outside world.
 
 1. In `gitlab.yml`, set the port to `443` and https to `true`:
 
-   ```bash
+   ```yaml
    ## GitLab Pages
    pages:
      enabled: true
@@ -188,14 +188,14 @@ outside world.
    The `-root-cert` and `-root-key` settings are the wildcard TLS certificates
    of the `example.io` domain:
 
-   ```
+   ```ini
    gitlab_pages_enabled=true
-   gitlab_pages_options="-pages-domain example.io -pages-root $app_root/shared/pages -listen-proxy 127.0.0.1:8090 -root-cert /path/to/example.io.crt -root-key /path/to/example.io.key
+   gitlab_pages_options="-pages-domain example.io -pages-root $app_root/shared/pages -listen-proxy 127.0.0.1:8090 -root-cert /path/to/example.io.crt -root-key /path/to/example.io.key"
    ```
 
 1. Copy the `gitlab-pages-ssl` NGINX configuration file:
 
-   ```bash
+   ```shell
    sudo cp lib/support/nginx/gitlab-pages-ssl /etc/nginx/sites-available/gitlab-pages-ssl.conf
    sudo ln -sf /etc/nginx/sites-{available,enabled}/gitlab-pages-ssl.conf
    ```
@@ -225,7 +225,7 @@ world. Custom domains are supported, but no TLS.
 
 1. Install the Pages daemon:
 
-   ```
+   ```shell
    cd /home/git
    sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-pages.git
    cd gitlab-pages
@@ -256,14 +256,14 @@ world. Custom domains are supported, but no TLS.
    `-pages-domain` and `-listen-http` must match the `host` and `external_http`
    settings that you set above respectively:
 
-   ```
+   ```ini
    gitlab_pages_enabled=true
    gitlab_pages_options="-pages-domain example.io -pages-root $app_root/shared/pages -listen-proxy 127.0.0.1:8090 -listen-http 192.0.2.2:80"
    ```
 
 1. Copy the `gitlab-pages-ssl` NGINX configuration file:
 
-   ```bash
+   ```shell
    sudo cp lib/support/nginx/gitlab-pages /etc/nginx/sites-available/gitlab-pages.conf
    sudo ln -sf /etc/nginx/sites-{available,enabled}/gitlab-pages.conf
    ```
@@ -290,7 +290,7 @@ world. Custom domains and TLS are supported.
 
 1. Install the Pages daemon:
 
-   ```
+   ```shell
    cd /home/git
    sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-pages.git
    cd gitlab-pages
@@ -325,14 +325,14 @@ world. Custom domains and TLS are supported.
    The `-root-cert` and `-root-key` settings are the wildcard TLS certificates
    of the `example.io` domain:
 
-   ```
+   ```ini
    gitlab_pages_enabled=true
-   gitlab_pages_options="-pages-domain example.io -pages-root $app_root/shared/pages -listen-proxy 127.0.0.1:8090 -listen-http 192.0.2.2:80 -listen-https 192.0.2.2:443 -root-cert /path/to/example.io.crt -root-key /path/to/example.io.key
+   gitlab_pages_options="-pages-domain example.io -pages-root $app_root/shared/pages -listen-proxy 127.0.0.1:8090 -listen-http 192.0.2.2:80 -listen-https 192.0.2.2:443 -root-cert /path/to/example.io.crt -root-key /path/to/example.io.key"
    ```
 
 1. Copy the `gitlab-pages-ssl` NGINX configuration file:
 
-   ```bash
+   ```shell
    sudo cp lib/support/nginx/gitlab-pages-ssl /etc/nginx/sites-available/gitlab-pages-ssl.conf
    sudo ln -sf /etc/nginx/sites-{available,enabled}/gitlab-pages-ssl.conf
    ```
@@ -353,20 +353,20 @@ not remove the backslashes.
 
 If your GitLab Pages domain is `example.io`, replace:
 
-```bash
+```nginx
 server_name ~^.*\.YOUR_GITLAB_PAGES\.DOMAIN$;
 ```
 
 with:
 
-```
+```nginx
 server_name ~^.*\.example\.io$;
 ```
 
 If you are using a subdomain, make sure to escape all dots (`.`) except from
 the first one with a backslash (\). For example `pages.example.io` would be:
 
-```
+```nginx
 server_name ~^.*\.pages\.example\.io$;
 ```
 
@@ -388,6 +388,11 @@ Each request to view a resource in a private site is authenticated by Pages
 using that token. For each request it receives, it makes a request to the GitLab
 API to check that the user is authorized to read that site.
 
+From [GitLab 12.8](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/3689) onwards,
+Access Control parameters for Pages are set in a configuration file, which
+by convention is named `gitlab-pages-config`. The configuration file is passed to
+pages using the `-config flag` or CONFIG environment variable.
+
 Pages access control is disabled by default. To enable it:
 
 1. Modify your `config/gitlab.yml` file:
@@ -402,13 +407,14 @@ Pages access control is disabled by default. To enable it:
    This should be called `GitLab Pages` and have a `Redirect URL` of
    `https://projects.example.io/auth`. It does not need to be a "trusted"
    application, but it does need the `api` scope.
-1. Start the Pages daemon with the following additional arguments:
+1. Start the Pages daemon by passing a configuration file with the following arguments:
 
    ```shell
-     -auth-client-secret <OAuth code generated by GitLab> \
-     -auth-redirect-uri http://projects.example.io/auth \
-     -auth-secret <40 random hex characters> \
-     -auth-server <URL of the GitLab instance>
+     auth-client-id=<OAuth Application ID generated by GitLab>
+     auth-client-secret=<OAuth code generated by GitLab>
+     auth-redirect-uri='http://projects.example.io/auth'
+     auth-secret=<40 random hex characters>
+     auth-server=<URL of the GitLab instance>
    ```
 
 1. Users can now configure it in their [projects' settings](../../user/project/pages/introduction.md#gitlab-pages-access-control-core).
@@ -447,8 +453,8 @@ You should strongly consider running GitLab Pages under a different hostname
 than GitLab to prevent XSS attacks.
 
 [backup]: ../../raketasks/backup_restore.md
-[ee-80]: https://gitlab.com/gitlab-org/gitlab/merge_requests/80
-[ee-173]: https://gitlab.com/gitlab-org/gitlab/merge_requests/173
+[ee-80]: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/80
+[ee-173]: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/173
 [gitlab pages daemon]: https://gitlab.com/gitlab-org/gitlab-pages
 [NGINX configs]: https://gitlab.com/gitlab-org/gitlab/tree/8-5-stable-ee/lib/support/nginx
 [pages-readme]: https://gitlab.com/gitlab-org/gitlab-pages/blob/master/README.md
