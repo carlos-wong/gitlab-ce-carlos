@@ -381,6 +381,14 @@ module ProjectsHelper
     @project.grafana_integration&.enabled?
   end
 
+  def project_license_name(project)
+    project.repository.license&.name
+  rescue GRPC::Unavailable, GRPC::DeadlineExceeded, Gitlab::Git::CommandError => e
+    Gitlab::ErrorTracking.track_exception(e)
+
+    nil
+  end
+
   private
 
   def get_project_nav_tabs(project, current_user)
@@ -614,6 +622,7 @@ module ProjectsHelper
 
   def find_file_path
     return unless @project && !@project.empty_repo?
+    return unless can?(current_user, :download_code, @project)
 
     ref = @ref || @project.repository.root_ref
 
@@ -661,6 +670,9 @@ module ProjectsHelper
       project_members#index
       integrations#show
       services#edit
+      hooks#index
+      hooks#edit
+      hook_logs#show
       repository#show
       ci_cd#show
       operations#show

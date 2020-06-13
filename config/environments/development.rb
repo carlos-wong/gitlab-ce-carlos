@@ -1,6 +1,8 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
+  config.hosts << "gitlabgdk.chinaeast2.cloudapp.chinacloudapi.cn"
+
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
@@ -10,6 +12,9 @@ Rails.application.configure do
   config.active_record.verbose_query_logs  = true
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
+
+  # Show a warning when a large data set is loaded into memory
+  config.active_record.warn_on_records_fetched_greater_than = 1000
 
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
@@ -50,4 +55,16 @@ Rails.application.configure do
 
   # BetterErrors live shell (REPL) on every stack frame
   BetterErrors::Middleware.allow_ip!("127.0.0.1/0")
+
+  # Reassign some performance related settings when we profile the app
+  if Gitlab::Utils.to_boolean(ENV['RAILS_PROFILE'].to_s)
+    warn "Hot-reloading is disabled as you are running with RAILS_PROFILE enabled"
+    config.cache_classes = true
+    config.eager_load = true
+    config.active_record.migration_error = false
+    config.active_record.verbose_query_logs = false
+    config.action_view.cache_template_loading = true
+
+    config.middleware.delete BetterErrors::Middleware
+  end
 end

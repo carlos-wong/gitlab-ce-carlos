@@ -5,35 +5,36 @@ require 'spec_helper'
 describe ProjectPolicy do
   include ExternalAuthorizationServiceHelpers
   include_context 'ProjectPolicy context'
-  set(:guest) { create(:user) }
-  set(:reporter) { create(:user) }
-  set(:developer) { create(:user) }
-  set(:maintainer) { create(:user) }
-  set(:owner) { create(:user) }
-  set(:admin) { create(:admin) }
+  let_it_be(:other_user) { create(:user) }
+  let_it_be(:guest) { create(:user) }
+  let_it_be(:reporter) { create(:user) }
+  let_it_be(:developer) { create(:user) }
+  let_it_be(:maintainer) { create(:user) }
+  let_it_be(:owner) { create(:user) }
+  let_it_be(:admin) { create(:admin) }
   let(:project) { create(:project, :public, namespace: owner.namespace) }
 
   let(:base_guest_permissions) do
     %i[
       read_project read_board read_list read_wiki read_issue
       read_project_for_iids read_issue_iid read_label
-      read_milestone read_project_snippet read_project_member read_note
-      create_project create_issue create_note upload_file 
+      read_milestone read_snippet read_project_member read_note
+      create_project create_issue create_note upload_file create_merge_request_in
       award_emoji read_release
     ]
   end
 
   let(:base_reporter_permissions) do
     %i[
-      fork_project create_project_snippet update_issue
+      download_code fork_project create_snippet update_issue
       admin_issue admin_label admin_list read_commit_status read_build
       read_container_image read_pipeline read_environment read_deployment
-      download_wiki_code read_sentry_issue
+      read_merge_request download_wiki_code read_sentry_issue
     ]
   end
 
   let(:team_member_reporter_permissions) do
-    %i[build_read_container_image]
+    %i[build_download_code build_read_container_image]
   end
 
   let(:developer_permissions) do
@@ -41,19 +42,18 @@ describe ProjectPolicy do
       admin_tag admin_milestone admin_merge_request update_merge_request create_commit_status
       update_commit_status create_build update_build create_pipeline
       update_pipeline create_merge_request_from create_wiki push_code
-      create_container_image update_container_image destroy_container_image
+      resolve_note create_container_image update_container_image destroy_container_image
       create_environment update_environment create_deployment update_deployment create_release update_release
-      download_code build_download_code create_merge_request_in read_merge_request
     ]
   end
 
   let(:base_maintainer_permissions) do
     %i[
-      push_to_delete_protected_branch update_project_snippet
-      admin_project_snippet admin_project_member admin_wiki admin_project
+      push_to_delete_protected_branch update_snippet
+      admin_snippet admin_project_member admin_note admin_wiki admin_project
       admin_commit_status admin_build admin_container_image
       admin_pipeline admin_environment admin_deployment destroy_release add_cluster
-      daily_statistics resolve_note assignee_issue change_due_date edit_merge_request_label
+      daily_statistics read_deploy_token create_deploy_token destroy_deploy_token
     ]
   end
 
@@ -296,7 +296,7 @@ describe ProjectPolicy do
     subject { described_class.new(owner, project) }
 
     it 'disallows all permissions when the feature is disabled' do
-      project.project_feature.update(merge_requests_access_level: ProjectFeature::DISABLED)
+      project.project_feature.update!(merge_requests_access_level: ProjectFeature::DISABLED)
 
       mr_permissions = [:create_merge_request_from, :read_merge_request,
                         :update_merge_request, :admin_merge_request,
@@ -348,7 +348,7 @@ describe ProjectPolicy do
       subject { described_class.new(owner, project) }
 
       before do
-        project.project_feature.update(builds_access_level: ProjectFeature::DISABLED)
+        project.project_feature.update!(builds_access_level: ProjectFeature::DISABLED)
       end
 
       it 'disallows all permissions except pipeline when the feature is disabled' do
@@ -368,7 +368,7 @@ describe ProjectPolicy do
       subject { described_class.new(guest, project) }
 
       before do
-        project.project_feature.update(builds_access_level: ProjectFeature::PRIVATE)
+        project.project_feature.update!(builds_access_level: ProjectFeature::PRIVATE)
       end
 
       it 'disallows pipeline and commit_status permissions' do
@@ -383,22 +383,54 @@ describe ProjectPolicy do
   end
 
   context 'repository feature' do
-    subject { described_class.new(owner, project) }
-
-    it 'disallows all permissions when the feature is disabled' do
-      project.project_feature.update(repository_access_level: ProjectFeature::DISABLED)
-
-      repository_permissions = [
+    let(:repository_permissions) do
+      [
         :create_pipeline, :update_pipeline, :admin_pipeline, :destroy_pipeline,
         :create_build, :read_build, :update_build, :admin_build, :destroy_build,
         :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
         :create_environment, :read_environment, :update_environment, :admin_environment, :destroy_environment,
         :create_cluster, :read_cluster, :update_cluster, :admin_cluster,
         :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment,
-        :destroy_release
+        :destroy_release, :download_code, :build_download_code
       ]
+    end
 
-      expect_disallowed(*repository_permissions)
+    context 'when user is a project member' do
+      subject { described_class.new(owner, project) }
+
+      context 'when it is disabled' do
+        before do
+          project.project_feature.update!(
+            repository_access_level: ProjectFeature::DISABLED,
+            merge_requests_access_level: ProjectFeature::DISABLED,
+            builds_access_level: ProjectFeature::DISABLED,
+            forking_access_level: ProjectFeature::DISABLED
+          )
+        end
+
+        it 'disallows all permissions' do
+          expect_disallowed(*repository_permissions)
+        end
+      end
+    end
+
+    context 'when user is some other user' do
+      subject { described_class.new(other_user, project) }
+
+      context 'when access level is private' do
+        before do
+          project.project_feature.update!(
+            repository_access_level: ProjectFeature::PRIVATE,
+            merge_requests_access_level: ProjectFeature::PRIVATE,
+            builds_access_level: ProjectFeature::PRIVATE,
+            forking_access_level: ProjectFeature::PRIVATE
+          )
+        end
+
+        it 'disallows all permissions' do
+          expect_disallowed(*repository_permissions)
+        end
+      end
     end
   end
 
@@ -558,6 +590,20 @@ describe ProjectPolicy do
 
         it { expect_disallowed(:update_max_artifacts_size) }
       end
+    end
+  end
+
+  context 'alert bot' do
+    let(:current_user) { User.alert_bot }
+
+    subject { described_class.new(current_user, project) }
+
+    it { is_expected.to be_allowed(:reporter_access) }
+
+    context 'within a private project' do
+      let(:project) { create(:project, :private) }
+
+      it { is_expected.to be_allowed(:admin_issue) }
     end
   end
 end

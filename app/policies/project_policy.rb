@@ -178,7 +178,7 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:guest_access) }.policy do
     enable :read_project
-    
+
     enable :read_board
     enable :read_list
     enable :read_wiki
@@ -324,6 +324,10 @@ class ProjectPolicy < BasePolicy
     enable :close_issue
 
     enable :edit_merge_request_label
+    enable :read_deploy_token
+    enable :create_deploy_token
+    enable :read_pod_logs
+    enable :destroy_deploy_token
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
@@ -393,6 +397,7 @@ class ProjectPolicy < BasePolicy
   rule { repository_disabled }.policy do
     prevent :push_code
     prevent :download_code
+    prevent :build_download_code
     prevent :fork_project
     prevent :read_commit_status
     prevent :read_pipeline
@@ -479,6 +484,8 @@ class ProjectPolicy < BasePolicy
   rule { blocked }.policy do
     prevent :create_pipeline
   end
+
+  rule { admin }.enable :change_repository_storage
 
   private
 

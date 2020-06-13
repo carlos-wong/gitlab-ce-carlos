@@ -25,12 +25,7 @@ calculates a separate median for each stage.
 
 Value Stream Analytics is available:
 
-- From GitLab 12.3, at the group level in the analytics workspace (top navigation bar) at
-  **Analytics > Value Stream Analytics**. **(PREMIUM)**
-
-  In the future, multiple groups will be selectable which will effectively make this an
-  instance-level feature.
-
+- From GitLab 12.9, at the group level via **Group > Analytics > Value Stream**. **(PREMIUM)**
 - At the project level via **Project > Value Stream Analytics**.
 
 There are seven stages that are tracked as part of the Value Stream Analytics calculations.
@@ -78,8 +73,8 @@ Each stage of Value Stream Analytics is further described in the table below.
 | Plan      | Measures the median time between the action you took for the previous stage, and pushing the first commit to the branch. The very first commit of the branch is the one that triggers the separation between **Plan** and **Code**, and at least one of the commits in the branch needs to contain the related issue number (e.g., `#42`). If none of the commits in the branch mention the related issue number, it is not considered to the measurement time of the stage. |
 | Code      | Measures the median time between pushing a first commit (previous stage) and creating a merge request (MR) related to that commit. The key to keep the process tracked is to include the [issue closing pattern](../project/issues/managing_issues.md#closing-issues-automatically) to the description of the merge request (for example, `Closes #xxx`, where `xxx` is the number of the issue related to this merge request). If the issue closing pattern is not present in the merge request description, the MR is not considered to the measurement time of the stage. |
 | Test      | Measures the median time to run the entire pipeline for that project. It's related to the time GitLab CI takes to run every job for the commits pushed to that merge request defined in the previous stage. It is basically the start->finish time for all pipelines. |
-| Review    | Measures the median time taken to review the merge request that has closing issue pattern, between its creation and until it's merged. |
-| Staging   | Measures the median time between merging the merge request with closing issue pattern until the very first deployment to production. It's tracked by the environment set to `production` or matching `production/*` (case-sensitive, `Production` won't work) in your GitLab CI configuration. If there isn't a production environment, this is not tracked. |
+| Review    | Measures the median time taken to review the merge request that has a closing issue pattern, between its creation and until it's merged. |
+| Staging   | Measures the median time between merging the merge request with a closing issue pattern until the very first deployment to production. It's tracked by the environment set to `production` or matching `production/*` (case-sensitive, `Production` won't work) in your GitLab CI configuration. If there isn't a production environment, this is not tracked. |
 | Total | The sum of all time (medians) taken to run the entire process, from issue creation to deploying the code to production. [Previously known](https://gitlab.com/gitlab-org/gitlab/issues/38317) as **Production**. |
 
 How this works, behind the scenes:
@@ -133,12 +128,12 @@ environments is configured.
 From the above example you can conclude the time it took each stage to complete
 as long as their total time:
 
-- **Issue**:  2h (11:00 - 09:00)
-- **Plan**:   1h (12:00 - 11:00)
-- **Code**:   2h (14:00 - 12:00)
-- **Test**:   5min
+- **Issue**: 2h (11:00 - 09:00)
+- **Plan**: 1h (12:00 - 11:00)
+- **Code**: 2h (14:00 - 12:00)
+- **Test**: 5min
 - **Review**: 5h (19:00 - 14:00)
-- **Staging**:  30min (19:30 - 19:00)
+- **Staging**: 30min (19:30 - 19:00)
 - **Total**: Since this stage measures the sum of median time of all
   previous stages, we cannot calculate it if we don't know the status of the
   stages before. In case this is the very first cycle that is run in the project,
@@ -155,6 +150,56 @@ A few notes:
 - The example above was just **one cycle** of the seven stages. Add multiple
   cycles, calculate their median time and the result is what the dashboard of
   Value Stream Analytics is showing.
+
+## Customizable Value Stream Analytics
+
+The default stages are designed to work straight out of the box, but they might not be suitable for all teams. Different teams use different approaches to building software, so some teams might want to customize their Value Stream Analytics. From GitLab 12.9, users can hide default stages and create custom stages that align better to their development workflow.
+
+### Adding a stage
+
+In the following example we're creating a new stage that measures and tracks issues from creation time until they are closed.
+
+1. Navigate to your group page.
+1. Open Value Stream Analytics from the sidebar: **Analytics > Value Stream**
+1. Click the "Add a stage" button.
+1. Fill in the new stage form:
+   - Name: Issue start to finish
+   - Start event: Issue created
+   - End event: Issue closed
+1. Click the "Add stage" button.
+
+![New Value Stream Analytics Stage](img/new_vsm_stage_v12_9.png "Form for creating a new stage")
+
+The new stage is persisted and it will always show up on the value stream analytics page for your group. In case you want to alter or delete the stage you can easily do that for customized stages by hovering over the stage and clicking the three-dot icon that appears.
+
+![Value Stream Analytics Stages](img/vsm_stage_list_v12_9.png)
+
+Creating a custom stage requires specifying two events, a start and an end. Be careful to choose a start event that occurs *before* your end event. For example, consider if a stage started when an issue is added to a board, and ended when the issue is created. This stage would not work because the end event has already happened when the start event occurs. To prevent such invalid stages, the form prohibits incompatible start and end events. After you select the start event, the stop event dropdown will only list the compatible events.
+
+Note: The ability to re-order the stages is a [planned enhancement](https://gitlab.com/gitlab-org/gitlab/issues/196698).
+
+### Label based stages
+
+The pre-defined start and end events can cover many use cases involving both issues and merge requests. For supporting more complex workflows, we can use stages based on group labels. These events are based on labels being added/removed. In particular, [scoped labels](../project/labels.md#scoped-labels-premium) are useful for complex workflows.
+
+In this example we'd like to measure more accurate code review times. The workflow is the following:
+
+- When the code review starts, the reviewer adds `workflow::code_review_start` label to the merge request.
+- When the code review is finished, the reviewer adds `workflow::code_review_complete` label to the merge request.
+
+Creating a new stage called "Code Review":
+
+![New Label Based Value Stream Analytics Stage](img/label_based_stage_vsm_v12_9.png "Creating a label based Value Stream Analytics Stage")
+
+### Hiding unused stages
+
+Sometimes certain default stages are not relevant to a team. In this case you can easily hide stages so they no longer appear in the list. First, add a custom stage to activate customizability. Then hover over the default stage you want to hide, click the three-dot icon that appears and select "Hide stage".
+
+To recover a default stage that was previously hidden:
+
+1. Click "Add a stage" button.
+1. In the top right corner open the "Recover hidden stage" dropdown.
+1. Select a stage.
 
 ## Days to completion chart
 

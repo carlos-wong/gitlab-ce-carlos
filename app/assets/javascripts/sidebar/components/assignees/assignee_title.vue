@@ -1,8 +1,12 @@
 <script>
+import { GlLoadingIcon } from '@gitlab/ui';
 import { n__ } from '~/locale';
 
 export default {
   name: 'AssigneeTitle',
+  components: {
+    GlLoadingIcon,
+  },
   props: {
     loading: {
       type: Boolean,
@@ -46,7 +50,7 @@ export default {
 <template>
   <div class="title hide-collapsed">
     {{ assigneeTitle }}
-    <i v-if="loading" aria-hidden="true" class="fa fa-spinner fa-spin block-loading"></i>
+    <gl-loading-icon v-if="loading" inline class="align-bottom" />
     <a
       v-if="assigneeableByIssueableType"
       class="js-sidebar-dropdown-toggle edit-link float-right"

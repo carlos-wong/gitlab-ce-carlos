@@ -29,6 +29,8 @@ describe User, :do_not_mock_admin_mode do
     it { is_expected.to have_one(:namespace) }
     it { is_expected.to have_one(:status) }
     it { is_expected.to have_one(:max_access_level_membership) }
+    it { is_expected.to have_one(:user_detail) }
+    it { is_expected.to have_one(:user_highest_role) }
     it { is_expected.to have_many(:snippets).dependent(:destroy) }
     it { is_expected.to have_many(:members) }
     it { is_expected.to have_many(:project_members) }
@@ -233,7 +235,7 @@ describe User, :do_not_mock_admin_mode do
     end
 
     it_behaves_like 'an object with email-formated attributes', :public_email, :notification_email do
-      subject { build(:user).tap { |user| user.emails << build(:email, email: email_value) } }
+      subject { create(:user).tap { |user| user.emails << build(:email, email: email_value, confirmed_at: Time.current) } }
     end
 
     describe '#commit_email' do
@@ -430,10 +432,103 @@ describe User, :do_not_mock_admin_mode do
         end
       end
 
+      context 'email restrictions' do
+        context 'when email restriction is disabled' do
+          before do
+            stub_application_setting(email_restrictions_enabled: false)
+            stub_application_setting(email_restrictions: '\+')
+          end
+
+          it 'does accept email address' do
+            user = build(:user, email: 'info+1@test.com')
+
+            expect(user).to be_valid
+          end
+        end
+
+        context 'when email restrictions is enabled' do
+          before do
+            stub_application_setting(email_restrictions_enabled: true)
+            stub_application_setting(email_restrictions: '([\+]|\b(\w*gitlab.com\w*)\b)')
+          end
+
+          it 'does not accept email address with + characters' do
+            user = build(:user, email: 'info+1@test.com')
+
+            expect(user).not_to be_valid
+          end
+
+          it 'does not accept email with a gitlab domain' do
+            user = build(:user, email: 'info@gitlab.com')
+
+            expect(user).not_to be_valid
+          end
+
+          it 'adds an error message when email is not accepted' do
+            user = build(:user, email: 'info@gitlab.com')
+
+            expect(user).not_to be_valid
+            expect(user.errors.messages[:email].first).to eq(_('is not allowed for sign-up'))
+          end
+
+          it 'does accept a valid email address' do
+            user = build(:user, email: 'info@test.com')
+
+            expect(user).to be_valid
+          end
+
+          context 'when feature flag is turned off' do
+            before do
+              stub_feature_flags(email_restrictions: false)
+            end
+
+            it 'does accept the email address' do
+              user = build(:user, email: 'info+1@test.com')
+
+              expect(user).to be_valid
+            end
+          end
+
+          context 'when created_by_id is set' do
+            it 'does accept the email address' do
+              user = build(:user, email: 'info+1@test.com', created_by_id: 1)
+
+              expect(user).to be_valid
+            end
+          end
+        end
+      end
+
       context 'owns_notification_email' do
         it 'accepts temp_oauth_email emails' do
           user = build(:user, email: "temp-email-for-oauth@example.com")
           expect(user).to be_valid
+        end
+
+        it 'does not accept not verified emails' do
+          email = create(:email)
+          user = email.user
+          user.update(notification_email: email.email)
+
+          expect(user).to be_invalid
+        end
+      end
+
+      context 'owns_public_email' do
+        it 'accepts verified emails' do
+          email = create(:email, :confirmed, email: 'test@test.com')
+          user = email.user
+          user.update(public_email: email.email)
+
+          expect(user).to be_valid
+        end
+
+        it 'does not accept not verified emails' do
+          email = create(:email)
+          user = email.user
+          user.update(public_email: email.email)
+
+          expect(user).to be_invalid
         end
       end
 
@@ -783,6 +878,108 @@ describe User, :do_not_mock_admin_mode do
 
         expect(@user.emails.count).to eq 1
         expect(@user.emails.first.confirmed_at).not_to eq nil
+      end
+
+      context 'when the first email was unconfirmed and the second email gets confirmed' do
+        let(:user) { create(:user, :unconfirmed, email: 'should-be-unconfirmed@test.com') }
+
+        before do
+          user.update!(email: 'should-be-confirmed@test.com')
+          user.confirm
+        end
+
+        it 'updates user.email' do
+          expect(user.email).to eq('should-be-confirmed@test.com')
+        end
+
+        it 'confirms user.email' do
+          expect(user).to be_confirmed
+        end
+
+        it 'keeps the unconfirmed email unconfirmed' do
+          email = user.emails.first
+
+          expect(email.email).to eq('should-be-unconfirmed@test.com')
+          expect(email).not_to be_confirmed
+        end
+
+        it 'has only one email association' do
+          expect(user.emails.size).to be(1)
+        end
+      end
+    end
+
+    context 'when an existing email record is set as primary' do
+      let(:user) { create(:user, email: 'confirmed@test.com') }
+
+      context 'when it is unconfirmed' do
+        let(:originally_unconfirmed_email) { 'should-stay-unconfirmed@test.com' }
+
+        before do
+          user.emails << create(:email, email: originally_unconfirmed_email, confirmed_at: nil)
+
+          user.update!(email: originally_unconfirmed_email)
+        end
+
+        it 'keeps the user confirmed' do
+          expect(user).to be_confirmed
+        end
+
+        it 'keeps the original email' do
+          expect(user.email).to eq('confirmed@test.com')
+        end
+
+        context 'when the email gets confirmed' do
+          before do
+            user.confirm
+          end
+
+          it 'keeps the user confirmed' do
+            expect(user).to be_confirmed
+          end
+
+          it 'updates the email' do
+            expect(user.email).to eq(originally_unconfirmed_email)
+          end
+        end
+      end
+
+      context 'when it is confirmed' do
+        let!(:old_confirmed_email) { user.email }
+        let(:confirmed_email) { 'already-confirmed@test.com' }
+
+        before do
+          user.emails << create(:email, :confirmed, email: confirmed_email)
+
+          user.update!(email: confirmed_email)
+        end
+
+        it 'keeps the user confirmed' do
+          expect(user).to be_confirmed
+        end
+
+        it 'updates the email' do
+          expect(user.email).to eq(confirmed_email)
+        end
+
+        it 'moves the old email' do
+          email = user.reload.emails.first
+
+          expect(email.email).to eq(old_confirmed_email)
+          expect(email).to be_confirmed
+        end
+      end
+    end
+
+    context 'when unconfirmed user deletes a confirmed additional email' do
+      let(:user) { create(:user, :unconfirmed) }
+
+      before do
+        user.emails << create(:email, :confirmed)
+      end
+
+      it 'does not affect the confirmed status' do
+        expect { user.emails.confirmed.destroy_all }.not_to change { user.confirmed? } # rubocop: disable Cop/DestroyAll
       end
     end
 
@@ -1943,18 +2140,28 @@ describe User, :do_not_mock_admin_mode do
 
   describe '#all_emails' do
     let(:user) { create(:user) }
+    let!(:email_confirmed) { create :email, user: user, confirmed_at: Time.now }
+    let!(:email_unconfirmed) { create :email, user: user }
 
-    it 'returns all emails' do
-      email_confirmed   = create :email, user: user, confirmed_at: Time.now
-      email_unconfirmed = create :email, user: user
-      user.reload
+    context 'when `include_private_email` is true' do
+      it 'returns all emails' do
+        expect(user.reload.all_emails).to contain_exactly(
+          user.email,
+          user.private_commit_email,
+          email_unconfirmed.email,
+          email_confirmed.email
+        )
+      end
+    end
 
-      expect(user.all_emails).to contain_exactly(
-        user.email,
-        user.private_commit_email,
-        email_unconfirmed.email,
-        email_confirmed.email
-      )
+    context 'when `include_private_email` is false' do
+      it 'does not include the private commit email' do
+        expect(user.reload.all_emails(include_private_email: false)).to contain_exactly(
+          user.email,
+          email_unconfirmed.email,
+          email_confirmed.email
+        )
+      end
     end
   end
 
@@ -1968,6 +2175,31 @@ describe User, :do_not_mock_admin_mode do
       expect(user.verified_emails).to contain_exactly(
         user.email,
         user.private_commit_email,
+        email_confirmed.email
+      )
+    end
+  end
+
+  describe '#public_verified_emails' do
+    let(:user) { create(:user) }
+
+    it 'returns only confirmed public emails' do
+      email_confirmed = create :email, user: user, confirmed_at: Time.current
+      create :email, user: user
+
+      expect(user.public_verified_emails).to contain_exactly(
+        user.email,
+        email_confirmed.email
+      )
+    end
+
+    it 'returns confirmed public emails plus main user email when user is not confirmed' do
+      user = create(:user, confirmed_at: nil)
+      email_confirmed = create :email, user: user, confirmed_at: Time.current
+      create :email, user: user
+
+      expect(user.public_verified_emails).to contain_exactly(
+        user.email,
         email_confirmed.email
       )
     end
@@ -4010,9 +4242,10 @@ describe User, :do_not_mock_admin_mode do
           context 'when an ancestor has a level other than Global' do
             let(:ancestor) { create(:group) }
             let(:group) { create(:group, parent: ancestor) }
+            let(:email) { create(:email, :confirmed, email: 'ancestor@example.com', user: user) }
 
             before do
-              create(:notification_setting, user: user, source: ancestor, level: 'participating', notification_email: 'ancestor@example.com')
+              create(:notification_setting, user: user, source: ancestor, level: 'participating', notification_email: email.email)
             end
 
             it 'has the same level set' do
@@ -4037,10 +4270,12 @@ describe User, :do_not_mock_admin_mode do
             let(:grand_ancestor) { create(:group) }
             let(:ancestor) { create(:group, parent: grand_ancestor) }
             let(:group) { create(:group, parent: ancestor) }
+            let(:ancestor_email) { create(:email, :confirmed, email: 'ancestor@example.com', user: user) }
+            let(:grand_email) { create(:email, :confirmed, email: 'grand@example.com', user: user) }
 
             before do
-              create(:notification_setting, user: user, source: grand_ancestor, level: 'participating', notification_email: 'grand@example.com')
-              create(:notification_setting, user: user, source: ancestor, level: 'global', notification_email: 'ancestor@example.com')
+              create(:notification_setting, user: user, source: grand_ancestor, level: 'participating', notification_email: grand_email.email)
+              create(:notification_setting, user: user, source: ancestor, level: 'global', notification_email: ancestor_email.email)
             end
 
             it 'has the same email set' do
@@ -4078,7 +4313,7 @@ describe User, :do_not_mock_admin_mode do
     context 'when group has notification email set' do
       it 'returns group notification email' do
         group_notification_email = 'user+group@example.com'
-
+        create(:email, :confirmed, user: user, email: group_notification_email)
         create(:notification_setting, user: user, source: group, notification_email: group_notification_email)
 
         is_expected.to eq(group_notification_email)
@@ -4119,7 +4354,7 @@ describe User, :do_not_mock_admin_mode do
   describe '#read_only_attribute?' do
     context 'when LDAP server is enabled' do
       before do
-        allow(Gitlab::Auth::LDAP::Config).to receive(:enabled?).and_return(true)
+        allow(Gitlab::Auth::Ldap::Config).to receive(:enabled?).and_return(true)
       end
 
       %i[name email location].each do |attribute|
@@ -4239,6 +4474,44 @@ describe User, :do_not_mock_admin_mode do
         email: user.email
       }
       expect(user.hook_attrs).to eq(user_attributes)
+    end
+  end
+
+  describe 'user detail' do
+    context 'when user is initialized' do
+      let(:user) { build(:user) }
+
+      it { expect(user.user_detail).to be_present }
+      it { expect(user.user_detail).not_to be_persisted }
+    end
+
+    context 'when user detail exists' do
+      let(:user) { create(:user, job_title: 'Engineer') }
+
+      it { expect(user.user_detail).to be_persisted }
+    end
+  end
+
+  describe '#gitlab_employee?' do
+    using RSpec::Parameterized::TableSyntax
+
+    subject { user.gitlab_employee? }
+
+    where(:email, :is_com, :expected_result) do
+      'test@gitlab.com'   | true  | true
+      'test@example.com'  | true  | false
+      'test@gitlab.com'   | false | false
+      'test@example.com'  | false | false
+    end
+
+    with_them do
+      let(:user) { build(:user, email: email) }
+
+      before do
+        allow(Gitlab).to receive(:com?).and_return(is_com)
+      end
+
+      it { is_expected.to be expected_result }
     end
   end
 end

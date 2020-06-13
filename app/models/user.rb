@@ -60,6 +60,7 @@ class User < ApplicationRecord
   MINIMUM_INACTIVE_DAYS = 180
 
   enum bot_type: ::UserBotTypeEnums.bots
+  enum user_type: ::UserTypeEnums.types
 
   # Override Devise::Models::Trackable#update_tracked_fields!
   # to limit database writes to at most once every hour
@@ -162,6 +163,8 @@ class User < ApplicationRecord
 
   has_one :status, class_name: 'UserStatus'
   has_one :user_preference
+  has_one :user_detail
+  has_one :user_highest_role
 
   #
   # Validations
@@ -189,6 +192,7 @@ class User < ApplicationRecord
   validate :owns_public_email, if: :public_email_changed?
   validate :owns_commit_email, if: :commit_email_changed?
   validate :signup_domain_valid?, on: :create, if: ->(user) { !user.created_by_id }
+  validate :check_email_restrictions, on: :create, if: ->(user) { !user.created_by_id }
 
   validates :theme_id, allow_nil: true, inclusion: { in: Gitlab::Themes.valid_ids,
     message: _("%{placeholder} is not a valid theme") % { placeholder: '%{value}' } }
@@ -217,9 +221,10 @@ class User < ApplicationRecord
     if previous_changes.key?('email')
       # Grab previous_email here since previous_changes changes after
       # #update_emails_with_primary_email and #update_notification_email are called
+      previous_confirmed_at = previous_changes.key?('confirmed_at') ? previous_changes['confirmed_at'][0] : confirmed_at
       previous_email = previous_changes[:email][0]
 
-      update_emails_with_primary_email(previous_email)
+      update_emails_with_primary_email(previous_confirmed_at, previous_email)
       update_invalid_gpg_signatures
 
       if previous_email == notification_email
@@ -258,8 +263,10 @@ class User < ApplicationRecord
   delegate :sourcegraph_enabled, :sourcegraph_enabled=, to: :user_preference
   delegate :setup_for_company, :setup_for_company=, to: :user_preference
   delegate :render_whitespace_in_code, :render_whitespace_in_code=, to: :user_preference
+  delegate :job_title, :job_title=, to: :user_detail, allow_nil: true
 
   accepts_nested_attributes_for :user_preference, update_only: true
+  accepts_nested_attributes_for :user_detail, update_only: true
 
   state_machine :state, initial: :active do
     event :block do
@@ -332,7 +339,7 @@ class User < ApplicationRecord
   scope :with_dashboard, -> (dashboard) { where(dashboard: dashboard) }
   scope :with_public_profile, -> { where(private_profile: false) }
   scope :bots, -> { where.not(bot_type: nil) }
-  scope :humans, -> { where(bot_type: nil) }
+  scope :humans, -> { where(user_type: nil, bot_type: nil) }
 
   scope :with_expiring_and_not_notified_personal_access_tokens, ->(at) do
     where('EXISTS (?)',
@@ -740,15 +747,15 @@ class User < ApplicationRecord
   end
 
   def owns_notification_email
-    return if temp_oauth_email?
+    return if new_record? || temp_oauth_email?
 
-    errors.add(:notification_email, _("is not an email you own")) unless all_emails.include?(notification_email)
+    errors.add(:notification_email, _("is not an email you own")) unless verified_emails.include?(notification_email)
   end
 
   def owns_public_email
     return if public_email.blank?
 
-    errors.add(:public_email, _("is not an email you own")) unless all_emails.include?(public_email)
+    errors.add(:public_email, _("is not an email you own")) unless verified_emails.include?(public_email)
   end
 
   def owns_commit_email
@@ -796,13 +803,15 @@ class User < ApplicationRecord
   # By using an `after_commit` instead of `after_update`, we avoid the recursive callback
   # scenario, though it then requires us to use the `previous_changes` hash
   # rubocop: disable CodeReuse/ServiceClass
-  def update_emails_with_primary_email(previous_email)
+  def update_emails_with_primary_email(previous_confirmed_at, previous_email)
     primary_email_record = emails.find_by(email: email)
     Emails::DestroyService.new(self, user: self).execute(primary_email_record) if primary_email_record
 
     # the original primary email was confirmed, and we want that to carry over.  We don't
     # have access to the original confirmation values at this point, so just set confirmed_at
-    Emails::CreateService.new(self, user: self, email: previous_email).execute(confirmed_at: confirmed_at)
+    Emails::CreateService.new(self, user: self, email: previous_email).execute(confirmed_at: previous_confirmed_at)
+
+    update_columns(confirmed_at: primary_email_record.confirmed_at) if primary_email_record&.confirmed_at
   end
   # rubocop: enable CodeReuse/ServiceClass
 
@@ -1186,20 +1195,26 @@ class User < ApplicationRecord
     Member.where(invite_email: verified_emails).invite
   end
 
-  def all_emails
+  def all_emails(include_private_email: true)
     all_emails = []
     all_emails << email unless temp_oauth_email?
-    all_emails << private_commit_email
+    all_emails << private_commit_email if include_private_email
     all_emails.concat(emails.map(&:email))
     all_emails
   end
 
-  def verified_emails
+  def verified_emails(include_private_email: true)
     verified_emails = []
     verified_emails << email if primary_email_verified?
-    verified_emails << private_commit_email
+    verified_emails << private_commit_email if include_private_email
     verified_emails.concat(emails.confirmed.pluck(:email))
     verified_emails
+  end
+
+  def public_verified_emails
+    emails = verified_emails(include_private_email: false)
+    emails << email unless temp_oauth_email?
+    emails.uniq
   end
 
   def any_email?(check_email)
@@ -1553,7 +1568,7 @@ class User < ApplicationRecord
 
   def read_only_attribute?(attribute)
     if Feature.enabled?(:ldap_readonly_attributes, default_enabled: true)
-      enabled = Gitlab::Auth::LDAP::Config.enabled?
+      enabled = Gitlab::Auth::Ldap::Config.enabled?
       read_only = attribute.to_sym.in?(UserSyncedAttributesMetadata::SYNCABLE_ATTRIBUTES)
 
       return true if enabled && read_only
@@ -1614,6 +1629,10 @@ class User < ApplicationRecord
     super.presence || build_user_preference
   end
 
+  def user_detail
+    super.presence || build_user_detail
+  end
+
   def todos_limited_to(ids)
     todos.where(id: ids)
   end
@@ -1656,6 +1675,16 @@ class User < ApplicationRecord
     callouts = callouts.with_dismissed_after(ignore_dismissal_earlier_than) if ignore_dismissal_earlier_than
 
     callouts.any?
+  end
+
+  def gitlab_employee?
+    strong_memoize(:gitlab_employee) do
+      if Gitlab.com?
+        Mail::Address.new(email).domain == "gitlab.com"
+      else
+        false
+      end
+    end
   end
 
   # @deprecated
@@ -1751,6 +1780,18 @@ class User < ApplicationRecord
       escaped = Regexp.escape(domain).gsub('\*', '.*?')
       regexp = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
       signup_domain =~ regexp
+    end
+  end
+
+  def check_email_restrictions
+    return unless Feature.enabled?(:email_restrictions)
+    return unless Gitlab::CurrentSettings.email_restrictions_enabled?
+
+    restrictions = Gitlab::CurrentSettings.email_restrictions
+    return if restrictions.blank?
+
+    if Gitlab::UntrustedRegexp.new(restrictions).match?(email)
+      errors.add(:email, _('is not allowed for sign-up'))
     end
   end
 

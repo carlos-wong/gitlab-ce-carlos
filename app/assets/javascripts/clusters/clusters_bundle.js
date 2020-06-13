@@ -98,7 +98,6 @@ export default class Clusters {
     });
 
     this.installApplication = this.installApplication.bind(this);
-    this.showToken = this.showToken.bind(this);
 
     this.errorContainer = document.querySelector('.js-cluster-error');
     this.successContainer = document.querySelector('.js-cluster-success');
@@ -109,7 +108,6 @@ export default class Clusters {
     );
     this.errorReasonContainer = this.errorContainer.querySelector('.js-error-reason');
     this.successApplicationContainer = document.querySelector('.js-cluster-application-notice');
-    this.showTokenButton = document.querySelector('.js-show-cluster-token');
     this.tokenField = document.querySelector('.js-cluster-token');
     this.ingressDomainHelpText = document.querySelector('.js-ingress-domain-help-text');
     this.ingressDomainSnippet =
@@ -248,26 +246,28 @@ export default class Clusters {
   }
 
   addListeners() {
-    if (this.showTokenButton) this.showTokenButton.addEventListener('click', this.showToken);
     eventHub.$on('installApplication', this.installApplication);
     eventHub.$on('updateApplication', data => this.updateApplication(data));
     eventHub.$on('saveKnativeDomain', data => this.saveKnativeDomain(data));
     eventHub.$on('setKnativeHostname', data => this.setKnativeHostname(data));
     eventHub.$on('uninstallApplication', data => this.uninstallApplication(data));
     eventHub.$on('setCrossplaneProviderStack', data => this.setCrossplaneProviderStack(data));
+    eventHub.$on('setIngressModSecurityEnabled', data => this.setIngressModSecurityEnabled(data));
+    eventHub.$on('resetIngressModSecurityEnabled', id => this.resetIngressModSecurityEnabled(id));
     // Add event listener to all the banner close buttons
     this.addBannerCloseHandler(this.unreachableContainer, 'unreachable');
     this.addBannerCloseHandler(this.authenticationFailureContainer, 'authentication_failure');
   }
 
   removeListeners() {
-    if (this.showTokenButton) this.showTokenButton.removeEventListener('click', this.showToken);
     eventHub.$off('installApplication', this.installApplication);
     eventHub.$off('updateApplication', this.updateApplication);
     eventHub.$off('saveKnativeDomain');
     eventHub.$off('setKnativeHostname');
     eventHub.$off('setCrossplaneProviderStack');
     eventHub.$off('uninstallApplication');
+    eventHub.$off('setIngressModSecurityEnabled');
+    eventHub.$off('resetIngressModSecurityEnabled');
   }
 
   initPolling(method, successCallback, errorCallback) {
@@ -313,21 +313,12 @@ export default class Clusters {
 
     this.checkForNewInstalls(prevApplicationMap, this.store.state.applications);
     this.updateContainer(prevStatus, this.store.state.status, this.store.state.statusReason);
-    this.toggleIngressDomainHelpText(
-      prevApplicationMap[INGRESS],
-      this.store.state.applications[INGRESS],
-    );
-  }
 
-  showToken() {
-    const type = this.tokenField.getAttribute('type');
-
-    if (type === 'password') {
-      this.tokenField.setAttribute('type', 'text');
-      this.showTokenButton.textContent = s__('ClusterIntegration|Hide');
-    } else {
-      this.tokenField.setAttribute('type', 'password');
-      this.showTokenButton.textContent = s__('ClusterIntegration|Show');
+    if (this.ingressDomainHelpText) {
+      this.toggleIngressDomainHelpText(
+        prevApplicationMap[INGRESS],
+        this.store.state.applications[INGRESS],
+      );
     }
   }
 
@@ -511,6 +502,15 @@ export default class Clusters {
     const appId = data.id;
     this.store.updateAppProperty(appId, 'stack', data.stack.code);
     this.store.updateAppProperty(appId, 'validationError', null);
+  }
+
+  setIngressModSecurityEnabled({ id, modSecurityEnabled }) {
+    this.store.updateAppProperty(id, 'isEditingModSecurityEnabled', true);
+    this.store.updateAppProperty(id, 'modsecurity_enabled', modSecurityEnabled);
+  }
+
+  resetIngressModSecurityEnabled(id) {
+    this.store.updateAppProperty(id, 'isEditingModSecurityEnabled', false);
   }
 
   destroy() {

@@ -17,11 +17,12 @@ module Gitlab
     end
 
     def group_name_regex
-      project_name_regex
+      @group_name_regex ||= /\A[\p{Alnum}\u{00A9}-\u{1f9ff}_][\p{Alnum}\p{Pd}\u{00A9}-\u{1f9ff}_()\. ]*\z/.freeze
     end
 
     def group_name_regex_message
-      project_name_regex_message
+      "can contain only letters, digits, emojis, '_', '.', dash, space, parenthesis. " \
+      "It must start with letter, digit, emoji or '_'."
     end
 
     ##
@@ -120,7 +121,7 @@ module Gitlab
     # Based on Jira's project key format
     # https://confluence.atlassian.com/adminjiraserver073/changing-the-project-key-format-861253229.html
     def jira_issue_key_regex
-      @jira_issue_key_regex ||= /[A-Z][A-Z_0-9]+-\d+/
+      @jira_issue_key_regex ||= /[A-Z][A-Z_0-9]+-\d+\b/
     end
 
     def jira_transition_id_regex
@@ -151,6 +152,10 @@ module Gitlab
 
     def utc_date_regex
       @utc_date_regex ||= /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/.freeze
+    end
+
+    def issue
+      @issue ||= /(?<issue>\d+\b)/
     end
   end
 end

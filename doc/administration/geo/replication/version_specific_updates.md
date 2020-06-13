@@ -4,6 +4,13 @@ Check this document if it includes instructions for the version you are updating
 These steps go together with the [general steps](updating_the_geo_nodes.md#general-update-steps)
 for updating Geo nodes.
 
+## Updating to GitLab 12.9
+
+CAUTION: **Warning:**
+GitLab 12.9.0 through GitLab 12.9.3 are affected by [a bug that stops
+repository verification](https://gitlab.com/gitlab-org/gitlab/-/issues/213523).
+The issue is fixed in GitLab 12.9.4. Please upgrade to GitLab 12.9.4 or later.
+
 ## Updating to GitLab 12.7
 
 DANGER: **Danger:**
@@ -44,6 +51,20 @@ This can be temporarily disabled by running the following before updating:
 ```shell
 sudo touch /etc/gitlab/disable-postgresql-upgrade
 ```
+
+## Updating to GitLab 12.0
+
+WARNING: **Warning:**
+This version is affected by [a bug that results in new LFS objects not being replicated to
+Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/issues/32696). The issue is fixed
+in GitLab 12.1. Please upgrade to GitLab 12.1 or newer.
+
+## Updating to GitLab 11.11
+
+WARNING: **Warning:**
+This version is affected by [a bug that results in new LFS objects not being replicated to
+Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/issues/32696). The issue is fixed
+in GitLab 12.1. Please upgrade to GitLab 12.1 or newer.
 
 ## Updating to GitLab 10.8
 
@@ -186,7 +207,7 @@ Replicating over SSH has been deprecated, and support for this option will be
 removed in a future release.
 
 To switch to HTTP/HTTPS replication, log into the **primary** node as an admin and visit
-**Admin Area > Geo** (`/admin/geo/nodes`). For each **secondary** node listed,
+**{admin}** **Admin Area >** **{location-dot}** **Geo** (`/admin/geo/nodes`). For each **secondary** node listed,
 press the "Edit" button, change the "Repository cloning" setting from
 "SSH (deprecated)" to "HTTP/HTTPS", and press "Save changes". This should take
 effect immediately.
