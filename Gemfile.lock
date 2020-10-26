@@ -961,7 +961,7 @@ GEM
       sexp_processor (~> 4.9)
     rubyntlm (0.6.2)
     rubypants (0.2.0)
-    rubyzip (2.0.0)
+    rubyzip (2.3.0)
     rugged (0.28.4.1)
     safe_yaml (1.0.4)
     sanitize (4.6.6)
@@ -1361,7 +1361,7 @@ DEPENDENCIES
   ruby-prof (~> 1.0.0)
   ruby-progressbar
   ruby_parser (~> 3.8)
-  rubyzip (~> 2.0.0)
+  rubyzip (~> 2.3.0)
   rugged (~> 0.28)
   sanitize (~> 4.6)
   sassc-rails (~> 2.1.0)
