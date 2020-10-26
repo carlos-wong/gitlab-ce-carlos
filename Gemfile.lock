@@ -552,7 +552,7 @@ GEM
       character_set (~> 1.1)
       regexp_parser (~> 1.1)
       regexp_property_values (~> 0.3)
-    json (1.8.6)
+    json (2.3.1)
     json-jwt (1.11.0)
       activesupport (>= 4.2)
       aes_key_wrap
