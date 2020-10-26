@@ -99,7 +99,7 @@ gem 'graphql-docs', '~> 1.6.0', group: [:development, :test]
 gem 'hashie-forbidden_attributes'
 
 # Pagination
-gem 'kaminari', '~> 1.0'
+gem 'kaminari', '~> 1.2'
 
 # HAML
 gem 'hamlit', '~> 2.11.0'
