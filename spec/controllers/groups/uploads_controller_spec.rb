@@ -10,10 +10,10 @@ describe Groups::UploadsController do
     { group_id: model }
   end
 
-  let(:other_model) { create(:group, :public) }
-  let(:other_params) do
-    { group_id: other_model }
-  end
+  # let(:other_model) { create(:group, :public) }
+  # let(:other_params) do
+  #   { group_id: other_model }
+  # end
 
   it_behaves_like 'handle uploads' do
     let(:uploader_class) { NamespaceFileUploader }

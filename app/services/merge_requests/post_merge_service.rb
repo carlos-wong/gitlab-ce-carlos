@@ -24,7 +24,7 @@ module MergeRequests
     private
 
     def close_issues(merge_request)
-      return unless merge_request.target_branch == project.default_branch
+      return unless ProtectedBranch.protected?(source_project, target_branch) && merge_request.source_branch != project.default_branch
 
       closed_issues = merge_request.visible_closing_issues_for(current_user)
 

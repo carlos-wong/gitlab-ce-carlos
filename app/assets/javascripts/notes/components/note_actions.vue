@@ -160,28 +160,6 @@ export default {
       class="js-reply-button"
       @startReplying="$emit('startReplying')"
     />
-    <div v-if="canEdit" class="note-actions-item">
-      <button
-        v-gl-tooltip
-        type="button"
-        title="Edit comment"
-        class="note-action-button js-note-edit btn btn-transparent qa-note-edit-button"
-        @click="onEdit"
-      >
-        <icon name="pencil" class="link-highlight" />
-      </button>
-    </div>
-    <div v-if="showDeleteAction" class="note-actions-item">
-      <button
-        v-gl-tooltip
-        type="button"
-        title="Delete comment"
-        class="note-action-button js-note-delete btn btn-transparent"
-        @click="onDelete"
-      >
-        <icon name="remove" class="link-highlight" />
-      </button>
-    </div>
     <div v-else-if="shouldShowActionsDropdown" class="dropdown more-actions note-actions-item">
       <button
         v-gl-tooltip
@@ -204,15 +182,6 @@ export default {
             class="btn-default btn-transparent js-btn-copy-note-link"
           >
             {{ __('Copy link') }}
-          </button>
-        </li>
-        <li v-if="canEdit">
-          <button
-            class="btn btn-transparent js-note-delete js-note-delete"
-            type="button"
-            @click.prevent="onDelete"
-          >
-            <span class="text-danger">{{ __('Delete comment') }}</span>
           </button>
         </li>
       </ul>

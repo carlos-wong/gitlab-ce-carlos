@@ -152,7 +152,7 @@ class ProjectPolicy < BasePolicy
   rule { reporter }.enable :reporter_access
   rule { developer }.enable :developer_access
   rule { maintainer }.enable :maintainer_access
-  rule { owner | admin }.enable :owner_access
+  rule { admin }.enable :owner_access
 
   rule { can?(:owner_access) }.policy do
     enable :guest_access
@@ -166,8 +166,8 @@ class ProjectPolicy < BasePolicy
     enable :remove_project
     enable :archive_project
     enable :remove_fork_project
-    enable :destroy_merge_request
-    enable :destroy_issue
+    # enable :destroy_merge_request
+    # enable :destroy_issue
 
     enable :set_issue_iid
     enable :set_issue_created_at
@@ -178,7 +178,6 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:guest_access) }.policy do
     enable :read_project
-    enable :create_merge_request_in
     enable :read_board
     enable :read_list
     enable :read_wiki
@@ -200,18 +199,18 @@ class ProjectPolicy < BasePolicy
 
   # These abilities are not allowed to admins that are not members of the project,
   # that's why they are defined separately.
-  rule { guest & can?(:download_code) }.enable :build_download_code
+  rule { developer & can?(:download_code) }.enable :build_download_code
   rule { guest & can?(:read_container_image) }.enable :build_read_container_image
 
   rule { can?(:reporter_access) }.policy do
     enable :admin_board
-    enable :download_code
+    # enable :download_code
     enable :read_statistics
     enable :download_wiki_code
     enable :create_snippet
-    enable :update_issue
     enable :reopen_issue
-    enable :admin_issue
+    # enable :update_issue
+    # enable :admin_issue
     enable :admin_label
     enable :admin_list
     enable :read_commit_status
@@ -220,11 +219,13 @@ class ProjectPolicy < BasePolicy
     enable :read_pipeline
     enable :read_environment
     enable :read_deployment
-    enable :read_merge_request
     enable :read_sentry_issue
     enable :update_sentry_issue
     enable :read_prometheus
     enable :read_metrics_dashboard_annotation
+
+    prevent :resolve_note
+    enable :admin_issue
   end
 
   # We define `:public_user_access` separately because there are cases in gitlab-ee
@@ -243,7 +244,7 @@ class ProjectPolicy < BasePolicy
     enable :request_access
   end
 
-  rule { (can?(:public_user_access) | can?(:reporter_access)) & forking_allowed }.policy do
+  rule { (can?(:public_user_access) | can?(:maintainer_access)) & forking_allowed }.policy do
     enable :fork_project
   end
 
@@ -255,7 +256,6 @@ class ProjectPolicy < BasePolicy
   rule { can?(:developer_access) }.policy do
     enable :admin_board
     enable :admin_merge_request
-    enable :admin_milestone
     enable :update_merge_request
     enable :reopen_merge_request
     enable :create_commit_status
@@ -266,7 +266,6 @@ class ProjectPolicy < BasePolicy
     enable :create_merge_request_from
     enable :create_wiki
     enable :push_code
-    enable :resolve_note
     enable :create_container_image
     enable :update_container_image
     enable :destroy_container_image
@@ -280,6 +279,13 @@ class ProjectPolicy < BasePolicy
     enable :create_metrics_dashboard_annotation
     enable :delete_metrics_dashboard_annotation
     enable :update_metrics_dashboard_annotation
+    enable :update_issue
+    prevent :resolve_note
+    enable :admin_issue
+    enable :download_code
+    enable :build_download_code
+    enable :create_merge_request_in
+    enable :read_merge_request
   end
 
   rule { can?(:developer_access) & user_confirmed? }.policy do
@@ -294,7 +300,6 @@ class ProjectPolicy < BasePolicy
     enable :update_snippet
     enable :admin_snippet
     enable :admin_project_member
-    enable :admin_note
     enable :admin_wiki
     enable :admin_project
     enable :admin_commit_status
@@ -323,6 +328,14 @@ class ProjectPolicy < BasePolicy
     enable :destroy_deploy_token
     enable :read_prometheus_alerts
     enable :admin_terraform_state
+    enable :resolve_note
+    enable :update_issue
+    enable :admin_issue
+    enable :close_issue
+    enable :admin_milestone
+    enable :change_due_date
+    enable :assignee_issue
+    enable :edit_merge_request_label
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror

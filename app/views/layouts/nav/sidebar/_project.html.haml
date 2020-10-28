@@ -1,6 +1,7 @@
 .nav-sidebar{ class: ("sidebar-collapsed-desktop" if collapsed_sidebar?) }
   .nav-sidebar-inner-scroll
     - can_edit = can?(current_user, :admin_project, @project)
+    - can_assign_issue = can?(current_user, :assignee_issue, @project)
     .context-header
       = link_to project_path(@project), title: @project.name do
         .avatar-container.rect-avatar.s40.project-avatar
@@ -333,6 +334,7 @@
 
           %ul.sidebar-sub-level-items
             - can_edit = can?(current_user, :admin_project, @project)
+            - can_assign_issue = can?(current_user, :assignee_issue, @project)
             - if can_edit
               = nav_link(path: sidebar_settings_paths, html_options: { class: "fly-out-top-item" } ) do
                 = link_to edit_project_path(@project) do

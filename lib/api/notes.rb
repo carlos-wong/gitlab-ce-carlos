@@ -104,7 +104,7 @@ module API
         put ":id/#{noteables_str}/:noteable_id/notes/:note_id" do
           noteable = find_noteable(noteable_type, params[:noteable_id])
 
-          update_note(noteable, params[:note_id])
+          # update_note(noteable, params[:note_id])
         end
 
         desc "Delete a #{noteable_type.to_s.downcase} note" do
@@ -117,7 +117,7 @@ module API
         delete ":id/#{noteables_str}/:noteable_id/notes/:note_id" do
           noteable = find_noteable(noteable_type, params[:noteable_id])
 
-          delete_note(noteable, params[:note_id])
+          # delete_note(noteable, params[:note_id])
         end
       end
     end
