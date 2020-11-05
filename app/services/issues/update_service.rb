@@ -5,12 +5,10 @@ module Issues
     include SpamCheckMethods
 
     def execute(issue)
-      if can?(current_user, :push_to_delete_protected_branch, @project)
-        handle_move_between_ids(issue)
-        filter_spam_check_params
-        change_issue_duplicate(issue)
-        move_issue_to_new_project(issue) || update_task_event(issue) || update(issue)
-      end
+      handle_move_between_ids(issue)
+      filter_spam_check_params
+      change_issue_duplicate(issue)
+      move_issue_to_new_project(issue) || update_task_event(issue) || update(issue)
     end
 
     def update(issue)

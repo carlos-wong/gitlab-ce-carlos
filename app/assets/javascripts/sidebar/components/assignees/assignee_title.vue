@@ -26,23 +26,11 @@ export default {
       required: false,
       default: false,
     },
-    issuableType: {
-      type: String,
-      required: false,
-      default: 'issue',
-    },
-    assigneeable: {
-      type: Boolean,
-      required: true,
-    },
   },
   computed: {
     assigneeTitle() {
       const assignees = this.numberOfAssignees;
       return n__('Assignee', `%d Assignees`, assignees);
-    },
-    assigneeableByIssueableType(){
-      return this.issuableType === "merge_request" ?  this.editable : this.assigneeable;
     },
   },
 };
@@ -52,7 +40,7 @@ export default {
     {{ assigneeTitle }}
     <gl-loading-icon v-if="loading" inline class="align-bottom" />
     <a
-      v-if="assigneeableByIssueableType"
+      v-if="editable"
       class="js-sidebar-dropdown-toggle edit-link float-right"
       href="#"
       data-track-event="click_edit_button"

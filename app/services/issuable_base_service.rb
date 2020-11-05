@@ -18,26 +18,6 @@ class IssuableBaseService < BaseService
   end
 
   def filter_params(issuable)
-
-    unless can?(current_user, :change_due_date, issuable)
-      params.delete(:due_date)
-    end
-    if ability_name == :admin_issue
-      unless can?(current_user, :assignee_issue, issuable)
-        params.delete(:assignee_ids)
-        params.delete(:assignee_id)
-      end
-    end
-
-    if ability_name == :admin_merge_request
-      unless can?(current_user, :edit_merge_request_label, issuable)
-        params.delete(:labels)
-        params.delete(:add_label_ids)
-        params.delete(:remove_label_ids)
-        params.delete(:label_ids)
-      end
-     end
-
     unless can_admin_issuable?(issuable)
       params.delete(:milestone_id)
       params.delete(:labels)

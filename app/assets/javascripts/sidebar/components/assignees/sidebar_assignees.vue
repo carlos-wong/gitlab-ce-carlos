@@ -88,9 +88,7 @@ export default {
       :number-of-assignees="store.assignees.length"
       :loading="loading || store.isFetching.assignees"
       :editable="store.editable"
-      :assigneeable="store.assigneeable"
       :show-toggle="!signedIn"
-      :issuableType="issuableType"
     />
     <assignees
       v-if="!store.isFetching.assignees"
@@ -98,7 +96,6 @@ export default {
       :users="store.assignees"
       :editable="store.editable"
       :issuable-type="issuableType"
-      :assigneeable="store.assigneeable"
       class="value"
       @assign-self="assignSelf"
     />

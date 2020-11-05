@@ -20,10 +20,6 @@ module BoardsHelper
     }
   end
 
-  def can_assignee_issue?
-    can?(current_user, :assignee_issue, current_board_parent)
-  end
-
   def full_path
     if board.group_board?
       @group.full_path
