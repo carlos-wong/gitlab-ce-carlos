@@ -35,6 +35,16 @@ class IssuableBaseService < BaseService
       params.delete(:discussion_locked)
     end
 
+    ability_name = :"admin_#{issuable.to_ability_name}"
+
+    if ability_name == :admin_issue
+      unless can?(current_user, :assignee_issue, issuable)
+        params.delete(:assignee_ids)
+        params.delete(:assignee_id)
+      end
+    end
+
+
     filter_assignee(issuable)
     filter_milestone
     filter_labels
