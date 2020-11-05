@@ -323,6 +323,8 @@ class ProjectPolicy < BasePolicy
     enable :destroy_deploy_token
     enable :read_prometheus_alerts
     enable :admin_terraform_state
+
+    enable :assignee_issue
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
