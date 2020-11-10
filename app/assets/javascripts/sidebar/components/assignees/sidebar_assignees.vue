@@ -117,13 +117,16 @@ export default {
       :number-of-assignees="store.assignees.length"
       :loading="loading || store.isFetching.assignees"
       :editable="store.editable"
+      :assigneeable="store.assigneeable"
       :show-toggle="!signedIn"
       :changing="store.changing"
+      :issuable-type="issuableType"
     />
     <assignees
       v-if="!store.isFetching.assignees"
       :root-path="relativeUrlRoot"
       :users="store.assignees"
+      :assigneeable="store.assigneeable"
       :editable="store.editable"
       :issuable-type="issuableType"
       class="value"

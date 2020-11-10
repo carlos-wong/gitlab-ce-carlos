@@ -8,10 +8,11 @@ export default class SidebarStore {
   }
 
   initSingleton(options) {
-    const { currentUser, rootPath, editable, timeTrackingLimitToHours } = options;
+    const { currentUser, rootPath, editable, timeTrackingLimitToHours,assigneeable } = options;
     this.currentUser = currentUser;
     this.rootPath = rootPath;
     this.editable = editable;
+    this.assigneeable = assigneeable;
     this.timeEstimate = 0;
     this.totalTimeSpent = 0;
     this.humanTimeEstimate = '';

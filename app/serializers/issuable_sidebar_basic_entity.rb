@@ -31,6 +31,11 @@ class IssuableSidebarBasicEntity < Grape::Entity
       can?(current_user, :"admin_#{issuable.to_ability_name}", issuable.project)
     end
 
+    expose :can_assignee do |issuable|
+      can?(current_user, :"assignee_issue", issuable.project)
+    end
+
+
     expose :can_move do |issuable|
       issuable.can_move?(current_user)
     end

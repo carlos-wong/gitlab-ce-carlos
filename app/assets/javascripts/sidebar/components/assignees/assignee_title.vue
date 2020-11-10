@@ -31,6 +31,15 @@ export default {
       type: Boolean,
       required: true,
     },
+    issuableType: {
+      type: String,
+      required: false,
+      default: 'issue',
+    },
+    assigneeable: {
+      type: Boolean,
+      required: true,
+    },
   },
   computed: {
     assigneeTitle() {
@@ -40,6 +49,9 @@ export default {
     titleCopy() {
       return this.changing ? __('Apply') : __('Edit');
     },
+    assigneeableByIssueableType(){
+      return this.issuableType === "merge_request" ?  this.editable : this.assigneeable;
+    },
   },
 };
 </script>
@@ -48,7 +60,7 @@ export default {
     {{ assigneeTitle }}
     <gl-loading-icon v-if="loading" inline class="align-bottom" />
     <a
-      v-if="editable"
+      v-if="assigneeableByIssueableType"
       class="js-sidebar-dropdown-toggle edit-link float-right"
       href="#"
       data-test-id="edit-link"

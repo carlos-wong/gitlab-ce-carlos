@@ -85,6 +85,11 @@ module BoardsHelper
     can?(current_user, :admin_issue, current_board_parent)
   end
 
+  def can_assignee_issue?
+    can?(current_user, :assignee_issue, current_board_parent)
+  end
+
+
   def board_list_data
     include_descendant_groups = @group&.present?
 
