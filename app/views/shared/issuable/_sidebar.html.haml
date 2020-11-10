@@ -5,6 +5,7 @@
 - signed_in = !!issuable_sidebar.dig(:current_user, :id)
 - can_edit_issuable = issuable_sidebar.dig(:current_user, :can_edit)
 - can_change_duedate = issuable_sidebar.dig(:current_user, :can_change_duedate)
+- can_edit_mergerequest_label = issuable_sidebar.dig(:current_user, :can_edit_mergerequest_label)
 
 - if Feature.enabled?(:vue_issuable_sidebar, @project.group)
   %aside#js-vue-issuable-sidebar{ data: { signed_in: signed_in,
@@ -106,7 +107,7 @@
           .title.hide-collapsed
             = _('Labels')
             = icon('spinner spin', class: 'hidden block-loading', 'aria-hidden': 'true')
-            - if can_edit_issuable
+            - if can_edit_mergerequest_label
               = link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link qa-edit-link-labels float-right', data: { track_label: "right_sidebar", track_property: "labels", track_event: "click_edit_button", track_value: "" }
           .value.issuable-show-labels.dont-hide.hide-collapsed{ class: ("has-labels" if selected_labels.any?), data: { qa_selector: 'labels_block' } }
             - if selected_labels.any?
