@@ -2,9 +2,11 @@
   %template{ "v-if" => "issue.assignees" }
     %assignee-title{ ":number-of-assignees" => "issue.assignees.length",
       ":loading" => "loadingAssignees",
+      ":assigneeable" => can_assignee_issue?,
       ":editable" => can_admin_issue? }
     %assignees.value{ "root-path" => "#{root_url}",
       ":users" => "issue.assignees",
+      ":assigneeable" => can_assignee_issue?,
       ":editable" => can_admin_issue?,
       "@assign-self" => "assignSelf" }
 

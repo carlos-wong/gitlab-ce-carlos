@@ -88,12 +88,15 @@ export default {
       :number-of-assignees="store.assignees.length"
       :loading="loading || store.isFetching.assignees"
       :editable="store.editable"
+      :assigneeable="store.assigneeable"
       :show-toggle="!signedIn"
+      :issuable-type="issuableType"
     />
     <assignees
       v-if="!store.isFetching.assignees"
       :root-path="store.rootPath"
       :users="store.assignees"
+      :assigneeable="store.assigneeable"
       :editable="store.editable"
       :issuable-type="issuableType"
       class="value"

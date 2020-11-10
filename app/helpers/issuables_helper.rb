@@ -483,6 +483,7 @@ module IssuablesHelper
       moveIssueEndpoint: issuable[:move_issue_path],
       projectsAutocompleteEndpoint: issuable[:projects_autocomplete_path],
       editable: issuable.dig(:current_user, :can_edit),
+      assigneeable: issuable.dig(:current_user, :can_assignee),
       currentUser: issuable[:current_user],
       rootPath: root_path,
       fullPath: issuable[:project_full_path],
