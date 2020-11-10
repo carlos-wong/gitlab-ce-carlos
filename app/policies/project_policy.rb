@@ -382,6 +382,7 @@ class ProjectPolicy < BasePolicy
     enable :admin_feature_flags_client
 
     enable :assignee_issue
+    enable :change_due_date
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do

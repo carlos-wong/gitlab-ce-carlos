@@ -35,6 +35,10 @@ class IssuableSidebarBasicEntity < Grape::Entity
       can?(current_user, :"assignee_issue", issuable.project)
     end
 
+    expose :can_change_duedate do |issuable|
+      can?(current_user, :"change_due_date", issuable.project)
+    end
+
 
     expose :can_move do |issuable|
       issuable.can_move?(current_user)

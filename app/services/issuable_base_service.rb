@@ -37,6 +37,11 @@ class IssuableBaseService < BaseService
 
     ability_name = :"admin_#{issuable.to_ability_name}"
 
+    unless can?(current_user, :change_due_date, issuable)
+      params.delete(:due_date)
+    end
+
+
     if ability_name == :admin_issue
       unless can?(current_user, :assignee_issue, issuable)
         params.delete(:assignee_ids)

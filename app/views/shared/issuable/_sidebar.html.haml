@@ -6,6 +6,7 @@
 - can_edit_issuable = issuable_sidebar.dig(:current_user, :can_edit)
 - add_page_startup_api_call "#{issuable_sidebar[:issuable_json_path]}?serializer=sidebar_extras"
 - reviewers = local_assigns.fetch(:reviewers, nil)
+- can_change_duedate = issuable_sidebar.dig(:current_user, :can_change_duedate)
 
 %aside.right-sidebar.js-right-sidebar.js-issuable-sidebar{ data: { signed: { in: signed_in }, issuable_type: issuable_type }, class: sidebar_gutter_collapsed_class, 'aria-live' => 'polite' }
   .issuable-sidebar
@@ -75,7 +76,7 @@
           .title.hide-collapsed
             = _('Due date')
             = loading_icon(css_class: 'gl-vertical-align-text-bottom hidden block-loading')
-            - if can_edit_issuable
+            - if can_change_duedate
               = link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link float-right', data: { track_label: "right_sidebar", track_property: "due_date", track_event: "click_edit_button", track_value: "" }
           .value.hide-collapsed
             %span.value-content
@@ -84,12 +85,12 @@
               - else
                 %span.no-value
                   = _('None')
-            - if can_edit_issuable
+            - if can_change_duedate
               %span.no-value.js-remove-due-date-holder{ class: ("hidden" if issuable_sidebar[:due_date].nil?) }
                 \-
                 %a.js-remove-due-date{ href: "#", role: "button" }
                   = _('remove due date')
-          - if can_edit_issuable
+          - if can_change_duedate
             .selectbox.hide-collapsed
               = f.hidden_field :due_date, value: issuable_sidebar[:due_date].try(:strftime, 'yy-mm-dd')
               .dropdown

@@ -85,6 +85,11 @@ module BoardsHelper
     can?(current_user, :admin_issue, current_board_parent)
   end
 
+  def can_change_duedate?
+    can?(current_user, :change_due_date, current_board_parent)
+  end
+
+
   def can_assignee_issue?
     can?(current_user, :assignee_issue, current_board_parent)
   end
