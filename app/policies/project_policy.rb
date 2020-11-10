@@ -383,6 +383,7 @@ class ProjectPolicy < BasePolicy
 
     enable :assignee_issue
     enable :change_due_date
+    enable :edit_merge_request_label
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do

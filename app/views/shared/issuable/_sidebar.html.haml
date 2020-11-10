@@ -8,6 +8,7 @@
 - reviewers = local_assigns.fetch(:reviewers, nil)
 - can_change_duedate = issuable_sidebar.dig(:current_user, :can_change_duedate)
 
+
 %aside.right-sidebar.js-right-sidebar.js-issuable-sidebar{ data: { signed: { in: signed_in }, issuable_type: issuable_type }, class: sidebar_gutter_collapsed_class, 'aria-live' => 'polite' }
   .issuable-sidebar
     .block.issuable-sidebar-header

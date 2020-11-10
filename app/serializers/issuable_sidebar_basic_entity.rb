@@ -39,6 +39,10 @@ class IssuableSidebarBasicEntity < Grape::Entity
       can?(current_user, :"change_due_date", issuable.project)
     end
 
+    expose :can_edit_mergerequest_label do |issuable|
+      can?(current_user, :"edit_merge_request_label", issuable.project)
+    end
+
 
     expose :can_move do |issuable|
       issuable.can_move?(current_user)
