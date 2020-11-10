@@ -1,7 +1,7 @@
 .block.due_date
   .title
     = _("Due date")
-    - if can_admin_issue?
+    - if can_change_duedate?
       = icon("spinner spin", class: "block-loading")
       = link_to _("Edit"), "#", class: "js-sidebar-dropdown-toggle edit-link float-right"
   .value
@@ -10,12 +10,12 @@
         = _("None")
       %span.bold{ "v-if" => "issue.dueDate" }
         {{ issue.dueDate | due-date }}
-      - if can_admin_issue?
+      - if can_change_duedate?
         %span.no-value.js-remove-due-date-holder{ "v-if" => "issue.dueDate" }
           \-
           %a.js-remove-due-date{ href: "#", role: "button" }
             = _('remove due date')
-  - if can_admin_issue?
+  - if can_change_duedate?
     .selectbox
       %input{ type: "hidden",
         name: "issue[due_date]",
