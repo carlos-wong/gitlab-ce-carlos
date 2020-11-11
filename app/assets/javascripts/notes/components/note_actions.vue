@@ -76,6 +76,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    canNotEdit: {
+      type: Boolean,
+      default: true,
+    },
     canAwardEmoji: {
       type: Boolean,
       required: true,
@@ -120,7 +124,7 @@ export default {
       return this.currentUserId && (this.canEdit || this.canReportAsAbuse);
     },
     showDeleteAction() {
-      return this.canDelete && !this.canReportAsAbuse && !this.noteUrl;
+      return false && this.canDelete && !this.canReportAsAbuse && !this.noteUrl;
     },
     isAuthoredByCurrentUser() {
       return this.authorId === this.currentUserId;
@@ -170,6 +174,9 @@ export default {
         name: this.projectName,
       });
     },
+    canResolveOrResolved(){
+      return this.resolvedBy || this.canResolve;
+    },
   },
   methods: {
     onEdit() {
@@ -179,7 +186,7 @@ export default {
       this.$emit('handleDelete');
     },
     onResolve() {
-      this.$emit('handleResolve');
+      this.resolvable && this.$emit('handleResolve');
     },
     closeTooltip() {
       this.$nextTick(() => {
@@ -233,7 +240,7 @@ export default {
       :title="displayContributorBadgeText"
       >{{ __('Contributor') }}</span
     >
-    <div v-if="canResolve" class="note-actions-item">
+    <div v-if="canResolveOrResolved" class="note-actions-item">
       <button
         ref="resolveButton"
         v-gl-tooltip
@@ -270,7 +277,7 @@ export default {
       class="js-reply-button"
       @startReplying="$emit('startReplying')"
     />
-    <div v-if="canEdit" class="note-actions-item">
+    <div v-if="!canNotEdit" class="note-actions-item">
       <button
         v-gl-tooltip
         type="button"
@@ -327,7 +334,7 @@ export default {
             {{ displayAssignUserText }}
           </button>
         </li>
-        <li v-if="canEdit">
+        <li v-if="!canNotEdit">
           <button
             class="btn btn-transparent js-note-delete js-note-delete"
             type="button"

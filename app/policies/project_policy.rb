@@ -305,7 +305,6 @@ class ProjectPolicy < BasePolicy
     enable :create_merge_request_from
     enable :create_wiki
     enable :push_code
-    enable :resolve_note
     enable :create_container_image
     enable :update_container_image
     enable :destroy_container_image
@@ -348,7 +347,7 @@ class ProjectPolicy < BasePolicy
     enable :update_snippet
     enable :admin_snippet
     enable :admin_project_member
-    enable :admin_note
+    #enable :admin_note
     enable :admin_wiki
     enable :admin_project
     enable :admin_commit_status
@@ -384,6 +383,7 @@ class ProjectPolicy < BasePolicy
     enable :assignee_issue
     enable :change_due_date
     enable :edit_merge_request_label
+    enable :resolve_note
     #enable :edit_issue_title_descritpion
   end
 
