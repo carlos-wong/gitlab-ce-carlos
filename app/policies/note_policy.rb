@@ -38,8 +38,8 @@ class NotePolicy < BasePolicy
 
   rule { is_author }.policy do
     enable :read_note
-    enable :admin_note
-    enable :resolve_note
+    #enable :admin_note
+    #enable :resolve_note
   end
 
   rule { ~is_visible }.policy do
@@ -50,7 +50,7 @@ class NotePolicy < BasePolicy
   end
 
   rule { is_noteable_author }.policy do
-    enable :resolve_note
+    #enable :resolve_note
   end
 
   rule { confidential & ~can_read_confidential }.policy do
