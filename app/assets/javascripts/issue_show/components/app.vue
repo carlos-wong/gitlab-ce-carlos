@@ -35,6 +35,11 @@ export default {
       required: true,
       type: String,
     },
+    canEditIssueTitleAndDescription:{
+      required: true,
+      type: Boolean,
+      default: false,
+    },
     canUpdate: {
       required: true,
       type: Boolean,
@@ -427,6 +432,7 @@ export default {
       <title-component
         :issuable-ref="issuableRef"
         :can-update="canUpdate"
+        :canEditIssueTitleAndDescription="canEditIssueTitleAndDescription"
         :title-html="state.titleHtml"
         :title-text="state.titleText"
         :show-inline-edit-button="showInlineEditButton"

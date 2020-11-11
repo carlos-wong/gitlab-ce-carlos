@@ -17,6 +17,11 @@ export default {
       type: [String, Number],
       required: true,
     },
+    canEditIssueTitleAndDescription:{
+      required: true,
+      type: Boolean,
+      default: false,
+    },
     canUpdate: {
       required: false,
       type: Boolean,
@@ -74,7 +79,7 @@ export default {
       dir="auto"
     ></h2>
     <gl-button
-      v-if="showInlineEditButton && canUpdate"
+      v-if="canEditIssueTitleAndDescription && canUpdate"
       v-gl-tooltip.bottom
       icon="pencil"
       class="btn-edit js-issuable-edit qa-edit-button"
