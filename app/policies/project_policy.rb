@@ -167,7 +167,7 @@ class ProjectPolicy < BasePolicy
     enable :archive_project
     enable :remove_fork_project
     enable :destroy_merge_request
-    enable :destroy_issue
+    #enable :destroy_issue
 
     enable :set_issue_iid
     enable :set_issue_created_at
@@ -327,6 +327,7 @@ class ProjectPolicy < BasePolicy
     enable :assignee_issue
     enable :change_due_date
     enable :edit_merge_request_label
+    #enable :edit_issue_title_descritpion
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror

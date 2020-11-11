@@ -290,6 +290,7 @@ module IssuablesHelper
       endpoint: issuable_path(issuable),
       updateEndpoint: "#{issuable_path(issuable)}.json",
       canUpdate: can?(current_user, :"update_#{issuable.to_ability_name}", issuable),
+      canEditIssueTitleAndDescription: can?(current_user, :"edit_issue_title_descritpion", issuable),
       canDestroy: can?(current_user, :"destroy_#{issuable.to_ability_name}", issuable),
       issuableRef: issuable.to_reference,
       markdownPreviewPath: preview_markdown_path(parent),

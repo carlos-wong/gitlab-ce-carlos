@@ -49,6 +49,8 @@ class IssuableBaseService < BaseService
 
 
     if ability_name == :admin_issue
+      params.delete(:title)
+      params.delete(:description)
       unless can?(current_user, :assignee_issue, issuable)
         params.delete(:assignee_ids)
         params.delete(:assignee_id)

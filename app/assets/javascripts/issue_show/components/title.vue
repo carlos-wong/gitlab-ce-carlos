@@ -14,6 +14,11 @@ export default {
       type: [String, Number],
       required: true,
     },
+    canEditIssueTitleAndDescription:{
+      required: true,
+      type: Boolean,
+      default: false,
+    },
     canUpdate: {
       required: false,
       type: Boolean,
@@ -76,7 +81,7 @@ export default {
       v-html="titleHtml"
     ></h2>
     <button
-      v-if="showInlineEditButton && canUpdate"
+      v-if="canEditIssueTitleAndDescription && canUpdate"
       v-tooltip
       type="button"
       class="btn btn-default btn-edit btn-svg js-issuable-edit
