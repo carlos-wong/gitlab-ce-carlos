@@ -43,6 +43,11 @@ class IssueEntity < IssuableEntity
       can?(request.current_user, :update_issue, issue)
     end
 
+    expose :can_close_issue do |issue|
+      can?(request.current_user, :close_issue, issue)
+    end
+
+
     expose :can_award_emoji do |issue|
       can?(request.current_user, :award_emoji, issue)
     end

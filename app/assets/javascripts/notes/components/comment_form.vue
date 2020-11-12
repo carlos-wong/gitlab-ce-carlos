@@ -128,7 +128,7 @@ export default {
       return (
         this.getNoteableData.current_user.can_update &&
         this.getNoteableData.state !== constants.MERGED &&
-        !this.closedAndLocked
+        !this.closedAndLocked && this.getNoteableData.current_user.can_close_issue
       );
     },
     closedAndLocked() {
