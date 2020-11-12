@@ -384,6 +384,7 @@ class ProjectPolicy < BasePolicy
     enable :change_due_date
     enable :edit_merge_request_label
     enable :resolve_note
+    enable :close_issue
     #enable :edit_issue_title_descritpion
   end
 

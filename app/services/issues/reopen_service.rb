@@ -3,7 +3,7 @@
 module Issues
   class ReopenService < Issues::BaseService
     def execute(issue)
-      return issue unless can?(current_user, :reopen_issue, issue)
+      return issue unless can?(current_user, :close_issue, issue)
 
       before_reopen(issue)
 
