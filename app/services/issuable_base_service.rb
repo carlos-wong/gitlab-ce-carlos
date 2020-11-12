@@ -58,6 +58,9 @@ class IssuableBaseService < BaseService
         params.delete(:assignee_ids)
         params.delete(:assignee_id)
       end
+      unless can?(current_user, :change_issue_milestone, issuable)
+        params.delete(:milestone_id)
+      end
     end
 
 

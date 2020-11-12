@@ -295,7 +295,6 @@ class ProjectPolicy < BasePolicy
     enable :create_package
     enable :admin_board
     enable :admin_merge_request
-    enable :admin_milestone
     enable :update_merge_request
     enable :reopen_merge_request
     enable :create_commit_status
@@ -385,6 +384,8 @@ class ProjectPolicy < BasePolicy
     enable :edit_merge_request_label
     enable :resolve_note
     enable :close_issue
+    enable :admin_milestone
+    enable :change_issue_milestone
     #enable :edit_issue_title_descritpion
   end
 
