@@ -118,7 +118,7 @@ export default {
     canToggleIssueState() {
       return (
         this.getNoteableData.current_user.can_update &&
-        this.getNoteableData.state !== constants.MERGED
+        this.getNoteableData.state !== constants.MERGED && this.getNoteableData.current_user.can_close_issue
       );
     },
     endpoint() {
