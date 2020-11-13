@@ -107,7 +107,7 @@
           .title.hide-collapsed
             = _('Labels')
             = icon('spinner spin', class: 'hidden block-loading', 'aria-hidden': 'true')
-            - if can_edit_mergerequest_label
+            - if can_edit_issuable
               = link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link qa-edit-link-labels float-right', data: { track_label: "right_sidebar", track_property: "labels", track_event: "click_edit_button", track_value: "" }
           .value.issuable-show-labels.dont-hide.hide-collapsed{ class: ("has-labels" if selected_labels.any?), data: { qa_selector: 'labels_block' } }
             - if selected_labels.any?
