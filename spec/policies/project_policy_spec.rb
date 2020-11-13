@@ -39,10 +39,10 @@ describe ProjectPolicy do
 
   let(:developer_permissions) do
     %i[
-      admin_tag admin_milestone admin_merge_request update_merge_request create_commit_status
+      admin_tag admin_merge_request update_merge_request create_commit_status
       update_commit_status create_build update_build create_pipeline
       update_pipeline create_merge_request_from create_wiki push_code
-      resolve_note create_container_image update_container_image destroy_container_image
+      create_container_image update_container_image destroy_container_image
       create_environment update_environment create_deployment update_deployment create_release update_release
       create_metrics_dashboard_annotation delete_metrics_dashboard_annotation update_metrics_dashboard_annotation
     ]
@@ -50,12 +50,12 @@ describe ProjectPolicy do
 
   let(:base_maintainer_permissions) do
     %i[
-      push_to_delete_protected_branch update_snippet
-      admin_snippet admin_project_member admin_note admin_wiki admin_project
+      push_to_delete_protected_branch update_snippet admin_milestone
+      admin_snippet admin_project_member admin_wiki admin_project
       admin_commit_status admin_build admin_container_image
       admin_pipeline admin_environment admin_deployment destroy_release add_cluster
       daily_statistics read_deploy_token create_deploy_token destroy_deploy_token
-      admin_terraform_state
+      admin_terraform_state resolve_note
     ]
   end
 
@@ -70,7 +70,7 @@ describe ProjectPolicy do
   let(:owner_permissions) do
     %i[
       change_namespace change_visibility_level rename_project remove_project
-      archive_project remove_fork_project destroy_merge_request destroy_issue
+      archive_project remove_fork_project destroy_merge_request
       set_issue_iid set_issue_created_at set_issue_updated_at set_note_created_at
     ]
   end
