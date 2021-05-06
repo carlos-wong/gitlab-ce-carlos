@@ -108,7 +108,7 @@
     "prosemirror-model": "^1.6.4",
     "raphael": "^2.2.7",
     "raw-loader": "^4.0.0",
-    "sanitize-html": "^1.22.0",
+    "sanitize-html": "^2.3.2",
     "select2": "3.5.2-browserify",
     "smooshpack": "^0.0.62",
     "sortablejs": "^1.10.2",
