@@ -192,7 +192,7 @@
     "node-sass": "^4.12.0",
     "nodemon": "^1.18.9",
     "pixelmatch": "^4.0.2",
-    "postcss": "^7.0.14",
+    "postcss": "^7.0.36",
     "prettier": "1.18.2",
     "readdir-enhanced": "^2.2.4",
     "stylelint": "^10.1.0",
