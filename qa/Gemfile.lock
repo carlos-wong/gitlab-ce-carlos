@@ -7,7 +7,7 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     airborne (0.2.13)
       activesupport
@@ -66,7 +66,7 @@ GEM
     pry-byebug (3.5.1)
       byebug (~> 9.1)
       pry (~> 0.10)
-    public_suffix (4.0.1)
+    public_suffix (4.0.6)
     rack (2.0.7)
     rack-test (0.8.3)
       rack (>= 1.0, < 3)
