@@ -416,7 +416,6 @@ class ProjectPolicy < BasePolicy
 
 		enable :admin_milestone
 
-		enable :change_due_date
 		enable :resolve_note
 
     enable :update_project_snippet
