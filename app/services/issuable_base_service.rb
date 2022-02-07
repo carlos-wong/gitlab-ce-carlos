@@ -54,11 +54,10 @@ class IssuableBaseService < ::BaseProjectService
       end
 
       params.delete(:milestone_id)
-      params.delete(:assignee_ids)
-      params.delete(:assignee_id)
       params.delete(:add_assignee_ids)
       params.delete(:remove_assignee_ids)
       params.delete(:due_date)
+
       params.delete(:canonical_issue_id)
       params.delete(:project)
       params.delete(:discussion_locked)
