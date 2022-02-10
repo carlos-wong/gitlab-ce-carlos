@@ -189,7 +189,7 @@
     "karma-webpack": "^4.0.2",
     "markdownlint-cli": "0.18.0",
     "md5": "^2.2.1",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "nodemon": "^1.18.9",
     "pixelmatch": "^4.0.2",
     "postcss": "^7.0.14",
