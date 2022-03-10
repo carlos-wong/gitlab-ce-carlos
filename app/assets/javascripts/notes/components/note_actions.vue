@@ -317,17 +317,6 @@ export default {
       @startReplying="$emit('startReplying')"
     />
     <gl-button
-      v-if="canEdit"
-      v-gl-tooltip
-      :title="$options.i18n.editCommentLabel"
-      :aria-label="$options.i18n.editCommentLabel"
-      icon="pencil"
-      category="tertiary"
-      class="note-action-button js-note-edit"
-      data-qa-selector="note_edit_button"
-      @click="onEdit"
-    />
-    <gl-button
       v-if="showDeleteAction"
       v-gl-tooltip
       :title="$options.i18n.deleteCommentLabel"
@@ -363,9 +352,6 @@ export default {
         </gl-dropdown-item>
         <gl-dropdown-item v-if="canAssign" data-testid="assign-user" @click="assignUser">
           {{ displayAssignUserText }}
-        </gl-dropdown-item>
-        <gl-dropdown-item v-if="canEdit" class="js-note-delete" @click.prevent="onDelete">
-          <span class="text-danger">{{ __('Delete comment') }}</span>
         </gl-dropdown-item>
       </ul>
     </div>
