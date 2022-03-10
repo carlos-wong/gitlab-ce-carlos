@@ -392,9 +392,6 @@ export default {
         <gl-dropdown-item v-if="canAssign" data-testid="assign-user" @click="assignUser">
           {{ displayAssignUserText }}
         </gl-dropdown-item>
-        <gl-dropdown-item v-if="canEdit" class="js-note-delete" @click.prevent="onDelete">
-          <span class="text-danger">{{ __('Delete comment') }}</span>
-        </gl-dropdown-item>
       </ul>
     </div>
     <!-- IMPORTANT: show this component lazily because it causes layout thrashing -->
