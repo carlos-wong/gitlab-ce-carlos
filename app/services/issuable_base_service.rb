@@ -42,6 +42,9 @@ class IssuableBaseService < ::BaseContainerService
       params.delete(:assignee_ids)
       params.delete(:assignee_id)
       params.delete(:due_date)
+      params.delete(:remove_assignee_ids)
+      params.delete(:milestone)
+      params.delete(:milestone_id)
     end
 
     unless can_set_issuable_metadata?(issuable)
