@@ -79,7 +79,7 @@ export default {
       dir="auto"
     ></h1>
     <gl-button
-      v-if="showInlineEditButton && canUpdate"
+      v-if="false && showInlineEditButton && canUpdate"
       v-gl-tooltip.bottom
       icon="pencil"
       class="btn-edit js-issuable-edit"
