@@ -2,14 +2,14 @@
 
 module Notes
   class DestroyService < ::Notes::BaseService
-    def execute(note)
-      TodoService.new.destroy_target(note) do |note|
-        note.destroy
-      end
+    # def execute(note)
+    #   TodoService.new.destroy_target(note) do |note|
+    #     note.destroy
+    #   end
 
-      clear_noteable_diffs_cache(note)
-      track_note_removal_usage_for_issues(note) if note.for_issue?
-      track_note_removal_usage_for_merge_requests(note) if note.for_merge_request?
+    #   clear_noteable_diffs_cache(note)
+    #   track_note_removal_usage_for_issues(note) if note.for_issue?
+    #   track_note_removal_usage_for_merge_requests(note) if note.for_merge_request?
     end
 
     private
