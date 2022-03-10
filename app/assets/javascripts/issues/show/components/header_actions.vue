@@ -265,7 +265,7 @@ export default {
       >
         {{ __('Submit as spam') }}
       </gl-dropdown-item>
-      <template v-if="canDestroyIssue">
+      <template v-if="false">
         <gl-dropdown-divider />
         <gl-dropdown-item
           v-gl-modal="$options.deleteModalId"
@@ -324,7 +324,7 @@ export default {
       >
         {{ __('Submit as spam') }}
       </gl-dropdown-item>
-      <template v-if="canDestroyIssue">
+      <template v-if="false">
         <gl-dropdown-divider />
         <gl-dropdown-item
           v-gl-modal="$options.deleteModalId"
