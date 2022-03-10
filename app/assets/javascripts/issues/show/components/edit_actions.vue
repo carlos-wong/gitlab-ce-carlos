@@ -77,7 +77,7 @@ export default {
       return this.formState.title.trim() !== '';
     },
     shouldShowDeleteButton() {
-      return this.canDestroy && this.showDeleteButton;
+      return false && this.canDestroy && this.showDeleteButton;
     },
     typeToShow() {
       const { issueState, issuableType } = this;
