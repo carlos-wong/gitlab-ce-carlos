@@ -41,6 +41,7 @@ class IssuableBaseService < ::BaseContainerService
     unless can?(current_user, :admin_project_member, issuable)
       params.delete(:assignee_ids)
       params.delete(:assignee_id)
+      params.delete(:due_date)
     end
 
     unless can_set_issuable_metadata?(issuable)
