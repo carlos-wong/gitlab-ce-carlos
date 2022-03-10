@@ -255,8 +255,8 @@ class ProjectPolicy < BasePolicy
     enable :remove_project
     enable :archive_project
     enable :remove_fork_project
-    enable :destroy_merge_request
-    enable :destroy_issue
+    # enable :destroy_merge_request
+    # enable :destroy_issue
 
     enable :set_issue_iid
     enable :set_issue_created_at
