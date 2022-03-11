@@ -135,10 +135,6 @@ module MergeRequests
     def filter_params(merge_request)
       super
 
-      unless can?(current_user, :admin_project_member, issuable)
-        params.delete(:labels)
-      end
-
       unless merge_request.can_allow_collaboration?(current_user)
         params.delete(:allow_collaboration)
       end
