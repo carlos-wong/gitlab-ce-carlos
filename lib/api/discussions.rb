@@ -222,6 +222,7 @@ module API
           # noteable = find_noteable(noteable_type, params[:noteable_id])
 
           # delete_note(noteable, params[:note_id])
+          puts "Destroy note discussions"
         end
 
         if Noteable.resolvable_types.include?(noteable_type.to_s)
