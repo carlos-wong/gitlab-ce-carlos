@@ -38,15 +38,6 @@ class IssuableBaseService < ::BaseContainerService
   def filter_params(issuable)
     params.delete(:milestone)
 
-    unless can?(current_user, :admin_project_member, issuable)
-      params.delete(:assignee_ids)
-      params.delete(:assignee_id)
-      params.delete(:due_date)
-      params.delete(:remove_assignee_ids)
-      params.delete(:milestone)
-      params.delete(:milestone_id)
-    end
-
     unless can_set_issuable_metadata?(issuable)
       params.delete(:milestone_id)
       params.delete(:labels)

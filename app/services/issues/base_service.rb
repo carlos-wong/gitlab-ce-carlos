@@ -51,6 +51,15 @@ module Issues
     def filter_params(issue)
       super
 
+      unless can?(current_user, :admin_project_member, issuable)
+        params.delete(:assignee_ids)
+        params.delete(:assignee_id)
+        params.delete(:due_date)
+        params.delete(:remove_assignee_ids)
+        params.delete(:milestone)
+        params.delete(:milestone_id)
+      end
+
       params.delete(:issue_type) unless create_issue_type_allowed?(issue, params[:issue_type])
 
       moved_issue = params.delete(:moved_issue)
