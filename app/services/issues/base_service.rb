@@ -46,7 +46,9 @@ module Issues
     def filter_params(issue)
       super
 
-      unless can?(current_user, :admin_project_member, issuable)
+      does_user_is_amdin = current_user.can?(:admin_project_member, project)
+
+      unless does_user_is_amdin
         params.delete(:assignee_ids)
         params.delete(:assignee_id)
         params.delete(:due_date)
