@@ -219,9 +219,10 @@ module API
           requires :note_id, type: Integer, desc: 'The ID of a note'
         end
         delete ":id/#{noteables_path}/:noteable_id/discussions/:discussion_id/notes/:note_id", feature_category: feature_category do
-          noteable = find_noteable(noteable_type, params[:noteable_id])
+          # noteable = find_noteable(noteable_type, params[:noteable_id])
 
-          delete_note(noteable, params[:note_id])
+          # delete_note(noteable, params[:note_id])
+          puts "Destroy note discussions"
         end
 
         if Noteable.resolvable_types.include?(noteable_type.to_s)
