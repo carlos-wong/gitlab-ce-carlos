@@ -152,7 +152,7 @@ gem 'asciidoctor-plantuml', '0.0.10'
 gem 'rouge', '~> 3.17.0'
 gem 'truncato', '~> 0.7.11'
 gem 'bootstrap_form', '~> 4.2.0'
-gem 'nokogiri', '~> 1.10.5'
+gem 'nokogiri', '~> 1.13.6'
 gem 'escape_utils', '~> 1.1'
 
 # Calendar rendering
