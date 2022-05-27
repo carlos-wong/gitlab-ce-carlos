@@ -163,7 +163,7 @@ gem 'diffy', '~> 3.3'
 gem 'diff_match_patch', '~> 0.1.0'
 
 # Application server
-gem 'rack', '~> 2.0.9'
+gem 'rack', '~> 2.2.3'
 
 group :unicorn do
   gem 'unicorn', '~> 5.4.1'
