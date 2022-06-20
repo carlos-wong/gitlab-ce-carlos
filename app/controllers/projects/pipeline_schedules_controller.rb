@@ -11,10 +11,6 @@ class Projects::PipelineSchedulesController < Projects::ApplicationController
   before_action :authorize_take_ownership_pipeline_schedule!, only: [:take_ownership]
   before_action :authorize_admin_pipeline_schedule!, only: [:destroy]
 
-  before_action do
-    push_frontend_feature_flag(:pipeline_schedules_with_tags, @project, default_enabled: :yaml)
-  end
-
   feature_category :continuous_integration
 
   # rubocop: disable CodeReuse/ActiveRecord

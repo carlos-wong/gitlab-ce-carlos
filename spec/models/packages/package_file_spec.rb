@@ -35,6 +35,22 @@ RSpec.describe Packages::PackageFile, type: :model do
 
       subject { package.package_files.create!(params) }
 
+      context 'file_name' do
+        let(:file_name) { package_file.file_name }
+
+        it 'can not save a duplicated file' do
+          expect { subject }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: File name has already been taken")
+        end
+
+        context 'with a pending destruction package duplicated file' do
+          let(:status) { :pending_destruction }
+
+          it 'can save it' do
+            expect { subject }.to change { package.package_files.count }.from(1).to(2)
+          end
+        end
+      end
+
       context 'file_sha256' do
         where(:sha256_value, :expected_success) do
           'a' * 64       | true

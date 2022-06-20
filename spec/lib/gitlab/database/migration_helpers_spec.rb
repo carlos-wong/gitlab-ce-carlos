@@ -1390,6 +1390,8 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
       end
 
       it 'reverses the operations of cleanup_concurrent_column_type_change' do
+        expect(Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas).to receive(:require_ddl_mode!)
+
         expect(model).to receive(:check_trigger_permissions!).with(:users)
 
         expect(model).to receive(:create_column_from).with(
@@ -1415,6 +1417,8 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
       end
 
       it 'passes the type_cast_function, batch_column_name and limit' do
+        expect(Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas).to receive(:require_ddl_mode!)
+
         expect(model).to receive(:column_exists?).with(:users, :other_batch_column).and_return(true)
         expect(model).to receive(:check_trigger_permissions!).with(:users)
 
@@ -2096,7 +2100,7 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
         end
       end
 
-      let(:migration_relation) { Gitlab::Database::BackgroundMigration::BatchedMigration.active }
+      let(:migration_relation) { Gitlab::Database::BackgroundMigration::BatchedMigration.with_status(:active) }
 
       before do
         model.initialize_conversion_of_integer_to_bigint(table, columns)
@@ -2206,19 +2210,28 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
   end
 
   describe '#ensure_batched_background_migration_is_finished' do
+    let(:job_class_name) { 'CopyColumnUsingBackgroundMigrationJob' }
+    let(:table) { :events }
+    let(:column_name) { :id }
+    let(:job_arguments) { [["id"], ["id_convert_to_bigint"], nil] }
+
     let(:configuration) do
       {
-        job_class_name: 'CopyColumnUsingBackgroundMigrationJob',
-        table_name: :events,
-        column_name: :id,
-        job_arguments: [["id"], ["id_convert_to_bigint"], nil]
+        job_class_name: job_class_name,
+        table_name: table,
+        column_name: column_name,
+        job_arguments: job_arguments
       }
     end
 
     subject(:ensure_batched_background_migration_is_finished) { model.ensure_batched_background_migration_is_finished(**configuration) }
 
     it 'raises an error when migration exists and is not marked as finished' do
-      create(:batched_background_migration, configuration.merge(status: :active))
+      create(:batched_background_migration, :active, configuration)
+
+      allow_next_instance_of(Gitlab::Database::BackgroundMigration::BatchedMigrationRunner) do |runner|
+        allow(runner).to receive(:finalize).with(job_class_name, table, column_name, job_arguments).and_return(false)
+      end
 
       expect { ensure_batched_background_migration_is_finished }
         .to raise_error "Expected batched background migration for the given configuration to be marked as 'finished', but it is 'active':" \
@@ -2234,7 +2247,7 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
     end
 
     it 'does not raise error when migration exists and is marked as finished' do
-      create(:batched_background_migration, configuration.merge(status: :finished))
+      create(:batched_background_migration, :finished, configuration)
 
       expect { ensure_batched_background_migration_is_finished }
         .not_to raise_error
@@ -2246,6 +2259,28 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
 
       expect { ensure_batched_background_migration_is_finished }
         .not_to raise_error
+    end
+
+    it 'finalizes the migration' do
+      migration = create(:batched_background_migration, :active, configuration)
+
+      allow_next_instance_of(Gitlab::Database::BackgroundMigration::BatchedMigrationRunner) do |runner|
+        expect(runner).to receive(:finalize).with(job_class_name, table, column_name, job_arguments).and_return(migration.finish!)
+      end
+
+      ensure_batched_background_migration_is_finished
+    end
+
+    context 'when the flag finalize is false' do
+      it 'does not finalize the migration' do
+        create(:batched_background_migration, :active, configuration)
+
+        allow_next_instance_of(Gitlab::Database::BackgroundMigration::BatchedMigrationRunner) do |runner|
+          expect(runner).not_to receive(:finalize).with(job_class_name, table, column_name, job_arguments)
+        end
+
+        expect { model.ensure_batched_background_migration_is_finished(**configuration.merge(finalize: false)) }.to raise_error(RuntimeError)
+      end
     end
   end
 
@@ -2422,7 +2457,8 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
 
     def setup
       namespace = namespaces.create!(name: 'foo', path: 'foo', type: Namespaces::UserNamespace.sti_name)
-      projects.create!(namespace_id: namespace.id)
+      project_namespace = namespaces.create!(name: 'project-foo', path: 'project-foo', type: 'Project', parent_id: namespace.id, visibility_level: 20)
+      projects.create!(namespace_id: namespace.id, project_namespace_id: project_namespace.id)
     end
 
     it 'generates iids properly for models created after the migration' do

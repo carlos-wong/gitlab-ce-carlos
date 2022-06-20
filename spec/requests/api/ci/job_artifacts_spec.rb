@@ -82,18 +82,6 @@ RSpec.describe API::Ci::JobArtifacts do
   end
 
   describe 'DELETE /projects/:id/artifacts' do
-    context 'when feature flag is disabled' do
-      before do
-        stub_feature_flags(bulk_expire_project_artifacts: false)
-      end
-
-      it 'returns 404' do
-        delete api("/projects/#{project.id}/artifacts", api_user)
-
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-
     context 'when user is anonymous' do
       let(:api_user) { nil }
 
@@ -236,6 +224,8 @@ RSpec.describe API::Ci::JobArtifacts do
           expect(response.headers.to_h)
             .to include('Content-Type' => 'application/json',
                         'Gitlab-Workhorse-Send-Data' => /artifacts-entry/)
+          expect(response.headers.to_h)
+            .not_to include('Gitlab-Workhorse-Detect-Content-Type' => 'true')
           expect(response.parsed_body).to be_empty
         end
 

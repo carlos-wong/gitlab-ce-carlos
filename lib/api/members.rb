@@ -7,6 +7,7 @@ module API
     before { authenticate! }
 
     feature_category :authentication_and_authorization
+    urgency :low
 
     helpers ::API::Helpers::MembersHelpers
 
@@ -29,6 +30,8 @@ module API
         get ":id/members" do
           source = find_source(source_type, params[:id])
 
+          authorize_read_source_member!(source_type, source)
+
           members = paginate(retrieve_members(source, params: params))
 
           present_members members
@@ -48,6 +51,8 @@ module API
         get ":id/members/all" do
           source = find_source(source_type, params[:id])
 
+          authorize_read_source_member!(source_type, source)
+
           members = paginate(retrieve_members(source, params: params, deep: true))
 
           present_members members
@@ -62,6 +67,8 @@ module API
         # rubocop: disable CodeReuse/ActiveRecord
         get ":id/members/:user_id" do
           source = find_source(source_type, params[:id])
+
+          authorize_read_source_member!(source_type, source)
 
           members = source_members(source)
           member = members.find_by!(user_id: params[:user_id])
@@ -79,6 +86,8 @@ module API
         # rubocop: disable CodeReuse/ActiveRecord
         get ":id/members/all/:user_id" do
           source = find_source(source_type, params[:id])
+
+          authorize_read_source_member!(source_type, source)
 
           members = find_all_members(source)
           member = members.find_by!(user_id: params[:user_id])
@@ -100,8 +109,6 @@ module API
         end
 
         post ":id/members" do
-          ::Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/333434')
-
           source = find_source(source_type, params[:id])
           authorize_admin_source!(source_type, source)
 

@@ -103,39 +103,89 @@ RSpec.describe ProjectPolicy do
   end
 
   context 'creating_merge_request_in' do
-    context 'when project is public' do
-      let(:project) { public_project }
+    context 'when the current_user can download_code' do
+      before do
+        expect(subject).to receive(:allowed?).with(:download_code).and_return(true)
+        allow(subject).to receive(:allowed?).with(any_args).and_call_original
+      end
 
-      context 'when the current_user is guest' do
-        let(:current_user) { guest }
+      context 'when project is public' do
+        let(:project) { public_project }
 
-        it { is_expected.to be_allowed(:create_merge_request_in) }
+        context 'when the current_user is guest' do
+          let(:current_user) { guest }
+
+          it { is_expected.to be_allowed(:create_merge_request_in) }
+        end
+      end
+
+      context 'when project is internal' do
+        let(:project) { internal_project }
+
+        context 'when the current_user is guest' do
+          let(:current_user) { guest }
+
+          it { is_expected.to be_allowed(:create_merge_request_in) }
+        end
+      end
+
+      context 'when project is private' do
+        let(:project) { private_project }
+
+        context 'when the current_user is guest' do
+          let(:current_user) { guest }
+
+          it { is_expected.not_to be_allowed(:create_merge_request_in) }
+        end
+
+        context 'when the current_user is reporter or above' do
+          let(:current_user) { reporter }
+
+          it { is_expected.to be_allowed(:create_merge_request_in) }
+        end
       end
     end
 
-    context 'when project is internal' do
-      let(:project) { internal_project }
-
-      context 'when the current_user is guest' do
-        let(:current_user) { guest }
-
-        it { is_expected.to be_allowed(:create_merge_request_in) }
-      end
-    end
-
-    context 'when project is private' do
-      let(:project) { private_project }
-
-      context 'when the current_user is guest' do
-        let(:current_user) { guest }
-
-        it { is_expected.not_to be_allowed(:create_merge_request_in) }
+    context 'when the current_user can not download code' do
+      before do
+        expect(subject).to receive(:allowed?).with(:download_code).and_return(false)
+        allow(subject).to receive(:allowed?).with(any_args).and_call_original
       end
 
-      context 'when the current_user is reporter or above' do
-        let(:current_user) { reporter }
+      context 'when project is public' do
+        let(:project) { public_project }
 
-        it { is_expected.to be_allowed(:create_merge_request_in) }
+        context 'when the current_user is guest' do
+          let(:current_user) { guest }
+
+          it { is_expected.not_to be_allowed(:create_merge_request_in) }
+        end
+      end
+
+      context 'when project is internal' do
+        let(:project) { internal_project }
+
+        context 'when the current_user is guest' do
+          let(:current_user) { guest }
+
+          it { is_expected.not_to be_allowed(:create_merge_request_in) }
+        end
+      end
+
+      context 'when project is private' do
+        let(:project) { private_project }
+
+        context 'when the current_user is guest' do
+          let(:current_user) { guest }
+
+          it { is_expected.not_to be_allowed(:create_merge_request_in) }
+        end
+
+        context 'when the current_user is reporter or above' do
+          let(:current_user) { reporter }
+
+          it { is_expected.not_to be_allowed(:create_merge_request_in) }
+        end
       end
     end
   end
@@ -343,6 +393,66 @@ RSpec.describe ProjectPolicy do
       merge_request.close!
 
       expect_disallowed(*maintainer_abilities)
+    end
+  end
+
+  context 'importing members from another project' do
+    %w(maintainer owner).each do |role|
+      context "with #{role}" do
+        let(:current_user) { send(role) }
+
+        it { is_expected.to be_allowed(:import_project_members_from_another_project) }
+      end
+    end
+
+    %w(guest reporter developer anonymous).each do |role|
+      context "with #{role}" do
+        let(:current_user) { send(role) }
+
+        it { is_expected.to be_disallowed(:import_project_members_from_another_project) }
+      end
+    end
+
+    context 'with an admin' do
+      let(:current_user) { admin }
+
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it { expect_allowed(:import_project_members_from_another_project) }
+      end
+
+      context 'when admin mode is disabled' do
+        it { expect_disallowed(:import_project_members_from_another_project) }
+      end
+    end
+  end
+
+  context 'reading usage quotas' do
+    %w(maintainer owner).each do |role|
+      context "with #{role}" do
+        let(:current_user) { send(role) }
+
+        it { is_expected.to be_allowed(:read_usage_quotas) }
+      end
+    end
+
+    %w(guest reporter developer anonymous).each do |role|
+      context "with #{role}" do
+        let(:current_user) { send(role) }
+
+        it { is_expected.to be_disallowed(:read_usage_quotas) }
+      end
+    end
+
+    context 'with an admin' do
+      let(:current_user) { admin }
+
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it { expect_allowed(:read_usage_quotas) }
+      end
+
+      context 'when admin mode is disabled' do
+        it { expect_disallowed(:read_usage_quotas) }
+      end
     end
   end
 

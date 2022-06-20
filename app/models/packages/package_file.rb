@@ -34,7 +34,7 @@ class Packages::PackageFile < ApplicationRecord
   validates :file, presence: true
   validates :file_name, presence: true
 
-  validates :file_name, uniqueness: { scope: :package }, if: -> { package&.pypi? }
+  validates :file_name, uniqueness: { scope: :package }, if: -> { !pending_destruction? && package&.pypi? }
   validates :file_sha256, format: { with: Gitlab::Regex.sha256_regex }, if: -> { package&.pypi? }, allow_nil: true
 
   scope :recent, -> { order(id: :desc) }

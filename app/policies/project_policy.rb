@@ -664,7 +664,7 @@ class ProjectPolicy < BasePolicy
     enable :read_security_configuration
   end
 
-  rule { can?(:guest_access) & can?(:read_commit_status) }.policy do
+  rule { can?(:guest_access) & can?(:download_code) }.policy do
     enable :create_merge_request_in
   end
 
@@ -728,6 +728,10 @@ class ProjectPolicy < BasePolicy
     enable :create_resource_access_tokens
   end
 
+  rule { can?(:admin_project) }.policy do
+    enable :read_usage_quotas
+  end
+
   rule { can?(:project_bot_access) }.policy do
     prevent :create_resource_access_tokens
   end
@@ -742,6 +746,10 @@ class ProjectPolicy < BasePolicy
 
   rule { ~admin & ~project_runner_registration_allowed }.policy do
     prevent :register_project_runners
+  end
+
+  rule { can?(:admin_project_member) }.policy do
+    enable :import_project_members_from_another_project
   end
 
   private

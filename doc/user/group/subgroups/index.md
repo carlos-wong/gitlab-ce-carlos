@@ -1,6 +1,6 @@
 ---
 stage: Manage
-group: Authentication and Authorization
+group: Workspace
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments
 ---
 
@@ -49,9 +49,16 @@ graph TD
 
 ## Create a subgroup
 
-Users with the at least the Maintainer role on a group can create subgroups immediately below the group, unless
-[configured otherwise](#change-who-can-create-subgroups). These users can create subgroups even if group creation is
-[disabled by an Administrator](../../admin_area/index.md#prevent-a-user-from-creating-groups) in the user's settings.
+Prerequisites:
+
+- You must either:
+  - Have at least the Maintainer role for a group to create subgroups for it.
+  - Have the [role determined by a setting](#change-who-can-create-subgroups). These users can create
+    subgroups even if group creation is
+    [disabled by an Administrator](../../admin_area/index.md#prevent-a-user-from-creating-groups) in the user's settings.
+
+NOTE:
+You cannot host a GitLab Pages subgroup website with a top-level domain name. For example, `subgroupname.example.io`.
 
 To create a subgroup:
 
@@ -85,6 +92,9 @@ To change who can create subgroups on a group:
 For more information, view the [permissions table](../../permissions.md#group-members-permissions).
 
 ## Subgroup membership
+
+NOTE:
+There is a bug that causes some pages in the parent group to be accessible by subgroup members. For more details, see [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/340421).
 
 When you add a member to a group, that member is also added to all subgroups. The user's permissions are inherited from
 the group's parent.
