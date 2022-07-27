@@ -52,6 +52,7 @@ RSpec.describe ProjectsHelper do
       context 'api_url present' do
         let(:json) do
           {
+            sentry_project_id: error_tracking_setting.sentry_project_id,
             name: error_tracking_setting.project_name,
             organization_name: error_tracking_setting.organization_name,
             organization_slug: error_tracking_setting.organization_slug,
@@ -697,7 +698,7 @@ RSpec.describe ProjectsHelper do
     def grant_user_access(project, user, access)
       case access
       when :developer, :maintainer
-        project.add_user(user, access)
+        project.add_member(user, access)
       when :owner
         project.namespace.update!(owner: user)
       end
@@ -967,6 +968,10 @@ RSpec.describe ProjectsHelper do
         securityAndComplianceAccessLevel: project.security_and_compliance_access_level,
         containerRegistryAccessLevel: project.project_feature.container_registry_access_level
       )
+    end
+
+    it 'includes membersPagePath' do
+      expect(subject).to include(membersPagePath: project_project_members_path(project))
     end
   end
 

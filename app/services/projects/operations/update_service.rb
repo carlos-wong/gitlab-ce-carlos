@@ -18,7 +18,6 @@ module Projects
           .merge(grafana_integration_params)
           .merge(prometheus_integration_params)
           .merge(incident_management_setting_params)
-          .merge(tracing_setting_params)
       end
 
       def alerting_setting_params
@@ -90,7 +89,8 @@ module Projects
             api_url: api_url,
             enabled: settings[:enabled],
             project_name: settings.dig(:project, :name),
-            organization_name: settings.dig(:project, :organization_name)
+            organization_name: settings.dig(:project, :organization_name),
+            sentry_project_id: settings.dig(:project, :sentry_project_id)
           }
         }
         params[:error_tracking_setting_attributes][:token] = settings[:token] unless /\A\*+\z/.match?(settings[:token]) # Don't update token if we receive masked value
@@ -130,15 +130,6 @@ module Projects
         end
 
         { incident_management_setting_attributes: attrs }
-      end
-
-      def tracing_setting_params
-        attr = params[:tracing_setting_attributes]
-        return {} unless attr
-
-        destroy = attr[:external_url].blank?
-
-        { tracing_setting_attributes: attr.merge(_destroy: destroy) }
       end
     end
   end

@@ -40,9 +40,6 @@ module KubernetesHelpers
   def stub_kubeclient_discover_base(api_url)
     WebMock.stub_request(:get, api_url + '/api/v1').to_return(kube_response(kube_v1_discovery_body))
     WebMock
-      .stub_request(:get, api_url + '/apis/extensions/v1beta1')
-      .to_return(kube_response(kube_extensions_v1beta1_discovery_body))
-    WebMock
       .stub_request(:get, api_url + '/apis/apps/v1')
       .to_return(kube_response(kube_apps_v1_discovery_body))
     WebMock
@@ -129,27 +126,9 @@ module KubernetesHelpers
     WebMock.stub_request(:get, pod_url).to_return(response || kube_pod_response)
   end
 
-  def stub_kubeclient_logs(pod_name, namespace, container: nil, status: nil, message: nil)
-    stub_kubeclient_discover(service.api_url)
-
-    if container
-      container_query_param = "container=#{container}&"
-    end
-
-    logs_url = service.api_url + "/api/v1/namespaces/#{namespace}/pods/#{pod_name}" \
-    "/log?#{container_query_param}tailLines=#{::PodLogs::KubernetesService::LOGS_LIMIT}&timestamps=true"
-
-    if status
-      response = { status: status }
-      response[:body] = { message: message }.to_json if message
-    end
-
-    WebMock.stub_request(:get, logs_url).to_return(response || kube_logs_response)
-  end
-
   def stub_kubeclient_deployments(namespace, status: nil)
     stub_kubeclient_discover(service.api_url)
-    deployments_url = service.api_url + "/apis/extensions/v1beta1/namespaces/#{namespace}/deployments"
+    deployments_url = service.api_url + "/apis/apps/v1/namespaces/#{namespace}/deployments"
     response = { status: status } if status
 
     WebMock.stub_request(:get, deployments_url).to_return(response || kube_deployments_response)
@@ -157,7 +136,7 @@ module KubernetesHelpers
 
   def stub_kubeclient_ingresses(namespace, status: nil, method: :get, resource_path: "", response: kube_ingresses_response)
     stub_kubeclient_discover(service.api_url)
-    ingresses_url = service.api_url + "/apis/extensions/v1beta1/namespaces/#{namespace}/ingresses#{resource_path}"
+    ingresses_url = service.api_url + "/apis/networking.k8s.io/v1/namespaces/#{namespace}/ingresses#{resource_path}"
     response = { status: status } if status
 
     WebMock.stub_request(method, ingresses_url).to_return(response)
@@ -314,24 +293,6 @@ module KubernetesHelpers
     }
   end
 
-  # From Kubernetes 1.16+ Deployments are no longer served from apis/extensions
-  def kube_1_16_extensions_v1beta1_discovery_body
-    {
-      "kind" => "APIResourceList",
-      "resources" => [
-        { "name" => "ingresses", "namespaced" => true, "kind" => "Deployment" }
-      ]
-    }
-  end
-
-  # From Kubernetes 1.22+ Ingresses are no longer served from apis/extensions
-  def kube_1_22_extensions_v1beta1_discovery_body
-    {
-      "kind" => "APIResourceList",
-      "resources" => []
-    }
-  end
-
   def kube_knative_discovery_body
     {
       "kind" => "APIResourceList",
@@ -339,18 +300,6 @@ module KubernetesHelpers
     }
   end
 
-  def kube_extensions_v1beta1_discovery_body
-    {
-      "kind" => "APIResourceList",
-      "resources" => [
-        { "name" => "deployments", "namespaced" => true, "kind" => "Deployment" },
-        { "name" => "ingresses", "namespaced" => true, "kind" => "Ingress" }
-      ]
-    }
-  end
-
-  # Yes, deployments are defined in both apis/extensions/v1beta1 and apis/v1
-  # (for Kubernetes < 1.16). This matches what Kubenetes API server returns.
   def kube_apps_v1_discovery_body
     {
       "kind" => "APIResourceList",

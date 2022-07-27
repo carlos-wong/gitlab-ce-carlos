@@ -76,7 +76,7 @@ because it does not require a shared folder.
 
 Consolidated object storage configuration can't be used for backups or
 Mattermost. See the [full table for a complete list](#storage-specific-configuration).
-However, backups can be configured with [server side encryption](../raketasks/backup_restore.md#s3-encrypted-buckets) separately.
+However, backups can be configured with [server side encryption](../raketasks/backup_gitlab.md#s3-encrypted-buckets) separately.
 
 Enabling consolidated object storage enables object storage for all object
 types. If not all buckets are specified, `sudo gitlab-ctl reconfigure` may fail with the error like:
@@ -528,7 +528,7 @@ supported by consolidated configuration form, refer to the following guides:
 
 | Object storage type | Supported by consolidated configuration? |
 |---------------------|------------------------------------------|
-| [Backups](../raketasks/backup_restore.md#uploading-backups-to-a-remote-cloud-storage) | **{dotted-circle}** No |
+| [Backups](../raketasks/backup_gitlab.md#uploading-backups-to-a-remote-cloud-storage) | **{dotted-circle}** No |
 | [Job artifacts](job_artifacts.md#using-object-storage) including archived job logs | **{check-circle}** Yes |
 | [LFS objects](lfs/index.md#storing-lfs-objects-in-remote-object-storage) | **{check-circle}** Yes |
 | [Uploads](uploads.md#using-object-storage) | **{check-circle}** Yes |
@@ -542,7 +542,7 @@ supported by consolidated configuration form, refer to the following guides:
 | [Pages content](pages/index.md#using-object-storage) | **{check-circle}** Yes |
 
 WARNING:
-The use of [encrypted S3 buckets](#encrypted-s3-buckets) with non-consolidated configuration is not supported. 
+The use of [encrypted S3 buckets](#encrypted-s3-buckets) with non-consolidated configuration is not supported.
 You may start getting [ETag mismatch errors](#etag-mismatch) if you use it.
 
 ### Other alternatives to file system storage
@@ -573,12 +573,21 @@ This ensures there are no collisions across the various types of data GitLab sto
 There are plans to [enable the use of a single bucket](https://gitlab.com/gitlab-org/gitlab/-/issues/292958)
 in the future.
 
+With Omnibus and source installations it is possible to split a single
+real bucket into multiple virtual buckets. If your object storage
+bucket is called `my-gitlab-objects` you can configure uploads to go
+into `my-gitlab-objects/uploads`, artifacts into
+`my-gitlab-objects/artifacts`, etc. The application will act as if
+these are separate buckets. Note that use of bucket prefixes [may not
+work correctly with Helm
+backups](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3376).
+
 Helm-based installs require separate buckets to
 [handle backup restorations](https://docs.gitlab.com/charts/advanced/external-object-storage/#lfs-artifacts-uploads-packages-external-diffs-terraform-state-dependency-proxy).
 
 ### S3 API compatibility issues
 
-Not all S3 providers [are fully compatible](../raketasks/backup_restore.md#other-s3-providers)
+Not all S3 providers [are fully compatible](../raketasks/backup_gitlab.md#other-s3-providers)
 with the Fog library that GitLab uses. Symptoms include an error in `production.log`:
 
 ```plaintext

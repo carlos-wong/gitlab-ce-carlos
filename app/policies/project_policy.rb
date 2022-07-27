@@ -59,7 +59,13 @@ class ProjectPolicy < BasePolicy
 
   desc "Container registry is disabled"
   condition(:container_registry_disabled, scope: :subject) do
-    !access_allowed_to?(:container_registry)
+    if user.is_a?(DeployToken)
+      (!user.read_registry? && !user.write_registry?) ||
+      user.revoked? ||
+      !project.container_registry_enabled?
+    else
+      !access_allowed_to?(:container_registry)
+    end
   end
 
   desc "Container registry is enabled for everyone with access to the project"
@@ -86,6 +92,16 @@ class ProjectPolicy < BasePolicy
   desc "Deploy key with write access"
   condition(:push_code_deploy_key) do
     user.is_a?(DeployKey) && user.can_push_to?(project)
+  end
+
+  desc "Deploy token with read_container_image scope"
+  condition(:read_container_image_deploy_token) do
+    user.is_a?(DeployToken) && user.has_access_to?(project) && user.read_registry?
+  end
+
+  desc "Deploy token with create_container_image scope"
+  condition(:create_container_image_deploy_token) do
+    user.is_a?(DeployToken) && user.has_access_to?(project) && user.write_registry?
   end
 
   desc "Deploy token with read_package_registry scope"
@@ -179,6 +195,8 @@ class ProjectPolicy < BasePolicy
   with_scope :subject
   condition(:packages_disabled) { !@subject.packages_enabled }
 
+  condition(:work_items_enabled, scope: :subject) { project&.work_items_feature_flag_enabled? }
+
   features = %w[
     merge_requests
     issues
@@ -205,6 +223,10 @@ class ProjectPolicy < BasePolicy
 
   condition :registry_enabled do
     Gitlab.config.registry.enabled
+  end
+
+  condition :packages_enabled do
+    Gitlab.config.packages.enabled
   end
 
   # `:read_project` may be prevented in EE, but `:read_project_for_iids` should
@@ -274,10 +296,9 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:reporter_access) & can?(:create_issue) }.enable :create_incident
 
-  rule { can?(:create_issue) }.policy do
-    enable :create_task
-    enable :create_work_item
-  end
+  rule { can?(:create_issue) }.enable :create_work_item
+
+  rule { can?(:create_issue) & work_items_enabled }.enable :create_task
 
   # These abilities are not allowed to admins that are not members of the project,
   # that's why they are defined separately.
@@ -301,6 +322,7 @@ class ProjectPolicy < BasePolicy
     enable :read_commit_status
     enable :read_build
     enable :read_container_image
+    enable :read_harbor_registry
     enable :read_deploy_board
     enable :read_pipeline
     enable :read_pipeline_schedule
@@ -308,7 +330,6 @@ class ProjectPolicy < BasePolicy
     enable :read_deployment
     enable :read_merge_request
     enable :read_sentry_issue
-    enable :update_sentry_issue
     enable :read_prometheus
     enable :read_metrics_dashboard_annotation
     enable :metrics_dashboard
@@ -423,6 +444,7 @@ class ProjectPolicy < BasePolicy
     enable :admin_feature_flags_user_lists
     enable :update_escalation_status
     enable :read_secure_files
+    enable :update_sentry_issue
   end
 
   rule { can?(:developer_access) & user_confirmed? }.policy do
@@ -474,6 +496,7 @@ class ProjectPolicy < BasePolicy
     enable :update_runners_registration_token
     enable :admin_project_google_cloud
     enable :admin_secure_files
+    enable :read_web_hooks
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do
@@ -697,6 +720,14 @@ class ProjectPolicy < BasePolicy
     enable :push_code
   end
 
+  rule { read_container_image_deploy_token }.policy do
+    enable :read_container_image
+  end
+
+  rule { create_container_image_deploy_token }.policy do
+    enable :create_container_image
+  end
+
   rule { read_package_registry_deploy_token }.policy do
     enable :read_package
     enable :read_project
@@ -765,6 +796,10 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { registry_enabled & can?(:admin_container_image) }.policy do
+    enable :view_package_registry_project_settings
+  end
+
+  rule { packages_enabled & can?(:admin_package) }.policy do
     enable :view_package_registry_project_settings
   end
 

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'conan ping endpoint' do
+  it_behaves_like 'conan FIPS mode' do
+    subject { get api(url) }
+  end
+
   it 'responds with 200 OK when no token provided' do
     get api(url)
 
@@ -19,38 +23,73 @@ RSpec.shared_examples 'conan ping endpoint' do
 end
 
 RSpec.shared_examples 'conan search endpoint' do
-  before do
-    project.update_column(:visibility_level, Gitlab::VisibilityLevel::PUBLIC)
-
-    # Do not pass the HTTP_AUTHORIZATION header,
-    # in order to test that this public project's packages
-    # are visible to anonymous search.
-    get api(url), params: params
-  end
+  using RSpec::Parameterized::TableSyntax
 
   subject { json_response['results'] }
 
-  context 'returns packages with a matching name' do
-    let(:params) { { q: package.conan_recipe } }
+  context 'with a public project' do
+    before do
+      project.update!(visibility: 'public')
 
-    it { is_expected.to contain_exactly(package.conan_recipe) }
+      # Do not pass the HTTP_AUTHORIZATION header,
+      # in order to test that this public project's packages
+      # are visible to anonymous search.
+      get api(url), params: params
+    end
+
+    context 'returns packages with a matching name' do
+      let(:params) { { q: package.conan_recipe } }
+
+      it { is_expected.to contain_exactly(package.conan_recipe) }
+    end
+
+    context 'returns packages using a * wildcard' do
+      let(:params) { { q: "#{package.name[0, 3]}*" } }
+
+      it { is_expected.to contain_exactly(package.conan_recipe) }
+    end
+
+    context 'does not return non-matching packages' do
+      let(:params) { { q: "foo" } }
+
+      it { is_expected.to be_blank }
+    end
   end
 
-  context 'returns packages using a * wildcard' do
+  context 'with a private project' do
     let(:params) { { q: "#{package.name[0, 3]}*" } }
 
-    it { is_expected.to contain_exactly(package.conan_recipe) }
-  end
+    where(:role, :packages_visible) do
+      :maintainer | true
+      :developer  | true
+      :reporter   | true
+      :guest      | false
+      :anonymous  | false
+    end
 
-  context 'does not return non-matching packages' do
-    let(:params) { { q: "foo" } }
+    with_them do
+      before do
+        project.update!(visibility: 'private')
+        project.team.truncate
+        user.project_authorizations.delete_all
+        project.add_member(user, role) unless role == :anonymous
 
-    it { is_expected.to be_blank }
+        get api(url), params: params, headers: headers
+      end
+
+      if params[:packages_visible]
+        it { is_expected.to contain_exactly(package.conan_recipe) }
+      else
+        it { is_expected.to be_blank }
+      end
+    end
   end
 end
 
 RSpec.shared_examples 'conan authenticate endpoint' do
   subject { get api(url), headers: headers }
+
+  it_behaves_like 'conan FIPS mode'
 
   context 'when using invalid token' do
     let(:auth_token) { 'invalid_token' }
@@ -126,6 +165,10 @@ RSpec.shared_examples 'conan authenticate endpoint' do
 end
 
 RSpec.shared_examples 'conan check_credentials endpoint' do
+  it_behaves_like 'conan FIPS mode' do
+    subject { get api(url), headers: headers }
+  end
+
   it 'responds with a 200 OK with PAT' do
     get api(url), headers: headers
 
@@ -357,6 +400,7 @@ end
 RSpec.shared_examples 'recipe snapshot endpoint' do
   subject { get api(url), headers: headers }
 
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects recipe for invalid project'
   it_behaves_like 'empty recipe for not found package'
@@ -382,6 +426,7 @@ end
 RSpec.shared_examples 'package snapshot endpoint' do
   subject { get api(url), headers: headers }
 
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects recipe for invalid project'
   it_behaves_like 'empty recipe for not found package'
@@ -403,6 +448,10 @@ RSpec.shared_examples 'package snapshot endpoint' do
 end
 
 RSpec.shared_examples 'recipe download_urls endpoint' do
+  it_behaves_like 'conan FIPS mode' do
+    let(:recipe_path) { package.conan_recipe_path }
+  end
+
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects recipe for invalid project'
   it_behaves_like 'recipe download_urls'
@@ -410,6 +459,10 @@ RSpec.shared_examples 'recipe download_urls endpoint' do
 end
 
 RSpec.shared_examples 'package download_urls endpoint' do
+  it_behaves_like 'conan FIPS mode' do
+    let(:recipe_path) { package.conan_recipe_path }
+  end
+
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects recipe for invalid project'
   it_behaves_like 'package download_urls'
@@ -424,6 +477,7 @@ RSpec.shared_examples 'recipe upload_urls endpoint' do
       'conanmanifest.txt': 123 }
   end
 
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid upload_url params'
   it_behaves_like 'handling empty values for username and channel'
@@ -486,6 +540,7 @@ RSpec.shared_examples 'package upload_urls endpoint' do
       'conan_package.tgz': 523 }
   end
 
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid upload_url params'
   it_behaves_like 'handling empty values for username and channel'
@@ -523,6 +578,7 @@ end
 RSpec.shared_examples 'delete package endpoint' do
   let(:recipe_path) { package.conan_recipe_path }
 
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'handling empty values for username and channel'
 
@@ -632,6 +688,7 @@ RSpec.shared_examples 'not found request' do
 end
 
 RSpec.shared_examples 'recipe file download endpoint' do
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'a public project with packages'
   it_behaves_like 'an internal project with packages'
   it_behaves_like 'a private project with packages'
@@ -639,6 +696,7 @@ RSpec.shared_examples 'recipe file download endpoint' do
 end
 
 RSpec.shared_examples 'package file download endpoint' do
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'a public project with packages'
   it_behaves_like 'an internal project with packages'
   it_behaves_like 'a private project with packages'
@@ -664,6 +722,7 @@ RSpec.shared_examples 'project not found by project id' do
 end
 
 RSpec.shared_examples 'workhorse authorize endpoint' do
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid file_name', 'conanfile.py.git%2fgit-upload-pack'
   it_behaves_like 'workhorse authorization'
@@ -685,6 +744,7 @@ RSpec.shared_examples 'workhorse recipe file upload endpoint' do
     )
   end
 
+  it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid file_name', 'conanfile.py.git%2fgit-upload-pack'
   it_behaves_like 'uploads a package file'
@@ -944,5 +1004,11 @@ RSpec.shared_examples 'workhorse authorization' do
         expect(json_response['RemoteObject']).to be_nil
       end
     end
+  end
+end
+
+RSpec.shared_examples 'conan FIPS mode' do
+  context 'when FIPS mode is enabled', :fips_mode do
+    it_behaves_like 'returning response status', :not_found
   end
 end

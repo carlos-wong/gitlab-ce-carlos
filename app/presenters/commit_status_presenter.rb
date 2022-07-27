@@ -16,8 +16,11 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
     data_integrity_failure: 'There has been a structural integrity problem detected, please contact system administrator',
     forward_deployment_failure: 'The deployment job is older than the previously succeeded deployment job, and therefore cannot be run',
     pipeline_loop_detected: 'This job could not be executed because it would create infinitely looping pipelines',
+    insufficient_upstream_permissions: 'This job could not be executed because of insufficient permissions to track the upstream project.',
+    upstream_bridge_project_not_found: 'This job could not be executed because upstream bridge project could not be found.',
     invalid_bridge_trigger: 'This job could not be executed because downstream pipeline trigger definition is invalid',
     downstream_bridge_project_not_found: 'This job could not be executed because downstream bridge project could not be found',
+    protected_environment_failure: 'The environment this job is deploying to is protected. Only users with permission may successfully run this job.',
     insufficient_bridge_permissions: 'This job could not be executed because of insufficient permissions to create a downstream pipeline',
     bridge_pipeline_is_child_pipeline: 'This job belongs to a child pipeline and cannot create further child pipelines',
     downstream_pipeline_creation_failed: 'The downstream pipeline could not be created',
@@ -30,7 +33,8 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
     trace_size_exceeded: 'The job log size limit was reached',
     builds_disabled: 'The CI/CD is disabled for this project',
     environment_creation_failure: 'This job could not be executed because it would create an environment with an invalid parameter.',
-    deployment_rejected: 'This deployment job was rejected.'
+    deployment_rejected: 'This deployment job was rejected.',
+    ip_restriction_failure: "This job could not be executed because group IP address restrictions are enabled, and the runner's IP address is not in the allowed range."
   }.freeze
 
   TROUBLESHOOTING_DOC = {
@@ -61,5 +65,3 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
     ActionController::Base.helpers.link_to('How do I fix it?', help_page_path(path, anchor: anchor))
   end
 end
-
-CommitStatusPresenter.prepend_mod_with('CommitStatusPresenter')

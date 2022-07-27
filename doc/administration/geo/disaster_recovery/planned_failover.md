@@ -60,8 +60,8 @@ Alternatively, you can [back up](../../../raketasks/backup_restore.md#back-up-gi
 the container registry on the primary site and restore it onto the secondary
 site:
 
-1. On your primary site, back up only the registry and [exclude specific directories
-from the backup](../../../raketasks/backup_restore.md#excluding-specific-directories-from-the-backup):
+1. On your primary site, back up only the registry and
+   [exclude specific directories from the backup](../../../raketasks/backup_gitlab.md#excluding-specific-directories-from-the-backup):
 
    ```shell
    # Create a backup in the /var/opt/gitlab/backups folder
@@ -97,7 +97,7 @@ If you have a large GitLab installation or cannot tolerate downtime, consider
 Doing so reduces both the length of the maintenance window, and the risk of data
 loss as a result of a poorly executed planned failover.
 
-In GitLab 12.4, you can optionally allow GitLab to manage replication of Object Storage for
+In GitLab 15.1, you can optionally allow GitLab to manage replication of Object Storage for
 **secondary** sites. For more information, see [Object Storage replication](../replication/object_storage.md).
 
 ### Review the configuration of each **secondary** site

@@ -441,11 +441,13 @@ export default class AccessDropdown {
       const {
         id,
         fingerprint,
+        fingerprint_sha256: fingerprintSha256,
         title,
         owner: { avatar_url, name, username },
       } = response;
 
-      const shortFingerprint = `(${fingerprint.substring(0, 14)}...)`;
+      const availableFingerprint = fingerprintSha256 || fingerprint;
+      const shortFingerprint = `(${availableFingerprint.substring(0, 14)}...)`;
 
       return {
         id,
@@ -537,7 +539,7 @@ export default class AccessDropdown {
     return `
       <li>
         <a href="#" class="${isActiveClass}">
-          <strong>${key.title}</strong>
+          <strong>${escape(key.title)}</strong>
           <p>
             ${sprintf(
               __('Owned by %{image_tag}'),

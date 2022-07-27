@@ -612,6 +612,24 @@ RSpec.describe ProjectPolicy do
     end
   end
 
+  describe 'create_task' do
+    context 'when user is member of the project' do
+      let(:current_user) { developer }
+
+      context 'when work_items feature flag is enabled' do
+        it { expect_allowed(:create_task) }
+      end
+
+      context 'when work_items feature flag is disabled' do
+        before do
+          stub_feature_flags(work_items: false)
+        end
+
+        it { expect_disallowed(:create_task) }
+      end
+    end
+  end
+
   describe 'update_max_artifacts_size' do
     context 'when no user' do
       let(:current_user) { anonymous }
@@ -1080,25 +1098,117 @@ RSpec.describe ProjectPolicy do
 
     subject { described_class.new(deploy_token, project) }
 
-    context 'a deploy token with read_package_registry scope' do
-      let(:deploy_token) { create(:deploy_token, read_package_registry: true) }
+    context 'private project' do
+      let(:project) { private_project }
 
-      it { is_expected.to be_allowed(:read_package) }
-      it { is_expected.to be_allowed(:read_project) }
-      it { is_expected.to be_disallowed(:create_package) }
+      context 'a deploy token with read_registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_registry: true, write_registry: false) }
 
-      it_behaves_like 'package access with repository disabled'
+        it { is_expected.to be_allowed(:read_container_image) }
+        it { is_expected.to be_disallowed(:create_container_image) }
+
+        context 'with registry disabled' do
+          include_context 'registry disabled via project features'
+
+          it { is_expected.to be_disallowed(:read_container_image) }
+          it { is_expected.to be_disallowed(:create_container_image) }
+        end
+      end
+
+      context 'a deploy token with write_registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_registry: false, write_registry: true) }
+
+        it { is_expected.to be_disallowed(:read_container_image) }
+        it { is_expected.to be_allowed(:create_container_image) }
+
+        context 'with registry disabled' do
+          include_context 'registry disabled via project features'
+
+          it { is_expected.to be_disallowed(:read_container_image) }
+          it { is_expected.to be_disallowed(:create_container_image) }
+        end
+      end
+
+      context 'a deploy token with no registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_registry: false, write_registry: false) }
+
+        it { is_expected.to be_disallowed(:read_container_image) }
+        it { is_expected.to be_disallowed(:create_container_image) }
+      end
+
+      context 'a deploy token with read_package_registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_repository: false, read_registry: false, read_package_registry: true) }
+
+        it { is_expected.to be_allowed(:read_project) }
+        it { is_expected.to be_allowed(:read_package) }
+        it { is_expected.to be_disallowed(:create_package) }
+
+        it_behaves_like 'package access with repository disabled'
+      end
+
+      context 'a deploy token with write_package_registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_repository: false, read_registry: false, write_package_registry: true) }
+
+        it { is_expected.to be_allowed(:create_package) }
+        it { is_expected.to be_allowed(:read_package) }
+        it { is_expected.to be_allowed(:read_project) }
+        it { is_expected.to be_disallowed(:destroy_package) }
+
+        it_behaves_like 'package access with repository disabled'
+      end
     end
 
-    context 'a deploy token with write_package_registry scope' do
-      let(:deploy_token) { create(:deploy_token, write_package_registry: true) }
+    context 'public project' do
+      let(:project) { public_project }
 
-      it { is_expected.to be_allowed(:create_package) }
-      it { is_expected.to be_allowed(:read_package) }
-      it { is_expected.to be_allowed(:read_project) }
-      it { is_expected.to be_disallowed(:destroy_package) }
+      context 'a deploy token with read_registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_registry: true, write_registry: false) }
 
-      it_behaves_like 'package access with repository disabled'
+        it { is_expected.to be_allowed(:read_container_image) }
+        it { is_expected.to be_disallowed(:create_container_image) }
+
+        context 'with registry disabled' do
+          include_context 'registry disabled via project features'
+
+          it { is_expected.to be_disallowed(:read_container_image) }
+          it { is_expected.to be_disallowed(:create_container_image) }
+        end
+
+        context 'with registry private' do
+          include_context 'registry set to private via project features'
+
+          it { is_expected.to be_allowed(:read_container_image) }
+          it { is_expected.to be_disallowed(:create_container_image) }
+        end
+      end
+
+      context 'a deploy token with write_registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_registry: false, write_registry: true) }
+
+        it { is_expected.to be_allowed(:read_container_image) }
+        it { is_expected.to be_allowed(:create_container_image) }
+
+        context 'with registry disabled' do
+          include_context 'registry disabled via project features'
+
+          it { is_expected.to be_disallowed(:read_container_image) }
+          it { is_expected.to be_disallowed(:create_container_image) }
+        end
+
+        context 'with registry private' do
+          include_context 'registry set to private via project features'
+
+          it { is_expected.to be_allowed(:read_container_image) }
+          it { is_expected.to be_allowed(:create_container_image) }
+        end
+      end
+
+      context 'a deploy token with no registry scope' do
+        let(:deploy_token) { create(:deploy_token, read_registry: false, write_registry: false) }
+
+        it { is_expected.to be_disallowed(:read_container_image) }
+        it { is_expected.to be_disallowed(:create_container_image) }
+      end
     end
   end
 
@@ -1370,43 +1480,142 @@ RSpec.describe ProjectPolicy do
   end
 
   describe 'view_package_registry_project_settings' do
-    context 'with registry enabled' do
+    context 'with packages disabled and' do
       before do
-        stub_config(registry: { enabled: true })
+        stub_config(packages: { enabled: false })
       end
 
-      context 'with an admin user' do
-        let(:current_user) { admin }
-
-        context 'when admin mode enabled', :enable_admin_mode do
-          it { is_expected.to be_allowed(:view_package_registry_project_settings) }
+      context 'with registry enabled' do
+        before do
+          stub_config(registry: { enabled: true })
         end
 
-        context 'when admin mode disabled' do
-          it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+        context 'with an admin user' do
+          let(:current_user) { admin }
+
+          context 'when admin mode enabled', :enable_admin_mode do
+            it { is_expected.to be_allowed(:view_package_registry_project_settings) }
+          end
+
+          context 'when admin mode disabled' do
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+        end
+
+        %i[owner maintainer].each do |role|
+          context "with #{role}" do
+            let(:current_user) { public_send(role) }
+
+            it { is_expected.to be_allowed(:view_package_registry_project_settings) }
+          end
+        end
+
+        %i[developer reporter guest non_member anonymous].each do |role|
+          context "with #{role}" do
+            let(:current_user) { public_send(role) }
+
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
         end
       end
 
-      %i[owner maintainer].each do |role|
-        context "with #{role}" do
-          let(:current_user) { public_send(role) }
-
-          it { is_expected.to be_allowed(:view_package_registry_project_settings) }
+      context 'with registry disabled' do
+        before do
+          stub_config(registry: { enabled: false })
         end
-      end
 
-      %i[developer reporter guest non_member anonymous].each do |role|
-        context "with #{role}" do
-          let(:current_user) { public_send(role) }
+        context 'with admin user' do
+          let(:current_user) { admin }
 
-          it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          context 'when admin mode enabled', :enable_admin_mode do
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+
+          context 'when admin mode disabled' do
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+        end
+
+        %i[owner maintainer developer reporter guest non_member anonymous].each do |role|
+          context "with #{role}" do
+            let(:current_user) { public_send(role) }
+
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
         end
       end
     end
 
-    context 'with registry disabled' do
+    context 'with registry disabled and' do
       before do
         stub_config(registry: { enabled: false })
+      end
+
+      context 'with packages enabled' do
+        before do
+          stub_config(packages: { enabled: true })
+        end
+
+        context 'with an admin user' do
+          let(:current_user) { admin }
+
+          context 'when admin mode enabled', :enable_admin_mode do
+            it { is_expected.to be_allowed(:view_package_registry_project_settings) }
+          end
+
+          context 'when admin mode disabled' do
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+        end
+
+        %i[owner maintainer].each do |role|
+          context "with #{role}" do
+            let(:current_user) { public_send(role) }
+
+            it { is_expected.to be_allowed(:view_package_registry_project_settings) }
+          end
+        end
+
+        %i[developer reporter guest non_member anonymous].each do |role|
+          context "with #{role}" do
+            let(:current_user) { public_send(role) }
+
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+        end
+      end
+
+      context 'with packages disabled' do
+        before do
+          stub_config(packages: { enabled: false })
+        end
+
+        context 'with admin user' do
+          let(:current_user) { admin }
+
+          context 'when admin mode enabled', :enable_admin_mode do
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+
+          context 'when admin mode disabled' do
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+        end
+
+        %i[owner maintainer developer reporter guest non_member anonymous].each do |role|
+          context "with #{role}" do
+            let(:current_user) { public_send(role) }
+
+            it { is_expected.to be_disallowed(:view_package_registry_project_settings) }
+          end
+        end
+      end
+    end
+
+    context 'with registry & packages both disabled' do
+      before do
+        stub_config(registry: { enabled: false })
+        stub_config(packages: { enabled: false })
       end
 
       context 'with admin user' do
@@ -1626,7 +1835,7 @@ RSpec.describe ProjectPolicy do
           %w(guest reporter developer maintainer).each do |role|
             context role do
               before do
-                project.add_user(current_user, role.to_sym)
+                project.add_member(current_user, role.to_sym)
               end
 
               if role == 'guest'
@@ -1660,7 +1869,7 @@ RSpec.describe ProjectPolicy do
           %w(guest reporter developer maintainer).each do |role|
             context role do
               before do
-                project.add_user(current_user, role.to_sym)
+                project.add_member(current_user, role.to_sym)
               end
 
               it { is_expected.to be_allowed(:read_ci_cd_analytics) }
@@ -1690,7 +1899,7 @@ RSpec.describe ProjectPolicy do
         %w(guest reporter developer maintainer).each do |role|
           context role do
             before do
-              project.add_user(current_user, role.to_sym)
+              project.add_member(current_user, role.to_sym)
             end
 
             if role == 'guest'
@@ -2249,6 +2458,27 @@ RSpec.describe ProjectPolicy do
       let(:current_user) { nil }
 
       it { is_expected.to be_disallowed(:register_project_runners) }
+    end
+  end
+
+  describe 'update_sentry_issue' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:role, :allowed) do
+      :owner      | true
+      :maintainer | true
+      :developer  | true
+      :reporter   | false
+      :guest      | false
+    end
+
+    let(:project) { public_project }
+    let(:current_user) { public_send(role) }
+
+    with_them do
+      it do
+        expect(subject.can?(:update_sentry_issue)).to be(allowed)
+      end
     end
   end
 end

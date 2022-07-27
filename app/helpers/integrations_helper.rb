@@ -160,27 +160,6 @@ module IntegrationsHelper
     !Gitlab.com?
   end
 
-  def jira_issue_breadcrumb_link(issue_reference)
-    link_to '', { class: 'gl-display-flex gl-align-items-center gl-white-space-nowrap' } do
-      icon = image_tag image_path('illustrations/logos/jira.svg'), width: 15, height: 15, class: 'gl-mr-2'
-      [icon, html_escape(issue_reference)].join.html_safe
-    end
-  end
-
-  def zentao_issue_breadcrumb_link(issue)
-    link_to issue[:web_url], { target: '_blank', rel: 'noopener noreferrer', class: 'gl-display-flex gl-align-items-center gl-white-space-nowrap' } do
-      icon = image_tag image_path('logos/zentao.svg'), width: 15, height: 15, class: 'gl-mr-2'
-      [icon, html_escape(issue[:id])].join.html_safe
-    end
-  end
-
-  def zentao_issues_show_data
-    {
-      issues_show_path: project_integrations_zentao_issue_path(@project, params[:id], format: :json),
-      issues_list_path: project_integrations_zentao_issues_path(@project)
-    }
-  end
-
   extend self
 
   private
@@ -237,7 +216,7 @@ module IntegrationsHelper
   end
 
   def fields_for_integration(integration)
-    Integrations::FieldSerializer.new(integration: integration).represent(integration.global_fields).to_json
+    Integrations::FieldSerializer.new(integration: integration).represent(integration.form_fields).to_json
   end
 
   def integration_level(integration)

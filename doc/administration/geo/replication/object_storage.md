@@ -28,14 +28,13 @@ To have:
 - GitLab manage replication, follow [Enabling GitLab replication](#enabling-gitlab-managed-object-storage-replication).
 - Third-party services manage replication, follow [Third-party replication services](#third-party-replication-services).
 
+See [Object storage replication tests](geo_validation_tests.md#object-storage-replication-tests) for comparisons between GitLab-managed replication and third-party replication.
+
 [Read more about using object storage with GitLab](../../object_storage.md).
 
 ## Enabling GitLab-managed object storage replication
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10586) in GitLab 12.4.
-
-WARNING:
-This is a [**Beta** feature](../../../policy/alpha-beta-support.md#beta-features) and is not ready yet for production use at any scale. The main limitations are a lack of testing at scale and no verification of any replicated data.
+> The feature was made [generally available](https://gitlab.com/groups/gitlab-org/-/epics/5551) in GitLab 15.1.
 
 **Secondary** sites can replicate files stored on the **primary** site regardless of
 whether they are stored on the local file system or in object storage.
@@ -79,10 +78,14 @@ the bucket used by **secondary** sites.
 
 If you are using Google Cloud Storage, consider using
 [Multi-Regional Storage](https://cloud.google.com/storage/docs/storage-classes#multi-regional).
-Or you can use the [Storage Transfer Service](https://cloud.google.com/storage-transfer/docs/),
+Or you can use the [Storage Transfer Service](https://cloud.google.com/storage-transfer/docs/overview),
 although this only supports daily synchronization.
 
 For manual synchronization, or scheduled by `cron`, see:
 
 - [`s3cmd sync`](https://s3tools.org/s3cmd-sync)
 - [`gsutil rsync`](https://cloud.google.com/storage/docs/gsutil/commands/rsync)
+
+## Verification of files in object storage
+
+[Files stored in object storage are not verified.](https://gitlab.com/groups/gitlab-org/-/epics/8056)
