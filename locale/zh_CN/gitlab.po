@@ -44,7 +44,7 @@ msgid " or "
 msgstr " 或者"
 
 msgid " or %{emphasisStart}!merge request id%{emphasisEnd}"
-msgstr "或%{emphasisStart}!合并请求id%{emphasisEnd}"
+msgstr "或%{emphasisStart}!合并评审id%{emphasisEnd}"
 
 msgid " or %{emphasisStart}#id%{emphasisEnd}"
 msgstr " 或 %{emphasisStart}#id%{emphasisEnd}"
@@ -231,7 +231,7 @@ msgstr[0] "%d小时"
 
 msgid "%d inaccessible merge request"
 msgid_plural "%d inaccessible merge requests"
-msgstr[0] "%d 个无法访问的合并请求"
+msgstr[0] "%d 个无法访问的合并评审"
 
 msgid "%d issue"
 msgid_plural "%d issues"
@@ -255,15 +255,15 @@ msgstr[0] "%d 个层"
 
 msgid "%d merge request"
 msgid_plural "%d merge requests"
-msgstr[0] "%d 个合并请求"
+msgstr[0] "%d 个合并评审"
 
 msgid "%d merge request that you don't have access to."
 msgid_plural "%d merge requests that you don't have access to."
-msgstr[0] "%d个您无法访问的合并请求。"
+msgstr[0] "%d个您无法访问的合并评审。"
 
 msgid "%d merge requests"
 msgid_plural "%d merge requests"
-msgstr[0] "%d 个合并请求"
+msgstr[0] "%d 个合并评审"
 
 msgid "%d metric"
 msgid_plural "%d metrics"
@@ -416,7 +416,7 @@ msgstr[0] "%{bold_start}%{count}%{bold_end}成员"
 
 msgid "%{bold_start}%{count}%{bold_end} opened merge request"
 msgid_plural "%{bold_start}%{count}%{bold_end} opened merge requests"
-msgstr[0] "%{bold_start}%{count}%{bold_end} 个开放中的合并请求"
+msgstr[0] "%{bold_start}%{count}%{bold_end} 个开放中的合并评审"
 
 msgid "%{code_open}Masked:%{code_close} Hidden in job logs. Must match masking requirements."
 msgstr "%{code_open}隐藏：%{code_close} 隐藏在作业日志中。必须符合隐藏要求。"
@@ -701,10 +701,10 @@ msgid "%{level_name} is not allowed since the fork source project has lower visi
 msgstr "由于派生的源项目可见性较低，因此不允许使用%{level_name}。"
 
 msgid "%{link_start}Remove the %{draft_snippet} prefix%{link_end} from the title to allow this merge request to be merged when it's ready."
-msgstr "%{link_start}从标题中删除%{draft_snippet}前缀%{link_end}，允许此合并请求在准备就绪时被合并。"
+msgstr "%{link_start}从标题中删除%{draft_snippet}前缀%{link_end}，允许此合并评审在准备就绪时被合并。"
 
 msgid "%{link_start}Start the title with %{draft_snippet}%{link_end} to prevent a merge request draft from merging before it's ready."
-msgstr "使用 %{link_start} %{draft_snippet}%{link_end} 开始标题，以防止合并请求草稿在准备就绪之前合并。"
+msgstr "使用 %{link_start} %{draft_snippet}%{link_end} 开始标题，以防止合并评审草稿在准备就绪之前合并。"
 
 msgid "%{listToShow}, and %{awardsListLength} more"
 msgstr "%{listToShow}，还有 %{awardsListLength} 个。"
@@ -932,8 +932,14 @@ msgstr[0] "%{strongOpen}%{errors}%{strongClose} 点"
 msgid "%{strongOpen}Warning:%{strongClose} SAML group links can cause GitLab to automatically remove members from groups."
 msgstr "%{strongOpen}警告：%{strongClose} SAML 群组链接会导致 GitLab 自动从群组中移除成员。"
 
+<<<<<<< HEAD
+=======
+msgid "%{strongStart}Need your attention%{strongEnd} are the merge requests that need your help to move forward, as an assignee or reviewer."
+msgstr "%{strongStart}需要您的注意%{strongEnd} 指的是需要您作为指派人或审核者帮助处理的合并评审。"
+
+>>>>>>> 669835ddb8fd... Locale: 合并评审 is better than 合并请求
 msgid "%{strongStart}Tip:%{strongEnd} You can also check out merge requests locally. %{linkStart}Learn more.%{linkEnd}"
-msgstr "%{strongStart}提示：%{strongEnd} 您也可以在本地检出合并请求。%{linkStart}了解更多。%{linkEnd}"
+msgstr "%{strongStart}提示：%{strongEnd} 您也可以在本地检出合并评审。%{linkStart}了解更多。%{linkEnd}"
 
 msgid "%{strong_start}%{branch_count}%{strong_end} Branch"
 msgid_plural "%{strong_start}%{branch_count}%{strong_end} Branches"
@@ -1045,7 +1051,7 @@ msgid "%{user_name} profile page"
 msgstr "%{user_name}的个人资料"
 
 msgid "%{username} changed the draft status of merge request %{mr_link}"
-msgstr "%{username} 更改了合并请求%{mr_link}的草稿状态"
+msgstr "%{username} 更改了合并评审%{mr_link}的草稿状态"
 
 msgid "%{username} has asked for a GitLab account on your instance %{host}:"
 msgstr "%{username}请求在您的实例 %{host}创建一个GitLab 帐户："
@@ -1054,7 +1060,7 @@ msgid "%{username}'s avatar"
 msgstr "%{username} 的头像"
 
 msgid "%{user} created a merge request: %{mr_link}"
-msgstr "%{user} 创建了合并请求：%{mr_link}"
+msgstr "%{user} 创建了合并评审：%{mr_link}"
 
 msgid "%{user} created an epic: %{epic_link}"
 msgstr "%{user} 创建了一个史诗：%{epic_link}"
@@ -1231,7 +1237,7 @@ msgid "- Create or close an issue."
 msgstr "- 创建或关闭工单。"
 
 msgid "- Create, update, or delete a merge request."
-msgstr "- 创建、更新或删除合并请求。"
+msgstr "- 创建、更新或删除合并评审。"
 
 msgid "- Event"
 msgid_plural "- Events"
@@ -1298,7 +1304,7 @@ msgstr[0] "%{issues}个关闭的工单"
 
 msgid "1 closed merge request"
 msgid_plural "%{merge_requests} closed merge requests"
-msgstr[0] "%{merge_requests}个已关闭的合并请求"
+msgstr[0] "%{merge_requests}个已关闭的合并评审"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -1334,11 +1340,11 @@ msgstr[0] "已选择 %d 个问题"
 
 msgid "1 merge request selected"
 msgid_plural "%d merge requests selected"
-msgstr[0] "%d 个合并请求已选择"
+msgstr[0] "%d 个合并评审已选择"
 
 msgid "1 merged merge request"
 msgid_plural "%{merge_requests} merged merge requests"
-msgstr[0] "%{merge_requests}个已合并的合并请求"
+msgstr[0] "%{merge_requests}个已合并的合并评审"
 
 msgid "1 minute"
 msgid_plural "%d minutes"
@@ -1354,7 +1360,7 @@ msgstr[0] "%{issues}个开放的工单"
 
 msgid "1 open merge request"
 msgid_plural "%{merge_requests} open merge requests"
-msgstr[0] "%{merge_requests}个开启中的合并请求"
+msgstr[0] "%{merge_requests}个开启中的合并评审"
 
 msgid "1 pipeline"
 msgid_plural "%d pipelines"
@@ -2268,7 +2274,7 @@ msgid "Added an issue to an epic."
 msgstr "为史诗添加了一个工单。"
 
 msgid "Added for this merge request"
-msgstr "已加入此合并请求设置"
+msgstr "已加入此合并评审设置"
 
 msgid "Added in this version"
 msgstr "此版本新增"
@@ -2499,10 +2505,10 @@ msgid "AdminLabels|Labels created here will be automatically added to new projec
 msgstr "在此处创建的标记将自动添加到新的项目。"
 
 msgid "AdminLabels|They can be used to categorize issues and merge requests."
-msgstr "它们可以用来分类工单和合并请求。"
+msgstr "它们可以用来分类工单和合并评审。"
 
 msgid "AdminProjects| You’re about to permanently delete the project %{projectName}, its repository, and all related resources, including issues and merge requests. After you confirm and press %{strong_start}Delete project%{strong_end}, it cannot be undone or recovered."
-msgstr "您将要永久删除项目 %{projectName}、 其仓库以及所有相关的资源，包括工单和合并请求。 当您确认并按 %{strong_start}删除项目%{strong_end} 之后，不能撤消或恢复。"
+msgstr "您将要永久删除项目 %{projectName}、 其仓库以及所有相关的资源，包括工单和合并评审。 当您确认并按 %{strong_start}删除项目%{strong_end} 之后，不能撤消或恢复。"
 
 msgid "AdminProjects|Delete"
 msgstr "删除"
@@ -2556,7 +2562,7 @@ msgid "AdminSettings|Disable public access to Pages sites"
 msgstr "禁止公开访问 Pages 站点"
 
 msgid "AdminSettings|Display a banner on merge requests in projects with no pipelines to initiate steps to add a .gitlab-ci.yml file."
-msgstr "在没有流水线的项目中，在合并请求上显示提示，开始添加.gitlab-ci.yml文件的步骤。"
+msgstr "在没有流水线的项目中，在合并评审上显示提示，开始添加.gitlab-ci.yml文件的步骤。"
 
 msgid "AdminSettings|Domain verification is an essential security measure for public GitLab sites. Users are required to demonstrate they control a domain before it is enabled. %{link_start}Learn more.%{link_end}"
 msgstr "域名验证是公共 GitLab 站点的基本安全措施。用户需要证明他们在启用域名之前拥有域名的所有权。%{link_start}了解更多。%{link_end}"
@@ -2787,7 +2793,7 @@ msgid "AdminStatistics|Issues"
 msgstr "工单"
 
 msgid "AdminStatistics|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "AdminStatistics|Milestones"
 msgstr "里程碑"
@@ -3156,10 +3162,10 @@ msgid "AdminUsers|Without projects"
 msgstr "无项目"
 
 msgid "AdminUsers|You are about to permanently delete the user %{username}. Issues, merge requests, and groups linked to them will be transferred to a system-wide \"Ghost-user\". To avoid data loss, consider using the %{strongStart}block user%{strongEnd} feature instead. Once you %{strongStart}Delete user%{strongEnd}, it cannot be undone or recovered."
-msgstr "您即将永久删除用户 %{username}。该用户的工单、合并请求以及相关的群组将被转移到系统的“Ghost用户”。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
+msgstr "您即将永久删除用户 %{username}。该用户的工单、合并评审以及相关的群组将被转移到系统的“Ghost用户”。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
 
 msgid "AdminUsers|You are about to permanently delete the user %{username}. This will delete all of the issues, merge requests, and groups linked to them. To avoid data loss, consider using the %{strongStart}block user%{strongEnd} feature instead. Once you %{strongStart}Delete user%{strongEnd}, it cannot be undone or recovered."
-msgstr "您即将永久删除用户 %{username}。此操作会删除该用户的所有工单、合并请求以及相关的群组。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
+msgstr "您即将永久删除用户 %{username}。此操作会删除该用户的所有工单、合并评审以及相关的群组。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
 
 msgid "AdminUsers|You can always block their account again if needed."
 msgstr "如果需要，您随时可以禁用他们的帐户。"
@@ -3669,10 +3675,10 @@ msgid "All issues for this milestone are closed. You may close this milestone no
 msgstr "这个里程碑的所有工单都已关闭。现在您可以关闭这个里程碑。"
 
 msgid "All merge conflicts were resolved. The merge request can now be merged."
-msgstr "所有合并冲突都已解决。此合并请求现在可以合并。"
+msgstr "所有合并冲突都已解决。此合并评审现在可以合并。"
 
 msgid "All merge request dependencies have been merged"
-msgstr "所有合并请求依赖项均已合并"
+msgstr "所有合并评审依赖项均已合并"
 
 msgid "All paths are relative to the GitLab URL. Do not include %{relative_url_link_start}relative URLs%{relative_url_link_end}."
 msgstr "所有路径都相对于 GitLab URL。请不要包含%{relative_url_link_start}相对 URL%{relative_url_link_end}。"
@@ -3807,7 +3813,7 @@ msgid "Also remove direct user membership from subgroups and projects"
 msgstr "同时从子组和项目中删除直接用户成员身份"
 
 msgid "Also unassign this user from related issues and merge requests"
-msgstr "同时从相关的工单和合并请求中取消指派此用户"
+msgstr "同时从相关的工单和合并评审中取消指派此用户"
 
 msgid "Alternate support URL for Help page and Help dropdown."
 msgstr "用于帮助页面和帮助下拉列表的备用支持 URL。"
@@ -3945,7 +3951,7 @@ msgid "An error occurred while fetching branches. Retry the search."
 msgstr "获取分支时发生错误，请重试搜索。"
 
 msgid "An error occurred while fetching codequality mr diff reports."
-msgstr "获取代码质量合并请求差异报告时发生错误。"
+msgstr "获取代码质量合并评审差异报告时发生错误。"
 
 msgid "An error occurred while fetching commit data."
 msgstr "获取提交数据时发生错误。"
@@ -4062,7 +4068,7 @@ msgid "An error occurred while loading issues"
 msgstr "加载工单时发生错误。"
 
 msgid "An error occurred while loading merge requests."
-msgstr "加载合并请求时发生错误。"
+msgstr "加载合并评审时发生错误。"
 
 msgid "An error occurred while loading projects."
 msgstr "加载项目时出错。"
@@ -4098,13 +4104,13 @@ msgid "An error occurred while loading the file. Please try again."
 msgstr "加载文件时发生错误。请再试一次。"
 
 msgid "An error occurred while loading the merge request changes."
-msgstr "加载合并请求的变更内容时发生错误。"
+msgstr "加载合并评审的变更内容时发生错误。"
 
 msgid "An error occurred while loading the merge request version data."
-msgstr "加载合并请求的版本数据时发生错误。"
+msgstr "加载合并评审的版本数据时发生错误。"
 
 msgid "An error occurred while loading the merge request."
-msgstr "加载合并请求时发生错误。"
+msgstr "加载合并评审时发生错误。"
 
 msgid "An error occurred while loading the notification settings. Please try again."
 msgstr "加载通知设置时发生错误。请再试一次。"
@@ -4186,7 +4192,7 @@ msgid "An error occurred while trying to generate the report. Please try again l
 msgstr "尝试生成报告时出错。请稍后再试。"
 
 msgid "An error occurred while trying to run a new pipeline for this merge request."
-msgstr "尝试为此合并请求运行新流水线时发生错误。"
+msgstr "尝试为此合并评审运行新流水线时发生错误。"
 
 msgid "An error occurred while trying to unfollow this user, please try again."
 msgstr "试图取消关注这个用户时出错，请重试。"
@@ -4234,7 +4240,7 @@ msgid "An example project for managing Kubernetes clusters integrated with GitLa
 msgstr "一个与GitLab集成的Kubernetes集群管理的示例项目。"
 
 msgid "An example project that shows off the best practices for setting up GitLab for your own organization, including sample issues, merge requests, and milestones"
-msgstr "一个示例项目，展示了为你自己的组织设置GitLab的最佳实践，包括样本问题、合并请求和里程碑。"
+msgstr "一个示例项目，展示了为你自己的组织设置GitLab的最佳实践，包括样本问题、合并评审和里程碑。"
 
 msgid "An example showing how to use Jsonnet with GitLab dynamic child pipelines"
 msgstr "显示如何在GitLab动态子流水线中使用Jsonnet的示例"
@@ -4610,7 +4616,7 @@ msgid_plural "ApprovalRuleSummary|%{count} approvals required from %{membersCoun
 msgstr[0] "%{membersCount} 需要 %{count} 个核准"
 
 msgid "ApprovalRule|A merge request author collaborating with a merge request approver"
-msgstr "与合并请求核准人合作的合并请求作者"
+msgstr "与合并评审核准人合作的合并评审作者"
 
 msgid "ApprovalRule|Add approvers"
 msgstr "添加核准人"
@@ -4643,7 +4649,7 @@ msgid "ApprovalRule|Increase quality and maintain standards."
 msgstr "提高质量并保持标准。"
 
 msgid "ApprovalRule|Learn more about merge request approval rules."
-msgstr "了解有关合并请求批准规则的更多信息。"
+msgstr "了解有关合并评审批准规则的更多信息。"
 
 msgid "ApprovalRule|Name"
 msgstr "名称"
@@ -4676,7 +4682,7 @@ msgid "ApprovalSettings|Keep approvals"
 msgstr "保留批准"
 
 msgid "ApprovalSettings|Merge request approval settings have been updated."
-msgstr "合并请求审批设置已更新。"
+msgstr "合并评审审批设置已更新。"
 
 msgid "ApprovalSettings|Prevent approval by author"
 msgstr "阻止作者批准"
@@ -4685,13 +4691,13 @@ msgid "ApprovalSettings|Prevent approvals by users who add commits"
 msgstr "阻止添加提交的用户批准"
 
 msgid "ApprovalSettings|Prevent editing approval rules in merge requests"
-msgstr "阻止在合并请求中编辑批准规则"
+msgstr "阻止在合并评审中编辑批准规则"
 
 msgid "ApprovalSettings|Prevent editing approval rules in projects and merge requests"
 msgstr "禁止在项目和合并请求中编辑批准规则。"
 
 msgid "ApprovalSettings|Prevent editing approval rules in projects and merge requests."
-msgstr "禁止在项目和合并请求中编辑批准规则。"
+msgstr "禁止在项目和合并评审中编辑批准规则。"
 
 msgid "ApprovalSettings|Remove all approvals"
 msgstr "删除所有批准"
@@ -4703,10 +4709,10 @@ msgid "ApprovalSettings|Require user password to approve"
 msgstr "需要用户密码才能批准"
 
 msgid "ApprovalSettings|There was an error loading merge request approval settings."
-msgstr "加载合并请求批准设置时出错。"
+msgstr "加载合并评审批准设置时出错。"
 
 msgid "ApprovalSettings|There was an error updating merge request approval settings."
-msgstr "更新合并请求审批设置时出错。"
+msgstr "更新合并评审审批设置时出错。"
 
 msgid "ApprovalSettings|This setting is configured at the instance level and can only be changed by an administrator."
 msgstr "此设置在实例级别配置，只能由管理员更改。"
@@ -4727,19 +4733,19 @@ msgid "Approve"
 msgstr "批准"
 
 msgid "Approve a merge request"
-msgstr "批准合并请求"
+msgstr "批准合并评审"
 
 msgid "Approve the current merge request."
-msgstr "批准当前合并请求。"
+msgstr "批准当前合并评审。"
 
 msgid "Approved"
 msgstr "已核准"
 
 msgid "Approved MRs"
-msgstr "已批准的合并请求"
+msgstr "已批准的合并评审"
 
 msgid "Approved the current merge request."
-msgstr "批准了当前的合并请求。"
+msgstr "批准了当前的合并评审。"
 
 msgid "Approved-By"
 msgstr "已核准"
@@ -5067,7 +5073,7 @@ msgid "Assigned Issues"
 msgstr "已分配工单"
 
 msgid "Assigned merge requests"
-msgstr "已分配的合并请求"
+msgstr "已分配的合并评审"
 
 msgid "Assigned projects"
 msgstr "已分配项目"
@@ -5441,7 +5447,7 @@ msgid "AutoDevopsAlert|Security testing tools enabled with %{linkStart}Auto DevO
 msgstr "启用安全测试工具及 %{linkStart}Auto DevOps%{linkEnd}"
 
 msgid "AutoRemediation| 1 Merge Request"
-msgstr "1个合并请求"
+msgstr "1个合并评审"
 
 msgid "AutoRemediation|%{mrsCount} ready for review"
 msgstr "%{mrsCount}已可审核"
@@ -5453,7 +5459,7 @@ msgid "AutoRemediation|Auto-fix solutions"
 msgstr "自动修复方案"
 
 msgid "AutoRemediation|If you're using dependency and/or container scanning, and auto-fix is enabled, auto-fix automatically creates merge requests with fixes to vulnerabilities."
-msgstr "如果您使用依赖和/或容器扫描并启用自动修复，自动修复将自动创建合并请求，并修复漏洞。"
+msgstr "如果您使用依赖和/或容器扫描并启用自动修复，自动修复将自动创建合并评审，并修复漏洞。"
 
 msgid "AutoRemediation|Introducing GitLab auto-fix"
 msgstr "GitLab自动修复功能简介"
@@ -7417,7 +7423,7 @@ msgid "ChangeTypeAction|Cherry-pick"
 msgstr "优选"
 
 msgid "ChangeTypeAction|GitLab will create a branch in your fork and start a merge request."
-msgstr "GitLab 将在您的派生项目中创建分支并开始合并请求。"
+msgstr "GitLab 将在您的派生项目中创建分支并开始合并评审。"
 
 msgid "ChangeTypeAction|Pick into branch"
 msgstr "选择分支"
@@ -7450,7 +7456,7 @@ msgid "ChangeTypeAction|This will create a new commit in order to revert the exi
 msgstr "这将创建一个新的提交, 来还原现有的更改。"
 
 msgid "ChangeTypeAction|Your changes will be committed to %{branchName} because a merge request is open."
-msgstr "合并请求已开启，变更将被提交到%{branchName}。"
+msgstr "合并评审已开启，变更将被提交到%{branchName}。"
 
 msgid "Changed"
 msgstr "已更改"
@@ -7833,7 +7839,7 @@ msgid "Cherry-pick this commit"
 msgstr "拣选此提交"
 
 msgid "Cherry-pick this merge request"
-msgstr "拣选此合并请求"
+msgstr "拣选此合并评审"
 
 msgid "Child"
 msgstr "子级"
@@ -8221,7 +8227,7 @@ msgid "Closed %{epicTimeagoDate}"
 msgstr "关闭于%{epicTimeagoDate}"
 
 msgid "Closed MRs"
-msgstr "已关闭的合并请求"
+msgstr "已关闭的合并评审"
 
 msgid "Closed date"
 msgstr "关闭日期"
@@ -9116,7 +9122,7 @@ msgid "Code Review"
 msgstr "代码评审"
 
 msgid "Code Review Analytics displays a table of open merge requests considered to be in code review. There are currently no merge requests in review for this project and/or filters."
-msgstr "代码评审分析显示了一个处于代码评审阶段的开放合并请求列表。 当前没有此项目和/或筛选器的合并请求。"
+msgstr "代码评审分析显示了一个处于代码评审阶段的开放合并评审列表。 当前没有此项目和/或筛选器的合并评审。"
 
 msgid "Code block"
 msgstr "代码块"
@@ -9336,16 +9342,16 @@ msgid "Commits to"
 msgstr "提交到"
 
 msgid "Commits you select appear here. Go to the first tab and select commits to add to this merge request."
-msgstr "您选择的提交出现在这里。转到第一个选项卡，然后选择提交以添加到此合并请求中。"
+msgstr "您选择的提交出现在这里。转到第一个选项卡，然后选择提交以添加到此合并评审中。"
 
 msgid "Commits|An error occurred while fetching merge requests data."
-msgstr "获取合并请求数据时出错"
+msgstr "获取合并评审数据时出错"
 
 msgid "Commits|History"
 msgstr "历史"
 
 msgid "Commits|No related merge requests found"
-msgstr "无相关合并请求"
+msgstr "无相关合并评审"
 
 msgid "Committed by"
 msgstr "提交者："
@@ -9381,7 +9387,7 @@ msgid "Compare changes with the last commit"
 msgstr "与上个提交比较变更内容"
 
 msgid "Compare changes with the merge request target branch"
-msgstr "与合并请求的目标分支比较变更内容"
+msgstr "与合并评审的目标分支比较变更内容"
 
 msgid "Compare submodule commit revisions"
 msgstr "比较子模块提交的版本"
@@ -9402,7 +9408,7 @@ msgid "CompareRevisions|Compare"
 msgstr "比较"
 
 msgid "CompareRevisions|Create merge request"
-msgstr "创建合并请求"
+msgstr "创建合并评审"
 
 msgid "CompareRevisions|Filter by Git revision"
 msgstr "按Git版本筛选"
@@ -9432,7 +9438,7 @@ msgid "CompareRevisions|There was an error while updating the branch/tag list. P
 msgstr "更新分支/标签列表时发生错误。请重试。"
 
 msgid "CompareRevisions|View open merge request"
-msgstr "查看开放的合并请求"
+msgstr "查看开放的合并评审"
 
 msgid "Complete"
 msgstr "完成"
@@ -9690,13 +9696,13 @@ msgid "Configure the way a user creates a new account."
 msgstr "配置用户创建新帐户的方式。"
 
 msgid "Configure via Merge Request"
-msgstr "通过合并请求配置"
+msgstr "通过合并评审配置"
 
 msgid "Configure which lists are shown for anyone who visits this board"
 msgstr "配置显示给任何访问此看板的人的列表"
 
 msgid "Configure with a merge request"
-msgstr "使用合并请求进行配置"
+msgstr "使用合并评审进行配置"
 
 msgid "Configure your environments to be deployed to specific geographical regions"
 msgstr "配置您要部署到特定地理区域的环境"
@@ -10230,7 +10236,7 @@ msgid "ContributionAnalytics|%{pushes} pushes, more than %{commits} commits by %
 msgstr "%{pushes}次推送，超过%{people}个贡献者的%{commits}次提交。"
 
 msgid "ContributionAnalytics|Contribution analytics for issues, merge requests and push events since %{start_date}"
-msgstr "自%{start_date}起的工单，合并请求和推送事件的贡献分析"
+msgstr "自%{start_date}起的工单，合并评审和推送事件的贡献分析"
 
 msgid "ContributionAnalytics|Issues"
 msgstr "工单"
@@ -10245,13 +10251,13 @@ msgid "ContributionAnalytics|Last week"
 msgstr "上周"
 
 msgid "ContributionAnalytics|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "ContributionAnalytics|No issues for the selected time period."
 msgstr "在选定的时间段内没有工单。"
 
 msgid "ContributionAnalytics|No merge requests for the selected time period."
-msgstr "在选定的时间段内没有合并请求。"
+msgstr "在选定的时间段内没有合并评审。"
 
 msgid "ContributionAnalytics|No pushes for the selected time period."
 msgstr "在选定的时间段内没有推送。"
@@ -10371,7 +10377,7 @@ msgid "Copy labels and milestone from %{source_issuable_reference}."
 msgstr "从 %{source_issuable_reference} 复制标记和里程碑。"
 
 msgid "Copy labels and milestone from other issue or merge request in this project"
-msgstr "从当前项目中其他工单或合并请求复制标记和里程碑"
+msgstr "从当前项目中其他工单或合并评审复制标记和里程碑"
 
 msgid "Copy link"
 msgstr "复制链接"
@@ -10692,10 +10698,10 @@ msgid "Create common files more quickly, and standardize their format."
 msgstr "更快地创建共同文件并使其格式标准化。"
 
 msgid "Create confidential merge request"
-msgstr "创建私密合并请求"
+msgstr "创建私密合并评审"
 
 msgid "Create confidential merge request and branch"
-msgstr "创建私密合并请求及分支"
+msgstr "创建私密合并评审及分支"
 
 msgid "Create custom type"
 msgstr "创建自定义类型"
@@ -10740,10 +10746,10 @@ msgid "Create lists from labels. Issues with that label appear in that list."
 msgstr "从标记创建列表，含有该标记的工单将出现在相应的列中。"
 
 msgid "Create merge request"
-msgstr "创建合并请求"
+msgstr "创建合并评审"
 
 msgid "Create merge request and branch"
-msgstr "创建合并请求及分支"
+msgstr "创建合并评审及分支"
 
 msgid "Create milestone"
 msgstr "创建里程碑"
@@ -10827,7 +10833,7 @@ msgid "Create your group"
 msgstr "创建您的群组"
 
 msgid "Create, update, or delete a merge request."
-msgstr "创建、更新或删除合并请求。"
+msgstr "创建、更新或删除合并评审。"
 
 msgid "Create/import your first project"
 msgstr "创建/导入您的第一个项目"
@@ -10983,10 +10989,10 @@ msgid "Created On"
 msgstr "创建于"
 
 msgid "Created a branch and a merge request to resolve this issue."
-msgstr "创建了一个分支和一个合并请求来解决此工单。"
+msgstr "创建了一个分支和一个合并评审来解决此工单。"
 
 msgid "Created branch '%{branch_name}' and a merge request to resolve this issue."
-msgstr "创建了分支“%{branch_name}”和合并请求以解决此工单。"
+msgstr "创建了分支“%{branch_name}”和合并评审以解决此工单。"
 
 msgid "Created by %{job}"
 msgstr "由%{job}创建"
@@ -11010,10 +11016,10 @@ msgid "Created issue %{issueLink} at %{projectLink}"
 msgstr "在 %{projectLink} 中创建工单 %{issueLink}"
 
 msgid "Created merge request %{mergeRequestLink}"
-msgstr "创建合并请求 %{mergeRequestLink}"
+msgstr "创建合并评审 %{mergeRequestLink}"
 
 msgid "Created merge request %{mergeRequestLink} at %{projectLink}"
-msgstr "在 %{projectLink} 中创建合并请求 %{mergeRequestLink}"
+msgstr "在 %{projectLink} 中创建合并评审 %{mergeRequestLink}"
 
 msgid "Created on"
 msgstr "创建于"
@@ -11025,10 +11031,10 @@ msgid "Created on:"
 msgstr "创建于："
 
 msgid "Creates a branch and a merge request to resolve this issue."
-msgstr "创建分支和合并请求来解决这个工单。"
+msgstr "创建分支和合并评审来解决这个工单。"
 
 msgid "Creates branch '%{branch_name}' and a merge request to resolve this issue."
-msgstr "创建分支“%{branch_name}”和合并请求以解决此工单。"
+msgstr "创建分支“%{branch_name}”和合并评审以解决此工单。"
 
 msgid "Creating"
 msgstr "正在创建"
@@ -11274,13 +11280,13 @@ msgid "CycleAnalyticsEvent|%{label_reference} label was added to the issue"
 msgstr "%{label_reference} 标记已添加到工单"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was added to the merge request"
-msgstr "%{label_reference} 标记已添加到合并请求"
+msgstr "%{label_reference} 标记已添加到合并评审"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was removed from the issue"
 msgstr "%{label_reference} 标记已从工单中删除"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was removed from the merge request"
-msgstr "%{label_reference} 标记已从合并请求中删除"
+msgstr "%{label_reference} 标记已从合并评审中删除"
 
 msgid "CycleAnalyticsEvent|Issue closed"
 msgstr "工单关闭"
@@ -11310,34 +11316,34 @@ msgid "CycleAnalyticsEvent|Issue last edited"
 msgstr "工单最后编辑"
 
 msgid "CycleAnalyticsEvent|Merge request closed"
-msgstr "合并请求关闭"
+msgstr "合并评审关闭"
 
 msgid "CycleAnalyticsEvent|Merge request created"
-msgstr "合并请求已创建"
+msgstr "合并评审已创建"
 
 msgid "CycleAnalyticsEvent|Merge request first commit time"
-msgstr "合并请求首次提交时间"
+msgstr "合并评审首次提交时间"
 
 msgid "CycleAnalyticsEvent|Merge request first deployed to production"
-msgstr "合并请求首次部署到生产环境"
+msgstr "合并评审首次部署到生产环境"
 
 msgid "CycleAnalyticsEvent|Merge request label was added"
-msgstr "合并请求标记已添加"
+msgstr "合并评审标记已添加"
 
 msgid "CycleAnalyticsEvent|Merge request label was removed"
-msgstr "合并请求标记已删除"
+msgstr "合并评审标记已删除"
 
 msgid "CycleAnalyticsEvent|Merge request last build finish time"
-msgstr "合并请求上次构建完成时间"
+msgstr "合并评审上次构建完成时间"
 
 msgid "CycleAnalyticsEvent|Merge request last build start time"
-msgstr "合并请求上次构建开始时间"
+msgstr "合并评审上次构建开始时间"
 
 msgid "CycleAnalyticsEvent|Merge request last edited"
-msgstr "合并请求最后编辑"
+msgstr "合并评审最后编辑"
 
 msgid "CycleAnalyticsEvent|Merge request merged"
-msgstr "合并请求已合并"
+msgstr "合并评审已合并"
 
 msgid "CycleAnalyticsStage|Code"
 msgstr "编码"
@@ -11515,7 +11521,7 @@ msgid "DORA4Metrics|No incidents during this period"
 msgstr "在此期间没有事件"
 
 msgid "DORA4Metrics|No merge requests were deployed during this period"
-msgstr "在此期间没有部署合并请求"
+msgstr "在此期间没有部署合并评审"
 
 msgid "DORA4Metrics|Number of deployments"
 msgstr "部署数量"
@@ -11542,7 +11548,7 @@ msgid "DORA4Metrics|The chart displays the frequency of deployments to productio
 msgstr "该图表显示基于 %{linkStart}deployment_tier%{linkEnd} 值的生产环境部署频率。"
 
 msgid "DORA4Metrics|The chart displays the median time between a merge request being merged and deployed to production environment(s) that are based on the %{linkStart}deployment_tier%{linkEnd} value."
-msgstr "该图表显示合并请求被合并和部署到生产环境之间的中间值时间，这些时间基于 %{linkStart}deployment_tier%{linkEnd} 值。"
+msgstr "该图表显示合并评审被合并和部署到生产环境之间的中间值时间，这些时间基于 %{linkStart}deployment_tier%{linkEnd} 值。"
 
 msgid "DORA4Metrics|Time to restore service"
 msgstr "恢复服务的时间"
@@ -12152,7 +12158,7 @@ msgid "Default description template for issues"
 msgstr "工单的默认描述模板"
 
 msgid "Default description template for merge requests"
-msgstr "合并请求的默认描述模板"
+msgstr "合并评审的默认描述模板"
 
 msgid "Default first day of the week"
 msgstr "每周的默认起始日"
@@ -12179,7 +12185,7 @@ msgid "DefaultBranchProtection|Both developers and maintainers can push new comm
 msgstr "开发者和维护者都可以推送新的提交，强制推送或删除分支。"
 
 msgid "DefaultBranchProtection|Developers cannot push new commits, but are allowed to accept merge requests to the branch. Maintainers can push to the branch."
-msgstr "开发者不能推送新的提交，但允许接受合并请求到分支。维护者可以推送到分支。"
+msgstr "开发者不能推送新的提交，但允许接受合并评审到分支。维护者可以推送到分支。"
 
 msgid "DefaultBranchProtection|Developers cannot push new commits, but maintainers can. No one can force push."
 msgstr "开发者不能推送新的提交，但是维护者可以。没有人可以强制推送。"
@@ -12209,7 +12215,7 @@ msgid "Define environments in the deploy stage(s) in %{code_open}.gitlab-ci.yml%
 msgstr "在%{code_open}.gitlab-ci.yml%{code_close}的部署阶段中定义环境来跟踪部署。"
 
 msgid "Define how approval rules are applied to merge requests."
-msgstr "定义审核规则如何应用于合并请求。"
+msgstr "定义审核规则如何应用于合并评审。"
 
 msgid "Define rules for who can push, merge, and the required approvals for each branch."
 msgstr "定义谁可以推送、合并以及每个分支所需的批准规则。"
@@ -12425,7 +12431,7 @@ msgid "Deleting a project places it into a read-only state until %{date}, at whi
 msgstr "删除项目会将其置于只读状态直至%{date}。届时项目将被永久删除。确定要删除吗？"
 
 msgid "Deleting the project will delete its repository and all related resources, including issues and merge requests."
-msgstr "删除该项目将删除其仓库和所有相关资源，包括工单和合并请求。"
+msgstr "删除该项目将删除其仓库和所有相关资源，包括工单和合并评审。"
 
 msgid "Deletion pending. This project will be deleted on %{date}. Repository and other project resources are read-only."
 msgstr "删除操作等待处理。此项目将于%{date}被删除。仓库和其他项目资源为只读。"
@@ -12609,11 +12615,11 @@ msgstr "启用后，超过 90 天的镜像将从缓存中删除。"
 
 msgid "Depends on %d merge request being merged"
 msgid_plural "Depends on %d merge requests being merged"
-msgstr[0] "依赖于%d 个正在合并的合并请求"
+msgstr[0] "依赖于%d 个正在合并的合并评审"
 
 msgid "Depends on %{strongStart}%{closedCount} closed%{strongEnd} merge request."
 msgid_plural "Depends on %{strongStart}%{closedCount} closed%{strongEnd} merge requests."
-msgstr[0] "依赖于%{strongStart}%{closedCount}已关闭的%{strongEnd}合并请求。"
+msgstr[0] "依赖于%{strongStart}%{closedCount}已关闭的%{strongEnd}合并评审。"
 
 msgid "Deploy"
 msgid_plural "Deploys"
@@ -13252,7 +13258,7 @@ msgid "DevopsAdoption|Are you sure that you would like to remove %{name} from th
 msgstr "您确定要从表中删除 %{name} 吗？"
 
 msgid "DevopsAdoption|At least one approval on a merge request"
-msgstr "在合并请求上至少有一次批准"
+msgstr "在合并评审上至少有一次批准"
 
 msgid "DevopsAdoption|At least one deploy"
 msgstr "至少部署一次"
@@ -13261,7 +13267,7 @@ msgid "DevopsAdoption|At least one issue created"
 msgstr "已创建至少一个工单"
 
 msgid "DevopsAdoption|At least one merge request created"
-msgstr "已创建至少一个合并请求"
+msgstr "已创建至少一个合并评审"
 
 msgid "DevopsAdoption|At least one pipeline successfully run"
 msgstr "至少有一条流水线运行成功"
@@ -13315,7 +13321,7 @@ msgid "DevopsAdoption|Issues"
 msgstr "工单"
 
 msgid "DevopsAdoption|MRs"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "DevopsAdoption|No results…"
 msgstr "没有结果…"
@@ -13558,7 +13564,7 @@ msgid "Discover|For code that's already live in production, our dashboards give 
 msgstr "对于已经发布到生产环境中的代码，我们的仪表板为您提供了一种简单的方式来安排已发现问题的优先级， 从而增强您的团队的能力，实现快速和安全地发布。"
 
 msgid "Discover|GitLab will perform static and dynamic tests on the code of your application, looking for known flaws and report them in the merge request so you can fix them before merging."
-msgstr "GitLab将对您的应用程序代码执行静态和动态测试，查找已知缺陷并在合并请求中报告这些缺陷，以便您可以在合并之前修复它们。"
+msgstr "GitLab将对您的应用程序代码执行静态和动态测试，查找已知缺陷并在合并评审中报告这些缺陷，以便您可以在合并之前修复它们。"
 
 msgid "Discover|Security capabilities, integrated into your development lifecycle"
 msgstr "安全能力，整合到您的开发生命周期中"
@@ -13601,7 +13607,7 @@ msgid "Dismiss Alert"
 msgstr "忽略警报"
 
 msgid "Dismiss merge request promotion"
-msgstr "关闭合并请求推荐"
+msgstr "关闭合并评审推荐"
 
 msgid "Dismiss selected"
 msgstr "忽略选取项目"
@@ -13994,7 +14000,7 @@ msgid "Edit link"
 msgstr "编辑链接"
 
 msgid "Edit merge requests"
-msgstr "编辑合并请求"
+msgstr "编辑合并评审"
 
 msgid "Edit public deploy key"
 msgstr "编辑公共部署密钥"
@@ -14465,7 +14471,7 @@ msgid "Enter license key"
 msgstr "请输入许可证密钥"
 
 msgid "Enter merge request URLs"
-msgstr "输入合并请求网址"
+msgstr "输入合并评审网址"
 
 msgid "Enter new AWS Secret Access Key"
 msgstr "输入新的AWS Secret Access密钥"
@@ -14771,7 +14777,7 @@ msgid "Epics let you manage your portfolio of projects more efficiently and with
 msgstr "有效利用史诗，您的产品线管理会变得更轻松高效"
 
 msgid "Epics, issues, and merge requests"
-msgstr "史诗、工单和合并请求"
+msgstr "史诗、工单和合并评审"
 
 msgid "Epics|%{startDate} – %{dueDate}"
 msgstr "%{startDate} – %{dueDate}"
@@ -14957,7 +14963,7 @@ msgid "Error loading markdown preview"
 msgstr "加载Markdown预览时出错"
 
 msgid "Error loading merge requests."
-msgstr "加载合并请求时出错。"
+msgstr "加载合并评审时出错。"
 
 msgid "Error loading milestone tab"
 msgstr "加载里程碑面板时发生错误"
@@ -15050,7 +15056,7 @@ msgid "Error uploading file: %{stripped}"
 msgstr "上传文件时出错: %{stripped}"
 
 msgid "Error while loading the merge request. Please try again."
-msgstr "加载合并请求时出错。请再试一次。"
+msgstr "加载合并评审时出错。请再试一次。"
 
 msgid "Error while migrating %{upload_id}: %{error_message}"
 msgstr "迁移 %{upload_id} 时出错 : %{error_message}"
@@ -15549,7 +15555,7 @@ msgid "Export issues"
 msgstr "导出工单"
 
 msgid "Export merge requests"
-msgstr "导出合并请求"
+msgstr "导出合并评审"
 
 msgid "Export project"
 msgstr "导出项目"
@@ -16197,7 +16203,7 @@ msgid "Feedback issue"
 msgstr "反馈问题"
 
 msgid "Fetch and check out this merge request's feature branch:"
-msgstr "获取并检出这个合并请求的功能分支："
+msgstr "获取并检出这个合并评审的功能分支："
 
 msgid "Fetching incoming email"
 msgstr "获取接收邮件地址"
@@ -16296,10 +16302,10 @@ msgid "Filter by label"
 msgstr "按标记筛选"
 
 msgid "Filter by merge requests that are currently closed and unmerged."
-msgstr "按当前已关闭和未合并的合并请求筛选。"
+msgstr "按当前已关闭和未合并的合并评审筛选。"
 
 msgid "Filter by merge requests that are currently merged."
-msgstr "按当前已合并的合并请求筛选。"
+msgstr "按当前已合并的合并评审筛选。"
 
 msgid "Filter by milestone"
 msgstr "按里程碑筛选"
@@ -16581,7 +16587,7 @@ msgid "ForkSuggestion|Fork"
 msgstr "派生"
 
 msgid "ForkSuggestion|You can’t %{edit_start}edit%{edit_end} files directly in this project. Fork this project and submit a merge request with your changes."
-msgstr "您不能在这个项目中直接 %{edit_start}编辑%{edit_end} 文件，请派生（Fork）这个项目并提交合并请求。"
+msgstr "您不能在这个项目中直接 %{edit_start}编辑%{edit_end} 文件，请派生（Fork）这个项目并提交合并评审。"
 
 msgid "ForkedFromProjectPath|Forked from"
 msgstr "派生自"
@@ -16653,7 +16659,7 @@ msgid "From issue creation until deploy to production"
 msgstr "从创建工单到部署至生产环境"
 
 msgid "From merge request merge until deploy to production"
-msgstr "从合并请求被合并后到部署至生产环境"
+msgstr "从合并评审被合并后到部署至生产环境"
 
 msgid "Full"
 msgstr "全部"
@@ -17516,7 +17522,7 @@ msgid "GitLab version"
 msgstr "GitLab 版本"
 
 msgid "GitLab will create a branch in your fork and start a merge request."
-msgstr "GitLab 将在你的派生项目中创建分支并开始合并请求。"
+msgstr "GitLab 将在你的派生项目中创建分支并开始合并评审。"
 
 msgid "GitLab.com"
 msgstr "GitLab.com"
@@ -17741,13 +17747,13 @@ msgid "GlobalSearch|Issues assigned to me"
 msgstr "指派给我的工单"
 
 msgid "GlobalSearch|Merge requests I've created"
-msgstr "我创建的合并请求"
+msgstr "我创建的合并评审"
 
 msgid "GlobalSearch|Merge requests assigned to me"
-msgstr "分配给我的合并请求"
+msgstr "分配给我的合并评审"
 
 msgid "GlobalSearch|Merge requests that I'm a reviewer"
-msgstr "我作为审核者的合并请求"
+msgstr "我作为审核者的合并评审"
 
 msgid "GlobalSearch|Projects"
 msgstr "项目"
@@ -17855,7 +17861,7 @@ msgid "Go to kubernetes"
 msgstr "转到 kubernete"
 
 msgid "Go to merge requests"
-msgstr "转到合并请求"
+msgstr "转到合并评审"
 
 msgid "Go to metrics"
 msgstr "转到指标"
@@ -17942,7 +17948,7 @@ msgid "Go to your issues"
 msgstr "转到您的工单"
 
 msgid "Go to your merge requests"
-msgstr "转到您的合并请求"
+msgstr "转到您的合并评审"
 
 msgid "Go to your projects"
 msgstr "转到您的项目"
@@ -18233,7 +18239,7 @@ msgid "GroupActivityMetrics|Members added"
 msgstr "添加新成员数"
 
 msgid "GroupActivityMetrics|Merge Requests created"
-msgstr "合并请求已创建"
+msgstr "合并评审已创建"
 
 msgid "GroupActivityMetrics|Recent activity"
 msgstr "最近活动"
@@ -19093,7 +19099,7 @@ msgid "HelloMessage|%{rocket_emoji} We like your curiosity! Help us improve GitL
 msgstr "%{rocket_emoji} 我们喜欢您的好奇心！通过加入团队来帮助我们改进：%{jobs_page_link}"
 
 msgid "HelloMessage|Does this page need fixes or improvements? Open an issue or contribute a merge request to help make GitLab more lovable. At GitLab, everyone can contribute!"
-msgstr "此页面需要修复或改进吗？打开一个工单或贡献一个合并请求，每个人都可以做出贡献！"
+msgstr "此页面需要修复或改进吗？打开一个工单或贡献一个合并评审，每个人都可以做出贡献！"
 
 msgid "HelloMessage|Welcome to GitLab!"
 msgstr "欢迎使用 GitLab！"
@@ -19380,13 +19386,13 @@ msgid "IDE|Review"
 msgstr "审阅"
 
 msgid "IDE|Start a new merge request"
-msgstr "开启新的合并请求"
+msgstr "开启新的合并评审"
 
 msgid "IDE|Successful commit"
 msgstr "成功提交"
 
 msgid "IDE|This option is disabled because you are not allowed to create merge requests in this project."
-msgstr "此选项被禁用，因为您不允许在此项目中创建合并请求。"
+msgstr "此选项被禁用，因为您不允许在此项目中创建合并评审。"
 
 msgid "IDE|This option is disabled because you don't have write permissions for the current branch."
 msgstr "此选项被禁用，因为您没有当前分支的写入权限。"
@@ -19929,13 +19935,13 @@ msgid "InProductMarketing|Create a project in GitLab in 5 minutes"
 msgstr "在5分钟内在 GitLab 中创建一个项目"
 
 msgid "InProductMarketing|Create well-defined workflows by using scoped labels on issues, merge requests, and epics. Labels with the same scope cannot be used together, which prevents conflicts."
-msgstr "通过在工单、合并请求和史诗上使用范围标签，创建定义明确的工作流。无法将相同范围的标签一起使用，从而防止冲突。"
+msgstr "通过在工单、合并评审和史诗上使用范围标签，创建定义明确的工作流。无法将相同范围的标签一起使用，从而防止冲突。"
 
 msgid "InProductMarketing|Create your first project!"
 msgstr "创建您的第一个项目！"
 
 msgid "InProductMarketing|Define who owns specific files or directories, so the right reviewers are suggested when a merge request introduces changes to those files."
-msgstr "定义谁拥有特定文件或目录，所以当合并请求对这些文件进行更改时，建议确定正确的审核者。"
+msgstr "定义谁拥有特定文件或目录，所以当合并评审对这些文件进行更改时，建议确定正确的审核者。"
 
 msgid "InProductMarketing|Deliver Better Products Faster"
 msgstr "更快地交付更好的产品"
@@ -19983,7 +19989,7 @@ msgid "InProductMarketing|Feel the need for speed?"
 msgstr "感觉需要速度吗？"
 
 msgid "InProductMarketing|Find and fix bottlenecks in your code review process by understanding how long open merge requests have been in review."
-msgstr "了解开放的合并请求已被审核多长时间，查找和解决您的代码审查过程中的瓶颈。"
+msgstr "了解开放的合并评审已被审核多长时间，查找和解决您的代码审查过程中的瓶颈。"
 
 msgid "InProductMarketing|Find out how your teams are really doing"
 msgstr "了解您的团队的实际情况"
@@ -20112,7 +20118,7 @@ msgid "InProductMarketing|It's also possible to simply %{external_repo_link} in 
 msgstr "为了利用 GitLab 的 CI/CD，也可以简单地设置为 %{external_repo_link}"
 
 msgid "InProductMarketing|Keep your code quality high by defining who should approve merge requests and how many approvals are required."
-msgstr "通过定义谁应该批准合并请求以及需要多少批准来保持您的代码质量。"
+msgstr "通过定义谁应该批准合并评审以及需要多少批准来保持您的代码质量。"
 
 msgid "InProductMarketing|Launch GitLab CI/CD in 20 minutes or less"
 msgstr "在 20 分钟或更短的时间内启动 GitLab CI/CD"
@@ -20133,7 +20139,7 @@ msgid "InProductMarketing|Master the art of importing!"
 msgstr "掌握导入的艺术！"
 
 msgid "InProductMarketing|Merge request approval rule"
-msgstr "合并请求批准规则"
+msgstr "合并评审批准规则"
 
 msgid "InProductMarketing|Move on to easily creating a Pages website %{ci_template_link}"
 msgstr "继续轻松创建 Pages 网站 %{ci_template_link}"
@@ -20163,7 +20169,7 @@ msgid "InProductMarketing|Reduce Security & Compliance Risk"
 msgstr "降低安全与合规风险"
 
 msgid "InProductMarketing|Require multiple approvers on a merge request, so you know it's in good shape before it's merged."
-msgstr "在合并请求时需要多个审批，所以您可以知道它处于良好状态，然后才能合并。"
+msgstr "在合并评审时需要多个审批，所以您可以知道它处于良好状态，然后才能合并。"
 
 msgid "InProductMarketing|Roadmaps"
 msgstr "路线图"
@@ -20646,7 +20652,7 @@ msgid "Include new features from all tiers."
 msgstr "包含所有级别的新功能。"
 
 msgid "Include the name of the author of the issue, merge request or comment in the email body. By default, GitLab overrides the email sender's name. Some email servers don't support that option."
-msgstr "在邮件正文中包括工单、合并请求或评论的作者名称。默认情况下，GitLab会覆盖电子邮件发件人的名字。有些电子邮件服务器不支持这个选项。"
+msgstr "在邮件正文中包括工单、合并评审或评论的作者名称。默认情况下，GitLab会覆盖电子邮件发件人的名字。有些电子邮件服务器不支持这个选项。"
 
 msgid "Include the username in the URL if required: %{code_open}https://username@gitlab.company.com/group/project.git%{code_close}."
 msgstr "如果需要，请在URL中包含用户名：%{code_open}https://username@gitlab.company.com/group/project.git%{code_close}。"
@@ -20857,7 +20863,7 @@ msgid "IntegrationEvents|A confidential issue is created, updated, or closed"
 msgstr "一个私密工单已创建、更新或关闭"
 
 msgid "IntegrationEvents|A merge request is created, updated, or merged"
-msgstr "一个合并请求已创建、更新或合并"
+msgstr "一个合并评审已创建、更新或合并"
 
 msgid "IntegrationEvents|A pipeline status changes"
 msgstr "流水线状态变更"
@@ -21325,7 +21331,7 @@ msgid "InviteMembersBanner|Invite your colleagues"
 msgstr "邀请您的同事"
 
 msgid "InviteMembersBanner|We noticed that you haven't invited anyone to this group. Invite your colleagues so you can discuss issues, collaborate on merge requests, and share your knowledge."
-msgstr "目前您还没有邀请任何人加入这个群组。 您可以邀请您的同事到群组种，以方便讨论问题，在合并请求中进行协作，以及分享您的知识。"
+msgstr "目前您还没有邀请任何人加入这个群组。 您可以邀请您的同事到群组种，以方便讨论问题，在合并评审中进行协作，以及分享您的知识。"
 
 msgid "InviteMembersModal| To get more members and access to additional paid features, an owner of the group can start a trial or upgrade to a paid tier."
 msgstr ""
@@ -21611,7 +21617,7 @@ msgid "Issue label"
 msgstr "工单标记"
 
 msgid "Issue or merge request ID is required"
-msgstr "问题或合并请求 ID 是必需的"
+msgstr "问题或合并评审 ID 是必需的"
 
 msgid "Issue published on status page."
 msgstr "工单发布在状态页面上。"
@@ -21734,7 +21740,7 @@ msgid "Issues Rate Limits"
 msgstr "工单速率限制"
 
 msgid "Issues and merge requests"
-msgstr "工单和合并请求"
+msgstr "工单和合并评审"
 
 msgid "Issues are being rebalanced at the moment, so manual reordering is disabled."
 msgstr "正在重新权衡工单，因此手动重新排序已被禁用。"
@@ -21752,7 +21758,7 @@ msgid "Issues must match this scope to appear in this list."
 msgstr "工单必须与此范围匹配才能出现在此列表中。"
 
 msgid "Issues with comments, merge requests with diffs and comments, labels, milestones, snippets, and other project entities"
-msgstr "工单评论，合并请求的差异和评论，标记，里程碑，代码片段和其他项目实体"
+msgstr "工单评论，合并评审的差异和评论，标记，里程碑，代码片段和其他项目实体"
 
 msgid "Issues with label %{label}"
 msgstr "带标记 %{label} 的工单"
@@ -21761,7 +21767,7 @@ msgid "Issues with no epic assigned"
 msgstr "未分配史诗的工单"
 
 msgid "Issues, merge requests, pushes, and comments."
-msgstr "工单，合并请求，推送及评论。"
+msgstr "工单，合并评审，推送及评论。"
 
 msgid "IssuesAnalytics|After you begin creating issues for your projects, we can start tracking and displaying metrics for them"
 msgstr "在您为项目创建工单后，我们就会开始跟踪并显示它们的指标"
@@ -22220,7 +22226,7 @@ msgid "JiraService|Jira comments are created when an issue is referenced in a co
 msgstr "Jira 评论是在提交中引用工单时创建的。"
 
 msgid "JiraService|Jira comments are created when an issue is referenced in a merge request."
-msgstr "Jira 评论是在合并请求中引用工单时创建的。"
+msgstr "Jira 评论是在合并评审中引用工单时创建的。"
 
 msgid "JiraService|Jira issues"
 msgstr "Jira工单"
@@ -22295,7 +22301,7 @@ msgid "JiraService|What version of GitLab are you using?"
 msgstr "您在使用什么版本的 GitLab？"
 
 msgid "JiraService|When a Jira issue is mentioned in a commit or merge request, a remote link and comment (if enabled) will be created."
-msgstr "在提交或合并请求中提及 Jira 工单时，将创建远程链接和评论（如果启用）。"
+msgstr "在提交或合并评审中提及 Jira 工单时，将创建远程链接和评论（如果启用）。"
 
 msgid "JiraService|Work on Jira issues without leaving GitLab. Add a Jira menu to access a read-only list of your Jira issues."
 msgstr "在不离开 GitLab 的情况下处理 Jira 工单。添加一个 Jira 菜单，访问您的 Jira 工单只读列表。"
@@ -22761,10 +22767,10 @@ msgid "Labels can be applied to %{features}. Group labels are available for any 
 msgstr "标记可以应用于 %{features}。群组标记可用于群组中的所有项目。"
 
 msgid "Labels can be applied to issues and merge requests to categorize them."
-msgstr "标记可用于对工单和合并请求进行分类。"
+msgstr "标记可用于对工单和合并评审进行分类。"
 
 msgid "Labels can be applied to issues and merge requests."
-msgstr "标记可用于工单和合并请求。"
+msgstr "标记可用于工单和合并评审。"
 
 msgid "Labels with no issues in this iteration:"
 msgstr "此迭代中没有工单的标记："
@@ -23104,7 +23110,7 @@ msgid "LearnGitLab|Start a free trial of GitLab Ultimate"
 msgstr "开始免费试用旗舰版"
 
 msgid "LearnGitLab|Submit a merge request (MR)"
-msgstr "提交合并请求 (MR)"
+msgstr "提交合并评审 (MR)"
 
 msgid "LearnGitLab|Try GitLab Ultimate for free"
 msgstr "免费试用旗舰版"
@@ -23218,7 +23224,7 @@ msgid "LicenseCompliance|Deny"
 msgstr "拒绝"
 
 msgid "LicenseCompliance|Disallow merge request if detected and will instruct developer to remove"
-msgstr "如检测到则不允许合并请求并指示开发人员删除"
+msgstr "如检测到则不允许合并评审并指示开发人员删除"
 
 msgid "LicenseCompliance|Learn more about %{linkStart}License Approvals%{linkEnd}"
 msgstr "了解更多有关%{linkStart}许可证批准%{linkEnd}的信息"
@@ -23362,7 +23368,7 @@ msgid "Licenses|The license list details information about the licenses used wit
 msgstr "许可证列表详细说明您项目中使用的许可证信息。"
 
 msgid "Licenses|Unacceptable license, if detected it will disallow a merge request until it's removed"
-msgstr "不可接受的许可证，如果检测到，它将不允许合并请求，直到它被删除"
+msgstr "不可接受的许可证，如果检测到，它将不允许合并评审，直到它被删除"
 
 msgid "Licenses|View license details for your project"
 msgstr "查看您项目的许可证详细信息"
@@ -23518,7 +23524,7 @@ msgid "List settings"
 msgstr "列表设置"
 
 msgid "List the merge requests that must be merged before this one."
-msgstr "列出在此之前必须合并的合并请求。"
+msgstr "列出在此之前必须合并的合并评审。"
 
 msgid "List the visible events for %{project_link} using the %{events_api_link}."
 msgstr "- 使用 %{events_api_link} 列出 %{project_link} 的可见事件。"
@@ -23590,7 +23596,7 @@ msgid "Lock memberships to LDAP synchronization"
 msgstr "锁定成员身份到LDAP同步"
 
 msgid "Lock merge request"
-msgstr "锁定合并请求"
+msgstr "锁定合并评审"
 
 msgid "Lock not found"
 msgstr "未找到锁"
@@ -23683,7 +23689,7 @@ msgid "MERGED"
 msgstr "已合并"
 
 msgid "MR widget|Back to the merge request"
-msgstr "返回合并请求"
+msgstr "返回合并评审"
 
 msgid "MR widget|See your pipeline in action"
 msgstr "查看您实际的流水线"
@@ -23692,7 +23698,7 @@ msgid "MR widget|Take a look at our %{beginnerLinkStart}Beginner's Guide to Cont
 msgstr "请查阅我们的%{beginnerLinkStart}持续集成新手指南%{beginnerLinkEnd}和%{exampleLinkStart}GitLab CI/CD实例%{exampleLinkEnd}来了解更多信息。"
 
 msgid "MR widget|The pipeline will test your code on every commit. A %{codeQualityLinkStart}code quality report%{codeQualityLinkEnd} will appear in your merge requests to warn you about potential code degradations."
-msgstr "流水线将在每次提交时测试您的代码。%{codeQualityLinkStart}代码质量报告%{codeQualityLinkEnd}将出现在您的合并请求中，对您潜在的代码质量下降发出警告。"
+msgstr "流水线将在每次提交时测试您的代码。%{codeQualityLinkStart}代码质量报告%{codeQualityLinkEnd}将出现在您的合并评审中，对您潜在的代码质量下降发出警告。"
 
 msgid "MRApprovals|Approvals"
 msgstr "核准"
@@ -24402,31 +24408,31 @@ msgid "Merge Conflicts"
 msgstr "合并冲突"
 
 msgid "Merge Request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "Merge Request Analytics"
-msgstr "合并请求分析"
+msgstr "合并评审分析"
 
 msgid "Merge Requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "Merge Requests created"
-msgstr "创建合并请求"
+msgstr "创建合并评审"
 
 msgid "Merge Requests in Review"
-msgstr "评审中的合并请求"
+msgstr "评审中的合并评审"
 
 msgid "Merge Requests merged"
-msgstr "合并请求已合并"
+msgstr "合并评审已合并"
 
 msgid "Merge automatically (%{strategy})"
 msgstr "自动合并(%{strategy})"
 
 msgid "Merge blocked: all merge request dependencies must be merged."
-msgstr "合并被阻止：必须合并所有合并请求依赖项。"
+msgstr "合并被阻止：必须合并所有合并评审依赖项。"
 
 msgid "Merge blocked: merge request must be marked as ready. It's still marked as draft."
-msgstr "合并被阻止：合并请求必须标记为就绪。它仍然被标记为草稿。"
+msgstr "合并被阻止：合并评审必须标记为就绪。它仍然被标记为草稿。"
 
 msgid "Merge blocked: new changes were just added."
 msgstr "合并被阻止：刚刚添加了新的更改。"
@@ -24462,55 +24468,55 @@ msgid "Merge options"
 msgstr "合并选项"
 
 msgid "Merge request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "Merge request %{mr_link} was reviewed by %{mr_author}"
-msgstr "合并请求%{mr_link}已被%{mr_author}审核"
+msgstr "合并评审%{mr_link}已被%{mr_author}审核"
 
 msgid "Merge request actions"
-msgstr "合并请求操作"
+msgstr "合并评审操作"
 
 msgid "Merge request analytics"
-msgstr "合并请求分析"
+msgstr "合并评审分析"
 
 msgid "Merge request approvals"
-msgstr "合并请求批准"
+msgstr "合并评审批准"
 
 msgid "Merge request commits"
-msgstr "合并请求提交"
+msgstr "合并评审提交"
 
 msgid "Merge request dependencies"
-msgstr "合并请求依赖"
+msgstr "合并评审依赖"
 
 msgid "Merge request events"
-msgstr "合并请求事件"
+msgstr "合并评审事件"
 
 msgid "Merge request locked."
-msgstr "合并请求已锁定。"
+msgstr "合并评审已锁定。"
 
 msgid "Merge request not merged"
-msgstr "合并请求未合并"
+msgstr "合并评审未合并"
 
 msgid "Merge request reports"
-msgstr "合并请求报告"
+msgstr "合并评审报告"
 
 msgid "Merge request unlocked."
-msgstr "合并请求已解锁。"
+msgstr "合并评审已解锁。"
 
 msgid "Merge request was scheduled to merge after pipeline succeeds"
-msgstr "合并请求已安排在流水线成功后合并"
+msgstr "合并评审已安排在流水线成功后合并"
 
 msgid "Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "Merge requests are a place to propose changes you've made to a project and discuss those changes with others"
-msgstr "合并请求用于提出对项目的更改并与他人进行讨论"
+msgstr "合并评审用于提出对项目的更改并与他人进行讨论"
 
 msgid "Merge the feature branch into the target branch and fix any conflicts. %{linkStart}How do I fix them?%{linkEnd}"
 msgstr "将功能分支合并到目标分支并修复任何冲突。 %{linkStart}我该如何修复它们？%{linkEnd}"
 
 msgid "Merge unavailable: merge requests are read-only in a secondary Geo node."
-msgstr "合并不可用：合并请求在次要 Geo 节点中是只读的。"
+msgstr "合并不可用：合并评审在次要 Geo 节点中是只读的。"
 
 msgid "Merge unverified changes"
 msgstr "合并未经验证的更改"
@@ -24558,7 +24564,7 @@ msgid "MergeRequestAnalytics|Line changes"
 msgstr "更改行数"
 
 msgid "MergeRequestAnalytics|Merge Request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "MergeRequestAnalytics|Milestone"
 msgstr "里程碑"
@@ -24570,7 +24576,7 @@ msgid "MergeRequestAnalytics|Time to merge"
 msgstr "合并时间"
 
 msgid "MergeRequestApprovals|Define approval rules and settings to ensure %{link_start}separation of duties%{link_end} for new merge requests."
-msgstr "定义批准规则和设置，以确保新合并请求的 %{link_start}职责分离%{link_end}。"
+msgstr "定义批准规则和设置，以确保新合并评审的 %{link_start}职责分离%{link_end}。"
 
 msgid "MergeRequestApprovals|Enforce %{link_start}separation of duties%{link_end} for all projects."
 msgstr "对所有项目强制执行 %{link_start}职责分离%{link_end}。"
@@ -24639,16 +24645,16 @@ msgid "MergeRequest|Approved by @%{username}"
 msgstr "由 @%{username} 批准"
 
 msgid "MergeRequest|Can't show this merge request because of an internal error. Contact your administrator."
-msgstr "由于内部错误，无法显示此合并请求。请联系您的管理员。"
+msgstr "由于内部错误，无法显示此合并评审。请联系您的管理员。"
 
 msgid "MergeRequest|Can't show this merge request because the fork project was deleted."
-msgstr "无法显示此合并请求，因为派生项目已被删除。"
+msgstr "无法显示此合并评审，因为派生项目已被删除。"
 
 msgid "MergeRequest|Can't show this merge request because the source branch %{branch_badge} is missing from project %{path_badge}. Close this merge request or update the source branch."
-msgstr "无法显示此合并请求，因为源分支 %{branch_badge} 缺少项目 %{path_badge}。关闭此合并请求或更新源分支。"
+msgstr "无法显示此合并评审，因为源分支 %{branch_badge} 缺少项目 %{path_badge}。关闭此合并评审或更新源分支。"
 
 msgid "MergeRequest|Can't show this merge request because the target branch %{branch_badge} is missing from project %{path_badge}. Close this merge request or update the target branch."
-msgstr "无法显示此合并请求，因为项目 %{branch_badge} 中缺少目标分支 %{path_badge}。关闭此合并请求或更新目标分支。"
+msgstr "无法显示此合并评审，因为项目 %{branch_badge} 中缺少目标分支 %{path_badge}。关闭此合并评审或更新目标分支。"
 
 msgid "MergeRequest|Compare %{target} and %{source}"
 msgstr "比较%{target}和%{source}"
@@ -24669,7 +24675,7 @@ msgid "Merged"
 msgstr "已合并"
 
 msgid "Merged MRs"
-msgstr "已合并的合并请求"
+msgstr "已合并的合并评审"
 
 msgid "Merged branches are being deleted. This can take some time depending on the number of branches. Please refresh the page to see changes."
 msgstr "已合并分支正在被删除。该操作可能需要一些时间，具体取决于分支的数量。请刷新页面以查看更新。"
@@ -24678,13 +24684,13 @@ msgid "Merged by"
 msgstr "合并者"
 
 msgid "Merged this merge request."
-msgstr "已合并此合并请求。"
+msgstr "已合并此合并评审。"
 
 msgid "Merged: %{merged}"
 msgstr "已合并: %{merged}"
 
 msgid "Merges this merge request immediately."
-msgstr "立即合并此合并请求。"
+msgstr "立即合并此合并评审。"
 
 msgid "Merging immediately isn't recommended as it may negatively impact the existing merge train. Read the %{docsLinkStart}documentation%{docsLinkEnd} for more information."
 msgstr "不建议立即合并，因为它可能对现有合并列车产生不利影响。请查阅%{docsLinkStart}文档%{docsLinkEnd}以了解更多信息。"
@@ -25136,7 +25142,7 @@ msgid "MilestoneSidebar|Issues"
 msgstr "工单"
 
 msgid "MilestoneSidebar|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "MilestoneSidebar|Merged:"
 msgstr "合并："
@@ -25181,7 +25187,7 @@ msgid "Milestones| You’re about to permanently delete the milestone %{mileston
 msgstr "您即将永久删除里程碑 %{milestoneTitle} 并将其从 %{issuesWithCount} 和 %{mergeRequestsWithCount} 删除。删除后，无法撤消或恢复。"
 
 msgid "Milestones| You’re about to permanently delete the milestone %{milestoneTitle}. This milestone is not currently used in any issues or merge requests."
-msgstr "您即将永久删除里程碑 %{milestoneTitle}。此里程碑当前未用于任何工单或合并请求。"
+msgstr "您即将永久删除里程碑 %{milestoneTitle}。此里程碑当前未用于任何工单或合并评审。"
 
 msgid "Milestones|Close Milestone"
 msgstr "关闭里程碑"
@@ -25190,7 +25196,7 @@ msgid "Milestones|Completed Issues (closed)"
 msgstr "已完成的工单(已关闭)"
 
 msgid "Milestones|Create a milestone to better track your issues and merge requests. %{learn_more_link}"
-msgstr "创建一个里程碑来更好地跟踪您的工单和合并请求。%{learn_more_link}"
+msgstr "创建一个里程碑来更好地跟踪您的工单和合并评审。%{learn_more_link}"
 
 msgid "Milestones|Delete milestone"
 msgstr "删除里程碑"
@@ -25211,7 +25217,7 @@ msgid "Milestones|Ongoing Issues (open and assigned)"
 msgstr "处理中的工单(打开和已分配)"
 
 msgid "Milestones|Organize issues and merge requests into a cohesive group, and set optional start and due dates. %{learn_more_link}"
-msgstr "将工单与合并请求组织到一个有凝聚力的组中，并设置可选的起始日期和到期日期。%{learn_more_link}"
+msgstr "将工单与合并评审组织到一个有凝聚力的组中，并设置可选的起始日期和到期日期。%{learn_more_link}"
 
 msgid "Milestones|Project Milestone"
 msgstr "项目里程碑"
@@ -25244,7 +25250,7 @@ msgid "Milestones|Unstarted Issues (open and unassigned)"
 msgstr "未启动的工单(开放和未分配)"
 
 msgid "Milestones|Use milestones to track issues and merge requests over a fixed period of time"
-msgstr "使用里程碑在固定时间段内跟踪工单和合并请求合并请求"
+msgstr "使用里程碑在固定时间段内跟踪工单和合并评审合并评审"
 
 msgid "Min Value"
 msgstr "最小值"
@@ -25475,13 +25481,13 @@ msgid "MrSurvey|By continuing, you acknowledge that responses will be used to im
 msgstr "如果继续，您确认响应将用于改进 GitLab 并符合 %{linkStart}GitLab 隐私政策%{linkEnd}。"
 
 msgid "MrSurvey|How satisfied are you with %{strongStart}speed/performance%{strongEnd} of merge requests?"
-msgstr "您对合并请求的%{strongStart}速度/性能%{strongEnd}感到满意吗？"
+msgstr "您对合并评审的%{strongStart}速度/性能%{strongEnd}感到满意吗？"
 
 msgid "MrSurvey|Merge request experience survey"
-msgstr "合并请求体验调查"
+msgstr "合并评审体验调查"
 
 msgid "MrSurvey|Overall, how satisfied are you with merge requests?"
-msgstr "总体而言，您对合并请求的满意度如何？"
+msgstr "总体而言，您对合并评审的满意度如何？"
 
 msgid "MrSurvey|Thank you for your feedback!"
 msgstr "感谢您的反馈！"
@@ -25831,7 +25837,7 @@ msgid "New list"
 msgstr "新建列表"
 
 msgid "New merge request"
-msgstr "新建合并请求"
+msgstr "新建合并评审"
 
 msgid "New milestone"
 msgstr "新里程碑"
@@ -26128,7 +26134,7 @@ msgid "No memberships found"
 msgstr "未找到成员"
 
 msgid "No merge requests found"
-msgstr "找不到合并请求"
+msgstr "找不到合并评审"
 
 msgid "No messages were logged"
 msgstr "未记录任何消息"
@@ -26182,7 +26188,7 @@ msgid "No regions configured"
 msgstr "未配置区域"
 
 msgid "No related merge requests found."
-msgstr "未找到相关的合并请求。"
+msgstr "未找到相关的合并评审。"
 
 msgid "No repository"
 msgstr "无仓库"
@@ -26427,13 +26433,13 @@ msgid_plural "NotificationEmail|Reviewers: %{users}"
 msgstr[0] "审核者: %{users}"
 
 msgid "NotificationEvent|Change reviewer merge request"
-msgstr "更改审核者合并请求"
+msgstr "更改审核者合并评审"
 
 msgid "NotificationEvent|Close issue"
 msgstr "关闭工单"
 
 msgid "NotificationEvent|Close merge request"
-msgstr "关闭合并请求"
+msgstr "关闭合并评审"
 
 msgid "NotificationEvent|Failed pipeline"
 msgstr "流水线失败"
@@ -26445,7 +26451,7 @@ msgid "NotificationEvent|Issue due"
 msgstr "到期工单"
 
 msgid "NotificationEvent|Merge merge request"
-msgstr "合并请求被合并"
+msgstr "合并评审被合并"
 
 msgid "NotificationEvent|Merge when pipeline succeeds"
 msgstr "流水线成功时合并"
@@ -26460,7 +26466,7 @@ msgid "NotificationEvent|New issue"
 msgstr "新建工单"
 
 msgid "NotificationEvent|New merge request"
-msgstr "新建合并请求"
+msgstr "新建合并评审"
 
 msgid "NotificationEvent|New note"
 msgstr "新建评论"
@@ -26469,19 +26475,19 @@ msgid "NotificationEvent|New release"
 msgstr "新发布"
 
 msgid "NotificationEvent|Push to merge request"
-msgstr "推送到合并请求"
+msgstr "推送到合并评审"
 
 msgid "NotificationEvent|Reassign issue"
 msgstr "重新指派工单"
 
 msgid "NotificationEvent|Reassign merge request"
-msgstr "重新指派合并请求"
+msgstr "重新指派合并评审"
 
 msgid "NotificationEvent|Reopen issue"
 msgstr "重启工单"
 
 msgid "NotificationEvent|Reopen merge request"
-msgstr "重新打开合并请求"
+msgstr "重新打开合并评审"
 
 msgid "NotificationEvent|Successful pipeline"
 msgstr "流水线成功完成"
@@ -26568,22 +26574,22 @@ msgid "Notify|Learn more about Auto DevOps"
 msgstr "了解有关 Auto DevOps 的更多信息"
 
 msgid "Notify|Merge request %{merge_request} can no longer be merged due to conflict."
-msgstr "合并请求 %{merge_request} 由于冲突无法合并。"
+msgstr "合并评审 %{merge_request} 由于冲突无法合并。"
 
 msgid "Notify|Merge request %{merge_request} was %{mr_status}"
-msgstr "合并请求 %{merge_request} 的状态为 %{mr_status}"
+msgstr "合并评审 %{merge_request} 的状态为 %{mr_status}"
 
 msgid "Notify|Merge request %{merge_request} was %{mr_status} by %{updated_by}"
-msgstr "合并请求 %{merge_request} 的状态由 %{updated_by} 变更为 %{mr_status}"
+msgstr "合并评审 %{merge_request} 的状态由 %{updated_by} 变更为 %{mr_status}"
 
 msgid "Notify|Merge request %{merge_request} was merged"
-msgstr "合并请求 %{merge_request} 已完成"
+msgstr "合并评审 %{merge_request} 已完成"
 
 msgid "Notify|Merge request %{mr_link} was closed by %{closed_by}"
-msgstr "合并请求 %{mr_link} 被 %{closed_by} 关闭"
+msgstr "合并评审 %{mr_link} 被 %{closed_by} 关闭"
 
 msgid "Notify|Merge request URL: %{merge_request_url}"
-msgstr "合并请求 URL：%{merge_request_url}"
+msgstr "合并评审 URL：%{merge_request_url}"
 
 msgid "Notify|Milestone changed to %{milestone}"
 msgstr "里程碑已更改为 %{milestone}"
@@ -27082,7 +27088,7 @@ msgid "Once imported, repositories can be mirrored over SSH. Read more %{link_st
 msgstr "仓库导入后，可以通过SSH进行镜像。点击%{link_start}此处%{link_end}了解更多."
 
 msgid "Once removed, the fork relationship cannot be restored. This project will no longer be able to receive or send merge requests to the source project or other forks."
-msgstr "删除后将无法恢复派生关系。此项目将无法再向源项目或其他派生发送或接收合并请求。"
+msgstr "删除后将无法恢复派生关系。此项目将无法再向源项目或其他派生发送或接收合并评审。"
 
 msgid "Once you confirm and press \"Reduce project visibility\":"
 msgstr "一旦您确认并点击\"降低项目可见性\"："
@@ -27131,7 +27137,7 @@ msgid "Only HTTP(S)"
 msgstr "仅 HTTP(S)"
 
 msgid "Only Issue ID or merge request ID is required"
-msgstr "仅需要工单 ID 或合并请求 ID"
+msgstr "仅需要工单 ID 或合并评审 ID"
 
 msgid "Only Project Members"
 msgstr "仅项目成员"
@@ -27233,7 +27239,7 @@ msgid "Opened"
 msgstr "已打开"
 
 msgid "Opened MRs"
-msgstr "开启的合并请求"
+msgstr "开启的合并评审"
 
 msgid "Opened issues"
 msgstr "开启的工单"
@@ -27320,7 +27326,7 @@ msgid "Other information"
 msgstr "其他信息"
 
 msgid "Other merge requests block this MR"
-msgstr "其他合并请求阻止了此MR"
+msgstr "其他合并评审阻止了此MR"
 
 msgid "Other versions"
 msgstr "其他版本"
@@ -27950,7 +27956,7 @@ msgid "Parsing error for param :embed_json. %{message}"
 msgstr "参数:embed_json解析错误。%{message}"
 
 msgid "Part of merge request changes"
-msgstr "包含于合并请求变更中"
+msgstr "包含于合并评审变更中"
 
 msgid "Partial import"
 msgstr "部分导入"
@@ -28112,7 +28118,7 @@ msgid "Perform advanced options such as changing path, transferring, exporting, 
 msgstr "执行高级选项，如改变路径、转移、导出或移除群组。"
 
 msgid "Perform code reviews and enhance collaboration with merge requests."
-msgstr "执行代码审查并通过合并请求增强协作。"
+msgstr "执行代码审查并通过合并评审增强协作。"
 
 msgid "Perform common operations on GitLab project"
 msgstr "在GitLab项目上执行常见操作"
@@ -28502,7 +28508,7 @@ msgid "PipelineSource|External Pull Request"
 msgstr "外部拉取请求"
 
 msgid "PipelineSource|Merge Request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "PipelineSource|On-Demand DAST Scan"
 msgstr "按需 DAST 扫描"
@@ -28796,13 +28802,13 @@ msgid "Pipelines|This is a child pipeline within the parent pipeline"
 msgstr "此流水线为具有父流水线的子流水线"
 
 msgid "Pipelines|This pipeline ran on the contents of this merge request combined with the contents of all other merge requests queued for merging into the target branch."
-msgstr "此流水线在此合并请求的内容上运行，并结合所有其它排队等待合并到目标分支的合并请求的内容。"
+msgstr "此流水线在此合并评审的内容上运行，并结合所有其它排队等待合并到目标分支的合并评审的内容。"
 
 msgid "Pipelines|This pipeline ran on the contents of this merge request's source branch, not the target branch."
-msgstr "此流水线在此合并请求的源分支的内容上运行，而不是目标分支。"
+msgstr "此流水线在此合并评审的源分支的内容上运行，而不是目标分支。"
 
 msgid "Pipelines|This pipeline will run code originating from a forked project merge request. This means that the code can potentially have security considerations like exposing CI variables."
-msgstr "此管道将运行源自派生项目合并请求的代码。 这意味着该代码可能存在安全问题，如暴露CI变量。"
+msgstr "此管道将运行源自派生项目合并评审的代码。 这意味着该代码可能存在安全问题，如暴露CI变量。"
 
 msgid "Pipelines|This project is not currently set up to run pipelines."
 msgstr "此项目当前未配置运行流水线。"
@@ -28847,7 +28853,7 @@ msgid "Pipelines|You have runners available to run your job now. No need to do a
 msgstr "您现在可以运行您的作业。无需做任何其他事情。"
 
 msgid "Pipelines|Your changes have been successfully committed. Now redirecting to the new merge request page."
-msgstr "您的更改已成功提交，现在重定向到新的合并请求页面。"
+msgstr "您的更改已成功提交，现在重定向到新的合并评审页面。"
 
 msgid "Pipelines|error"
 msgstr "错误"
@@ -28859,7 +28865,7 @@ msgid "Pipelines|latest"
 msgstr "最新"
 
 msgid "Pipelines|merge request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "Pipelines|merge train"
 msgstr "合并队列"
@@ -28901,7 +28907,7 @@ msgid "Pipeline|Date"
 msgstr "日期"
 
 msgid "Pipeline|Detached merge request pipeline"
-msgstr "游离的合并请求流水线"
+msgstr "游离的合并评审流水线"
 
 msgid "Pipeline|Failed"
 msgstr "失败"
@@ -29015,10 +29021,10 @@ msgid "Pipeline|This change will not change the overall test coverage if merged.
 msgstr "如果合并，此更改不会更改整体测试覆盖率。"
 
 msgid "Pipeline|This pipeline ran on the contents of this merge request combined with the contents of all other merge requests queued for merging into the target branch."
-msgstr "此流水线在此合并请求的内容上运行，并结合所有其它排队等待合并到目标分支的合并请求的内容。"
+msgstr "此流水线在此合并评审的内容上运行，并结合所有其它排队等待合并到目标分支的合并评审的内容。"
 
 msgid "Pipeline|This pipeline ran on the contents of this merge request's source branch, not the target branch."
-msgstr "此流水线在此合并请求的源分支的内容上运行，而不是目标分支。"
+msgstr "此流水线在此合并评审的源分支的内容上运行，而不是目标分支。"
 
 msgid "Pipeline|To run a merge request pipeline, the jobs in the CI/CD configuration file %{linkStart}must be configured%{linkEnd} to run in merge request pipelines."
 msgstr "要运行合并请求流水线，CI/CD 配置文件中的作业%{linkStart}必须配置为%{linkEnd}在合并请求流水线中运行。"
@@ -29051,7 +29057,7 @@ msgid "Pipeline|for"
 msgstr "使用提交"
 
 msgid "Pipeline|merge request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "Pipeline|merge train"
 msgstr "合并队列"
@@ -29447,7 +29453,7 @@ msgid "Preferences|Render whitespace characters in the Web IDE"
 msgstr "在Web IDE中渲染空白字符"
 
 msgid "Preferences|Show one file at a time on merge request's Changes tab"
-msgstr "在合并请求的变更标签上一次只显示一个文件"
+msgstr "在合并评审的变更标签上一次只显示一个文件"
 
 msgid "Preferences|Show whitespace changes in diffs"
 msgstr "显示差异中的空白变化"
@@ -29491,8 +29497,13 @@ msgstr "上一页"
 msgid "Prevent auto-stopping"
 msgstr "防止自动停止"
 
+<<<<<<< HEAD
 msgid "Prevent editing approval rules in projects and merge requests"
 msgstr "禁止在项目和合并请求中编辑批准规则。"
+=======
+msgid "Prevent editing approval rules in projects and merge requests."
+msgstr "禁止在项目和合并评审中编辑批准规则。"
+>>>>>>> 669835ddb8fd... Locale: 合并评审 is better than 合并请求
 
 msgid "Prevent environment from auto-stopping"
 msgstr "防止环境自动终止"
@@ -29606,7 +29617,7 @@ msgid "Productivity analytics can help identify the problems that are delaying y
 msgstr "效率分析有助于找出造成团队拖延的问题"
 
 msgid "ProductivityAanalytics|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "ProductivityAanalytics|is earlier than the allowed minimum date"
 msgstr "早于允许的最早日期"
@@ -29630,13 +29641,13 @@ msgid "ProductivityAnalytics|List"
 msgstr "列表"
 
 msgid "ProductivityAnalytics|Merge Requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "ProductivityAnalytics|Merge date"
 msgstr "合并日期"
 
 msgid "ProductivityAnalytics|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "ProductivityAnalytics|Time to merge"
 msgstr "合并时间"
@@ -29669,7 +29680,7 @@ msgid "ProfileSession|on"
 msgstr "于"
 
 msgid "Profiles| You are about to permanently delete %{yourAccount}, and all of the issues, merge requests, and groups linked to your account. Once you confirm %{deleteAccount}, it cannot be undone or recovered."
-msgstr "您即将永久删除 %{yourAccount}，以及与您的帐户关联的所有工单，合并请求和群组。一旦确认 %{deleteAccount}，此操作便无法撤销和恢复。"
+msgstr "您即将永久删除 %{yourAccount}，以及与您的帐户关联的所有工单，合并评审和群组。一旦确认 %{deleteAccount}，此操作便无法撤销和恢复。"
 
 msgid "Profiles| You are going to change the username %{currentUsernameBold} to %{newUsernameBold}. Profile and projects will be redirected to the %{newUsername} namespace but this redirect will expire once the %{currentUsername} namespace is registered by another user or group. Please update your Git repository remotes as soon as possible."
 msgstr "您将更改用户名 %{currentUsernameBold} 为 %{newUsernameBold}。配置文件和项目将重定向到 %{newUsername} 命名空间，但是一旦 %{currentUsername} 命名空间被另一个用户或组注册，此重定向将过期。请尽快更新您的远端Git仓库。"
@@ -30458,7 +30469,7 @@ msgid "ProjectService|Trigger event when a deployment starts or finishes."
 msgstr "在部署开始或完成时触发事件。"
 
 msgid "ProjectService|Trigger event when a merge request is created, updated, or merged."
-msgstr "在创建、更新或合并合并请求时触发事件。"
+msgstr "在创建、更新或合并合并评审时触发事件。"
 
 msgid "ProjectService|Trigger event when a new, unique alert is recorded."
 msgstr "在记录新的、唯一的警报时触发事件。"
@@ -30494,13 +30505,13 @@ msgid "ProjectSettings|Allow"
 msgstr "允许"
 
 msgid "ProjectSettings|Always show thumbs-up and thumbs-down award emoji buttons on issues, merge requests, and snippets."
-msgstr "始终在工单、合并请求和代码片段上显示赞许和不赞许表情符号按钮。"
+msgstr "始终在工单、合并评审和代码片段上显示赞许和不赞许表情符号按钮。"
 
 msgid "ProjectSettings|Analytics"
 msgstr "分析"
 
 msgid "ProjectSettings|Automatically resolve merge request diff threads when they become outdated"
-msgstr "自动解决合并请求差异主题过期时的合并请求"
+msgstr "自动解决合并评审差异主题过期时的合并评审"
 
 msgid "ProjectSettings|Badges"
 msgstr "徽章"
@@ -30515,7 +30526,7 @@ msgid "ProjectSettings|Checkbox is visible and unselected by default."
 msgstr "默认情况下，复选框是可见和未选中的。"
 
 msgid "ProjectSettings|Choose the method, options, checks, and squash options for merge requests. You can also set up merge request templates for different actions."
-msgstr "为合并请求选择方法、选项、检查和压缩。您还可以为不同的操作设置合并请求模板。"
+msgstr "为合并评审选择方法、选项、检查和压缩。您还可以为不同的操作设置合并评审模板。"
 
 msgid "ProjectSettings|Choose your merge method, merge options, merge checks, and merge suggestions."
 msgstr "选择合并方法、合并选项，合并检查以及合并建议"
@@ -30536,7 +30547,7 @@ msgid "ProjectSettings|Customize this project's badges."
 msgstr "自定义此项目的徽章。"
 
 msgid "ProjectSettings|Determine what happens to the commit history when you merge a merge request."
-msgstr "确定合并合并请求时，提交历史记录会发生什么。"
+msgstr "确定合并合并评审时，提交历史记录会发生什么。"
 
 msgid "ProjectSettings|Disable email notifications"
 msgstr "禁用电子邮件通知"
@@ -30572,7 +30583,7 @@ msgid "ProjectSettings|Everyone"
 msgstr "所有人"
 
 msgid "ProjectSettings|Existing merge requests and protected branches are not affected."
-msgstr "现有合并请求和受保护分支不受影响。"
+msgstr "现有合并评审和受保护分支不受影响。"
 
 msgid "ProjectSettings|Failed to protect the tag"
 msgstr "保护标签失败"
@@ -30653,13 +30664,13 @@ msgid "ProjectSettings|Merge options"
 msgstr "合并选项"
 
 msgid "ProjectSettings|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "ProjectSettings|Merge requests approved for merge are queued, and pipelines validate the combined results of the source and target branches before merge. %{link_start}What are merge trains?%{link_end}"
-msgstr "已批准的合并请求已排队，流水线在合并前验证源和目标分支的合并结果。 %{link_start}什么是合并队列？%{link_end}"
+msgstr "已批准的合并评审已排队，流水线在合并前验证源和目标分支的合并结果。 %{link_start}什么是合并队列？%{link_end}"
 
 msgid "ProjectSettings|Merge requests can't be merged if the latest pipeline did not succeed or is still running."
-msgstr "如果最新流水线未成功或仍在运行，则无法合并合并请求。"
+msgstr "如果最新流水线未成功或仍在运行，则无法合并合并评审。"
 
 msgid "ProjectSettings|Merge suggestions"
 msgstr "合并建议"
@@ -30737,7 +30748,7 @@ msgid "ProjectSettings|Security & Compliance for this project"
 msgstr "此项目的安全与合规"
 
 msgid "ProjectSettings|Set the default behavior of this option in merge requests. Changes to this are also applied to existing merge requests."
-msgstr "在合并请求中设置此选项的默认行为。对此的更改也适用于现有的合并请求。"
+msgstr "在合并评审中设置此选项的默认行为。对此的更改也适用于现有的合并评审。"
 
 msgid "ProjectSettings|Share code with others outside the project."
 msgstr "与项目外的其它人共享代码。"
@@ -30746,7 +30757,7 @@ msgid "ProjectSettings|Show default award emojis"
 msgstr "显示默认的奖励表情符号"
 
 msgid "ProjectSettings|Show link to create or view a merge request when pushing from the command line"
-msgstr "从命令行推送时显示用于创建或查看合并请求的链接"
+msgstr "从命令行推送时显示用于创建或查看合并评审的链接"
 
 msgid "ProjectSettings|Skipped pipelines are considered successful"
 msgstr "跳过的流水线视为成功"
@@ -30773,7 +30784,7 @@ msgid "ProjectSettings|Target project"
 msgstr "目标项目"
 
 msgid "ProjectSettings|The commit message used when applying merge request suggestions."
-msgstr "应用合并请求建议时使用的提交消息。"
+msgstr "应用合并评审建议时使用的提交消息。"
 
 msgid "ProjectSettings|The commit message used when merging, if the merge method creates a merge commit."
 msgstr "合并时使用的提交消息，如果合并方法创建了合并提交。"
@@ -30782,13 +30793,13 @@ msgid "ProjectSettings|The commit message used when squashing commits."
 msgstr "压缩提交时使用的提交消息。"
 
 msgid "ProjectSettings|The default target project for merge requests created in this fork project."
-msgstr "在此派生项目中创建的合并请求的默认目标项目。"
+msgstr "在此派生项目中创建的合并评审的默认目标项目。"
 
 msgid "ProjectSettings|The default template will be applied on save."
 msgstr "保存时将应用默认模板。"
 
 msgid "ProjectSettings|These checks must pass before merge requests can be merged."
-msgstr "必须通过这些检查才能合并合并请求。"
+msgstr "必须通过这些检查才能合并合并评审。"
 
 msgid "ProjectSettings|This project"
 msgstr "此项目"
@@ -30809,7 +30820,7 @@ msgid "ProjectSettings|Upstream project"
 msgstr "上游项目"
 
 msgid "ProjectSettings|Used for every new merge request."
-msgstr "用于每个新的合并请求。"
+msgstr "用于每个新的合并评审。"
 
 msgid "ProjectSettings|Users can copy the repository to a new project."
 msgstr "用户可以将仓库复制到新项目。"
@@ -30848,7 +30859,7 @@ msgid "ProjectSettings|What is squashing?"
 msgstr "什么是压缩？"
 
 msgid "ProjectSettings|When merge request pipelines are enabled in the CI/CD configuration file, pipelines validate the combined results of the source and target branches. %{link_start}How to configure merge request pipelines?%{link_end}"
-msgstr "在 CI/CD 配置文件中启用合并请求流水线时，流水线会验证源分支和目标分支的组合结果。%{link_start}如何配置合并请求流水线？%{link_end}"
+msgstr "在 CI/CD 配置文件中启用合并评审流水线时，流水线会验证源分支和目标分支的组合结果。%{link_start}如何配置合并评审流水线？%{link_end}"
 
 msgid "ProjectSettings|When semi-linear merge is not possible, the user is given the option to rebase."
 msgstr "当半线性合并不可能时，用户可以选择变基。"
@@ -30983,7 +30994,7 @@ msgid "Projects contributed to"
 msgstr "贡献的项目"
 
 msgid "Projects help you organize your work. They contain your file repository, issues, merge requests, and so much more."
-msgstr "项目可帮助您组织工作。它们包含您的文件仓库、工单、合并请求等等。"
+msgstr "项目可帮助您组织工作。它们包含您的文件仓库、工单、合并评审等等。"
 
 msgid "Projects in this group can use Git LFS"
 msgstr "此群组中的项目可以使用 Git LFS"
@@ -31286,7 +31297,7 @@ msgid "Promotions|Contact your Administrator to upgrade your license."
 msgstr "请与管理员联系以升级许可证。"
 
 msgid "Promotions|Description templates allow you to define context-specific templates for issue and merge request description fields for your project."
-msgstr "描述模板允许您为项目的工单和合并请求描述字段定义特定上下文的模板。"
+msgstr "描述模板允许您为项目的工单和合并评审描述字段定义特定上下文的模板。"
 
 msgid "Promotions|Dismiss Service Desk promotion"
 msgstr "关闭服务台促销"
@@ -31307,7 +31318,7 @@ msgid "Promotions|Improve issues management with Issue weight and GitLab Enterpr
 msgstr "使用GitLab企业版中工单权重带来的增强工单管理功能。"
 
 msgid "Promotions|Improve merge requests and customer support with GitLab Enterprise Edition."
-msgstr "使用极狐GitLab改进合并请求和客户支持。"
+msgstr "使用极狐GitLab改进合并评审和客户支持。"
 
 msgid "Promotions|Improve milestones with Burndown Charts."
 msgstr "通过燃尽图增强里程碑。"
@@ -31325,7 +31336,7 @@ msgid "Promotions|Learn more"
 msgstr "了解更多"
 
 msgid "Promotions|Merge request approvals"
-msgstr "合并请求批准"
+msgstr "合并评审批准"
 
 msgid "Promotions|Not now, thanks!"
 msgstr "暂时不用，谢谢！"
@@ -31346,7 +31357,7 @@ msgid "Promotions|See the other features in the %{subscription_link_start}Premiu
 msgstr "查看 %{subscription_link_start}专业版%{subscription_link_end} 中的其它功能"
 
 msgid "Promotions|Set the number of necessary approvals and define a list of approvers needed for every merge request in a project."
-msgstr "设置必要的批准数量并定义项目中每个合并请求所需的批准者列表。"
+msgstr "设置必要的批准数量并定义项目中每个合并评审所需的批准者列表。"
 
 msgid "Promotions|Start GitLab Ultimate trial"
 msgstr "启动GitLab Ultimate试用"
@@ -31373,7 +31384,7 @@ msgid "Promotions|Upgrade your plan to activate Group Webhooks."
 msgstr "升级您的方案以激活群组Webhooks。"
 
 msgid "Promotions|Upgrade your plan to improve merge requests."
-msgstr "升级您的方案以提升合并请求功能。"
+msgstr "升级您的方案以提升合并评审功能。"
 
 msgid "Promotions|Upgrade your plan to improve milestones with Burndown Charts."
 msgstr "升级你的订阅计划，以使用燃尽图来增强里程碑。"
@@ -31382,7 +31393,7 @@ msgid "Promotions|Upgrade your plan to improve repositories."
 msgstr "升级您的方案以提升仓库功能。"
 
 msgid "Promotions|Webhooks allow you to trigger a URL if, for example, new code is pushed or a new issue is created. You can configure webhooks to listen for specific events like pushes, issues or merge requests. Group webhooks will apply to all projects in a group, allowing you to standardize webhook functionality across your entire group."
-msgstr "Webhooks 允许您在例如推送新代码或创建新工单时触发 URL。您可以配置 webhook 来侦听特定事件，例如推送、工单或合并请求。群组 webhook 将应用于群组中的所有项目，允许您在整个群组中标准化 webhook 功能。"
+msgstr "Webhooks 允许您在例如推送新代码或创建新工单时触发 URL。您可以配置 webhook 来侦听特定事件，例如推送、工单或合并评审。群组 webhook 将应用于群组中的所有项目，允许您在整个群组中标准化 webhook 功能。"
 
 msgid "Promotions|Weight"
 msgstr "权重"
@@ -31490,7 +31501,7 @@ msgid "ProtectedBranch|Does not apply to users allowed to push. Optional section
 msgstr "不适用于允许推送的用户。不强制执行可选部分。"
 
 msgid "ProtectedBranch|Keep stable branches secure and force developers to use merge requests."
-msgstr "保持稳定的分支安全并强制开发人员使用合并请求。"
+msgstr "保持稳定的分支安全并强制开发人员使用合并评审。"
 
 msgid "ProtectedBranch|Learn more."
 msgstr "了解更多。"
@@ -32181,7 +32192,7 @@ msgid "Related issues"
 msgstr "相关工单"
 
 msgid "Related merge requests"
-msgstr "相关合并请求"
+msgstr "相关合并评审"
 
 msgid "Relates to"
 msgstr "关联到"
@@ -33275,7 +33286,7 @@ msgid "Revert this commit"
 msgstr "还原此提交"
 
 msgid "Revert this merge request"
-msgstr "还原此合并请求"
+msgstr "还原此合并评审"
 
 msgid "Review"
 msgstr "审阅"
@@ -33324,7 +33335,7 @@ msgid "Reviewing"
 msgstr "审阅中"
 
 msgid "Reviewing (merge request !%{mergeRequestId})"
-msgstr "审核(合并请求 !%{mergeRequestId})"
+msgstr "审核(合并评审 !%{mergeRequestId})"
 
 msgid "Revoke"
 msgstr "撤销"
@@ -33381,7 +33392,7 @@ msgid "Run CI/CD pipelines for external repositories"
 msgstr "使用外部仓库的CI/CD流水线"
 
 msgid "Run CI/CD pipelines with Jenkins when you push to a repository, or when a merge request is created, updated, or merged. %{docs_link}"
-msgstr "当您推送到仓库时，或者当一个合并请求被创建、更新或合并时，使用 Jenkins 运行CI/CD 流水线。 %{docs_link}"
+msgstr "当您推送到仓库时，或者当一个合并评审被创建、更新或合并时，使用 Jenkins 运行CI/CD 流水线。 %{docs_link}"
 
 msgid "Run CI/CD pipelines with Jenkins."
 msgstr "使用 Jenkins 运行 CI/CD 流水线。"
@@ -34089,7 +34100,7 @@ msgid "ScanExecutionPolicy|Select branches"
 msgstr "选择分支"
 
 msgid "ScanResultPolicy|%{ifLabelStart}if%{ifLabelEnd} %{scanners} find(s) more than %{vulnerabilitiesAllowed} %{severities} %{vulnerabilityStates} vulnerabilities in an open merge request targeting %{branches}"
-msgstr "%{ifLabelStart}如果%{ifLabelEnd} %{scanners} 在针对 %{branches} 的开放合并请求中发现超过 %{vulnerabilitiesAllowed} %{severities} %{vulnerabilityStates} 的漏洞"
+msgstr "%{ifLabelStart}如果%{ifLabelEnd} %{scanners} 在针对 %{branches} 的开放合并评审中发现超过 %{vulnerabilitiesAllowed} %{severities} %{vulnerabilityStates} 的漏洞"
 
 msgid "ScanResultPolicy|%{thenLabelStart}Then%{thenLabelEnd} Require approval from %{approvalsRequired} of the following approvers:"
 msgstr "%{thenLabelStart}然后%{thenLabelEnd} 需要以下 %{approvalsRequired} 个核准人的批准："
@@ -34134,13 +34145,13 @@ msgid "Scheduled pipelines cannot run more frequently than once per %{limit} min
 msgstr "计划的管道每次运行时间不能超过一次 %{limit} 分钟。 一个配置更频繁运行的管道仅在 %{limit} 分钟后才开始运行。"
 
 msgid "Scheduled to merge this merge request (%{strategy})."
-msgstr "已计划合并此合并请求 (%{strategy})。"
+msgstr "已计划合并此合并评审 (%{strategy})。"
 
 msgid "Schedules"
 msgstr "计划"
 
 msgid "Schedules to merge this merge request (%{strategy})."
-msgstr "计划合并此合并请求 (%{strategy})。"
+msgstr "计划合并此合并评审 (%{strategy})。"
 
 msgid "Scheduling Pipelines"
 msgstr "流水线计划"
@@ -34260,7 +34271,7 @@ msgid "Search labels"
 msgstr "搜索标记"
 
 msgid "Search merge requests"
-msgstr "搜索合并请求"
+msgstr "搜索合并评审"
 
 msgid "Search milestones"
 msgstr "搜索里程碑"
@@ -34320,13 +34331,13 @@ msgid "SearchAutocomplete|Issues assigned to me"
 msgstr "指派给我的工单"
 
 msgid "SearchAutocomplete|Merge requests I've created"
-msgstr "我创建的合并请求"
+msgstr "我创建的合并评审"
 
 msgid "SearchAutocomplete|Merge requests assigned to me"
-msgstr "分配给我的合并请求"
+msgstr "分配给我的合并评审"
 
 msgid "SearchAutocomplete|Merge requests that I'm a reviewer"
-msgstr "我是审核者的合并请求"
+msgstr "我是审核者的合并评审"
 
 msgid "SearchAutocomplete|in all GitLab"
 msgstr "在整个 GitLab"
@@ -34374,7 +34385,7 @@ msgstr[0] "工单"
 
 msgid "SearchResults|merge request"
 msgid_plural "SearchResults|merge requests"
-msgstr[0] "合并请求"
+msgstr[0] "合并评审"
 
 msgid "SearchResults|milestone"
 msgid_plural "SearchResults|milestones"
@@ -34478,10 +34489,10 @@ msgid "Security report is out of date. Run %{newPipelineLinkStart}a new pipeline
 msgstr "安全报告已过时。请在目标分支(%{targetBranchName})上运行%{newPipelineLinkStart}新的流水线%{newPipelineLinkEnd}"
 
 msgid "SecurityApprovals|A merge request approval is required when test coverage declines."
-msgstr "当测试覆盖率下降时需要合并请求批准。"
+msgstr "当测试覆盖率下降时需要合并评审批准。"
 
 msgid "SecurityApprovals|A merge request approval is required when the license compliance report contains a denied license."
-msgstr "当许可证合规性报告包含列入禁止名单的许可证时，合并请求批准为必需。"
+msgstr "当许可证合规性报告包含列入禁止名单的许可证时，合并评审批准为必需。"
 
 msgid "SecurityApprovals|Coverage-Check"
 msgstr "覆盖范围检查"
@@ -34502,19 +34513,19 @@ msgid "SecurityApprovals|Requires approval for decreases in test coverage. %{lin
 msgstr "测试覆盖率降低，需批准。%{linkStart}了解更多。%{linkEnd}"
 
 msgid "SecurityConfiguration|%{featureName} merge request creation mutation failed"
-msgstr "%{featureName} 合并请求创建突变失败"
+msgstr "%{featureName} 合并评审创建突变失败"
 
 msgid "SecurityConfiguration|%{scanType} configuration code snippet"
 msgstr "%{scanType} 配置代码片段"
 
 msgid "SecurityConfiguration|An error occurred while creating the merge request."
-msgstr "创建合并请求时出错。"
+msgstr "创建合并评审时出错。"
 
 msgid "SecurityConfiguration|Available with Ultimate"
 msgstr "适用于旗舰版"
 
 msgid "SecurityConfiguration|By default, all analyzers are applied in order to cover all languages across your project, and only run if the language is detected in the merge request."
-msgstr "默认情况下，所有分析器都被应用来覆盖您项目的所有语言，并且只在合并请求中检测到该语言时才运行。"
+msgstr "默认情况下，所有分析器都被应用来覆盖您项目的所有语言，并且只在合并评审中检测到该语言时才运行。"
 
 msgid "SecurityConfiguration|Compliance"
 msgstr "合规性"
@@ -34529,7 +34540,7 @@ msgid "SecurityConfiguration|Configure %{feature}"
 msgstr "配置 %{feature}"
 
 msgid "SecurityConfiguration|Configure with a merge request"
-msgstr "使用合并请求配置"
+msgstr "使用合并评审配置"
 
 msgid "SecurityConfiguration|Copy code and open .gitlab-ci.yml file"
 msgstr "复制代码并打开 .gitlab-ci.yml 文件"
@@ -34541,7 +34552,7 @@ msgid "SecurityConfiguration|Could not retrieve configuration data. Please refre
 msgstr "无法获取配置数据。请刷新页面或稍后再试。"
 
 msgid "SecurityConfiguration|Create merge request"
-msgstr "创建合并请求"
+msgstr "创建合并评审"
 
 msgid "SecurityConfiguration|Customize common SAST settings to suit your requirements. Configuration changes made here override those provided by GitLab and are excluded from updates. For details of more advanced configuration options, see the %{linkStart}GitLab SAST documentation%{linkEnd}."
 msgstr "自定义常见的SAST设置以满足您的需求。此处所做的配置更改会覆盖GitLab提供的配置，并且不会包含在更新中。有关更多高级配置选项的详细信息，请参见%{linkStart}GitLab SAST文档%{linkEnd}。"
@@ -34622,7 +34633,7 @@ msgid "SecurityConfiguration|Vulnerability Management"
 msgstr "漏洞管理"
 
 msgid "SecurityConfiguration|Vulnerability details and statistics in the merge request"
-msgstr "合并请求中的漏洞详细信息和统计"
+msgstr "合并评审中的漏洞详细信息和统计"
 
 msgid "SecurityOrchestration| and "
 msgstr "和 "
@@ -34640,7 +34651,7 @@ msgid "SecurityOrchestration|%{scanners}"
 msgstr "%{scanners}"
 
 msgid "SecurityOrchestration|%{scanners} %{severities} in an open merge request targeting %{branches}."
-msgstr "针对 %{branches} 的开放合并请求中的 %{scanners} %{severities}。"
+msgstr "针对 %{branches} 的开放合并评审中的 %{scanners} %{severities}。"
 
 msgid "SecurityOrchestration|+%{count} more"
 msgstr "+%{count} 更多"
@@ -34745,7 +34756,7 @@ msgid "SecurityOrchestration|Failed to load vulnerability scanners."
 msgstr "加载漏洞扫描器失败。"
 
 msgid "SecurityOrchestration|If any scanner finds a newly detected critical vulnerability in an open merge request targeting the master branch, then require two approvals from any member of App security."
-msgstr "如果任何扫描器在针对主分支的开放合并请求中发现新检测的严重漏洞，然后需要任何 App security 成员的两次批准。"
+msgstr "如果任何扫描器在针对主分支的开放合并评审中发现新检测的严重漏洞，然后需要任何 App security 成员的两次批准。"
 
 msgid "SecurityOrchestration|Inherited"
 msgstr "继承"
@@ -34949,7 +34960,7 @@ msgid "SecurityOrchestration|Use a scan execution policy to create rules which e
 msgstr "使用扫描执行策略，创建在特定时间强制对特定分支进行安全扫描的规则。支持的类型是 SAST、DAST、Secret 检测、容器扫描。"
 
 msgid "SecurityOrchestration|Use a scan result policy to create rules that ensure security issues are checked before merging a merge request."
-msgstr "使用扫描结果策略创建规则，确保在合并合并请求之前检查安全问题。"
+msgstr "使用扫描结果策略创建规则，确保在合并合并评审之前检查安全问题。"
 
 msgid "SecurityOrchestration|View policy project"
 msgstr "查看策略项目"
@@ -35168,7 +35179,7 @@ msgid "SecurityReports|Report has expired"
 msgstr "报告已过期"
 
 msgid "SecurityReports|Results show vulnerabilities introduced by the merge request, in addition to existing vulnerabilities from the latest successful pipeline in your project's default branch."
-msgstr "结果显示合并请求引入的漏洞，此外还有从您项目的默认分支中最新成功流水线中存在的漏洞。"
+msgstr "结果显示合并评审引入的漏洞，此外还有从您项目的默认分支中最新成功流水线中存在的漏洞。"
 
 msgid "SecurityReports|Scan details"
 msgstr "扫描详情"
@@ -35228,7 +35239,7 @@ msgid "SecurityReports|There was an error creating the issue."
 msgstr "创建工单时出错。"
 
 msgid "SecurityReports|There was an error creating the merge request."
-msgstr "创建合并请求时出错。"
+msgstr "创建合并评审时出错。"
 
 msgid "SecurityReports|There was an error deleting the comment."
 msgstr "删除评论时出错。"
@@ -35765,7 +35776,7 @@ msgid "Set the Ready status"
 msgstr "设置就绪状态"
 
 msgid "Set the default branch for this project. All merge requests and commits are made against this branch unless you specify a different one."
-msgstr "设置此项目的默认分支。除非您指定不同的分支，否则所有合并请求和提交都是针对此分支进行的。"
+msgstr "设置此项目的默认分支。除非您指定不同的分支，否则所有合并评审和提交都是针对此分支进行的。"
 
 msgid "Set the default expiration time for job artifacts in all projects. Set to %{code_open}0%{code_close} to never expire artifacts by default. If no unit is written, it defaults to seconds. For example, these are all equivalent: %{code_open}3600%{code_close}, %{code_open}60 minutes%{code_close}, or %{code_open}one hour%{code_close}."
 msgstr "为所有项目中的作业产物设置默认到期时间。默认情况下设置为 %{code_open}0%{code_close} 表示永不过期。如果没有写入单位，则默认为秒。例如，以下都是等价的： %{code_open}3600%{code_close}、 %{code_open}60 minutes%{code_close}或 %{code_open}one hour%{code_close}。"
@@ -35913,7 +35924,7 @@ msgid "Settings"
 msgstr "设置"
 
 msgid "Settings|Unable to load the merge request options settings. Try reloading the page."
-msgstr "无法加载合并请求选项设置。尝试重新加载页面。"
+msgstr "无法加载合并评审选项设置。尝试重新加载页面。"
 
 msgid "Setup"
 msgstr "设置"
@@ -36525,6 +36536,12 @@ msgstr "实心"
 msgid "Solution"
 msgstr "解决方案"
 
+<<<<<<< HEAD
+=======
+msgid "Some actions remove attention requests, like a reviewer approving or anyone merging the merge request."
+msgstr "某些操作会移除关注请求，例如审核者批准或合并合并评审的任何人。"
+
+>>>>>>> 669835ddb8fd... Locale: 合并评审 is better than 合并请求
 msgid "Some changes are not shown"
 msgstr "一些变化未显示"
 
@@ -36544,7 +36561,7 @@ msgid "Someone edited this %{issueType} at the same time you did. The descriptio
 msgstr "有人与您同时编辑了%{issueType} 。描述已被更新，您需要重新修改。"
 
 msgid "Someone edited this merge request at the same time you did. Please refresh the page to see changes."
-msgstr "有人您同时编辑了这一合并请求。请刷新页面查看更改。"
+msgstr "有人您同时编辑了这一合并评审。请刷新页面查看更改。"
 
 msgid "Someone edited this test case at the same time you did. The description has been updated and you will need to make your changes again."
 msgstr "有人在你编辑的同时编辑了这个测试用例。描述已更新，您需要再次进行更改。"
@@ -36592,7 +36609,7 @@ msgid "Something went wrong while closing the epic. Please try again later."
 msgstr "关闭史诗时出了错。请稍后再试。"
 
 msgid "Something went wrong while closing the merge request. Please try again later."
-msgstr "关闭合并请求时出错。请稍后再试。"
+msgstr "关闭合并评审时出错。请稍后再试。"
 
 msgid "Something went wrong while creating a requirement."
 msgstr "创建需求时出了错。"
@@ -36640,7 +36657,7 @@ msgid "Something went wrong while fetching projects."
 msgstr "获取项目时出了错。"
 
 msgid "Something went wrong while fetching related merge requests."
-msgstr "获取相关的合并请求时出错了。"
+msgstr "获取相关的合并评审时出错了。"
 
 msgid "Something went wrong while fetching requirements count."
 msgstr "获取需求数量时出了错。"
@@ -36652,7 +36669,7 @@ msgid "Something went wrong while fetching source branches."
 msgstr "获取源分支时出错。"
 
 msgid "Something went wrong while fetching the environments for this merge request. Please try again."
-msgstr "获取此合并请求的环境时出错，请稍后重试。"
+msgstr "获取此合并评审的环境时出错，请稍后重试。"
 
 msgid "Something went wrong while fetching the packages list."
 msgstr "获取软件包列表时出错。"
@@ -36673,7 +36690,7 @@ msgid "Something went wrong while reopening the epic. Please try again later."
 msgstr "重新打开史诗时出了错。请稍后再试。"
 
 msgid "Something went wrong while reopening the merge request. Please try again later."
-msgstr "重新开启合并请求时出错。请稍后再试."
+msgstr "重新开启合并评审时出错。请稍后再试."
 
 msgid "Something went wrong while resolving this discussion. Please try again."
 msgstr "解决当前讨论时出错，请重试。"
@@ -36979,7 +36996,7 @@ msgid "SourcegraphAdmin|Enable Sourcegraph"
 msgstr "启用Sourcegraph"
 
 msgid "SourcegraphAdmin|Enable code intelligence powered by %{link_start}Sourcegraph%{link_end} on your GitLab instance's code views and merge requests."
-msgstr "在您的GitLab实例的代码视图和合并请求上启用由%{link_start}Sourcegraph%{link_end}提供的代码智能。"
+msgstr "在您的GitLab实例的代码视图和合并评审上启用由%{link_start}Sourcegraph%{link_end}提供的代码智能。"
 
 msgid "SourcegraphAdmin|Learn more."
 msgstr "了解更多。"
@@ -37117,13 +37134,13 @@ msgid "Start a new discussion…"
 msgstr "开始一个新的讨论..."
 
 msgid "Start a new merge request with these changes"
-msgstr "使用这些更改开始新的合并请求"
+msgstr "使用这些更改开始新的合并评审"
 
 msgid "Start a review"
 msgstr "启动评审"
 
 msgid "Start by choosing a group to start exploring the merge requests in that group. You can then proceed to filter by projects, labels, milestones and authors."
-msgstr "首先选择一个群组以开始浏览该群组中的合并请求。然后您可以按项目、标记、里程碑和作者进行筛选。"
+msgstr "首先选择一个群组以开始浏览该群组中的合并评审。然后您可以按项目、标记、里程碑和作者进行筛选。"
 
 msgid "Start cleanup"
 msgstr "开始清理"
@@ -37249,7 +37266,7 @@ msgid "StatusCheck|Apply this status check to all branches or a specific protect
 msgstr "将此状态检查应用于所有分支或特定的受保护分支。"
 
 msgid "StatusCheck|Check for a status response in merge requests. Failures do not block merges. %{link_start}Learn more%{link_end}."
-msgstr "在合并请求中检查状态响应，失败不会阻止合并。 %{link_start}了解更多%{link_end}"
+msgstr "在合并评审中检查状态响应，失败不会阻止合并。 %{link_start}了解更多%{link_end}"
 
 msgid "StatusCheck|Examples: QA, Security."
 msgstr "示例：QA、安全。"
@@ -38297,7 +38314,7 @@ msgid "Team domain"
 msgstr "团队域"
 
 msgid "TeamcityIntegration|Trigger TeamCity CI after a merge request has been created or updated"
-msgstr "在创建或更新合并请求后触发 TeamCity CI"
+msgstr "在创建或更新合并评审后触发 TeamCity CI"
 
 msgid "TeamcityIntegration|Trigger TeamCity CI after every push to the repository, except branch delete"
 msgstr "每次推送到存储库后触发 TeamCity CI，分支删除除外"
@@ -38582,7 +38599,7 @@ msgid "TestCases|Submit test case"
 msgstr "提交测试用例"
 
 msgid "TestHooks|Ensure one of your projects has merge requests."
-msgstr "确保您的任一项目中有合并请求。"
+msgstr "确保您的任一项目中有合并评审。"
 
 msgid "TestHooks|Ensure the project has CI jobs."
 msgstr "确保项目具有CI作业。"
@@ -38597,7 +38614,7 @@ msgid "TestHooks|Ensure the project has issues."
 msgstr "确保项目有工单。"
 
 msgid "TestHooks|Ensure the project has merge requests."
-msgstr "确保项目有合并请求。"
+msgstr "确保项目有合并评审。"
 
 msgid "TestHooks|Ensure the project has notes."
 msgstr "确保项目有注释。"
@@ -38666,7 +38683,7 @@ msgid "TestReports|There was an error fetching the test suite."
 msgstr "获取测试集时出错。"
 
 msgid "TestReports|You can configure your job to use unit test reports, and GitLab displays a report here and in the related merge request."
-msgstr "您可以将作业配置为使用单元测试报告，GitLab 会在此处和相关合并请求中显示报告。"
+msgstr "您可以将作业配置为使用单元测试报告，GitLab 会在此处和相关合并评审中显示报告。"
 
 msgid "Tests"
 msgstr "测试"
@@ -38781,7 +38798,7 @@ msgid "The complete DevOps platform. One application with endless possibilities.
 msgstr "完整的 DevOps 平台。一个具有无限可能性的应用程序。组织依靠源代码管理，CI/CD，安全，以及更多来快速交付软件。"
 
 msgid "The compliance report shows the merge request violations merged in protected environments."
-msgstr "合规报告显示合并请求在受保护的环境中合并。"
+msgstr "合规报告显示合并评审在受保护的环境中合并。"
 
 msgid "The connection will time out after %{timeout}. For repositories that take longer, use a clone/push combination."
 msgstr "该连接将在 %{timeout}后超时。如仓库导入耗时超过该时间，请使用克隆/推送组合。"
@@ -38968,11 +38985,17 @@ msgstr "最后一个所有者不能设置为等待"
 msgid "The latest artifacts created by jobs in the most recent successful pipeline will be stored."
 msgstr "将存储由最近成功流水线中的作业创建的最新产物。"
 
+<<<<<<< HEAD
+=======
+msgid "The latest pipeline for this merge request did not complete successfully."
+msgstr "此合并评审的最新流水线未成功完成。"
+
+>>>>>>> 669835ddb8fd... Locale: 合并评审 is better than 合并请求
 msgid "The latest pipeline for this merge request did not succeed. The latest changes are unverified."
-msgstr "此合并请求的最新流水线未成功。最新更改未经验证。"
+msgstr "此合并评审的最新流水线未成功。最新更改未经验证。"
 
 msgid "The latest pipeline for this merge request has failed."
-msgstr "此合并请求的最新流水线已失败。"
+msgstr "此合并评审的最新流水线已失败。"
 
 msgid "The license key is invalid."
 msgstr "许可证密钥无效。"
@@ -39020,13 +39043,13 @@ msgid "The maximum number of tags that a single worker accepts for cleanup. If t
 msgstr "单个worker接受清理的最大标签数。如果标签数量超过此限制，则要删除的标签列表将被截断为该数量。要取消此限制，请将其设置为 0。"
 
 msgid "The merge conflicts for this merge request cannot be resolved through GitLab. Please try to resolve them locally."
-msgstr "GitLab无法解决此合并请求的合并冲突。请尝试在本地解决它们。"
+msgstr "GitLab无法解决此合并评审的合并冲突。请尝试在本地解决它们。"
 
 msgid "The merge conflicts for this merge request have already been resolved."
-msgstr "此合并请求的合并冲突已解决。"
+msgstr "此合并评审的合并冲突已解决。"
 
 msgid "The merge conflicts for this merge request have already been resolved. Please return to the merge request."
-msgstr "此合并请求的合并冲突已得到解决。请返回合并请求。"
+msgstr "此合并评审的合并冲突已得到解决。请返回合并评审。"
 
 msgid "The metric must be one of %{metrics}."
 msgstr "指标必须是 %{metrics} 之一。"
@@ -39044,7 +39067,7 @@ msgid "The number of changes to fetch from GitLab when cloning a repository. Low
 msgstr "克隆仓库时要从 GitLab 获取的更改数量，较低的值可以加速流水线执行。 设置为 %{code_open}0%{code_close} 或空白以获取每个作业的所有分支和标签"
 
 msgid "The number of merge requests merged by month."
-msgstr "每月合并的合并请求数"
+msgstr "每月合并的合并评审数"
 
 msgid "The number of times an upload record could not find its file"
 msgstr "上载记录无法找到相应文件的次数"
@@ -39149,7 +39172,7 @@ msgid "The snippet is visible to any logged in user except external users."
 msgstr "该代码片段对除外部用户外的所有登录用户可见。"
 
 msgid "The source project of this merge request has been removed."
-msgstr "此合并请求的源项目已被删除。"
+msgstr "此合并评审的源项目已被删除。"
 
 msgid "The specified tab is invalid, please select another"
 msgstr "指定标签页无效，请选择另一个"
@@ -39260,7 +39283,7 @@ msgid "There are no closed issues"
 msgstr "没有已关闭的工单"
 
 msgid "There are no closed merge requests"
-msgstr "没有已关闭的合并请求"
+msgstr "没有已关闭的合并评审"
 
 msgid "There are no commits yet."
 msgstr "目前还没有提交。"
@@ -39284,7 +39307,7 @@ msgid "There are no open issues"
 msgstr "没有未关闭的工单"
 
 msgid "There are no open merge requests"
-msgstr "没有未关闭的合并请求"
+msgstr "没有未关闭的合并评审"
 
 msgid "There are no open requirements"
 msgstr "没有开启的需求"
@@ -39662,7 +39685,7 @@ msgid "This attachment has been truncated to avoid exceeding the maximum allowed
 msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括了 %{issues_count} 个工单中的 %{written_count} 个，考虑缩小导出的选择范围。"
 
 msgid "This attachment has been truncated to avoid exceeding the maximum allowed attachment size of %{size_limit}. %{written_count} of %{merge_requests_count} merge requests have been included. Consider re-exporting with a narrower selection of merge requests."
-msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括%{merge_requests_count} 个合并请求中的%{written_count}个。考虑缩小合并请求的选择范围。"
+msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括%{merge_requests_count} 个合并评审中的%{written_count}个。考虑缩小合并评审的选择范围。"
 
 msgid "This attachment has been truncated to avoid exceeding the maximum allowed attachment size of %{size_limit}. %{written_count} of %{requirements_count} requirements have been included. Consider re-exporting with a narrower selection of requirements."
 msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括了 %{requirements_count} 项要求中的 %{written_count} 项；考虑缩小导出的选择范围。"
@@ -39686,7 +39709,7 @@ msgid "This comment changed after you started editing it. Review the %{startTag}
 msgstr "此评论在您开始编辑后发生了变化。查看 %{startTag}更新评论%{endTag} 以确保信息不会丢失。"
 
 msgid "This commit is part of merge request %{link_to_merge_request}. Comments created here will be created in the context of that merge request."
-msgstr "此提交是合并请求 %{link_to_merge_request} 的一部分。此处创建的评论将在该合并请求的上下文中创建。"
+msgstr "此提交是合并评审 %{link_to_merge_request} 的一部分。此处创建的评论将在该合并评审的上下文中创建。"
 
 msgid "This commit was signed with %{strong_open}multiple%{strong_close} signatures."
 msgstr "此提交使用 %{strong_open}多个%{strong_close} 签名进行签署。"
@@ -39842,7 +39865,7 @@ msgid "This is a list of devices that have logged into your account. Revoke any 
 msgstr "这是已登录到您帐户的设备列表。您可以删除任何您无法识别的会话。"
 
 msgid "This is a private email address %{helpIcon} generated just for you. Anyone who has it can create issues or merge requests as if they were you. If that happens, %{resetLinkStart}reset this token%{resetLinkEnd}."
-msgstr "这是专为您生成的私人电子邮件地址 %{helpIcon} 任何拥有它的人都可以像您一样创建问题或合并请求。如果发生这种情况， %{resetLinkStart}重置这个令牌%{resetLinkEnd}。"
+msgstr "这是专为您生成的私人电子邮件地址 %{helpIcon} 任何拥有它的人都可以像您一样创建问题或合并评审。如果发生这种情况， %{resetLinkStart}重置这个令牌%{resetLinkEnd}。"
 
 msgid "This is a security log of authentication events involving your account."
 msgstr "这是涉及您帐户的身份验证事件的安全日志。"
@@ -39989,34 +40012,34 @@ msgid "This means you can not push code until you create an empty repository or 
 msgstr "在创建一个空的仓库或导入现有仓库之前，将无法推送代码。"
 
 msgid "This merge request branch is protected from force push."
-msgstr "这个合并请求分支不会被强制推送。"
+msgstr "这个合并评审分支不会被强制推送。"
 
 msgid "This merge request cannot be rebased while there are conflicts."
-msgstr "存在冲突时，此合并请求无法 rebase。"
+msgstr "存在冲突时，此合并评审无法 rebase。"
 
 msgid "This merge request does not have accessibility reports"
-msgstr "此合并请求没有无障碍性扫描报告"
+msgstr "此合并评审没有无障碍性扫描报告"
 
 msgid "This merge request does not have codequality reports"
-msgstr "此合并请求没有代码质量报告"
+msgstr "此合并评审没有代码质量报告"
 
 msgid "This merge request is closed. To apply this suggestion, edit this file directly."
-msgstr "此合并请求已关闭。要应用此建议，请直接编辑此文件。"
+msgstr "此合并评审已关闭。要应用此建议，请直接编辑此文件。"
 
 msgid "This merge request is from a private project to a public project."
-msgstr "此合并请求是从私有项目到公开项目。"
+msgstr "此合并评审是从私有项目到公开项目。"
 
 msgid "This merge request is from a private project to an internal project."
-msgstr "此合并请求是从私有项目到内部项目。"
+msgstr "此合并评审是从私有项目到内部项目。"
 
 msgid "This merge request is from an internal project to a public project."
-msgstr "此合并请求是从内部项目到公开项目。"
+msgstr "此合并评审是从内部项目到公开项目。"
 
 msgid "This merge request is locked."
-msgstr "此合并请求已锁定。"
+msgstr "此合并评审已锁定。"
 
 msgid "This merge request was merged. To apply this suggestion, edit this file directly."
-msgstr "合并请求已合并。要应用此建议，请直接编辑此文件。"
+msgstr "合并评审已合并。要应用此建议，请直接编辑此文件。"
 
 msgid "This namespace has already been taken! Please choose another one."
 msgstr "此命名空间已被使用！请选择其他命名空间。"
@@ -40214,7 +40237,7 @@ msgid "Time before an issue starts implementation"
 msgstr "开始进行编码前的时间"
 
 msgid "Time between merge request creation and merge/close"
-msgstr "从创建合并请求到被合并或关闭的时间"
+msgstr "从创建合并评审到被合并或关闭的时间"
 
 msgid "Time estimate"
 msgstr "预计时间"
@@ -40253,7 +40276,7 @@ msgid "Time tracking report"
 msgstr "时间跟踪报告"
 
 msgid "Time until first merge request"
-msgstr "创建第一个合并请求之前的时间"
+msgstr "创建第一个合并评审之前的时间"
 
 msgid "Time zone"
 msgstr "时区"
@@ -40494,6 +40517,12 @@ msgstr "要添加自定义后缀，请设置服务台电子邮件地址。%{link
 msgid "To add the entry manually, provide the following details to the application on your phone."
 msgstr "如需手动添加条目，请在手机应用中提供以下信息。"
 
+<<<<<<< HEAD
+=======
+msgid "To ask someone to look at a merge request, select %{strongStart}Request attention%{strongEnd}. Select again to remove the request."
+msgstr "要让某人查看合并评审，请选择 %{strongStart}请求关注%{strongEnd}。再次选择以移除请求。"
+
+>>>>>>> 669835ddb8fd... Locale: 合并评审 is better than 合并请求
 msgid "To complete registration, we need additional details from you."
 msgstr "要完成注册，我们需要您提供更多信息。"
 
@@ -40564,7 +40593,7 @@ msgid "To keep this project going, create a new issue"
 msgstr "为了保持这个项目的进行，请创建一个新的工单"
 
 msgid "To keep this project going, create a new merge request"
-msgstr "为了保持这个项目的进行，请创建一个新的合并请求"
+msgstr "为了保持这个项目的进行，请创建一个新的合并评审"
 
 msgid "To learn more about this project, read %{link_to_wiki}"
 msgstr "要了解更多关于此项目的信息，请阅读 %{link_to_wiki}"
@@ -40618,7 +40647,7 @@ msgid "To see this project's operational details, contact an owner of group %{gr
 msgstr "要查看该项目的运维详细信息，请与%{groupName}群组的所有者联系以升级订阅计划。或者您也可以从仪表板上删除此项目。"
 
 msgid "To see what's changed or create a merge request, choose a branch or tag (like %{branch}), or enter a commit (like %{sha})."
-msgstr "要查看更改的内容或创建合并请求，请选择分支或标签（如 %{branch}），或输入提交（如 %{sha}）。"
+msgstr "要查看更改的内容或创建合并评审，请选择分支或标签（如 %{branch}），或输入提交（如 %{sha}）。"
 
 msgid "To set up SAML authentication for your group through an identity provider like Azure, Okta, Onelogin, Ping Identity, or your custom SAML 2.0 provider:"
 msgstr "通过Azure，Okta，Onelogin，Ping Identity或自定义SAML 2.0等身份验证程序为您的群组设置SAML身份验证："
@@ -40672,7 +40701,7 @@ msgid "Todos count"
 msgstr "待办事项计数"
 
 msgid "Todos|Are you looking for things to do? Take a look at %{strongStart}%{openIssuesLinkStart}open issues%{openIssuesLinkEnd}%{strongEnd}, contribute to %{strongStart}%{mergeRequestLinkStart}a merge request%{mergeRequestLinkEnd}%{mergeRequestLinkEnd}%{strongEnd}, or mention someone in a comment to automatically assign them a new to-do item."
-msgstr "您正在寻找要做的事情吗？ 查看 %{strongStart}%{openIssuesLinkStart}打开的工单%{openIssuesLinkEnd}%{strongEnd}，贡献给 %{strongStart}%{mergeRequestLinkStart}合并请求%{mergeRequestLinkEnd}%{mergeRequestLinkEnd}%{strongEnd}，或在评论中提及某人，自动分配新的待办事项。"
+msgstr "您正在寻找要做的事情吗？ 查看 %{strongStart}%{openIssuesLinkStart}打开的工单%{openIssuesLinkEnd}%{strongEnd}，贡献给 %{strongStart}%{mergeRequestLinkStart}合并评审%{mergeRequestLinkEnd}%{mergeRequestLinkEnd}%{strongEnd}，或在评论中提及某人，自动分配新的待办事项。"
 
 msgid "Todos|Filter by author"
 msgstr "按作者筛选"
@@ -40696,7 +40725,7 @@ msgid "Todos|Undo mark all as done"
 msgstr "撤销标记全部完成"
 
 msgid "Todos|When an issue or merge request is assigned to you, or when you receive a %{strongStart}@mention%{strongEnd} in a comment, this automatically triggers a new item in your To-Do List."
-msgstr "当一个工单或合并请求分配给您，或者当您收到评论中的 %{strongStart}@mention%{strongEnd} 时，会自动触发您的待办事项列表中的一个新事项。"
+msgstr "当一个工单或合并评审分配给您，或者当您收到评论中的 %{strongStart}@mention%{strongEnd} 时，会自动触发您的待办事项列表中的一个新事项。"
 
 msgid "Todos|You're all done!"
 msgstr "已经全部完成了！"
@@ -41224,7 +41253,7 @@ msgid "URL is triggered for each branch updated to the repository"
 msgstr "为每个更新到仓库的分支触发 URL"
 
 msgid "URL is triggered when a merge request is created, updated, or merged"
-msgstr "创建、更新或合并合并请求时触发 URL"
+msgstr "创建、更新或合并合并评审时触发 URL"
 
 msgid "URL is triggered when a new tag is pushed to the repository"
 msgstr "将新标签推送到仓库时会触发 URL"
@@ -41320,7 +41349,7 @@ msgid "Unable to load the diff. %{button_try_again}"
 msgstr "无法加载差异。 %{button_try_again}"
 
 msgid "Unable to load the merge request widget. Try reloading the page."
-msgstr "无法加载合并请求部件。请尝试重新加载页面。"
+msgstr "无法加载合并评审部件。请尝试重新加载页面。"
 
 msgid "Unable to parse JSON"
 msgstr "无法解析 JSON"
@@ -41359,13 +41388,13 @@ msgid "Unable to verify the user"
 msgstr "无法验证用户"
 
 msgid "Unapprove a merge request"
-msgstr "取消批准合并请求"
+msgstr "取消批准合并评审"
 
 msgid "Unapprove the current merge request."
-msgstr "取消批准当前合并请求。"
+msgstr "取消批准当前合并评审。"
 
 msgid "Unapproved the current merge request."
-msgstr "已取消批准当前合并请求。"
+msgstr "已取消批准当前合并评审。"
 
 msgid "Unarchive project"
 msgstr "取消归档项目"
@@ -41455,7 +41484,7 @@ msgid "Unlock account"
 msgstr "解锁账户"
 
 msgid "Unlock merge request"
-msgstr "解锁合并请求"
+msgstr "解锁合并评审"
 
 msgid "Unlock more features with GitLab Ultimate"
 msgstr "使用旗舰版解锁更多功能"
@@ -41950,7 +41979,7 @@ msgid "UsageQuota|out of %{formattedLimit} of your namespace storage"
 msgstr "，您命名空间存储上限总计%{formattedLimit}"
 
 msgid "UsageTrends|Could not load the issues and merge requests chart. Please refresh the page to try again."
-msgstr "无法加载工单和合并请求图表，请刷新页面重试。"
+msgstr "无法加载工单和合并评审图表，请刷新页面重试。"
 
 msgid "UsageTrends|Could not load the pipelines chart. Please refresh the page to try again."
 msgstr "无法加载流水线图表，请刷新页面重试。"
@@ -41965,13 +41994,13 @@ msgid "UsageTrends|Issues"
 msgstr "工单"
 
 msgid "UsageTrends|Issues & merge requests"
-msgstr "工单和合并请求"
+msgstr "工单和合并评审"
 
 msgid "UsageTrends|Items"
 msgstr "事项"
 
 msgid "UsageTrends|Merge requests"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "UsageTrends|Month"
 msgstr "月"
@@ -42013,7 +42042,7 @@ msgid "UsageTrends|There was an error fetching the issues. Please try again."
 msgstr "获取工单时出错，请重试。"
 
 msgid "UsageTrends|There was an error fetching the merge requests. Please try again."
-msgstr "获取合并请求时出错，请重试。"
+msgstr "获取合并评审时出错，请重试。"
 
 msgid "UsageTrends|There was an error fetching the projects. Please try again."
 msgstr "获取项目时出错，请重试。"
@@ -42359,7 +42388,7 @@ msgid "UserProfile|Groups are the best way to manage projects and members."
 msgstr "群组是管理项目和成员的最佳方式。"
 
 msgid "UserProfile|Join or create a group to start contributing by commenting on issues or submitting merge requests!"
-msgstr "加入或创建一个群组，通过评论工单或提交合并请求来开始贡献！"
+msgstr "加入或创建一个群组，通过评论工单或提交合并评审来开始贡献！"
 
 msgid "UserProfile|Most Recent Activity"
 msgstr "最新活动"
@@ -42500,7 +42529,7 @@ msgid "Users in License"
 msgstr "许可证中的用户数"
 
 msgid "Users or groups set as approvers in the project's or merge request's settings."
-msgstr "在项目或合并请求的设置中设为审批人的用户或群组。"
+msgstr "在项目或合并评审的设置中设为审批人的用户或群组。"
 
 msgid "Users over License"
 msgstr "超出许可证的用户数"
@@ -42626,13 +42655,13 @@ msgid "ValueStreamAnalytics|Median time an incident was open on a production env
 msgstr "在给定时间段内，事件在生产环境中开放的中位时间。"
 
 msgid "ValueStreamAnalytics|Median time between merge request merge and deployment to a production environment for all MRs deployed in the given time period."
-msgstr "对于在给定时间内部署的所有管理信息系统，从合并请求合并到部署到生产环境之间的中位时间。"
+msgstr "对于在给定时间内部署的所有管理信息系统，从合并评审合并到部署到生产环境之间的中位时间。"
 
 msgid "ValueStreamAnalytics|Median time from issue created to issue closed."
 msgstr "从工单创建到关闭的中位数时间。"
 
 msgid "ValueStreamAnalytics|Median time from the earliest commit of a linked issue's merge request to when that issue is closed."
-msgstr "从一个关联工单的合并请求最早提交到该工单结束时的中位时间。"
+msgstr "从一个关联工单的合并评审最早提交到该工单结束时的中位时间。"
 
 msgid "ValueStreamAnalytics|Number of commits pushed to the default branch"
 msgstr "推送到默认分支的提交数量"
@@ -42883,7 +42912,7 @@ msgid "View on %{url}"
 msgstr "在 %{url} 上查看"
 
 msgid "View open merge request"
-msgstr "查看待处理的合并请求"
+msgstr "查看待处理的合并评审"
 
 msgid "View page @ "
 msgstr "查看页面@ "
@@ -43472,7 +43501,7 @@ msgid "WebIDE|Go to fork"
 msgstr "转到派生"
 
 msgid "WebIDE|Merge request"
-msgstr "合并请求"
+msgstr "合并评审"
 
 msgid "WebIDE|This project does not accept unsigned commits."
 msgstr "此项目不接受未签名的提交。"
@@ -43481,10 +43510,10 @@ msgid "WebIDE|This project does not accept unsigned commits. You can’t commit 
 msgstr "此项目不接受未签名的提交，您无法通过 Web IDE 提交更改。"
 
 msgid "WebIDE|You can’t edit files directly in this project. Fork this project and submit a merge request with your changes."
-msgstr "您不能在这个项目中直接编辑文件，请派生（Fork）这个项目并提交合并请求。"
+msgstr "您不能在这个项目中直接编辑文件，请派生（Fork）这个项目并提交合并评审。"
 
 msgid "WebIDE|You can’t edit files directly in this project. Go to your fork and submit a merge request with your changes."
-msgstr "不能直接在这个项目中编辑文件，转到您的分支并提交包含更改的合并请求。"
+msgstr "不能直接在这个项目中编辑文件，转到您的分支并提交包含更改的合并评审。"
 
 msgid "WebIDE|You need permission to edit files directly in this project."
 msgstr "您需要权限才能直接在此项目中编辑文件。"
@@ -43523,7 +43552,7 @@ msgid "Webhooks|A comment is added to a confidential issue."
 msgstr "一条评论被添加到机密工单。"
 
 msgid "Webhooks|A comment is added to an issue or merge request."
-msgstr "一条评论被添加到工单或合并请求。"
+msgstr "一条评论被添加到工单或合并评审。"
 
 msgid "Webhooks|A confidential issue is created, updated, closed, or reopened."
 msgstr "已创建、更新、关闭或重新打开机密工单。"
@@ -43541,7 +43570,7 @@ msgid "Webhooks|A job's status changes."
 msgstr "作业的状态发生变化。"
 
 msgid "Webhooks|A merge request is created, updated, or merged."
-msgstr "创建、更新或合并合并请求。"
+msgstr "创建、更新或合并合并评审。"
 
 msgid "Webhooks|A new tag is pushed to the repository."
 msgstr "新标签被推送到仓库。"
@@ -43607,7 +43636,7 @@ msgid "Webhooks|Member events"
 msgstr "成员事件"
 
 msgid "Webhooks|Merge request events"
-msgstr "合并请求事件"
+msgstr "合并评审事件"
 
 msgid "Webhooks|Pipeline events"
 msgstr "流水线事件"
@@ -43766,11 +43795,11 @@ msgid "When enabled, job logs are collected by Datadog and displayed along with 
 msgstr "启用后，Datadog 会收集作业日志并与流水线执行跟踪一起显示。"
 
 msgid "When merge requests and commits in the default branch close, any issues they reference also close."
-msgstr "当默认分支中的合并请求和提交关闭时，它们引用的任何工单也会关闭。"
+msgstr "当默认分支中的合并评审和提交关闭时，它们引用的任何工单也会关闭。"
 
 msgid "When this merge request is accepted"
 msgid_plural "When these merge requests are accepted"
-msgstr[0] "当合并请求被接受时"
+msgstr[0] "当合并评审被接受时"
 
 msgid "When using the %{code_open}http://%{code_close} or %{code_open}https://%{code_close} protocols, please provide the exact URL to the repository. HTTP redirects will not be followed."
 msgstr "使用%{code_open}http://%{code_close}或%{code_open}https://%{code_close}协议时，请提供仓库的实际地址。不支持HTTP重定向。"
@@ -44307,7 +44336,7 @@ msgid "You are not allowed to log in using password"
 msgstr "您不能使用密码登录"
 
 msgid "You are not allowed to push into this branch. Create another branch or open a merge request."
-msgstr "您无权推送到此分支。请创建一个新的分支或开启合并请求。"
+msgstr "您无权推送到此分支。请创建一个新的分支或开启合并评审。"
 
 msgid "You are not allowed to reject a user"
 msgstr "您无权拒绝用户"
@@ -44479,10 +44508,10 @@ msgid "You can now export your security dashboard to a CSV report."
 msgstr "现在你可以导出安全仪表盘到 CSV 报告。"
 
 msgid "You can now submit a merge request to get this change into the original branch."
-msgstr "您现在可以提交合并请求以将此更改发送到源分支。"
+msgstr "您现在可以提交合并评审以将此更改发送到源分支。"
 
 msgid "You can now submit a merge request to get this change into the original project."
-msgstr "您现在可以提交合并请求以将此更改添加到源项目中。"
+msgstr "您现在可以提交合并评审以将此更改添加到源项目中。"
 
 msgid "You can only %{action} files when you are on a branch"
 msgstr "当处于分支时，您只能 %{action} 文件"
@@ -44557,7 +44586,7 @@ msgid "You cannot write to this read-only GitLab instance."
 msgstr "您不能写入这个只读的 GitLab 实例。"
 
 msgid "You can’t edit files directly in this project. Fork this project and submit a merge request with your changes."
-msgstr "您不能在这个项目中直接编辑文件，请派生（Fork）这个项目并提交包含您的更改的合并请求。"
+msgstr "您不能在这个项目中直接编辑文件，请派生（Fork）这个项目并提交包含您的更改的合并评审。"
 
 msgid "You could not create a new trigger."
 msgstr "您无法创建新的触发器。"
@@ -44612,7 +44641,7 @@ msgid "You don't have any deployments right now."
 msgstr "您现在没有任何部署。"
 
 msgid "You don't have any open merge requests"
-msgstr "您没有任何开启的合并请求"
+msgstr "您没有任何开启的合并评审"
 
 msgid "You don't have any recent searches"
 msgstr "您没有任何近期的搜索"
@@ -44856,13 +44885,13 @@ msgid "You're at the last commit"
 msgstr "这是最后一个提交"
 
 msgid "You're not allowed to %{tag_start}edit%{tag_end} files in this project directly. Please fork this project, make your changes there, and submit a merge request."
-msgstr "您无权直接%{tag_start}编辑%{tag_end}这个项目的文件。请派生这个项目，并在派生中进行更改，然后提交合并请求。"
+msgstr "您无权直接%{tag_start}编辑%{tag_end}这个项目的文件。请派生这个项目，并在派生中进行更改，然后提交合并评审。"
 
 msgid "You're not allowed to make changes to this project directly. A fork of this project has been created that you can make changes in, so you can submit a merge request."
-msgstr "您不能直接对此项目进行更改。此项目的派生项目已经创建，您可以在派生项目中进行更改，以便提交合并请求。"
+msgstr "您不能直接对此项目进行更改。此项目的派生项目已经创建，您可以在派生项目中进行更改，以便提交合并评审。"
 
 msgid "You're not allowed to make changes to this project directly. A fork of this project is being created that you can make changes in, so you can submit a merge request."
-msgstr "您不能直接对此项目进行更改。此项目的派生项目正在创建，您可以在派生项目中进行更改，以便提交合并请求。"
+msgstr "您不能直接对此项目进行更改。此项目的派生项目正在创建，您可以在派生项目中进行更改，以便提交合并评审。"
 
 msgid "You're receiving this email because of your account on %{host}."
 msgstr "您收到这封电子邮件，是因为您在 %{host} 拥有帐户。"
@@ -44928,7 +44957,7 @@ msgid "Your %{strong}%{plan_name}%{strong_close} subscription expires on %{stron
 msgstr "您的 %{strong}%{plan_name}%{strong_close} 订阅将于 %{strong}%{expires_on}%{strong_close} 到期。如果您不续订，您将无法在 %{strong}%{downgrades_on}%{strong_close} 访问您的付费功能。在该日期之后，您将无法创建议题或合并请求，或使用许多其他功能。"
 
 msgid "Your %{strong}%{plan_name}%{strong_close} subscription expires on %{strong}%{expires_on}%{strong_close}. After that date, you cannot create issues or merge requests, or use many other features."
-msgstr "您的%{strong}%{plan_name}%{strong_close}订阅将于%{strong}%{expires_on}%{strong_close}到期。此后，您将无法创建工单或合并请求，同时也无法访问其他众多功能。"
+msgstr "您的%{strong}%{plan_name}%{strong_close}订阅将于%{strong}%{expires_on}%{strong_close}到期。此后，您将无法创建工单或合并评审，同时也无法访问其他众多功能。"
 
 msgid "Your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} will expire on %{strong}%{expires_on}%{strong_close}."
 msgstr "您为%{strong}%{namespace_name}%{strong_close}的%{strong}%{plan_name}%{strong_close}订阅将于%{strong}%{expires_on}%{strong_close}到期。"
@@ -45045,7 +45074,7 @@ msgid "Your browser doesn't support WebAuthn. Please use a supported browser, e.
 msgstr "您的浏览器不支持WebAuthn。请使用支持的浏览器，如Chrome（67+）或Firefox（60+）。"
 
 msgid "Your changes can be committed to %{branch_name} because a merge request is open."
-msgstr "合并请求已开启，可以提交变更到%{branch_name}。"
+msgstr "合并评审已开启，可以提交变更到%{branch_name}。"
 
 msgid "Your changes have been committed. Commit %{commitId} %{commitStats}"
 msgstr "更改已提交。提交 %{commitId} %{commitStats}"
@@ -45358,7 +45387,7 @@ msgid "and"
 msgstr "和"
 
 msgid "any-approver for the merge request already exists"
-msgstr "合并请求已有任意核准人(any-approver)"
+msgstr "合并评审已有任意核准人(any-approver)"
 
 msgid "any-approver for the project already exists"
 msgstr "项目已有任意核准人(any-approver)"
@@ -45673,7 +45702,7 @@ msgid "ciReport|Create Jira issue"
 msgstr "创建 Jira 工单"
 
 msgid "ciReport|Create a merge request to implement this solution, or download and apply the patch manually."
-msgstr "创建一个合并请求来执行这个解决方案，或者下载并手动应用补丁。"
+msgstr "创建一个合并评审来执行这个解决方案，或者下载并手动应用补丁。"
 
 msgid "ciReport|Create issue"
 msgstr "创建工单"
@@ -45779,7 +45808,7 @@ msgid "ciReport|RPS"
 msgstr "RPS"
 
 msgid "ciReport|Resolve with merge request"
-msgstr "通过合并请求解决"
+msgstr "通过合并评审解决"
 
 msgid "ciReport|SAST"
 msgstr "SAST"
@@ -45824,7 +45853,7 @@ msgid "ciReport|There was an error creating the issue. Please try again."
 msgstr "创建工单时发生错误。请再试一次。"
 
 msgid "ciReport|There was an error creating the merge request. Please try again."
-msgstr "创建合并请求时出错。请再试一次。"
+msgstr "创建合并评审时出错。请再试一次。"
 
 msgid "ciReport|There was an error dismissing the vulnerability. Please try again."
 msgstr "忽略此漏洞时发生错误。请再试一次。"
@@ -46346,7 +46375,7 @@ msgstr[0] "成员"
 
 msgid "merge request"
 msgid_plural "merge requests"
-msgstr[0] "合并请求"
+msgstr[0] "合并评审"
 
 msgid "mergedCommitsAdded|(commits were squashed)"
 msgstr "（提交被压缩）"
@@ -46379,10 +46408,10 @@ msgid "mrWidgetCommitsAdded|The changes were not merged into %{targetBranch}."
 msgstr "更改未合并到分支 %{targetBranch}。"
 
 msgid "mrWidgetNothingToMerge|This merge request contains no changes."
-msgstr "此合并请求不包含任何更改。"
+msgstr "此合并评审不包含任何更改。"
 
 msgid "mrWidgetNothingToMerge|Use merge requests to propose changes to your project and discuss them with your team. To make changes, push a commit or edit this merge request to use a different branch. With %{linkStart}CI/CD%{linkEnd}, automatically test your changes before merging."
-msgstr "使用合并请求向您的项目提出更改建议并与您的团队讨论。要进行更改，请推送提交或编辑此合并请求以使用不同的分支。使用 %{linkStart}CI/CD%{linkEnd}，在合并之前自动测试您的更改。"
+msgstr "使用合并评审向您的项目提出更改建议并与您的团队讨论。要进行更改，请推送提交或编辑此合并评审以使用不同的分支。使用 %{linkStart}CI/CD%{linkEnd}，在合并之前自动测试您的更改。"
 
 msgid "mrWidget|%{boldHeaderStart}Looks like there's no pipeline here.%{boldHeaderEnd}"
 msgstr "%{boldHeaderStart}此处没有流水线。%{boldHeaderEnd}"
@@ -46406,22 +46435,22 @@ msgid "mrWidget|%{metricsLinkStart} Memory %{metricsLinkEnd} usage is %{emphasis
 msgstr "%{metricsLinkStart} 内存 %{metricsLinkEnd} 占用 %{emphasisStart} 无变化 %{emphasisEnd}， 保持在 %{memoryFrom}MB"
 
 msgid "mrWidget|A merge train is a queued list of merge requests waiting to be merged into the target branch. The changes in each merge request are combined with the changes in earlier merge requests and tested before merge."
-msgstr "合并队列是等待合并到目标分支的合并请求列表。每个合并请求中的变动与先前合并请求中的变动相结合，然后在合并前进行测试。"
+msgstr "合并队列是等待合并到目标分支的合并评审列表。每个合并评审中的变动与先前合并评审中的变动相结合，然后在合并前进行测试。"
 
 msgid "mrWidget|A new merge train has started and this merge request is the first of the queue."
-msgstr "新合并列车已经启动，此合并请求位于合并队列中的第一位。"
+msgstr "新合并列车已经启动，此合并评审位于合并队列中的第一位。"
 
 msgid "mrWidget|Added to the merge train by %{merge_author}"
 msgstr "由 %{merge_author} 添加到合并队列"
 
 msgid "mrWidget|Added to the merge train. There are %{mergeTrainPosition} merge requests waiting to be merged"
-msgstr "已添加到合并列车。当前有%{mergeTrainPosition}个合并请求等待合并"
+msgstr "已添加到合并列车。当前有%{mergeTrainPosition}个合并评审等待合并"
 
 msgid "mrWidget|An error occurred while removing your approval."
 msgstr "删除您的核准时发生错误。"
 
 msgid "mrWidget|An error occurred while retrieving approval data for this merge request."
-msgstr "检索此合并请求的核准数据时发生错误。"
+msgstr "检索此合并评审的核准数据时发生错误。"
 
 msgid "mrWidget|An error occurred while submitting your approval."
 msgstr "提交批准时发生错误。"
@@ -46433,10 +46462,10 @@ msgid "mrWidget|Approval password is invalid."
 msgstr "批准密码无效"
 
 msgid "mrWidget|Approval rule %{rules} is invalid. GitLab has approved this rule automatically to unblock the merge request. %{link}"
-msgstr "审批规则 %{rules} 无效。系统已自动批准此规则来解除阻塞合并请求。%{link}"
+msgstr "审批规则 %{rules} 无效。系统已自动批准此规则来解除阻塞合并评审。%{link}"
 
 msgid "mrWidget|Approval rules %{rules} are invalid. GitLab has approved these rules automatically to unblock the merge request. %{link}"
-msgstr "审批规则 %{rules} 无效。系统已自动批准这些规则来解除阻塞合并请求。%{link}"
+msgstr "审批规则 %{rules} 无效。系统已自动批准这些规则来解除阻塞合并评审。%{link}"
 
 msgid "mrWidget|Approve"
 msgstr "批准"
@@ -46463,13 +46492,13 @@ msgid "mrWidget|Cancel auto-merge"
 msgstr "取消自动合并"
 
 msgid "mrWidget|Checking if merge request can be merged…"
-msgstr "正在检查合并请求是否可以合并…"
+msgstr "正在检查合并评审是否可以合并…"
 
 msgid "mrWidget|Cherry-pick"
 msgstr "拣选"
 
 msgid "mrWidget|Cherry-pick this merge request in a new merge request"
-msgstr "通过新的合并请求中拣选此合并请求"
+msgstr "通过新的合并评审中拣选此合并评审"
 
 msgid "mrWidget|Closed"
 msgstr "已关闭"
@@ -46506,7 +46535,7 @@ msgid "mrWidget|Hide %{widget} details"
 msgstr "隐藏 %{widget} 的详细信息"
 
 msgid "mrWidget|If the %{type} branch exists in your local repository, you can merge this merge request manually using the command line."
-msgstr "如果本地仓库中存在 %{type} 分支，可以使用命令行手动合并这个合并请求。"
+msgstr "如果本地仓库中存在 %{type} 分支，可以使用命令行手动合并这个合并评审。"
 
 msgid "mrWidget|If the last pipeline ran in the fork project, it may be inaccurate. Before merge, we advise running a pipeline in this project."
 msgstr "如果最后一个流水线运行在派生项目中，它可能不准确。合并前，我们建议在这个项目中运行一条流水线。"
@@ -46558,7 +46587,7 @@ msgid "mrWidget|Merge failed."
 msgstr "合并失败。"
 
 msgid "mrWidget|Merge unavailable: merge requests are read-only on archived projects."
-msgstr "合并不可用：合并请求在归档项目上是只读的。"
+msgstr "合并不可用：合并评审在归档项目上是只读的。"
 
 msgid "mrWidget|Merged by"
 msgstr "合并者:"
@@ -46624,7 +46653,7 @@ msgid "mrWidget|Revert"
 msgstr "还原"
 
 msgid "mrWidget|Revert this merge request in a new merge request"
-msgstr "通过新的合并请求中还原此合并请求"
+msgstr "通过新的合并评审中还原此合并评审"
 
 msgid "mrWidget|Revoke approval"
 msgstr "撤销核准"
@@ -46651,10 +46680,10 @@ msgid "mrWidget|The source branch is %{link} the target branch"
 msgstr "源分支是 %{link} 的目标分支"
 
 msgid "mrWidget|This merge request failed to be merged automatically"
-msgstr "该合并请求未能自动合并"
+msgstr "该合并评审未能自动合并"
 
 msgid "mrWidget|To approve this merge request, please enter your password. This project requires all approvals to be authenticated."
-msgstr "要批准此合并请求，请输入您的密码。此项目需要所有批准才能认证。"
+msgstr "要批准此合并评审，请输入您的密码。此项目需要所有批准才能认证。"
 
 msgid "mrWidget|To change these default messages, edit the templates for both the merge and squash commit messages. %{linkStart}Learn more.%{linkEnd}"
 msgstr "要更改此默认消息，请编辑压缩和合并提交消息的模板。%{linkStart}了解更多信息。%{linkEnd}"
@@ -46741,7 +46770,7 @@ msgid "never expires"
 msgstr "永不过期"
 
 msgid "new merge request"
-msgstr "新建合并请求"
+msgstr "新建合并评审"
 
 msgid "no expiration"
 msgstr "无过期"
@@ -46974,7 +47003,7 @@ msgid "scan-execution-policy: policy not applied, %{policy_path} file is missing
 msgstr "扫描执行策略：策略未应用，缺少 %{policy_path} 文件"
 
 msgid "security Reports|There was an error creating the merge request"
-msgstr "创建合并请求时出错"
+msgstr "创建合并评审时出错"
 
 msgid "selective_code_owner_removals can only be enabled when retain_approvals_on_push is enabled"
 msgstr "只有在启用了 retain_approvals_on_push 时才能启用 selective_code_owner_removals"
@@ -47181,7 +47210,7 @@ msgid "via %{closed_via}"
 msgstr "通过%{closed_via}"
 
 msgid "via merge request %{link}"
-msgstr "通过合并请求%{link}"
+msgstr "通过合并评审%{link}"
 
 msgid "view it on GitLab"
 msgstr "使用GitLab查看"
@@ -47227,7 +47256,7 @@ msgid "vulnerability|dismissed"
 msgstr "已忽略"
 
 msgid "was scheduled to merge after pipeline succeeds by"
-msgstr "合并请求已安排在流水线成功后合并。合并人: "
+msgstr "合并评审已安排在流水线成功后合并。合并人: "
 
 msgid "wiki page"
 msgstr "wiki页面"
