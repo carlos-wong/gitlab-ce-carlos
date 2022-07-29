@@ -50,7 +50,7 @@ msgid " or %{emphasisStart}#id%{emphasisEnd}"
 msgstr " 或 %{emphasisStart}#id%{emphasisEnd}"
 
 msgid " or %{emphasisStart}#issue id%{emphasisEnd}"
-msgstr "或%{emphasisStart}#议题id%{emphasisEnd}"
+msgstr "或%{emphasisStart}#工单id%{emphasisEnd}"
 
 msgid " or %{emphasisStart}&epic id%{emphasisEnd}"
 msgstr "或%{emphasisStart}&史诗id%{emphasisEnd}"
@@ -131,7 +131,7 @@ msgstr[0] "%d位核准人(您已批准)"
 
 msgid "%d assigned issue"
 msgid_plural "%d assigned issues"
-msgstr[0] "%d 个已分配的议题"
+msgstr[0] "%d 个已分配的工单"
 
 msgid "%d changed file"
 msgid_plural "%d changed files"
@@ -179,7 +179,7 @@ msgstr[0] "%d 次提交,"
 
 msgid "%d completed issue"
 msgid_plural "%d completed issues"
-msgstr[0] "%d个已完成的议题"
+msgstr[0] "%d个已完成的工单"
 
 msgid "%d contribution"
 msgid_plural "%d contributions"
@@ -235,15 +235,15 @@ msgstr[0] "%d 个无法访问的合并请求"
 
 msgid "%d issue"
 msgid_plural "%d issues"
-msgstr[0] "%d 个议题"
+msgstr[0] "%d 个工单"
 
 msgid "%d issue in this group"
 msgid_plural "%d issues in this group"
-msgstr[0] "此群组中的%d个议题"
+msgstr[0] "此群组中的%d个工单"
 
 msgid "%d issue successfully imported with the label"
 msgid_plural "%d issues successfully imported with the label"
-msgstr[0] "使用标记成功导入%d个议题"
+msgstr[0] "使用标记成功导入%d个工单"
 
 msgid "%d job"
 msgid_plural "%d jobs"
@@ -335,7 +335,7 @@ msgstr[0] "每个镜像名称有%d个标签"
 
 msgid "%d unassigned issue"
 msgid_plural "%d unassigned issues"
-msgstr[0] "%d个未分配的议题"
+msgstr[0] "%d个未分配的工单"
 
 msgid "%d unresolved thread"
 msgid_plural "%d unresolved threads"
@@ -408,7 +408,7 @@ msgstr "找不到%{board_target}"
 
 msgid "%{bold_start}%{count}%{bold_end} issue"
 msgid_plural "%{bold_start}%{count}%{bold_end} issues"
-msgstr[0] "%{bold_start}%{count}%{bold_end}议题"
+msgstr[0] "%{bold_start}%{count}%{bold_end}工单"
 
 msgid "%{bold_start}%{count}%{bold_end} member"
 msgid_plural "%{bold_start}%{count}%{bold_end} members"
@@ -441,7 +441,7 @@ msgid "%{completedWeight} of %{totalWeight} weight completed"
 msgstr "总权重%{totalWeight}中的%{completedWeight}已完成"
 
 msgid "%{completed} of %{total} issues closed"
-msgstr "%{total} 议题中的 %{completed} 个已关闭"
+msgstr "%{total} 工单中的 %{completed} 个已关闭"
 
 msgid "%{completed} of %{total} weight completed"
 msgstr "总权重 %{total} 中的 %{completed} 已完成"
@@ -626,7 +626,7 @@ msgid "%{italic_start}What's new%{italic_end} is inactive and cannot be viewed."
 msgstr "%{italic_start}新增功能%{italic_end} 处于未激活状态且无法查看。"
 
 msgid "%{itemsCount} issues with a limit of %{maxIssueCount}"
-msgstr "%{itemsCount}个议题，上限为%{maxIssueCount}"
+msgstr "%{itemsCount}个工单，上限为%{maxIssueCount}"
 
 msgid "%{labelStart}Actual response:%{labelEnd} %{headers}"
 msgstr "%{labelStart}实际响应:%{labelEnd} %{headers}"
@@ -737,7 +737,7 @@ msgid "%{model_name} not found"
 msgstr "找不到 %{model_name}"
 
 msgid "%{mrText}, this issue will be closed automatically."
-msgstr "%{mrText}，此议题将自动关闭。"
+msgstr "%{mrText}，此工单将自动关闭。"
 
 msgid "%{name_with_link} namespace has %{percent} or less Shared Runner Pipeline minutes remaining. Once it runs out, no new jobs or pipelines in its projects will run."
 msgstr "%{name_with_link}当前剩余%{percent}或更少的共享 Runner 流水线分钟数。一旦用完，其下项目将无法运行新的作业或流水线。"
@@ -816,7 +816,7 @@ msgid "%{percentageUsed}%% used"
 msgstr "%{percentageUsed}%% 已被使用"
 
 msgid "%{percentage}%% issues closed"
-msgstr "%{percentage}%% 的议题已关闭"
+msgstr "%{percentage}%% 的工单已关闭"
 
 msgid "%{percentage}%% weight completed"
 msgstr "%{percentage}%%权重已完成"
@@ -1018,7 +1018,7 @@ msgid "%{total_warnings} warning(s) found:"
 msgstr "找到%{total_warnings}个警告(s): "
 
 msgid "%{total} remaining issue weight"
-msgstr "%{total}剩余议题权重"
+msgstr "%{total}剩余工单权重"
 
 msgid "%{total} warnings found: showing first %{warningsDisplayed}"
 msgstr "找到%{total}个警告: 显示前 %{warningsDisplayed}"
@@ -1060,7 +1060,7 @@ msgid "%{user} created an epic: %{epic_link}"
 msgstr "%{user} 创建了一个史诗：%{epic_link}"
 
 msgid "%{user} created an issue: %{issue_link}"
-msgstr "%{user} 创建了一个议题：%{issue_link}"
+msgstr "%{user} 创建了一个工单：%{issue_link}"
 
 msgid "%{value} is not included in the list"
 msgstr "列表中不包含%{value}"
@@ -1228,7 +1228,7 @@ msgid "- Available to run jobs."
 msgstr "可用于运行作业。"
 
 msgid "- Create or close an issue."
-msgstr "- 创建或关闭议题。"
+msgstr "- 创建或关闭工单。"
 
 msgid "- Create, update, or delete a merge request."
 msgstr "- 创建、更新或删除合并请求。"
@@ -1260,7 +1260,7 @@ msgid "- View the last_activity_at attribute for %{project_name} using the Proje
 msgstr "- 使用项目 API %{projects_api_link} 查看 %{project_name} 的 last_activity_at 属性。"
 
 msgid "- of - issues closed"
-msgstr "-/- 议题已关闭"
+msgstr "-/- 工单已关闭"
 
 msgid "- of - weight completed"
 msgstr "- 于总计 - 权重已完成"
@@ -1290,11 +1290,11 @@ msgstr[0] "%d天"
 
 msgid "1 Issue"
 msgid_plural "%d Issues"
-msgstr[0] "%d个议题"
+msgstr[0] "%d个工单"
 
 msgid "1 closed issue"
 msgid_plural "%{issues} closed issues"
-msgstr[0] "%{issues}个关闭的议题"
+msgstr[0] "%{issues}个关闭的工单"
 
 msgid "1 closed merge request"
 msgid_plural "%{merge_requests} closed merge requests"
@@ -1350,7 +1350,7 @@ msgstr[0] "剩余 %d 个月"
 
 msgid "1 open issue"
 msgid_plural "%{issues} open issues"
-msgstr[0] "%{issues}个开放的议题"
+msgstr[0] "%{issues}个开放的工单"
 
 msgid "1 open merge request"
 msgid_plural "%{merge_requests} open merge requests"
@@ -1437,7 +1437,7 @@ msgid ":%{startLine} to %{endLine}"
 msgstr ":%{startLine}到%{endLine}"
 
 msgid "A %{incident_docs_start}modified issue%{incident_docs_end} to guide the resolution of incidents."
-msgstr "%{incident_docs_start}修改了%{incident_docs_end}个议题，以指导事件的解决。"
+msgstr "%{incident_docs_start}修改了%{incident_docs_end}个工单，以指导事件的解决。"
 
 msgid "A .NET Core console application template, customizable for any .NET Core project"
 msgstr ".NET Core控制台应用程序模板，可针对任何.NET Core项目进行自定义"
@@ -1554,7 +1554,7 @@ msgid "A project boilerplate for Tencent Serverless Framework that uses Next.js 
 msgstr "使用腾讯云Serverless服务，迅速地构建Serverless应用"
 
 msgid "A project containing issues for each audit inquiry in the HIPAA Audit Protocol published by the U.S. Department of Health & Human Services"
-msgstr "项目包含美国卫生与公共服务部发布的HIPAA审计协议中每个审计查询的议题"
+msgstr "项目包含美国卫生与公共服务部发布的HIPAA审计协议中每个审计查询的工单"
 
 msgid "A project’s repository name defines its URL (the one you use to access the project via a browser) and its place on the file disk where GitLab is installed. %{link_start}Learn more.%{link_end}"
 msgstr "一个项目的仓库名称定义了它的URL（用来通过浏览器访问项目）以及它在安装GitLab 的文件磁盘上的位置。 %{link_start}了解更多。%{link_end}"
@@ -1803,7 +1803,7 @@ msgid "AccessTokens|Are you sure? Any RSS or calendar URLs currently in use will
 msgstr "您确定重置Feed令牌吗？当前正在使用的所有RSS或日历URL都将停止工作。"
 
 msgid "AccessTokens|Are you sure? Any issue email addresses currently in use will stop working."
-msgstr "你确定要重置进入电子邮件令牌么？所以使用当前令牌的议题邮件地址都将停止工作。"
+msgstr "你确定要重置进入电子邮件令牌么？所以使用当前令牌的工单邮件地址都将停止工作。"
 
 msgid "AccessTokens|Copy feed token"
 msgstr "复制 Feed 令牌"
@@ -1830,7 +1830,7 @@ msgid "AccessTokens|Keep this token secret. Anyone who has it can access reposit
 msgstr "将此令牌保密。任何拥有它的人都可以像您一样访问仓库静态对象。如果发生，%{linkStart}重置此令牌%{linkEnd}。"
 
 msgid "AccessTokens|Keep this token secret. Anyone who has it can create issues as if they were you. If that happens, %{linkStart}reset this token%{linkEnd}."
-msgstr "将此令牌保密。任何拥有它的人都可以像您一样创建议题。如果发生，%{linkStart}重置此令牌%{linkEnd}。"
+msgstr "将此令牌保密。任何拥有它的人都可以像您一样创建工单。如果发生，%{linkStart}重置此令牌%{linkEnd}。"
 
 msgid "AccessTokens|Keep this token secret. Anyone who has it can read activity and issue RSS feeds or your calendar feed as if they were you. If that happens, %{linkStart}reset this token%{linkEnd}."
 msgstr "将此令牌保密。任何拥有它的人都可以像您一样读取动态并发布 RSS feeds 或您的日历 feed。如果发生，%{linkStart}重置此令牌%{linkEnd}。"
@@ -1857,7 +1857,7 @@ msgid "AccessTokens|Your feed token authenticates you when your RSS reader loads
 msgstr "当您的 RSS 阅读器加载个性化的 RSS 订阅源或当您的日历应用程序加载个性化日历时，您的订阅令牌会验证您。 它在这些新闻源网址中可见。"
 
 msgid "AccessTokens|Your incoming email token authenticates you when you create a new issue by email, and is included in your personal project-specific email addresses."
-msgstr "当您通过电子邮件创建一个新议题时，您的接收电子邮件令牌会验证您，其包含在您的个人特定项目的电子邮件地址中。"
+msgstr "当您通过电子邮件创建一个新工单时，您的接收电子邮件令牌会验证您，其包含在您的个人特定项目的电子邮件地址中。"
 
 msgid "AccessTokens|Your static object token authenticates you when repository static objects (such as archives or blobs) are served from an external storage."
 msgstr "当仓库静态对象(例如归档或博客)从外部存储服务时，您的静态对象令牌会验证您。"
@@ -2031,7 +2031,7 @@ msgid "Add a homepage to your wiki that contains information about your project 
 msgstr "在wiki中添加一个主页，其中包含有关项目的信息，GitLab将在此处显示该主页，而不是此消息。"
 
 msgid "Add a new issue"
-msgstr "添加一个新议题"
+msgstr "添加一个新工单"
 
 msgid "Add a numbered list"
 msgstr "添加编号列表"
@@ -2040,7 +2040,7 @@ msgid "Add a related epic"
 msgstr "添加相关史诗"
 
 msgid "Add a related issue"
-msgstr "添加一个相关议题"
+msgstr "添加一个相关工单"
 
 msgid "Add a suffix to Service Desk email address. %{linkStart}Learn more.%{linkEnd}"
 msgstr "为服务台电子邮件地址添加后缀。 %{linkStart}了解更多。%{linkEnd}"
@@ -2061,7 +2061,7 @@ msgid "Add an SSH key for secure access to GitLab. %{help_link_start}Learn more.
 msgstr "添加 SSH 密钥，安全访问 GitLab。%{help_link_start}了解更多。%{help_link_end}"
 
 msgid "Add an existing issue"
-msgstr "添加一个已有议题"
+msgstr "添加一个已有工单"
 
 msgid "Add an impersonation token"
 msgstr "添加身份模拟令牌"
@@ -2265,7 +2265,7 @@ msgid "Added a to do."
 msgstr "已添加一个待办事项。"
 
 msgid "Added an issue to an epic."
-msgstr "为史诗添加了一个议题。"
+msgstr "为史诗添加了一个工单。"
 
 msgid "Added for this merge request"
 msgstr "已加入此合并请求设置"
@@ -2313,7 +2313,7 @@ msgid "Adds a to do."
 msgstr "添加一个待办事项."
 
 msgid "Adds an issue to an epic."
-msgstr "将议题添加到史诗。"
+msgstr "将工单添加到史诗。"
 
 msgid "Adds email participant(s)."
 msgstr "添加电子邮件参与者。"
@@ -2499,10 +2499,10 @@ msgid "AdminLabels|Labels created here will be automatically added to new projec
 msgstr "在此处创建的标记将自动添加到新的项目。"
 
 msgid "AdminLabels|They can be used to categorize issues and merge requests."
-msgstr "它们可以用来分类议题和合并请求。"
+msgstr "它们可以用来分类工单和合并请求。"
 
 msgid "AdminProjects| You’re about to permanently delete the project %{projectName}, its repository, and all related resources, including issues and merge requests. After you confirm and press %{strong_start}Delete project%{strong_end}, it cannot be undone or recovered."
-msgstr "您将要永久删除项目 %{projectName}、 其仓库以及所有相关的资源，包括议题和合并请求。 当您确认并按 %{strong_start}删除项目%{strong_end} 之后，不能撤消或恢复。"
+msgstr "您将要永久删除项目 %{projectName}、 其仓库以及所有相关的资源，包括工单和合并请求。 当您确认并按 %{strong_start}删除项目%{strong_end} 之后，不能撤消或恢复。"
 
 msgid "AdminProjects|Delete"
 msgstr "删除"
@@ -2784,7 +2784,7 @@ msgid "AdminStatistics|Forks"
 msgstr "派生"
 
 msgid "AdminStatistics|Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "AdminStatistics|Merge requests"
 msgstr "合并请求"
@@ -2982,7 +2982,7 @@ msgid "AdminUsers|Is using seat"
 msgstr "正在使用许可席位"
 
 msgid "AdminUsers|Issues authored by this user are hidden from other users."
-msgstr "由该用户创建的议题对其他用户不可见。"
+msgstr "由该用户创建的工单对其他用户不可见。"
 
 msgid "AdminUsers|It's you!"
 msgstr "自己！"
@@ -3156,10 +3156,10 @@ msgid "AdminUsers|Without projects"
 msgstr "无项目"
 
 msgid "AdminUsers|You are about to permanently delete the user %{username}. Issues, merge requests, and groups linked to them will be transferred to a system-wide \"Ghost-user\". To avoid data loss, consider using the %{strongStart}block user%{strongEnd} feature instead. Once you %{strongStart}Delete user%{strongEnd}, it cannot be undone or recovered."
-msgstr "您即将永久删除用户 %{username}。该用户的议题、合并请求以及相关的群组将被转移到系统的“Ghost用户”。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
+msgstr "您即将永久删除用户 %{username}。该用户的工单、合并请求以及相关的群组将被转移到系统的“Ghost用户”。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
 
 msgid "AdminUsers|You are about to permanently delete the user %{username}. This will delete all of the issues, merge requests, and groups linked to them. To avoid data loss, consider using the %{strongStart}block user%{strongEnd} feature instead. Once you %{strongStart}Delete user%{strongEnd}, it cannot be undone or recovered."
-msgstr "您即将永久删除用户 %{username}。此操作会删除该用户的所有议题、合并请求以及相关的群组。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
+msgstr "您即将永久删除用户 %{username}。此操作会删除该用户的所有工单、合并请求以及相关的群组。为避免数据丢失，建议您使用 %{strongStart}禁用用户%{strongEnd} 功能。一旦您 %{strongStart}删除用户%{strongEnd}，将无法撤消或恢复。"
 
 msgid "AdminUsers|You can always block their account again if needed."
 msgstr "如果需要，您随时可以禁用他们的帐户。"
@@ -3660,13 +3660,13 @@ msgid "All groups and projects"
 msgstr "所有群组和项目"
 
 msgid "All issues"
-msgstr "所有议题"
+msgstr "所有工单"
 
 msgid "All issues for this milestone are closed."
-msgstr "此里程碑的所有议题均已关闭。"
+msgstr "此里程碑的所有工单均已关闭。"
 
 msgid "All issues for this milestone are closed. You may close this milestone now."
-msgstr "这个里程碑的所有议题都已关闭。现在您可以关闭这个里程碑。"
+msgstr "这个里程碑的所有工单都已关闭。现在您可以关闭这个里程碑。"
 
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr "所有合并冲突都已解决。此合并请求现在可以合并。"
@@ -3807,7 +3807,7 @@ msgid "Also remove direct user membership from subgroups and projects"
 msgstr "同时从子组和项目中删除直接用户成员身份"
 
 msgid "Also unassign this user from related issues and merge requests"
-msgstr "同时从相关的议题和合并请求中取消指派此用户"
+msgstr "同时从相关的工单和合并请求中取消指派此用户"
 
 msgid "Alternate support URL for Help page and Help dropdown."
 msgstr "用于帮助页面和帮助下拉列表的备用支持 URL。"
@@ -3966,7 +3966,7 @@ msgid "An error occurred while fetching folder content."
 msgstr "获取文件夹内容时发生错误."
 
 msgid "An error occurred while fetching issues."
-msgstr "获取议题时发生错误。"
+msgstr "获取工单时发生错误。"
 
 msgid "An error occurred while fetching label colors."
 msgstr "获取标记颜色时出错。"
@@ -4023,7 +4023,7 @@ msgid "An error occurred while getting files for - %{branchId}"
 msgstr "获取文件 - %{branchId} 时出错"
 
 msgid "An error occurred while getting issue counts"
-msgstr "获取议题数目时出错"
+msgstr "获取工单数目时出错"
 
 msgid "An error occurred while getting projects"
 msgstr "获取项目时发生错误"
@@ -4059,7 +4059,7 @@ msgid "An error occurred while loading group members."
 msgstr "加载群组成员时出错。"
 
 msgid "An error occurred while loading issues"
-msgstr "加载议题时发生错误。"
+msgstr "加载工单时发生错误。"
 
 msgid "An error occurred while loading merge requests."
 msgstr "加载合并请求时发生错误。"
@@ -4119,7 +4119,7 @@ msgid "An error occurred while making the request."
 msgstr "发送请求时发生错误。"
 
 msgid "An error occurred while moving the issue."
-msgstr "移动议题时出错。"
+msgstr "移动工单时出错。"
 
 msgid "An error occurred while parsing recent searches"
 msgstr "解析最近搜索时发生错误"
@@ -4137,7 +4137,7 @@ msgid "An error occurred while removing epics."
 msgstr "删除史诗时发生错误。"
 
 msgid "An error occurred while removing issues."
-msgstr "删除议题时发生错误。"
+msgstr "删除工单时发生错误。"
 
 msgid "An error occurred while rendering preview broadcast message"
 msgstr "渲染广播消息时发生错误"
@@ -4146,7 +4146,7 @@ msgid "An error occurred while rendering the editor"
 msgstr "在渲染编辑器时出错"
 
 msgid "An error occurred while reordering issues."
-msgstr "重新排序议题时发生错误。"
+msgstr "重新排序工单时发生错误。"
 
 msgid "An error occurred while retrieving calendar activity"
 msgstr "获取日历动态时发生错误"
@@ -4249,7 +4249,7 @@ msgid "An integer value is required for seconds"
 msgstr "秒数必须是整数"
 
 msgid "An issue already exists"
-msgstr "议题已经存在"
+msgstr "工单已经存在"
 
 msgid "An unauthenticated user"
 msgstr "未经认证的用户"
@@ -4312,7 +4312,7 @@ msgid "Another action is currently in progress"
 msgstr "目前正在进行另一项操作"
 
 msgid "Another issue tracker is already in use. Only one issue tracker service can be active at a time"
-msgstr "另一个议题跟踪器已经在使用中。一次只能启用一个议题跟踪服务"
+msgstr "另一个工单跟踪器已经在使用中。一次只能启用一个工单跟踪服务"
 
 msgid "Another third-party wiki is already in use. Only one third-party wiki integration can be active at a time"
 msgstr "另一个第三方 wiki 已在使用中。一次只能激活一个第三方 wiki 集成"
@@ -4567,7 +4567,7 @@ msgid "Applying"
 msgstr "应用中"
 
 msgid "Applying a template will replace the existing issue description. Any changes you have made will be lost."
-msgstr "使用模板将替换当前的议题描述。您所做的任何更改都将丢失。"
+msgstr "使用模板将替换当前的工单描述。您所做的任何更改都将丢失。"
 
 msgid "Applying command"
 msgstr "正在执行命令"
@@ -4790,7 +4790,7 @@ msgid "Archived projects"
 msgstr "归档项目"
 
 msgid "Archiving the project makes it entirely read-only. It is hidden from the dashboard and doesn't display in searches. %{strong_start}The repository cannot be committed to, and no issues, comments, or other entities can be created.%{strong_end} %{link_start}Learn more.%{link_end}"
-msgstr "归档项目将使其完全只读。仪表板中和搜索结果中都不会出现该项目。%{strong_start}代码将无法提交到仓库，也无法创建任何议题、评论或其它对象。%{strong_end}%{link_start}了解详情。%{link_end}"
+msgstr "归档项目将使其完全只读。仪表板中和搜索结果中都不会出现该项目。%{strong_start}代码将无法提交到仓库，也无法创建任何工单、评论或其它对象。%{strong_end}%{link_start}了解详情。%{link_end}"
 
 msgid "Are you ABSOLUTELY SURE you wish to remove this group?"
 msgstr "您绝对确定要删除此群组吗？"
@@ -4820,7 +4820,7 @@ msgid "Are you sure you want to cancel editing this %{commentType}?"
 msgstr "您确定要取消编辑这个%{commentType}吗?"
 
 msgid "Are you sure you want to close this blocked issue?"
-msgstr "您确定要关闭此被受阻的议题吗？"
+msgstr "您确定要关闭此被受阻的工单吗？"
 
 msgid "Are you sure you want to delete %{name}?"
 msgstr "您确定要删除%{name}吗？"
@@ -4875,7 +4875,7 @@ msgid "Are you sure you want to lose unsaved changes?"
 msgstr "确定要放弃未保存的更改吗？"
 
 msgid "Are you sure you want to lose your issue information?"
-msgstr "您确定要丢弃议题信息吗？"
+msgstr "您确定要丢弃工单信息吗？"
 
 msgid "Are you sure you want to merge immediately?"
 msgstr "您确定要立即合并吗？"
@@ -4980,7 +4980,7 @@ msgid "Artifacts"
 msgstr "产物"
 
 msgid "As we continue to build more features for SAST, we'd love your feedback on the SAST configuration feature in %{linkStart}this issue%{linkEnd}."
-msgstr "随着我们继续为SAST添加更多的功能，我们非常欢迎您通过%{linkStart}此议题%{linkEnd}为SAST配置功能提供反馈。"
+msgstr "随着我们继续为SAST添加更多的功能，我们非常欢迎您通过%{linkStart}此工单%{linkEnd}为SAST配置功能提供反馈。"
 
 msgid "AsanaService|%{user} pushed to branch %{branch} of %{project_name} ( %{commit_url} ):"
 msgstr "%{user} 推送到  %{project_name} 的分支%{branch} ( %{commit_url} ): "
@@ -5046,7 +5046,7 @@ msgid "Assign severity"
 msgstr "分配严重程度"
 
 msgid "Assign some issues to this milestone."
-msgstr "为此里程碑分配一些议题。"
+msgstr "为此里程碑分配一些工单。"
 
 msgid "Assign to"
 msgstr "分配到"
@@ -5064,7 +5064,7 @@ msgid "Assigned %{reviewer_users_sentence} as %{reviewer_text}."
 msgstr "已将%{reviewer_users_sentence}指派为%{reviewer_text}。"
 
 msgid "Assigned Issues"
-msgstr "已分配议题"
+msgstr "已分配工单"
 
 msgid "Assigned merge requests"
 msgstr "已分配的合并请求"
@@ -5411,7 +5411,7 @@ msgid "Auto-cancel redundant pipelines"
 msgstr "自动取消多余的流水线"
 
 msgid "Auto-close referenced issues on default branch"
-msgstr "自动关闭默认分支上的引用议题"
+msgstr "自动关闭默认分支上的引用工单"
 
 msgid "AutoDevOps|%{auto_devops_start}Automate building, testing, and deploying%{auto_devops_end} your applications based on your continuous integration and delivery configuration. %{quickstart_start}How do I get started?%{quickstart_end}"
 msgstr "根据持续的集成和交付配置，%{auto_devops_start}自动构建，测试和部署%{auto_devops_end}您的应用程序。%{quickstart_start}我该如何开始？%{quickstart_end}"
@@ -5783,7 +5783,7 @@ msgid "Before inserting code, be sure to read the comment that separated each co
 msgstr "在插入代码之前，请务必阅读分隔每个代码组的注释。"
 
 msgid "Before this can be merged, a Jira issue must be linked in the title or description"
-msgstr "在合并之前，必须在标题或描述中链接Jira议题"
+msgstr "在合并之前，必须在标题或描述中链接Jira工单"
 
 msgid "Begin with the selected commit"
 msgstr "从选定的提交开始"
@@ -6208,16 +6208,16 @@ msgstr "已禁用"
 
 msgid "Blocked by %d issue"
 msgid_plural "Blocked by %d issues"
-msgstr[0] "被%d个议题阻塞"
+msgstr[0] "被%d个工单阻塞"
 
 msgid "Blocked issue"
-msgstr "受阻的议题"
+msgstr "受阻的工单"
 
 msgid "Blocking"
 msgstr "阻塞"
 
 msgid "Blocking issues"
-msgstr "阻塞议题"
+msgstr "阻塞工单"
 
 msgid "Blocks"
 msgstr "阻止"
@@ -6229,7 +6229,7 @@ msgid "Board scope affects which epics are displayed for anyone who visits this 
 msgstr "看板范围会影响向访问此看板的任何人显示的史诗"
 
 msgid "Board scope affects which issues are displayed for anyone who visits this board"
-msgstr "看板范围会影响访问此看板的人可以显示哪些议题"
+msgstr "看板范围会影响访问此看板的人可以显示哪些工单"
 
 msgid "BoardNewEpic|Groups"
 msgstr "群组"
@@ -6371,7 +6371,7 @@ msgid "Boards|An error occurred while fetching group projects. Please try again.
 msgstr "获取群组项目时发生错误。请重试。"
 
 msgid "Boards|An error occurred while fetching issues. Please reload the page."
-msgstr "获取议题时发生错误。请重新加载页面。"
+msgstr "获取工单时发生错误。请重新加载页面。"
 
 msgid "Boards|An error occurred while fetching labels. Please reload the page."
 msgstr "获取标记时发生错误。请重新加载页面。"
@@ -6380,7 +6380,7 @@ msgid "Boards|An error occurred while fetching the board epics. Please reload th
 msgstr "获取史诗看板时发生错误。请重新加载页面。"
 
 msgid "Boards|An error occurred while fetching the board issues. Please reload the page."
-msgstr "读取看板议题时出错。请重试。"
+msgstr "读取看板工单时出错。请重试。"
 
 msgid "Boards|An error occurred while fetching the board lists. Please reload the page."
 msgstr "获取看板列表时发生错误。请重新加载页面。"
@@ -6395,10 +6395,10 @@ msgid "Boards|An error occurred while generating lists. Please reload the page."
 msgstr "生成列表时发生错误。请重新加载页面。"
 
 msgid "Boards|An error occurred while moving the epic. Please try again."
-msgstr "移动议题时发生错误，请再试一遍"
+msgstr "移动工单时发生错误，请再试一遍"
 
 msgid "Boards|An error occurred while moving the issue. Please try again."
-msgstr "移动议题时发生错误，请再试一遍"
+msgstr "移动工单时发生错误，请再试一遍"
 
 msgid "Boards|An error occurred while removing the list. Please try again."
 msgstr "移除列表时发生错误。请重试。"
@@ -6468,7 +6468,7 @@ msgid "Board|Load more epics"
 msgstr "加载更多史诗"
 
 msgid "Board|Load more issues"
-msgstr "载入更多议题"
+msgstr "载入更多工单"
 
 msgid "Board|Loading epics"
 msgstr "正在加载史诗"
@@ -7087,7 +7087,7 @@ msgid "CVE|Create CVE ID Request"
 msgstr "创建CVE ID请求"
 
 msgid "CVE|Enable CVE ID requests in the issue sidebar"
-msgstr "在议题侧边栏中启用CVE ID请求"
+msgstr "在工单侧边栏中启用CVE ID请求"
 
 msgid "CVE|Request CVE ID"
 msgstr "请求CVE ID"
@@ -7240,10 +7240,10 @@ msgid "Cancelling Preview"
 msgstr "取消预览"
 
 msgid "Cannot assign a confidential epic to a non-confidential issue. Make the issue confidential and try again"
-msgstr "无法将机密史诗分配给非机密议题。请将此议题设置机密并重试"
+msgstr "无法将机密史诗分配给非机密工单。请将此工单设置机密并重试"
 
 msgid "Cannot assign an issue that does not belong under the same group (or descendant) as the epic."
-msgstr "无法指派与史诗不属于同一群组（或下级）的议题。"
+msgstr "无法指派与史诗不属于同一群组（或下级）的工单。"
 
 msgid "Cannot be merged automatically"
 msgstr "无法自动合并"
@@ -7267,13 +7267,13 @@ msgid "Cannot have multiple unresolved alerts"
 msgstr "不能有多个未解决的警报"
 
 msgid "Cannot import because issues are not available in this project."
-msgstr "无法导入，因为议题在此项目中不可用。"
+msgstr "无法导入，因为工单在此项目中不可用。"
 
 msgid "Cannot make the epic confidential if it contains non-confidential child epics"
 msgstr "如果史诗包含非私密子史诗，则无法将该史诗设置为私密。"
 
 msgid "Cannot make the epic confidential if it contains non-confidential issues"
-msgstr "如果史诗包含非私密议题，则无法将该史诗设置为私密。"
+msgstr "如果史诗包含非私密工单，则无法将该史诗设置为私密。"
 
 msgid "Cannot merge"
 msgstr "无法合并"
@@ -7291,7 +7291,7 @@ msgid "Cannot promote issue because it does not belong to a group."
 msgstr "不能升级问题，因为它不属于一个组。"
 
 msgid "Cannot promote issue due to insufficient permissions."
-msgstr "由于权限不足，无法升级议题。"
+msgstr "由于权限不足，无法升级工单。"
 
 msgid "Cannot refer to a group %{timebox_type} by an internal id!"
 msgstr "无法通过内部ID引用群组%{timebox_type}！"
@@ -7848,7 +7848,7 @@ msgid "Child epic doesn't exist."
 msgstr "子史诗不存在。"
 
 msgid "Child issues and epics"
-msgstr "子议题和史诗"
+msgstr "子工单和史诗"
 
 msgid "Chinese language support using"
 msgstr "中文支持使用"
@@ -8158,7 +8158,7 @@ msgid "Clone repository"
 msgstr "克隆仓库"
 
 msgid "Clone this issue"
-msgstr "克隆此议题"
+msgstr "克隆此工单"
 
 msgid "Clone with %{http_label}"
 msgstr "使用 %{http_label} 克隆"
@@ -8173,19 +8173,19 @@ msgid "Clone with SSH"
 msgstr "使用 SSH 克隆"
 
 msgid "CloneIssue|Cannot clone issue due to insufficient permissions!"
-msgstr "由于权限不足，无法克隆议题 ！"
+msgstr "由于权限不足，无法克隆工单 ！"
 
 msgid "CloneIssue|Cannot clone issue to target project as it is pending deletion."
-msgstr "无法克隆议题到目标项目，因为它正在等待删除。"
+msgstr "无法克隆工单到目标项目，因为它正在等待删除。"
 
 msgid "CloneIssue|Cannot clone issues of '%{issue_type}' type."
-msgstr "无法复制 \"%{issue_type}\" 类型的议题。"
+msgstr "无法复制 \"%{issue_type}\" 类型的工单。"
 
 msgid "Cloned this issue to %{path_to_project}."
-msgstr "将此议题克隆到%{path_to_project}。"
+msgstr "将此工单克隆到%{path_to_project}。"
 
 msgid "Clones this issue, without comments, to %{project}."
-msgstr "将此议题克隆到%{project}，不含评论。"
+msgstr "将此工单克隆到%{project}，不含评论。"
 
 msgid "Close"
 msgstr "关闭"
@@ -8227,7 +8227,7 @@ msgid "Closed date"
 msgstr "关闭日期"
 
 msgid "Closed issues"
-msgstr "已关闭议题"
+msgstr "已关闭工单"
 
 msgid "Closed this %{quick_action_target}."
 msgstr "已关闭此%{quick_action_target}."
@@ -9182,7 +9182,7 @@ msgid "Collapse approvers"
 msgstr "折叠核准人"
 
 msgid "Collapse issues"
-msgstr "折叠议题"
+msgstr "折叠工单"
 
 msgid "Collapse jobs"
 msgstr "折叠作业"
@@ -9558,7 +9558,7 @@ msgid "Confidential"
 msgstr "私密"
 
 msgid "Confidential issue"
-msgstr "机密议题"
+msgstr "机密工单"
 
 msgid "Confidential note"
 msgstr "私密备注"
@@ -10230,10 +10230,10 @@ msgid "ContributionAnalytics|%{pushes} pushes, more than %{commits} commits by %
 msgstr "%{pushes}次推送，超过%{people}个贡献者的%{commits}次提交。"
 
 msgid "ContributionAnalytics|Contribution analytics for issues, merge requests and push events since %{start_date}"
-msgstr "自%{start_date}起的议题，合并请求和推送事件的贡献分析"
+msgstr "自%{start_date}起的工单，合并请求和推送事件的贡献分析"
 
 msgid "ContributionAnalytics|Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "ContributionAnalytics|Last 3 months"
 msgstr "过去3个月"
@@ -10248,7 +10248,7 @@ msgid "ContributionAnalytics|Merge requests"
 msgstr "合并请求"
 
 msgid "ContributionAnalytics|No issues for the selected time period."
-msgstr "在选定的时间段内没有议题。"
+msgstr "在选定的时间段内没有工单。"
 
 msgid "ContributionAnalytics|No merge requests for the selected time period."
 msgstr "在选定的时间段内没有合并请求。"
@@ -10362,7 +10362,7 @@ msgid "Copy image URL"
 msgstr "复制图像 URL"
 
 msgid "Copy issue URL to clipboard"
-msgstr "复制议题 URL 到剪贴板"
+msgstr "复制工单 URL 到剪贴板"
 
 msgid "Copy key"
 msgstr "复制密钥"
@@ -10371,7 +10371,7 @@ msgid "Copy labels and milestone from %{source_issuable_reference}."
 msgstr "从 %{source_issuable_reference} 复制标记和里程碑。"
 
 msgid "Copy labels and milestone from other issue or merge request in this project"
-msgstr "从当前项目中其他议题或合并请求复制标记和里程碑"
+msgstr "从当前项目中其他工单或合并请求复制标记和里程碑"
 
 msgid "Copy link"
 msgstr "复制链接"
@@ -10515,7 +10515,7 @@ msgid "Could not create group"
 msgstr "无法创建群组"
 
 msgid "Could not create issue"
-msgstr "无法创建议题"
+msgstr "无法创建工单"
 
 msgid "Could not create project"
 msgstr "无法创建项目"
@@ -10656,7 +10656,7 @@ msgid "Create a new file as there are no files yet. Afterwards, you'll be able t
 msgstr "当前无文件。请先创建一个新文件。然后您将能够提交您的更改。"
 
 msgid "Create a new issue"
-msgstr "创建新议题"
+msgstr "创建新工单"
 
 msgid "Create a new project"
 msgstr "创建一个新项目"
@@ -10722,10 +10722,10 @@ msgid "Create group label"
 msgstr "创建群组标记"
 
 msgid "Create issue"
-msgstr "创建议题"
+msgstr "创建工单"
 
 msgid "Create issue to resolve all threads"
-msgstr "创建议题来解决所有主题"
+msgstr "创建工单来解决所有主题"
 
 msgid "Create iteration"
 msgstr "创建迭代"
@@ -10737,7 +10737,7 @@ msgid "Create list"
 msgstr "创建列表"
 
 msgid "Create lists from labels. Issues with that label appear in that list."
-msgstr "从标记创建列表，含有该标记的议题将出现在相应的列中。"
+msgstr "从标记创建列表，含有该标记的工单将出现在相应的列中。"
 
 msgid "Create merge request"
 msgstr "创建合并请求"
@@ -10785,7 +10785,7 @@ msgid "Create one"
 msgstr "创建一个"
 
 msgid "Create or close an issue."
-msgstr "创建或关闭议题。"
+msgstr "创建或关闭工单。"
 
 msgid "Create or import your first project"
 msgstr "创建或导入您的第一个项目"
@@ -10983,10 +10983,10 @@ msgid "Created On"
 msgstr "创建于"
 
 msgid "Created a branch and a merge request to resolve this issue."
-msgstr "创建了一个分支和一个合并请求来解决此议题。"
+msgstr "创建了一个分支和一个合并请求来解决此工单。"
 
 msgid "Created branch '%{branch_name}' and a merge request to resolve this issue."
-msgstr "创建了分支“%{branch_name}”和合并请求以解决此议题。"
+msgstr "创建了分支“%{branch_name}”和合并请求以解决此工单。"
 
 msgid "Created by %{job}"
 msgstr "由%{job}创建"
@@ -11004,10 +11004,10 @@ msgid "Created date"
 msgstr "创建日期"
 
 msgid "Created issue %{issueLink}"
-msgstr "创建议题 %{issueLink}"
+msgstr "创建工单 %{issueLink}"
 
 msgid "Created issue %{issueLink} at %{projectLink}"
-msgstr "在 %{projectLink} 中创建议题 %{issueLink}"
+msgstr "在 %{projectLink} 中创建工单 %{issueLink}"
 
 msgid "Created merge request %{mergeRequestLink}"
 msgstr "创建合并请求 %{mergeRequestLink}"
@@ -11025,10 +11025,10 @@ msgid "Created on:"
 msgstr "创建于："
 
 msgid "Creates a branch and a merge request to resolve this issue."
-msgstr "创建分支和合并请求来解决这个议题。"
+msgstr "创建分支和合并请求来解决这个工单。"
 
 msgid "Creates branch '%{branch_name}' and a merge request to resolve this issue."
-msgstr "创建分支“%{branch_name}”和合并请求以解决此议题。"
+msgstr "创建分支“%{branch_name}”和合并请求以解决此工单。"
 
 msgid "Creating"
 msgstr "正在创建"
@@ -11271,43 +11271,43 @@ msgid "Cycle Time"
 msgstr "周期时间"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was added to the issue"
-msgstr "%{label_reference} 标记已添加到议题"
+msgstr "%{label_reference} 标记已添加到工单"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was added to the merge request"
 msgstr "%{label_reference} 标记已添加到合并请求"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was removed from the issue"
-msgstr "%{label_reference} 标记已从议题中删除"
+msgstr "%{label_reference} 标记已从工单中删除"
 
 msgid "CycleAnalyticsEvent|%{label_reference} label was removed from the merge request"
 msgstr "%{label_reference} 标记已从合并请求中删除"
 
 msgid "CycleAnalyticsEvent|Issue closed"
-msgstr "议题关闭"
+msgstr "工单关闭"
 
 msgid "CycleAnalyticsEvent|Issue created"
-msgstr "议题已创建"
+msgstr "工单已创建"
 
 msgid "CycleAnalyticsEvent|Issue first added to a board"
-msgstr "议题首次添加到看板"
+msgstr "工单首次添加到看板"
 
 msgid "CycleAnalyticsEvent|Issue first associated with a milestone"
-msgstr "议题首次与里程碑相关联"
+msgstr "工单首次与里程碑相关联"
 
 msgid "CycleAnalyticsEvent|Issue first associated with a milestone or issue first added to a board"
-msgstr "议题首次添加到里程碑或看板"
+msgstr "工单首次添加到里程碑或看板"
 
 msgid "CycleAnalyticsEvent|Issue first mentioned in a commit"
-msgstr "议题首次在提交中提及"
+msgstr "工单首次在提交中提及"
 
 msgid "CycleAnalyticsEvent|Issue label was added"
-msgstr "议题已添加标记"
+msgstr "工单已添加标记"
 
 msgid "CycleAnalyticsEvent|Issue label was removed"
-msgstr "议题已删除标记"
+msgstr "工单已删除标记"
 
 msgid "CycleAnalyticsEvent|Issue last edited"
-msgstr "议题最后编辑"
+msgstr "工单最后编辑"
 
 msgid "CycleAnalyticsEvent|Merge request closed"
 msgstr "合并请求关闭"
@@ -11343,7 +11343,7 @@ msgid "CycleAnalyticsStage|Code"
 msgstr "编码"
 
 msgid "CycleAnalyticsStage|Issue"
-msgstr "议题"
+msgstr "工单"
 
 msgid "CycleAnalyticsStage|Plan"
 msgstr "计划"
@@ -12149,7 +12149,7 @@ msgid "Default branch and protected branches"
 msgstr "默认分支和受保护的分支"
 
 msgid "Default description template for issues"
-msgstr "议题的默认描述模板"
+msgstr "工单的默认描述模板"
 
 msgid "Default description template for merge requests"
 msgstr "合并请求的默认描述模板"
@@ -12425,7 +12425,7 @@ msgid "Deleting a project places it into a read-only state until %{date}, at whi
 msgstr "删除项目会将其置于只读状态直至%{date}。届时项目将被永久删除。确定要删除吗？"
 
 msgid "Deleting the project will delete its repository and all related resources, including issues and merge requests."
-msgstr "删除该项目将删除其仓库和所有相关资源，包括议题和合并请求。"
+msgstr "删除该项目将删除其仓库和所有相关资源，包括工单和合并请求。"
 
 msgid "Deletion pending. This project will be deleted on %{date}. Repository and other project resources are read-only."
 msgstr "删除操作等待处理。此项目将于%{date}被删除。仓库和其他项目资源为只读。"
@@ -13258,7 +13258,7 @@ msgid "DevopsAdoption|At least one deploy"
 msgstr "至少部署一次"
 
 msgid "DevopsAdoption|At least one issue created"
-msgstr "已创建至少一个议题"
+msgstr "已创建至少一个工单"
 
 msgid "DevopsAdoption|At least one merge request created"
 msgstr "已创建至少一个合并请求"
@@ -13312,7 +13312,7 @@ msgid "DevopsAdoption|Fuzz Testing enabled for at least one project"
 msgstr "至少为一个项目启用了模糊测试"
 
 msgid "DevopsAdoption|Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "DevopsAdoption|MRs"
 msgstr "合并请求"
@@ -13573,10 +13573,10 @@ msgid "Discover|Upgrade now"
 msgstr "立即升级"
 
 msgid "Discuss a specific suggestion or question internally that needs to be resolved."
-msgstr "在内部讨论需要解决的特定建议或议题。"
+msgstr "在内部讨论需要解决的特定建议或工单。"
 
 msgid "Discuss a specific suggestion or question internally."
-msgstr "在内部讨论特定建议或议题。"
+msgstr "在内部讨论特定建议或工单。"
 
 msgid "Discuss a specific suggestion or question that needs to be resolved."
 msgstr "讨论需要解决的具体建议或问题。"
@@ -13637,7 +13637,7 @@ msgid "Display name"
 msgstr "显示名称"
 
 msgid "Display progress of child issues"
-msgstr "显示子议题的进度"
+msgstr "显示子工单的进度"
 
 msgid "Display rendered file"
 msgstr "显示渲染后文件"
@@ -13646,7 +13646,7 @@ msgid "Display source"
 msgstr "显示源"
 
 msgid "Display time tracking in issues in total hours only. %{link_start}What is time tracking?%{link_end}"
-msgstr "仅以总小时数显示议题中的时间跟踪。%{link_start}什么是时间跟踪？%{link_end}"
+msgstr "仅以总小时数显示工单中的时间跟踪。%{link_start}什么是时间跟踪？%{link_end}"
 
 msgid "Do not display content for customer experience improvement and offers from third parties"
 msgstr "不要显示用于改善客户体验的内容和来自第三方的优惠"
@@ -13880,7 +13880,7 @@ msgid "E-mail:"
 msgstr "电子邮件："
 
 msgid "Each project can also have an issue tracker and a wiki."
-msgstr "每个项目还可以有一个议题跟踪器和一个 wiki。"
+msgstr "每个项目还可以有一个工单跟踪器和一个 wiki。"
 
 msgid "Edit"
 msgstr "编辑"
@@ -13988,7 +13988,7 @@ msgid "Edit inline"
 msgstr "内联编辑"
 
 msgid "Edit issues"
-msgstr "编辑议题"
+msgstr "编辑工单"
 
 msgid "Edit link"
 msgstr "编辑链接"
@@ -14138,7 +14138,7 @@ msgid "EmailError|The thread you are replying to no longer exists, perhaps it wa
 msgstr "您回复的主题不再存在，可能已被删除。如果您认为这是错误的，请联系系统管理员。"
 
 msgid "EmailError|We couldn't figure out what the email is for. Please create your issue or comment through the web interface."
-msgstr "我们无法弄清楚电子邮件的用途。请通过WEB页面创建您的议题或评论。"
+msgstr "我们无法弄清楚电子邮件的用途。请通过WEB页面创建您的工单或评论。"
 
 msgid "EmailError|We couldn't figure out what the email is in reply to. Please create your comment through the web interface."
 msgstr "我们无法弄清楚电子邮件的回复内容。请通过WEB页面创建您的评论。"
@@ -14150,7 +14150,7 @@ msgid "EmailError|We couldn't find the project. Please check if there's any typo
 msgstr "我们找不到该项目。请检查是否有拼写错误。"
 
 msgid "EmailError|We couldn't process your email because it is too large. Please create your issue or comment through the web interface."
-msgstr "因为您的电子邮件过大，我们无法处理。请通过界面创建您的议题或者评论。"
+msgstr "因为您的电子邮件过大，我们无法处理。请通过界面创建您的工单或者评论。"
 
 msgid "EmailError|You are not allowed to perform this action. If you believe this is in error, contact a staff member."
 msgstr "不允许您执行此操作。如果您认为这是错误的，请联系系统管理员。"
@@ -14471,7 +14471,7 @@ msgid "Enter new AWS Secret Access Key"
 msgstr "输入新的AWS Secret Access密钥"
 
 msgid "Enter number of issues"
-msgstr "输入议题数量"
+msgstr "输入工单数量"
 
 msgid "Enter one or more user ID separated by commas"
 msgstr "输入一个或多个用逗号分隔的用户ID"
@@ -14771,7 +14771,7 @@ msgid "Epics let you manage your portfolio of projects more efficiently and with
 msgstr "有效利用史诗，您的产品线管理会变得更轻松高效"
 
 msgid "Epics, issues, and merge requests"
-msgstr "史诗、议题和合并请求"
+msgstr "史诗、工单和合并请求"
 
 msgid "Epics|%{startDate} – %{dueDate}"
 msgstr "%{startDate} – %{dueDate}"
@@ -14807,7 +14807,7 @@ msgid "Epics|Remove epic"
 msgstr "删除史诗"
 
 msgid "Epics|Remove issue"
-msgstr "删除议题"
+msgstr "删除工单"
 
 msgid "Epics|Search epics"
 msgstr "搜索史诗"
@@ -14819,13 +14819,13 @@ msgid "Epics|Show more"
 msgstr "显示更多"
 
 msgid "Epics|Something went wrong while assigning issue to epic."
-msgstr "分配议题到史诗时出错。"
+msgstr "分配工单到史诗时出错。"
 
 msgid "Epics|Something went wrong while creating child epics."
 msgstr "创建子史诗时出错。"
 
 msgid "Epics|Something went wrong while creating issue."
-msgstr "创建议题时出错。"
+msgstr "创建工单时出错。"
 
 msgid "Epics|Something went wrong while fetching child epics."
 msgstr "获取子史诗时出错。"
@@ -14843,7 +14843,7 @@ msgid "Epics|Something went wrong while ordering item."
 msgstr "排序时出错。"
 
 msgid "Epics|Something went wrong while removing issue from epic."
-msgstr "从史诗中删除议题时出错。"
+msgstr "从史诗中删除工单时出错。"
 
 msgid "Epics|Something went wrong while updating epics."
 msgstr "更新史诗时出错。"
@@ -14858,7 +14858,7 @@ msgid "Epics|This will also remove any descendents of %{bStart}%{targetEpicTitle
 msgstr "该操作也会从%{bStart}%{parentEpicTitle}%{bEnd}中移除%{bStart}%{targetEpicTitle}%{bEnd}的所有级别子史诗。确定继续吗？"
 
 msgid "Epics|To schedule your epic's %{epicDateType} date based on milestones, assign a milestone with a %{epicDateType} date to any issue in the epic."
-msgstr "如需根据里程碑来安排史诗的 %{epicDateType} 日期，请为史诗中的任一议题指定带有 %{epicDateType} 日期的里程碑。"
+msgstr "如需根据里程碑来安排史诗的 %{epicDateType} 日期，请为史诗中的任一工单指定带有 %{epicDateType} 日期的里程碑。"
 
 msgid "Epics|Unable to save epic. Please try again"
 msgstr "无法保存史诗。请再试一次"
@@ -14945,7 +14945,7 @@ msgid "Error loading file viewer."
 msgstr "加载文件查看器时出错。"
 
 msgid "Error loading issues"
-msgstr "加载议题出错"
+msgstr "加载工单出错"
 
 msgid "Error loading iterations"
 msgstr "加载迭代出错"
@@ -14987,7 +14987,7 @@ msgid "Error occurred while updating the %{issuableType} status"
 msgstr "更新 %{issuableType} 状态时出错"
 
 msgid "Error occurred while updating the issue status"
-msgstr "更新议题状态时出错"
+msgstr "更新工单状态时出错"
 
 msgid "Error occurred. A blocked user cannot be deactivated"
 msgstr "发生错误。无法冻结被禁用的用户"
@@ -15269,7 +15269,7 @@ msgid "EventFilterBy|Filter by epic events"
 msgstr "按史诗事件筛选"
 
 msgid "EventFilterBy|Filter by issue events"
-msgstr "只显示议题事件"
+msgstr "只显示工单事件"
 
 msgid "EventFilterBy|Filter by merge events"
 msgstr "只显示合并事件"
@@ -15441,7 +15441,7 @@ msgid "Expand file"
 msgstr "展开文件"
 
 msgid "Expand issues"
-msgstr "展开议题"
+msgstr "展开工单"
 
 msgid "Expand jobs"
 msgstr "展开作业"
@@ -15498,7 +15498,7 @@ msgid "Expires:"
 msgstr "到期时间:"
 
 msgid "Explain the problem. If appropriate, provide a link to the relevant issue or comment."
-msgstr "请解释此问题。如适用，可提供相关议题或评论的链接。"
+msgstr "请解释此问题。如适用，可提供相关工单或评论的链接。"
 
 msgid "Explore"
 msgstr "探索"
@@ -15546,7 +15546,7 @@ msgid "Export group"
 msgstr "导出群组"
 
 msgid "Export issues"
-msgstr "导出议题"
+msgstr "导出工单"
 
 msgid "Export merge requests"
 msgstr "导出合并请求"
@@ -15642,16 +15642,16 @@ msgid "ExternalAuthorization|URL to which the projects make authorization reques
 msgstr "项目向其发出授权请求的 URL。如果 URL 为空，则跨项目功能可用并且仍可以为项目指定分类标记。"
 
 msgid "ExternalIssueIntegration|Another issue tracker is already in use"
-msgstr "正在使用另一个议题跟踪器"
+msgstr "正在使用另一个工单跟踪器"
 
 msgid "ExternalIssueIntegration|Not all data may be displayed here. To view more details or make changes to this issue, go to %{linkStart}%{trackerName}%{linkEnd}."
-msgstr "此处可能不会显示所有数据，要查看更多详细信息或对此议题进行更改，请转到 %{linkStart}%{trackerName}%{linkEnd}。"
+msgstr "此处可能不会显示所有数据，要查看更多详细信息或对此工单进行更改，请转到 %{linkStart}%{trackerName}%{linkEnd}。"
 
 msgid "ExternalIssueIntegration|Only one issue tracker integration can be active at a time. Please disable the active tracker first and try again."
-msgstr "只能存在一个有效的议题跟踪器集成。请先禁用当前有效的跟踪器，然后重试。"
+msgstr "只能存在一个有效的工单跟踪器集成。请先禁用当前有效的跟踪器，然后重试。"
 
 msgid "ExternalIssueIntegration|This issue is synchronized with %{trackerName}"
-msgstr "此议题已与 %{trackerName} 同步"
+msgstr "此工单已与 %{trackerName} 同步"
 
 msgid "ExternalWikiService|Enter the URL to the external wiki."
 msgstr "输入外部 wiki 的 URL。"
@@ -15716,10 +15716,10 @@ msgid "Failed to check related branches."
 msgstr "无法检查相关分支。"
 
 msgid "Failed to clone this issue because target project doesn't exist."
-msgstr "无法克隆此议题，因为目标项目不存在。"
+msgstr "无法克隆此工单，因为目标项目不存在。"
 
 msgid "Failed to clone this issue: wrong parameters."
-msgstr "无法克隆此议题：参数错误。"
+msgstr "无法克隆此工单：参数错误。"
 
 msgid "Failed to create a branch for this issue. Please try again."
 msgstr "无法为此问题创建分支。请再试一次。"
@@ -15752,7 +15752,7 @@ msgid "Failed to enqueue the rebase operation, possibly due to a long-lived tran
 msgstr "无法将rebase操作加入队列，可能是由于事务时间过长。稍后再试。"
 
 msgid "Failed to fetch the iteration for this issue. Please try again."
-msgstr "无法获取此议题的迭代，请重试。"
+msgstr "无法获取此工单的迭代，请重试。"
 
 msgid "Failed to fetch the iterations for the group. Please try again."
 msgstr "无法获取此群组的迭代，请重试。"
@@ -15842,19 +15842,19 @@ msgid "Failed to make repository read-only. %{reason}"
 msgstr "无法将存储库设为只读。 %{reason}"
 
 msgid "Failed to mark this issue as a duplicate because referenced issue was not found."
-msgstr "无法将此议题标记为重复，因为未找到引用的议题。"
+msgstr "无法将此工单标记为重复，因为未找到引用的工单。"
 
 msgid "Failed to move this issue because label was not found."
-msgstr "无法移动此议题，因为相关标记不存在。"
+msgstr "无法移动此工单，因为相关标记不存在。"
 
 msgid "Failed to move this issue because only a single label can be provided."
-msgstr "无法移动此议题，因为只能只可提供一个标记。"
+msgstr "无法移动此工单，因为只能只可提供一个标记。"
 
 msgid "Failed to move this issue because target project doesn't exist."
-msgstr "无法移动此议题，因为目标项目不存在。"
+msgstr "无法移动此工单，因为目标项目不存在。"
 
 msgid "Failed to promote issue to incident"
-msgstr "提升议题到事件失败"
+msgstr "提升工单到事件失败"
 
 msgid "Failed to promote label due to internal error. Please contact administrators."
 msgstr "由于内部错误而无法升级标记。请联系管理员。"
@@ -15866,7 +15866,7 @@ msgid "Failed to protect the environment"
 msgstr "保护环境失败"
 
 msgid "Failed to publish issue on status page."
-msgstr "在状态页上发布议题失败。"
+msgstr "在状态页上发布工单失败。"
 
 msgid "Failed to remove a Zoom meeting"
 msgstr "无法删除Zoom会议"
@@ -15911,7 +15911,7 @@ msgid "Failed to set due date because the date format is invalid."
 msgstr "由于日期格式无效，设置到期日期失败。"
 
 msgid "Failed to set iteration on this issue. Please try again."
-msgstr "无法对此议题设置迭代。请再试一遍。"
+msgstr "无法对此工单设置迭代。请再试一遍。"
 
 msgid "Failed to signing using smartcard authentication"
 msgstr "无法使用智能卡身份验证进行登录"
@@ -15929,7 +15929,7 @@ msgid "Failed to update framework"
 msgstr "更新框架失败"
 
 msgid "Failed to update issue status"
-msgstr "更新议题状态失败"
+msgstr "更新工单状态失败"
 
 msgid "Failed to update the Canary Ingress."
 msgstr "无法更新Canary Ingress。"
@@ -16287,10 +16287,10 @@ msgid "Filter by Git revision"
 msgstr "按Git版本筛选"
 
 msgid "Filter by issues that are currently closed."
-msgstr "按当前关闭的议题筛选。"
+msgstr "按当前关闭的工单筛选。"
 
 msgid "Filter by issues that are currently opened."
-msgstr "按当前开启的议题筛选。"
+msgstr "按当前开启的工单筛选。"
 
 msgid "Filter by label"
 msgstr "按标记筛选"
@@ -16650,7 +16650,7 @@ msgid_plural "From October 19, 2022, you can have a maximum of %d unique members
 msgstr[0] "从 2022 年 10 月 19 日起，您的所有个人项目中最多可以有 %d 个唯一成员"
 
 msgid "From issue creation until deploy to production"
-msgstr "从创建议题到部署至生产环境"
+msgstr "从创建工单到部署至生产环境"
 
 msgid "From merge request merge until deploy to production"
 msgstr "从合并请求被合并后到部署至生产环境"
@@ -17423,7 +17423,7 @@ msgid "GitLab Import"
 msgstr "GitLab导入"
 
 msgid "GitLab Issue"
-msgstr "GitLab议题"
+msgstr "GitLab工单"
 
 msgid "GitLab KAS"
 msgstr "GitLab KAS"
@@ -17735,10 +17735,10 @@ msgid "GlobalSearch|Groups"
 msgstr "群组"
 
 msgid "GlobalSearch|Issues I've created"
-msgstr "我创建的议题"
+msgstr "我创建的工单"
 
 msgid "GlobalSearch|Issues assigned to me"
-msgstr "指派给我的议题"
+msgstr "指派给我的工单"
 
 msgid "GlobalSearch|Merge requests I've created"
 msgstr "我创建的合并请求"
@@ -17759,7 +17759,7 @@ msgid "GlobalSearch|Search GitLab"
 msgstr "搜索 GitLab"
 
 msgid "GlobalSearch|Search for projects, issues, etc."
-msgstr "搜索项目、议题等。"
+msgstr "搜索项目、工单等。"
 
 msgid "GlobalSearch|Search results are loading"
 msgstr "搜索结果正在加载中"
@@ -17843,10 +17843,10 @@ msgid "Go to find file"
 msgstr "转到查找文件"
 
 msgid "Go to issue boards"
-msgstr "转到议题看板"
+msgstr "转到工单看板"
 
 msgid "Go to issues"
-msgstr "转到议题"
+msgstr "转到工单"
 
 msgid "Go to jobs"
 msgstr "转到作业"
@@ -17939,7 +17939,7 @@ msgid "Go to your groups"
 msgstr "转到您的群组"
 
 msgid "Go to your issues"
-msgstr "转到您的议题"
+msgstr "转到您的工单"
 
 msgid "Go to your merge requests"
 msgstr "转到您的合并请求"
@@ -18224,7 +18224,7 @@ msgid "Group: %{name}"
 msgstr "群组: %{name}"
 
 msgid "GroupActivityMetrics|Issues created"
-msgstr "议题已创建"
+msgstr "工单已创建"
 
 msgid "GroupActivityMetrics|Last 30 days"
 msgstr "过去 30 天"
@@ -18566,7 +18566,7 @@ msgid "GroupSettings|Members cannot invite groups outside of %{group} and its su
 msgstr "成员不能邀请 %{group} 及其子组之外的群组"
 
 msgid "GroupSettings|Organizations and contacts can be created and associated with issues."
-msgstr "组织和联系人可以被创建并关联到议题。"
+msgstr "组织和联系人可以被创建并关联到工单。"
 
 msgid "GroupSettings|Overrides user notification preferences for all members of the group, subgroups, and projects."
 msgstr "覆盖群组、子组和项目所有成员的用户通知偏好设置。"
@@ -18719,7 +18719,7 @@ msgid "GroupsEmptyState|No subgroups or projects."
 msgstr "没有子组或项目。"
 
 msgid "GroupsEmptyState|Projects are where you can store your code, access issues, wiki, and other features of Gitlab."
-msgstr "项目是您用来存储您的代码、访问议题、wiki 和其它功能的地方。"
+msgstr "项目是您用来存储您的代码、访问工单、wiki 和其它功能的地方。"
 
 msgid "GroupsEmptyState|You can manage your group member’s permissions and access to each project in the group."
 msgstr "您可以管理群组成员的权限并访问群组中的每个项目。"
@@ -19030,7 +19030,7 @@ msgid "HeaderAction|incident"
 msgstr "事件"
 
 msgid "HeaderAction|issue"
-msgstr "议题"
+msgstr "工单"
 
 msgid "Headers"
 msgstr "Headers"
@@ -19060,7 +19060,7 @@ msgid "Health status"
 msgstr "健康状态"
 
 msgid "Health status cannot be edited because this issue is closed"
-msgstr "由于此议题已关闭，因此无法编辑健康状态"
+msgstr "由于此工单已关闭，因此无法编辑健康状态"
 
 msgid "HealthCheck|Access token is"
 msgstr "访问令牌为"
@@ -19087,13 +19087,13 @@ msgid "HelloMessage|%{handshake_emoji} Contribute to GitLab: %{contribute_link}"
 msgstr "%{handshake_emoji} 向 GitLab 贡献代码：%{contribute_link}"
 
 msgid "HelloMessage|%{magnifier_emoji} Create a new GitLab issue: %{new_issue_link}"
-msgstr "%{magnifier_emoji} 创建一个新的议题：%{new_issue_link}"
+msgstr "%{magnifier_emoji} 创建一个新的工单：%{new_issue_link}"
 
 msgid "HelloMessage|%{rocket_emoji} We like your curiosity! Help us improve GitLab by joining the team: %{jobs_page_link}"
 msgstr "%{rocket_emoji} 我们喜欢您的好奇心！通过加入团队来帮助我们改进：%{jobs_page_link}"
 
 msgid "HelloMessage|Does this page need fixes or improvements? Open an issue or contribute a merge request to help make GitLab more lovable. At GitLab, everyone can contribute!"
-msgstr "此页面需要修复或改进吗？打开一个议题或贡献一个合并请求，每个人都可以做出贡献！"
+msgstr "此页面需要修复或改进吗？打开一个工单或贡献一个合并请求，每个人都可以做出贡献！"
 
 msgid "HelloMessage|Welcome to GitLab!"
 msgstr "欢迎使用 GitLab！"
@@ -19114,7 +19114,7 @@ msgid "Helps prevent bots from creating accounts. %{link_start}How do I configur
 msgstr "帮助阻止机器人创建帐户。 %{link_start}如何配置它？%{link_end}"
 
 msgid "Helps prevent bots from creating issues."
-msgstr "有助于防止机器人创建议题。"
+msgstr "有助于防止机器人创建工单。"
 
 msgid "Helps prevent malicious users hide their activity."
 msgstr "有助于防止恶意用户隐藏他们的活动。"
@@ -19679,10 +19679,10 @@ msgid "Import in progress"
 msgstr "正在导入"
 
 msgid "Import in progress. Refresh page to see newly added issues."
-msgstr "导入进行中。刷新页面以查看新添加的议题。"
+msgstr "导入进行中。刷新页面以查看新添加的工单。"
 
 msgid "Import issues"
-msgstr "导入议题"
+msgstr "导入工单"
 
 msgid "Import multiple repositories by uploading a manifest file."
 msgstr "通过上传manifest文件导入多个仓库"
@@ -19724,7 +19724,7 @@ msgid "Import tasks"
 msgstr "导入任务"
 
 msgid "Import tasks from Phabricator into issues"
-msgstr "从Pharbricator导入任务到议题"
+msgstr "从Pharbricator导入任务到工单"
 
 msgid "Import timed out. Import took longer than %{import_jobs_expiration} seconds"
 msgstr "导入超时。耗时已超过 %{import_jobs_expiration} 秒"
@@ -19929,7 +19929,7 @@ msgid "InProductMarketing|Create a project in GitLab in 5 minutes"
 msgstr "在5分钟内在 GitLab 中创建一个项目"
 
 msgid "InProductMarketing|Create well-defined workflows by using scoped labels on issues, merge requests, and epics. Labels with the same scope cannot be used together, which prevents conflicts."
-msgstr "通过在议题、合并请求和史诗上使用范围标签，创建定义明确的工作流。无法将相同范围的标签一起使用，从而防止冲突。"
+msgstr "通过在工单、合并请求和史诗上使用范围标签，创建定义明确的工作流。无法将相同范围的标签一起使用，从而防止冲突。"
 
 msgid "InProductMarketing|Create your first project!"
 msgstr "创建您的第一个项目！"
@@ -20058,7 +20058,7 @@ msgid "InProductMarketing|How (and why) mirroring makes sense"
 msgstr "镜像如何（以及为什么）有意义"
 
 msgid "InProductMarketing|How long does it take us to close issues/MRs by types like feature requests, bugs, tech debt, security?"
-msgstr "关闭功能请求、bug、技术债务、安全性等类型的议题/MR 需要多长时间？"
+msgstr "关闭功能请求、bug、技术债务、安全性等类型的工单/MR 需要多长时间？"
 
 msgid "InProductMarketing|How many days does it take our team to complete various tasks?"
 msgstr "我们的团队完成各种任务需要多少天？"
@@ -20124,7 +20124,7 @@ msgid "InProductMarketing|Lower cost of development"
 msgstr "降低开发成本"
 
 msgid "InProductMarketing|Make it easier to collaborate on high-level ideas by grouping related issues in an epic."
-msgstr "通过将相关议题分组到史诗中，更容易就高级想法进行协作。"
+msgstr "通过将相关工单分组到史诗中，更容易就高级想法进行协作。"
 
 msgid "InProductMarketing|Making the switch? It's easier than you think to import your projects into GitLab. Move %{github_link}, or import something %{bitbucket_link}."
 msgstr "进行转换？将项目导入 GitLab 比您想象的要容易，移动 %{github_link}，或者导入一些东西 %{bitbucket_link}。"
@@ -20259,7 +20259,7 @@ msgid "InProductMarketing|To understand and get the most out of GitLab, start at
 msgstr "要了解并充分利用GitLab，请从头开始，从%{project_link}开始。在GitLab中，仓库是项目的一部分，所以在您创建了您的项目之后，您可以继续执行%{repo_link}。"
 
 msgid "InProductMarketing|Track completed issues in a chart, so you can see how a milestone is progressing at a glance."
-msgstr "通过在图表中跟踪已完成的议题，一目了然地观望里程碑的进展。"
+msgstr "通过在图表中跟踪已完成的工单，一目了然地观望里程碑的进展。"
 
 msgid "InProductMarketing|Try GitLab Ultimate for free"
 msgstr "免费试用 GitLab 旗舰版"
@@ -20526,7 +20526,7 @@ msgid "IncidentSettings|Incidents"
 msgstr "事件"
 
 msgid "IncidentSettings|Introduce a countdown timer in incident issues to better track Service Level Agreements (SLAs). The timer starts automatically when the incident is created, and sets a time limit for resolving the incident. When activated, the time to SLA countdown appears on all new incidents."
-msgstr "在事件议题中引入倒计时，以便更好地跟踪服务级别协议（SLA）。计时器在创建事件时自动启动，并设置解决事件的时间限制。激活时，所有新事件都会显示SLA倒计时时间。"
+msgstr "在事件工单中引入倒计时，以便更好地跟踪服务级别协议（SLA）。计时器在创建事件时自动启动，并设置解决事件的时间限制。激活时，所有新事件都会显示SLA倒计时时间。"
 
 msgid "IncidentSettings|PagerDuty integration"
 msgstr "PagerDuty集成"
@@ -20646,7 +20646,7 @@ msgid "Include new features from all tiers."
 msgstr "包含所有级别的新功能。"
 
 msgid "Include the name of the author of the issue, merge request or comment in the email body. By default, GitLab overrides the email sender's name. Some email servers don't support that option."
-msgstr "在邮件正文中包括议题、合并请求或评论的作者名称。默认情况下，GitLab会覆盖电子邮件发件人的名字。有些电子邮件服务器不支持这个选项。"
+msgstr "在邮件正文中包括工单、合并请求或评论的作者名称。默认情况下，GitLab会覆盖电子邮件发件人的名字。有些电子邮件服务器不支持这个选项。"
 
 msgid "Include the username in the URL if required: %{code_open}https://username@gitlab.company.com/group/project.git%{code_close}."
 msgstr "如果需要，请在URL中包含用户名：%{code_open}https://username@gitlab.company.com/group/project.git%{code_close}。"
@@ -20848,13 +20848,13 @@ msgid "Integration Settings"
 msgstr "集成设置"
 
 msgid "IntegrationEvents|A comment is added on a confidential issue"
-msgstr "一条评论被添加到私密议题。"
+msgstr "一条评论被添加到私密工单。"
 
 msgid "IntegrationEvents|A comment is added on an issue"
-msgstr "一条评论被添加到议题。"
+msgstr "一条评论被添加到工单。"
 
 msgid "IntegrationEvents|A confidential issue is created, updated, or closed"
-msgstr "一个私密议题已创建、更新或关闭"
+msgstr "一个私密工单已创建、更新或关闭"
 
 msgid "IntegrationEvents|A merge request is created, updated, or merged"
 msgstr "一个合并请求已创建、更新或合并"
@@ -20872,7 +20872,7 @@ msgid "IntegrationEvents|A wiki page is created or updated"
 msgstr "已创建或更新 wiki 页面"
 
 msgid "IntegrationEvents|An issue is created, updated, or closed"
-msgstr "一个议题已创建、更新或关闭"
+msgstr "一个工单已创建、更新或关闭"
 
 msgid "Integrations"
 msgstr "集成"
@@ -20932,10 +20932,10 @@ msgid "Integrations|Connection successful."
 msgstr "连接成功。"
 
 msgid "Integrations|Create new issue in Jira"
-msgstr "在Jira中创建新议题"
+msgstr "在Jira中创建新工单"
 
 msgid "Integrations|Create new issue in ZenTao"
-msgstr "在禅道中创建新议题"
+msgstr "在禅道中创建新工单"
 
 msgid "Integrations|Default settings are inherited from the group level."
 msgstr "默认设置继承自群组级别。"
@@ -20983,7 +20983,7 @@ msgid "Integrations|Group-level integration management"
 msgstr "群组级集成管理"
 
 msgid "Integrations|Includes Standard, plus the entire commit message, commit hash, and issue IDs"
-msgstr "包括标准，以及整个提交消息、提交哈希和议题 ID"
+msgstr "包括标准，以及整个提交消息、提交哈希和工单 ID"
 
 msgid "Integrations|Includes commit title and branch."
 msgstr "包括提交标题和分支。"
@@ -20992,7 +20992,7 @@ msgid "Integrations|Instance-level integration management"
 msgstr "实例级集成管理"
 
 msgid "Integrations|Issues created in Jira are shown here once you have created the issues in project setup in Jira."
-msgstr "当议题在Jira中设定的项目中创建后，Jira中创建的议题会显示于此。"
+msgstr "当工单在Jira中设定的项目中创建后，Jira中创建的工单会显示于此。"
 
 msgid "Integrations|Keep your PHP dependencies updated on Packagist."
 msgstr "在 Packagist 上更新您的 PHP 依赖项。"
@@ -21052,10 +21052,10 @@ msgid "Integrations|Saving will update the default settings for all projects tha
 msgstr "保存将更新所有不使用自定义设置的项目的默认设置。"
 
 msgid "Integrations|Search Jira issues"
-msgstr "搜索Jira议题"
+msgstr "搜索Jira工单"
 
 msgid "Integrations|Search ZenTao issues"
-msgstr "搜索禅道议题"
+msgstr "搜索禅道工单"
 
 msgid "Integrations|Send notifications about project events to Unify Circuit."
 msgstr "将有关项目事件的通知发送到 Unify Circuit。"
@@ -21082,7 +21082,7 @@ msgid "Integrations|This integration, and inheriting projects were reset."
 msgstr "此集成和继承项目已被重置。"
 
 msgid "Integrations|To keep this project going, create a new issue."
-msgstr "为了保持这个项目的推进，请创建一个新的议题."
+msgstr "为了保持这个项目的推进，请创建一个新的工单."
 
 msgid "Integrations|Trigger"
 msgstr "触发器"
@@ -21109,7 +21109,7 @@ msgid "Integrations|You must use a %{linkStart}supported browser%{linkEnd} to us
 msgstr "您必须使用 %{linkStart}支持的浏览器%{linkEnd} 才能使用 GitLab for Jira 应用程序。"
 
 msgid "Integrations|You should now see GitLab.com activity inside your Jira Cloud issues. %{linkStart}Learn more%{linkEnd}"
-msgstr "您现在应该在 Jira Cloud 议题中看到动态。%{linkStart}了解更多%{linkEnd}"
+msgstr "您现在应该在 Jira Cloud 工单中看到动态。%{linkStart}了解更多%{linkEnd}"
 
 msgid "Integrations|You've activated every integration 🎉"
 msgstr "您已激活所有集成 🎉"
@@ -21118,7 +21118,7 @@ msgid "Integrations|Your browser is not supported"
 msgstr "不支持您的浏览器"
 
 msgid "Integrations|ZenTao issues display here when you create issues in your project in ZenTao."
-msgstr "当您在禅道中创建项目的议题时，禅道议题会显示在此处。"
+msgstr "当您在禅道中创建项目的工单时，禅道工单会显示在此处。"
 
 msgid "Integrations|can't exceed %{recipients_limit}"
 msgstr "不能超过 %{recipients_limit}"
@@ -21301,7 +21301,7 @@ msgid "InviteEmail|Join your team on GitLab! You are invited to %{project_or_gro
 msgstr "加入您的 GitLab 团队！您被邀请加入 %{project_or_group_name}"
 
 msgid "InviteEmail|Projects are used to host and collaborate on code, track issues, and continuously build, test, and deploy your app with built-in GitLab CI/CD."
-msgstr "项目用于托管和协作代码，跟踪议题，以及使用内置的GitLab CI/CD持续构建、测试和部署您的应用程序。"
+msgstr "项目用于托管和协作代码，跟踪工单，以及使用内置的GitLab CI/CD持续构建、测试和部署您的应用程序。"
 
 msgid "InviteEmail|What's it about?"
 msgstr "这是什么？"
@@ -21340,7 +21340,7 @@ msgid "InviteMembersModal|Cancel"
 msgstr "取消"
 
 msgid "InviteMembersModal|Choose a project for the issues"
-msgstr "选择议题的项目"
+msgstr "选择工单的项目"
 
 msgid "InviteMembersModal|Close invite team members"
 msgstr "关闭邀请团队成员"
@@ -21349,7 +21349,7 @@ msgid "InviteMembersModal|Congratulations on creating your project, you're almos
 msgstr "恭喜您创建了您的项目！"
 
 msgid "InviteMembersModal|Create issues for your new team member to work on (optional)"
-msgstr "为您的新团队成员创建议题 (可选)"
+msgstr "为您的新团队成员创建工单 (可选)"
 
 msgid "InviteMembersModal|Explore paid plans"
 msgstr "探索付费方案"
@@ -21401,7 +21401,7 @@ msgid "InviteMembersModal|This feature is disabled until this group has space fo
 msgstr "此功能被禁用，直到该群组有更多成员的空间。"
 
 msgid "InviteMembersModal|To assign issues to a new team member, you need a project for the issues. %{linkStart}Create a project to get started.%{linkEnd}"
-msgstr "要向新团队成员分配议题，您需要一个议题所属的项目。 %{linkStart}从创建一个项目开始。%{linkEnd}"
+msgstr "要向新团队成员分配工单，您需要一个工单所属的项目。 %{linkStart}从创建一个项目开始。%{linkEnd}"
 
 msgid "InviteMembersModal|To get more members an owner of the group can %{trialLinkStart}start a trial%{trialLinkEnd} or %{upgradeLinkStart}upgrade%{upgradeLinkEnd} to a paid tier."
 msgstr ""
@@ -21569,64 +21569,64 @@ msgid "IssuableStatus|promoted"
 msgstr "已升级"
 
 msgid "Issue"
-msgstr "议题"
+msgstr "工单"
 
 msgid "Issue %{issue_reference} has already been added to epic %{epic_reference}."
-msgstr "议题%{issue_reference}已被添加到史诗%{epic_reference}。"
+msgstr "工单%{issue_reference}已被添加到史诗%{epic_reference}。"
 
 msgid "Issue Analytics"
-msgstr "议题分析"
+msgstr "工单分析"
 
 msgid "Issue Boards"
-msgstr "议题看板"
+msgstr "工单看板"
 
 msgid "Issue Type"
-msgstr "议题类型"
+msgstr "工单类型"
 
 msgid "Issue already promoted to epic."
 msgstr "问题已升级为史诗。"
 
 msgid "Issue cannot be found."
-msgstr "议题无法找到"
+msgstr "工单无法找到"
 
 msgid "Issue created from vulnerability %{vulnerability_link}"
-msgstr "从漏洞 %{vulnerability_link}创建的议题"
+msgstr "从漏洞 %{vulnerability_link}创建的工单"
 
 msgid "Issue creation requests"
-msgstr "议题创建请求"
+msgstr "工单创建请求"
 
 msgid "Issue details"
-msgstr "议题详情"
+msgstr "工单详情"
 
 msgid "Issue events"
-msgstr "议题事件"
+msgstr "工单事件"
 
 msgid "Issue first deployed to production"
-msgstr "议题首次部署到生产环境"
+msgstr "工单首次部署到生产环境"
 
 msgid "Issue has been promoted to incident"
-msgstr "议题已升级为事件"
+msgstr "工单已升级为事件"
 
 msgid "Issue label"
-msgstr "议题标记"
+msgstr "工单标记"
 
 msgid "Issue or merge request ID is required"
 msgstr "问题或合并请求 ID 是必需的"
 
 msgid "Issue published on status page."
-msgstr "议题发布在状态页面上。"
+msgstr "工单发布在状态页面上。"
 
 msgid "Issue types"
-msgstr "议题类型"
+msgstr "工单类型"
 
 msgid "Issue update failed"
-msgstr "议题更新失败"
+msgstr "工单更新失败"
 
 msgid "Issue was closed by %{name} %{reason}"
-msgstr "%{reason}，议题由 %{name} 关闭。"
+msgstr "%{reason}，工单由 %{name} 关闭。"
 
 msgid "Issue weight"
-msgstr "议题权重"
+msgstr "工单权重"
 
 msgid "IssueAnalytics|Age"
 msgstr "年龄"
@@ -21641,10 +21641,10 @@ msgid "IssueAnalytics|Due date"
 msgstr "截止日期"
 
 msgid "IssueAnalytics|Failed to load issues. Please try again."
-msgstr "加载议题失败。请再试一次。"
+msgstr "加载工单失败。请再试一次。"
 
 msgid "IssueAnalytics|Issue"
-msgstr "议题"
+msgstr "工单"
 
 msgid "IssueAnalytics|Milestone"
 msgstr "里程碑"
@@ -21680,100 +21680,100 @@ msgid "IssueList|created %{timeAgoString} by %{user}"
 msgstr "由 %{user} 创建于 %{timeAgoString}"
 
 msgid "IssueTracker|Custom issue tracker"
-msgstr "自定义议题跟踪器"
+msgstr "自定义工单跟踪器"
 
 msgid "IssueTracker|Issue URL"
-msgstr "议题 URL"
+msgstr "工单 URL"
 
 msgid "IssueTracker|New issue URL"
-msgstr "新建议题URL"
+msgstr "新建工单URL"
 
 msgid "IssueTracker|The URL to create an issue in the external issue tracker."
-msgstr "在外部议题跟踪器中创建议题的 URL。"
+msgstr "在外部工单跟踪器中创建工单的 URL。"
 
 msgid "IssueTracker|The URL to the project in the external issue tracker."
-msgstr "外部议题跟踪器中项目的 URL。"
+msgstr "外部工单跟踪器中项目的 URL。"
 
 msgid "IssueTracker|The URL to view an issue in the external issue tracker. Must contain %{colon_id}."
-msgstr "在外部议题跟踪器中查看议题的 URL。必须包含 %{colon_id}。"
+msgstr "在外部工单跟踪器中查看工单的 URL。必须包含 %{colon_id}。"
 
 msgid "IssueTracker|Use Bugzilla as this project's issue tracker."
-msgstr "使用 Bugzilla 作为该项目的议题跟踪器。"
+msgstr "使用 Bugzilla 作为该项目的工单跟踪器。"
 
 msgid "IssueTracker|Use Bugzilla as this project's issue tracker. %{docs_link}"
-msgstr "使用 Bugzilla 作为该项目的议题跟踪器。 %{docs_link}"
+msgstr "使用 Bugzilla 作为该项目的工单跟踪器。 %{docs_link}"
 
 msgid "IssueTracker|Use IBM Engineering Workflow Management as this project's issue tracker."
-msgstr "使用 IBM Engineering Workflow Management 作为该项目的议题跟踪器。"
+msgstr "使用 IBM Engineering Workflow Management 作为该项目的工单跟踪器。"
 
 msgid "IssueTracker|Use IBM Engineering Workflow Management as this project's issue tracker. %{docs_link}"
-msgstr "使用 IBM Engineering Workflow Management 作为该项目的议题跟踪器。 %{docs_link}"
+msgstr "使用 IBM Engineering Workflow Management 作为该项目的工单跟踪器。 %{docs_link}"
 
 msgid "IssueTracker|Use Redmine as the issue tracker. %{docs_link}"
-msgstr "使用 Redmine 作为议题跟踪器。 %{docs_link}"
+msgstr "使用 Redmine 作为工单跟踪器。 %{docs_link}"
 
 msgid "IssueTracker|Use Redmine as this project's issue tracker."
-msgstr "使用 Redmine 作为该项目的议题跟踪器。"
+msgstr "使用 Redmine 作为该项目的工单跟踪器。"
 
 msgid "IssueTracker|Use YouTrack as this project's issue tracker."
-msgstr "使用 YouTrack 作为该项目的议题跟踪器。"
+msgstr "使用 YouTrack 作为该项目的工单跟踪器。"
 
 msgid "IssueTracker|Use YouTrack as this project's issue tracker. %{docs_link}"
 msgstr "使用 YouTrack 作为该项目的问题跟踪器。 %{docs_link}"
 
 msgid "IssueTracker|Use a custom issue tracker as this project's issue tracker."
-msgstr "使用自定义议题跟踪器作为该项目的议题跟踪器。"
+msgstr "使用自定义工单跟踪器作为该项目的工单跟踪器。"
 
 msgid "IssueTracker|Use a custom issue tracker that is not in the integration list. %{docs_link}"
-msgstr "使用不在集成列表中的自定义议题跟踪器。 %{docs_link}"
+msgstr "使用不在集成列表中的自定义工单跟踪器。 %{docs_link}"
 
 msgid "Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "Issues Rate Limits"
-msgstr "议题速率限制"
+msgstr "工单速率限制"
 
 msgid "Issues and merge requests"
-msgstr "议题和合并请求"
+msgstr "工单和合并请求"
 
 msgid "Issues are being rebalanced at the moment, so manual reordering is disabled."
-msgstr "正在重新权衡议题，因此手动重新排序已被禁用。"
+msgstr "正在重新权衡工单，因此手动重新排序已被禁用。"
 
 msgid "Issues can be bugs, tasks or ideas to be discussed. Also, issues are searchable and filterable."
-msgstr "议题可以是缺陷，任务或要讨论的想法。此外，可以通过搜索和筛选来查找议题。"
+msgstr "工单可以是缺陷，任务或要讨论的想法。此外，可以通过搜索和筛选来查找工单。"
 
 msgid "Issues closed"
-msgstr "关闭议题"
+msgstr "关闭工单"
 
 msgid "Issues exist in projects, so to create an issue, first create a project."
-msgstr "议题存在于项目中，所以要创建议题，首先要创建一个项目。"
+msgstr "工单存在于项目中，所以要创建工单，首先要创建一个项目。"
 
 msgid "Issues must match this scope to appear in this list."
-msgstr "议题必须与此范围匹配才能出现在此列表中。"
+msgstr "工单必须与此范围匹配才能出现在此列表中。"
 
 msgid "Issues with comments, merge requests with diffs and comments, labels, milestones, snippets, and other project entities"
-msgstr "议题评论，合并请求的差异和评论，标记，里程碑，代码片段和其他项目实体"
+msgstr "工单评论，合并请求的差异和评论，标记，里程碑，代码片段和其他项目实体"
 
 msgid "Issues with label %{label}"
-msgstr "带标记 %{label} 的议题"
+msgstr "带标记 %{label} 的工单"
 
 msgid "Issues with no epic assigned"
-msgstr "未分配史诗的议题"
+msgstr "未分配史诗的工单"
 
 msgid "Issues, merge requests, pushes, and comments."
-msgstr "议题，合并请求，推送及评论。"
+msgstr "工单，合并请求，推送及评论。"
 
 msgid "IssuesAnalytics|After you begin creating issues for your projects, we can start tracking and displaying metrics for them"
-msgstr "在您为项目创建议题后，我们就会开始跟踪并显示它们的指标"
+msgstr "在您为项目创建工单后，我们就会开始跟踪并显示它们的指标"
 
 msgid "IssuesAnalytics|Avg/Month:"
 msgstr "月均："
 
 msgid "IssuesAnalytics|Issues created"
-msgstr "议题已创建"
+msgstr "工单已创建"
 
 msgid "IssuesAnalytics|Issues created per month"
-msgstr "每月创建的议题"
+msgstr "每月创建的工单"
 
 msgid "IssuesAnalytics|Last 12 months"
 msgstr "最近12个月"
@@ -21782,7 +21782,7 @@ msgid "IssuesAnalytics|Sorry, your filter produced no results"
 msgstr "对不起，无符合筛选器的结果"
 
 msgid "IssuesAnalytics|There are no issues for the projects in your group"
-msgstr "群组中的项目无任何议题"
+msgstr "群组中的项目无任何工单"
 
 msgid "IssuesAnalytics|To widen your search, change or remove filters in the filter bar above"
 msgstr "要扩大搜索范围，请更改或删除上面的筛选条件"
@@ -21806,7 +21806,7 @@ msgid "It may be several days before you see feature usage data."
 msgstr "您可能要过几天才能看到功能使用情况数据。"
 
 msgid "It must have a header row and at least two columns: the first column is the issue title and the second column is the issue description. The separator is automatically detected."
-msgstr "它必须有标题行和至少有两列：第一栏是议题标题，第二栏是议题描述。自动检测分隔符。"
+msgstr "它必须有标题行和至少有两列：第一栏是工单标题，第二栏是工单描述。自动检测分隔符。"
 
 msgid "It seems like the Dependency Scanning job ran successfully, but no dependencies have been detected in your project."
 msgstr "依赖项扫描作业运行成功，但您的项目中没有检测到依赖项。"
@@ -21935,7 +21935,7 @@ msgid "Iterations|Iteration cadences"
 msgstr "迭代周期"
 
 msgid "Iterations|Iterations are a way to track issues over a period of time, allowing teams to also track velocity and volatility metrics."
-msgstr "迭代是在一段时间内跟踪议题的一种方法，使小组也能够跟踪速度和波动指标。"
+msgstr "迭代是在一段时间内跟踪工单的一种方法，使小组也能够跟踪速度和波动指标。"
 
 msgid "Iterations|Iterations are scheduled to start on %{weekday}s."
 msgstr ""
@@ -21947,7 +21947,7 @@ msgid "Iterations|Manual management of iterations will be deprecated in GitLab 1
 msgstr "手动管理迭代将在 15.6 版本中被废弃。在准备好时，将手动操作转换为使用自动计划方法。"
 
 msgid "Iterations|Move incomplete issues to the next iteration."
-msgstr "将未完成的议题移至下一次迭代。"
+msgstr "将未完成的工单移至下一次迭代。"
 
 msgid "Iterations|New iteration"
 msgstr "新建迭代"
@@ -21977,7 +21977,7 @@ msgid "Iterations|Open"
 msgstr "开放"
 
 msgid "Iterations|Roll over issues"
-msgstr "滚动议题"
+msgstr "滚动工单"
 
 msgid "Iterations|Save changes"
 msgstr "保存更改"
@@ -22010,7 +22010,7 @@ msgid "Iterations|This will delete the cadence as well as all of the iterations 
 msgstr "这将删除周期以及其中的所有迭代。"
 
 msgid "Iterations|This will remove the iteration from any issues that are assigned to it."
-msgstr "这将从分配给它的任何议题中删除迭代。"
+msgstr "这将从分配给它的任何工单中删除迭代。"
 
 msgid "Iterations|Title"
 msgstr "标题"
@@ -22088,7 +22088,7 @@ msgid "JiraConnect|Could not fetch user information from Jira. Check the permiss
 msgstr "无法从 Jira 获取用户信息。检查 Jira 中的权限，然后重试。"
 
 msgid "JiraConnect|Create branch for Jira issue %{jiraIssue}"
-msgstr "为Jira议题%{jiraIssue}创建分支"
+msgstr "为Jira工单%{jiraIssue}创建分支"
 
 msgid "JiraConnect|Failed to create branch."
 msgstr "创建分支失败。"
@@ -22142,16 +22142,16 @@ msgid "JiraService| on branch %{branch_link}"
 msgstr "于分支%{branch_link}"
 
 msgid "JiraService|%{jiraDocsLinkStart}Enable the Jira integration%{jiraDocsLinkEnd} to view your Jira issues in GitLab."
-msgstr "%{jiraDocsLinkStart}启用Jira集成%{jiraDocsLinkEnd} ，在GitLab中查看您的Jira议题。"
+msgstr "%{jiraDocsLinkStart}启用Jira集成%{jiraDocsLinkEnd} ，在GitLab中查看您的Jira工单。"
 
 msgid "JiraService|%{jira_docs_link_start}Enable the Jira integration%{jira_docs_link_end} to view your Jira issues in GitLab."
-msgstr "%{jira_docs_link_start}启用Jira集成%{jira_docs_link_end}以在GitLab中查看您的Jira议题。"
+msgstr "%{jira_docs_link_start}启用Jira集成%{jira_docs_link_end}以在GitLab中查看您的Jira工单。"
 
 msgid "JiraService|%{user_link} mentioned this issue in %{entity_link} of %{project_link}%{branch}:{quote}%{entity_message}{quote}"
-msgstr "%{user_link}在%{project_link}%{branch}中的%{entity_link}中提及此议题: {quote}%{entity_message}{quote}"
+msgstr "%{user_link}在%{project_link}%{branch}中的%{entity_link}中提及此工单: {quote}%{entity_message}{quote}"
 
 msgid "JiraService|An error occurred while fetching issue list"
-msgstr "获取议题列表时出错"
+msgstr "获取工单列表时出错"
 
 msgid "JiraService|Automatically transitions Jira issues to the \"Done\" category. %{linkStart}Learn more%{linkEnd}"
 msgstr "自动将 Jira 问题转换为“完成”类别。 %{linkStart}了解更多%{linkEnd}"
@@ -22163,16 +22163,16 @@ msgid "JiraService|Change GitLab version"
 msgstr "更改 GitLab 版本"
 
 msgid "JiraService|Define the type of Jira issue to create from a vulnerability."
-msgstr "定义要从漏洞创建的 Jira 议题的类型。"
+msgstr "定义要从漏洞创建的 Jira 工单的类型。"
 
 msgid "JiraService|Displaying Jira issues while leaving GitLab issues also enabled might be confusing. Consider %{gitlab_issues_link_start}disabling GitLab issues%{link_end} if they won't otherwise be used."
-msgstr "在启用 GitLab 议题的同时显示 Jira 议题可能会令人困惑。如果它们不会被使用，请考虑 %{gitlab_issues_link_start}禁用 GitLab 议题%{link_end}。"
+msgstr "在启用 GitLab 工单的同时显示 Jira 工单可能会令人困惑。如果它们不会被使用，请考虑 %{gitlab_issues_link_start}禁用 GitLab 工单%{link_end}。"
 
 msgid "JiraService|Enable Jira issue creation from vulnerabilities"
-msgstr "启用从漏洞创建 Jira 议题"
+msgstr "启用从漏洞创建 Jira 工单"
 
 msgid "JiraService|Enable Jira issues"
-msgstr "启用Jira议题"
+msgstr "启用Jira工单"
 
 msgid "JiraService|Enable Jira transitions"
 msgstr "启用 Jira 转换"
@@ -22184,10 +22184,10 @@ msgid "JiraService|Events for %{noteable_model_name} are disabled."
 msgstr "%{noteable_model_name} 事件已禁用。"
 
 msgid "JiraService|Failed to load Jira issue. View the issue in Jira, or reload the page."
-msgstr "无法加载 Jira 议题。在 Jira 中查看议题，或重新加载页面。"
+msgstr "无法加载 Jira 工单。在 Jira 中查看工单，或重新加载页面。"
 
 msgid "JiraService|Fetch issue types for this Jira project"
-msgstr "获取此 Jira 项目的议题类型"
+msgstr "获取此 Jira 项目的工单类型"
 
 msgid "JiraService|For example, 12, 24"
 msgstr "例如12、24"
@@ -22217,13 +22217,13 @@ msgid "JiraService|Jira API URL"
 msgstr "Jira API URL"
 
 msgid "JiraService|Jira comments are created when an issue is referenced in a commit."
-msgstr "Jira 评论是在提交中引用议题时创建的。"
+msgstr "Jira 评论是在提交中引用工单时创建的。"
 
 msgid "JiraService|Jira comments are created when an issue is referenced in a merge request."
-msgstr "Jira 评论是在合并请求中引用议题时创建的。"
+msgstr "Jira 评论是在合并请求中引用工单时创建的。"
 
 msgid "JiraService|Jira issues"
-msgstr "Jira议题"
+msgstr "Jira工单"
 
 msgid "JiraService|Jira project key"
 msgstr "Jira project key"
@@ -22244,7 +22244,7 @@ msgid "JiraService|Project key changed, refresh list"
 msgstr "项目密钥已更改，刷新列表"
 
 msgid "JiraService|Project key is required to generate issue types"
-msgstr "需要项目密钥以生成议题类型"
+msgstr "需要项目密钥以生成工单类型"
 
 msgid "JiraService|Select issue type"
 msgstr "选择问题类型"
@@ -22262,10 +22262,10 @@ msgid "JiraService|This feature requires a Premium plan."
 msgstr "此功能需要高级计划。"
 
 msgid "JiraService|Transition Jira issues to their final state:"
-msgstr "将 Jira 议题转换为最终状态："
+msgstr "将 Jira 工单转换为最终状态："
 
 msgid "JiraService|Use Jira as this project's issue tracker."
-msgstr "使用 Jira 作为此项目的议题跟踪器。"
+msgstr "使用 Jira 作为此项目的工单跟踪器。"
 
 msgid "JiraService|Use a password for server version and an API token for cloud version."
 msgstr "服务器版本使用密码，云版本使用 API 令牌。"
@@ -22280,10 +22280,10 @@ msgid "JiraService|Username or Email"
 msgstr "用户名或电子邮件"
 
 msgid "JiraService|Using Jira for issue tracking?"
-msgstr "使用Jira进行议题跟踪吗？"
+msgstr "使用Jira进行工单跟踪吗？"
 
 msgid "JiraService|Warning: All GitLab users with access to this GitLab project can view all issues from the Jira project you select."
-msgstr "警告：有权访问此 GitLab 项目的所有 GitLab 用户都可以查看您选择的 Jira 项目中的所有议题。"
+msgstr "警告：有权访问此 GitLab 项目的所有 GitLab 用户都可以查看您选择的 Jira 项目中的所有工单。"
 
 msgid "JiraService|Web URL"
 msgstr "Web URL"
@@ -22295,13 +22295,13 @@ msgid "JiraService|What version of GitLab are you using?"
 msgstr "您在使用什么版本的 GitLab？"
 
 msgid "JiraService|When a Jira issue is mentioned in a commit or merge request, a remote link and comment (if enabled) will be created."
-msgstr "在提交或合并请求中提及 Jira 议题时，将创建远程链接和评论（如果启用）。"
+msgstr "在提交或合并请求中提及 Jira 工单时，将创建远程链接和评论（如果启用）。"
 
 msgid "JiraService|Work on Jira issues without leaving GitLab. Add a Jira menu to access a read-only list of your Jira issues."
-msgstr "在不离开 GitLab 的情况下处理 Jira 议题。添加一个 Jira 菜单，访问您的 Jira 议题只读列表。"
+msgstr "在不离开 GitLab 的情况下处理 Jira 工单。添加一个 Jira 菜单，访问您的 Jira 工单只读列表。"
 
 msgid "JiraService|Work on Jira issues without leaving GitLab. Add a Jira menu to access a read-only list of your Jira issues. %{jira_issues_link_start}Learn more.%{link_end}"
-msgstr "在不离开 GitLab 的情况下处理 Jira 议题。添加 Jira 菜单，访问 Jira 议题的只读列表。%{jira_issues_link_start}了解更多。%{link_end}"
+msgstr "在不离开 GitLab 的情况下处理 Jira 工单。添加 Jira 菜单，访问 Jira 工单的只读列表。%{jira_issues_link_start}了解更多。%{link_end}"
 
 msgid "JiraService|You can now close this window and%{br}return to the GitLab for Jira application."
 msgstr "您现在可以关闭此窗口，%{br}返回GitLab for Jira应用程序。"
@@ -22761,13 +22761,13 @@ msgid "Labels can be applied to %{features}. Group labels are available for any 
 msgstr "标记可以应用于 %{features}。群组标记可用于群组中的所有项目。"
 
 msgid "Labels can be applied to issues and merge requests to categorize them."
-msgstr "标记可用于对议题和合并请求进行分类。"
+msgstr "标记可用于对工单和合并请求进行分类。"
 
 msgid "Labels can be applied to issues and merge requests."
-msgstr "标记可用于议题和合并请求。"
+msgstr "标记可用于工单和合并请求。"
 
 msgid "Labels with no issues in this iteration:"
-msgstr "此迭代中没有议题的标记："
+msgstr "此迭代中没有工单的标记："
 
 msgid "Labels|%{spanStart}Promote label%{spanEnd} %{labelTitle} %{spanStart}to Group Label?%{spanEnd}"
 msgstr "%{spanStart}将标记%{spanEnd}%{labelTitle}%{spanStart}升级为群组标记？%{spanEnd}"
@@ -23038,13 +23038,13 @@ msgid "LearnGitLab|Create a workflow for your new workspace, and learn how GitLa
 msgstr "为您的新工作区创建工作流，并了解 GitLab 功能如何协同工作："
 
 msgid "LearnGitLab|Create an issue"
-msgstr "创建议题"
+msgstr "创建工单"
 
 msgid "LearnGitLab|Create or import your first repository into your new project."
 msgstr "创建或导入您的第一个仓库到您的新项目中。"
 
 msgid "LearnGitLab|Create/import issues (tickets) to collaborate on ideas and plan work."
-msgstr "创建/导入议题（工单）以协同创意和工作计划。"
+msgstr "创建/导入工单（工单）以协同创意和工作计划。"
 
 msgid "LearnGitLab|Deploy"
 msgstr "部署"
@@ -23377,7 +23377,7 @@ msgid "Limit the number of inbound incident management alerts that can be sent t
 msgstr "限制可以发送到项目的入站事件管理警报的数量。"
 
 msgid "Limit the number of issues and epics per minute a user can create through web and API requests."
-msgstr "限制用户每分钟可以通过 Web 和 API 请求创建的议题和史诗的数量。"
+msgstr "限制用户每分钟可以通过 Web 和 API 请求创建的工单和史诗的数量。"
 
 msgid "Limit the number of pipeline creation requests per minute. This limit includes pipelines created through the UI, the API, and by background processing."
 msgstr "限制每分钟的流水线创建请求数。此限制包括通过 UI、API 和后台处理创建的流水线。"
@@ -23435,6 +23435,9 @@ msgstr "关联的事件或议题"
 
 msgid "Linked items"
 msgstr "关联项"
+
+msgid "Linked issues"
+msgstr "相关工单"
 
 msgid "LinkedIn"
 msgstr "领英（LinkedIn）"
@@ -23716,7 +23719,7 @@ msgid "MRDiff|Show full file"
 msgstr "显示全部文件"
 
 msgid "Made this issue confidential."
-msgstr "将此议题设置为私密."
+msgstr "将此工单设置为私密."
 
 msgid "Mailgun"
 msgstr "Mailgun"
@@ -23740,7 +23743,7 @@ msgid "Make everyone on your team more productive regardless of their location. 
 msgstr "GitLab Geo可以创建GitLab实例的只读镜像, 使得从远端克隆和拉取大型代码仓库的时间大大缩短，从而提高团队成员的工作效率。"
 
 msgid "Make issue confidential"
-msgstr "将议题设置为私密。"
+msgstr "将工单设置为私密。"
 
 msgid "Make sure you have the correct permissions to link your project."
 msgstr "请确保您有正确的权限关联您的项目。"
@@ -23749,7 +23752,7 @@ msgid "Make sure you save it - you won't be able to access it again."
 msgstr "请确保妥善保存它 - 您无法再次访问它的内容。"
 
 msgid "Makes this issue confidential."
-msgstr "将此议题设置为私密."
+msgstr "将此工单设置为私密."
 
 msgid "Manage %{workspace} labels"
 msgstr "管理 %{workspace} 标记"
@@ -23815,10 +23818,10 @@ msgid "Manual"
 msgstr "手动"
 
 msgid "ManualOrdering|Couldn't save the order of the issues"
-msgstr "无法保存议题的顺序"
+msgstr "无法保存工单的顺序"
 
 msgid "Manually link this issue by adding it to the linked issue section of the %{linkStart}originating vulnerability%{linkEnd}."
-msgstr "要手动链接此议题，将其添加到%{linkStart}原始漏洞%{linkEnd}的链接议题部分。"
+msgstr "要手动链接此工单，将其添加到%{linkStart}原始漏洞%{linkEnd}的链接工单部分。"
 
 msgid "Map a FogBugz account ID to a GitLab user"
 msgstr "将FogBugz帐户ID映射为GitLab用户"
@@ -23839,10 +23842,10 @@ msgid "Mark as ready"
 msgstr "标记为就绪"
 
 msgid "Mark this issue as a duplicate of another issue"
-msgstr "将此议题标记为另一个议题的重复"
+msgstr "将此工单标记为另一个工单的重复"
 
 msgid "Mark this issue as related to another issue"
-msgstr "将此议题标记为与另一个议题的相关"
+msgstr "将此工单标记为与另一个工单的相关"
 
 msgid "Mark to do as done"
 msgstr "将待办事项标记为已完成。"
@@ -23899,10 +23902,10 @@ msgid "Marked this %{noun} as ready."
 msgstr "已将 %{noun} 标记为准备就绪。"
 
 msgid "Marked this issue as a duplicate of %{duplicate_param}."
-msgstr "标记这个议题为%{duplicate_param}的重复项。"
+msgstr "标记这个工单为%{duplicate_param}的重复项。"
 
 msgid "Marked this issue as related to %{issue_ref}."
-msgstr "将此议题标记为%{issue_ref}的相关议题。"
+msgstr "将此工单标记为%{issue_ref}的相关工单。"
 
 msgid "Marked to do as done."
 msgstr "将待办事项标记为已完成。"
@@ -23914,10 +23917,10 @@ msgid "Marks this %{noun} as ready."
 msgstr "将 %{noun} 标记为就绪。"
 
 msgid "Marks this issue as a duplicate of %{duplicate_reference}."
-msgstr "将此议题标记为 %{duplicate_reference} 的重复。"
+msgstr "将此工单标记为 %{duplicate_reference} 的重复。"
 
 msgid "Marks this issue as related to %{issue_ref}."
-msgstr "将此议题标记为%{issue_ref}的相关议题。"
+msgstr "将此工单标记为%{issue_ref}的相关工单。"
 
 msgid "Marks to do as done."
 msgstr "将待办事项标记为已完成。"
@@ -24585,7 +24588,7 @@ msgid "MergeRequests|An error occurred while saving the draft comment."
 msgstr "保存评论草稿时发生错误。"
 
 msgid "MergeRequests|Create issue to resolve thread"
-msgstr "创建议题以解决主题"
+msgstr "创建工单以解决主题"
 
 msgid "MergeRequests|Saving the comment failed"
 msgstr "保存评论失败"
@@ -25130,7 +25133,7 @@ msgid "MilestoneSidebar|From"
 msgstr "从"
 
 msgid "MilestoneSidebar|Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "MilestoneSidebar|Merge requests"
 msgstr "合并请求"
@@ -25139,10 +25142,10 @@ msgid "MilestoneSidebar|Merged:"
 msgstr "合并："
 
 msgid "MilestoneSidebar|New Issue"
-msgstr "新建议题"
+msgstr "新建工单"
 
 msgid "MilestoneSidebar|New issue"
-msgstr "新建议题"
+msgstr "新建工单"
 
 msgid "MilestoneSidebar|No due date"
 msgstr "无截止日期"
@@ -25178,16 +25181,16 @@ msgid "Milestones| You’re about to permanently delete the milestone %{mileston
 msgstr "您即将永久删除里程碑 %{milestoneTitle} 并将其从 %{issuesWithCount} 和 %{mergeRequestsWithCount} 删除。删除后，无法撤消或恢复。"
 
 msgid "Milestones| You’re about to permanently delete the milestone %{milestoneTitle}. This milestone is not currently used in any issues or merge requests."
-msgstr "您即将永久删除里程碑 %{milestoneTitle}。此里程碑当前未用于任何议题或合并请求。"
+msgstr "您即将永久删除里程碑 %{milestoneTitle}。此里程碑当前未用于任何工单或合并请求。"
 
 msgid "Milestones|Close Milestone"
 msgstr "关闭里程碑"
 
 msgid "Milestones|Completed Issues (closed)"
-msgstr "已完成的议题(已关闭)"
+msgstr "已完成的工单(已关闭)"
 
 msgid "Milestones|Create a milestone to better track your issues and merge requests. %{learn_more_link}"
-msgstr "创建一个里程碑来更好地跟踪您的议题和合并请求。%{learn_more_link}"
+msgstr "创建一个里程碑来更好地跟踪您的工单和合并请求。%{learn_more_link}"
 
 msgid "Milestones|Delete milestone"
 msgstr "删除里程碑"
@@ -25205,10 +25208,10 @@ msgid "Milestones|Milestone %{milestoneTitle} was not found"
 msgstr "未找到里程碑 %{milestoneTitle}"
 
 msgid "Milestones|Ongoing Issues (open and assigned)"
-msgstr "处理中的议题(打开和已分配)"
+msgstr "处理中的工单(打开和已分配)"
 
 msgid "Milestones|Organize issues and merge requests into a cohesive group, and set optional start and due dates. %{learn_more_link}"
-msgstr "将议题与合并请求组织到一个有凝聚力的组中，并设置可选的起始日期和到期日期。%{learn_more_link}"
+msgstr "将工单与合并请求组织到一个有凝聚力的组中，并设置可选的起始日期和到期日期。%{learn_more_link}"
 
 msgid "Milestones|Project Milestone"
 msgstr "项目里程碑"
@@ -25238,10 +25241,10 @@ msgid "Milestones|This action cannot be reversed."
 msgstr "该操作无法撤销。"
 
 msgid "Milestones|Unstarted Issues (open and unassigned)"
-msgstr "未启动的议题(开放和未分配)"
+msgstr "未启动的工单(开放和未分配)"
 
 msgid "Milestones|Use milestones to track issues and merge requests over a fixed period of time"
-msgstr "使用里程碑在固定时间段内跟踪议题和合并请求合并请求"
+msgstr "使用里程碑在固定时间段内跟踪工单和合并请求合并请求"
 
 msgid "Min Value"
 msgstr "最小值"
@@ -25412,10 +25415,10 @@ msgid "Move down"
 msgstr "下移"
 
 msgid "Move issue"
-msgstr "移动议题"
+msgstr "移动工单"
 
 msgid "Move issue from one column of the board to another"
-msgstr "将议题从看板的一列移到另一列"
+msgstr "将工单从看板的一列移到另一列"
 
 msgid "Move selection down"
 msgstr "下移所选的项目"
@@ -25427,31 +25430,31 @@ msgid "Move test case"
 msgstr "移动测试用例"
 
 msgid "Move this issue to another project."
-msgstr "将此议题移至另一个项目。"
+msgstr "将此工单移至另一个项目。"
 
 msgid "Move up"
 msgstr "上移"
 
 msgid "MoveIssue|Cannot move issue due to insufficient permissions!"
-msgstr "由于权限不足而无法移动议题!"
+msgstr "由于权限不足而无法移动工单!"
 
 msgid "MoveIssue|Cannot move issue to project it originates from!"
-msgstr "无法将议题移动到源项目中!"
+msgstr "无法将工单移动到源项目中!"
 
 msgid "MoveIssue|Cannot move issues of '%{issue_type}' type."
-msgstr "无法移动“%{issue_type}”类型的议题。"
+msgstr "无法移动“%{issue_type}”类型的工单。"
 
 msgid "Moved issue to %{label} column in the board."
-msgstr "将议题移动到看板中的%{label}列。"
+msgstr "将工单移动到看板中的%{label}列。"
 
 msgid "Moved this issue to %{path_to_project}."
-msgstr "将此议题移动到%{path_to_project}。"
+msgstr "将此工单移动到%{path_to_project}。"
 
 msgid "Moves issue to %{label} column in the board."
-msgstr "将议题移至看板的 %{label} 列中。"
+msgstr "将工单移至看板的 %{label} 列中。"
 
 msgid "Moves this issue to %{path_to_project}."
-msgstr "将此议题移动到 %{path_to_project}。"
+msgstr "将此工单移动到 %{path_to_project}。"
 
 msgid "MrDeploymentActions|Deploy"
 msgstr "部署"
@@ -25569,7 +25572,7 @@ msgid "NamespaceStorageSize|You have reached the free storage limit of %{free_si
 msgstr "您已经达到了一个或多个项目的 %{free_size_limit} 的免费存储限制。"
 
 msgid "NamespaceStorageSize|push to your repository, create pipelines, create issues or add comments. To reduce storage capacity, delete unused repositories, artifacts, wikis, issues, and pipelines."
-msgstr "推送到您的仓库，创建流水线，创建议题或添加评论。如需减少存储使用，请删除未使用的仓库，产物，wiki，议题和流水线。"
+msgstr "推送到您的仓库，创建流水线，创建工单或添加评论。如需减少存储使用，请删除未使用的仓库，产物，wiki，工单和流水线。"
 
 msgid "NamespaceStorage|%{name_with_link} namespace has approximately %{percent} (%{size}) namespace storage space remaining."
 msgstr "%{name_with_link} 命名空间剩余大约 %{percent} (%{size}) 命名空间存储空间。"
@@ -25723,7 +25726,7 @@ msgstr "新建身份标识"
 
 msgid "New Issue"
 msgid_plural "New Issues"
-msgstr[0] "新建议题"
+msgstr[0] "新建工单"
 
 msgid "New Jira import"
 msgstr "新建Jira导入"
@@ -25771,7 +25774,7 @@ msgid "New confidential epic title "
 msgstr "新建私密史诗标题 "
 
 msgid "New confidential issue title"
-msgstr "新建私密议题标题"
+msgstr "新建私密工单标题"
 
 msgid "New deploy key"
 msgstr "新建部署密钥"
@@ -25810,13 +25813,13 @@ msgid "New identity"
 msgstr "新建身份标识"
 
 msgid "New issue"
-msgstr "新建议题"
+msgstr "新建工单"
 
 msgid "New issue in %{project}"
-msgstr "在 %{project} 中新建议题"
+msgstr "在 %{project} 中新建工单"
 
 msgid "New issue title"
-msgstr "新议题标题"
+msgstr "新工单标题"
 
 msgid "New iteration created"
 msgstr "新的迭代已创建"
@@ -25867,7 +25870,7 @@ msgid "New requirement"
 msgstr "新建需求"
 
 msgid "New response for issue #%{issue_iid}:"
-msgstr "议题#%{issue_iid}的新回复："
+msgstr "工单#%{issue_iid}的新回复："
 
 msgid "New runners registration token has been generated!"
 msgstr "已生成新的Runner注册令牌！"
@@ -26074,7 +26077,7 @@ msgid "No grouping"
 msgstr "无分组"
 
 msgid "No issues found"
-msgstr "未发现议题"
+msgstr "未发现工单"
 
 msgid "No iteration"
 msgstr "无迭代"
@@ -26427,7 +26430,7 @@ msgid "NotificationEvent|Change reviewer merge request"
 msgstr "更改审核者合并请求"
 
 msgid "NotificationEvent|Close issue"
-msgstr "关闭议题"
+msgstr "关闭工单"
 
 msgid "NotificationEvent|Close merge request"
 msgstr "关闭合并请求"
@@ -26439,7 +26442,7 @@ msgid "NotificationEvent|Fixed pipeline"
 msgstr "修复的流水线"
 
 msgid "NotificationEvent|Issue due"
-msgstr "到期议题"
+msgstr "到期工单"
 
 msgid "NotificationEvent|Merge merge request"
 msgstr "合并请求被合并"
@@ -26454,7 +26457,7 @@ msgid "NotificationEvent|New epic"
 msgstr "新史诗"
 
 msgid "NotificationEvent|New issue"
-msgstr "新建议题"
+msgstr "新建工单"
 
 msgid "NotificationEvent|New merge request"
 msgstr "新建合并请求"
@@ -26469,13 +26472,13 @@ msgid "NotificationEvent|Push to merge request"
 msgstr "推送到合并请求"
 
 msgid "NotificationEvent|Reassign issue"
-msgstr "重新指派议题"
+msgstr "重新指派工单"
 
 msgid "NotificationEvent|Reassign merge request"
 msgstr "重新指派合并请求"
 
 msgid "NotificationEvent|Reopen issue"
-msgstr "重启议题"
+msgstr "重启工单"
 
 msgid "NotificationEvent|Reopen merge request"
 msgstr "重新打开合并请求"
@@ -26523,7 +26526,7 @@ msgid "Notify users by email when sign-in location is not recognized."
 msgstr "无法识别登录位置时通过电子邮件通知用户。"
 
 msgid "Notify|%{author_link}'s issue %{issue_reference_link} is due soon."
-msgstr "%{author_link} 的议题 %{issue_reference_link} 即将到期。"
+msgstr "%{author_link} 的工单 %{issue_reference_link} 即将到期。"
 
 msgid "Notify|%{commit_link} in %{mr_link}"
 msgstr "%{mr_link} 中的 %{commit_link}"
@@ -26556,10 +26559,10 @@ msgid "Notify|If you no longer wish to use this domain with GitLab Pages, please
 msgstr "如果您不再想在 Pages 中使用这个域名，请从您的项目中删除它，并删除任何相关的DNS记录。"
 
 msgid "Notify|Issue was %{issue_status} by %{updated_by}"
-msgstr "议题的状态由 %{updated_by} 更改为 %{issue_status}"
+msgstr "工单的状态由 %{updated_by} 更改为 %{issue_status}"
 
 msgid "Notify|Issue was moved to another project."
-msgstr "议题已移动到另一个项目。"
+msgstr "工单已移动到另一个项目。"
 
 msgid "Notify|Learn more about Auto DevOps"
 msgstr "了解有关 Auto DevOps 的更多信息"
@@ -26586,7 +26589,7 @@ msgid "Notify|Milestone changed to %{milestone}"
 msgstr "里程碑已更改为 %{milestone}"
 
 msgid "Notify|New issue: %{project_issue_url}"
-msgstr "新建议题：%{project_issue_url}"
+msgstr "新建工单：%{project_issue_url}"
 
 msgid "Notify|Pipeline %{pipeline_link} triggered by"
 msgstr "流水线 %{pipeline_link} 的触发者为"
@@ -26595,7 +26598,7 @@ msgid "Notify|The Auto DevOps pipeline failed for pipeline %{pipeline_link} and 
 msgstr "流水线 %{pipeline_link} 的 Auto DevOps 流水线失败，已在 %{project_link} 中被禁用。为了使用 Auto DevOps 流水线和您的项目，请查看 %{supported_langs_link}，相应调整您的项目，并在您的 %{settings_link} 内开启Auto DevOps 流水线。"
 
 msgid "Notify|This issue is due on: %{issue_due_date}"
-msgstr "此议题到期时间：%{issue_due_date}"
+msgstr "此工单到期时间：%{issue_due_date}"
 
 msgid "Notify|Unless you verify your domain by %{time_start}%{time}%{time_end} it will be removed from your GitLab project."
 msgstr "除非您通过 %{time_start}%{time}%{time_end} 验证您的域，否则它将从您的项目中删除。"
@@ -27128,7 +27131,7 @@ msgid "Only HTTP(S)"
 msgstr "仅 HTTP(S)"
 
 msgid "Only Issue ID or merge request ID is required"
-msgstr "仅需要议题 ID 或合并请求 ID"
+msgstr "仅需要工单 ID 或合并请求 ID"
 
 msgid "Only Project Members"
 msgstr "仅项目成员"
@@ -27233,7 +27236,7 @@ msgid "Opened MRs"
 msgstr "开启的合并请求"
 
 msgid "Opened issues"
-msgstr "开启的议题"
+msgstr "开启的工单"
 
 msgid "OpenedNDaysAgo|Created"
 msgstr "已创建"
@@ -28022,13 +28025,13 @@ msgid "Paste confidential epic link"
 msgstr "粘贴私密史诗链接"
 
 msgid "Paste confidential issue link"
-msgstr "粘贴私密议题链接"
+msgstr "粘贴私密工单链接"
 
 msgid "Paste epic link"
 msgstr "粘贴史诗链接"
 
 msgid "Paste issue link"
-msgstr "粘贴议题链接"
+msgstr "粘贴工单链接"
 
 msgid "Paste link"
 msgstr "粘贴链接"
@@ -29297,7 +29300,7 @@ msgid "Please type %{phrase_code} to proceed or close this modal to cancel."
 msgstr "请输入%{phrase_code}以继续或关闭此对话框以取消。"
 
 msgid "Please use this form to report to the admin users who create spam issues, comments or behave inappropriately."
-msgstr "请使用此表单向管理员报告创建垃圾议题、评论或行为不当的用户。"
+msgstr "请使用此表单向管理员报告创建垃圾工单、评论或行为不当的用户。"
 
 msgid "Please wait a moment, this page will automatically refresh when ready."
 msgstr "请稍等片刻，此页面在就绪时会自动刷新。"
@@ -29666,7 +29669,7 @@ msgid "ProfileSession|on"
 msgstr "于"
 
 msgid "Profiles| You are about to permanently delete %{yourAccount}, and all of the issues, merge requests, and groups linked to your account. Once you confirm %{deleteAccount}, it cannot be undone or recovered."
-msgstr "您即将永久删除 %{yourAccount}，以及与您的帐户关联的所有议题，合并请求和群组。一旦确认 %{deleteAccount}，此操作便无法撤销和恢复。"
+msgstr "您即将永久删除 %{yourAccount}，以及与您的帐户关联的所有工单，合并请求和群组。一旦确认 %{deleteAccount}，此操作便无法撤销和恢复。"
 
 msgid "Profiles| You are going to change the username %{currentUsernameBold} to %{newUsernameBold}. Profile and projects will be redirected to the %{newUsername} namespace but this redirect will expire once the %{currentUsername} namespace is registered by another user or group. Please update your Git repository remotes as soon as possible."
 msgstr "您将更改用户名 %{currentUsernameBold} 为 %{newUsernameBold}。配置文件和项目将重定向到 %{newUsername} 命名空间，但是一旦 %{currentUsername} 命名空间被另一个用户或组注册，此重定向将过期。请尽快更新您的远端Git仓库。"
@@ -30449,7 +30452,7 @@ msgid "ProjectService|Trigger event when a commit is created or updated."
 msgstr "在创建或更新提交时触发事件。"
 
 msgid "ProjectService|Trigger event when a confidential issue is created, updated, or closed."
-msgstr "在创建、更新或关闭私密议题时触发事件。"
+msgstr "在创建、更新或关闭私密工单时触发事件。"
 
 msgid "ProjectService|Trigger event when a deployment starts or finishes."
 msgstr "在部署开始或完成时触发事件。"
@@ -30470,7 +30473,7 @@ msgid "ProjectService|Trigger event when a wiki page is created or updated."
 msgstr "在创建或更新 wiki 页面时触发事件。"
 
 msgid "ProjectService|Trigger event when an issue is created, updated, or closed."
-msgstr "在创建、更新或关闭议题时触发事件。"
+msgstr "在创建、更新或关闭工单时触发事件。"
 
 msgid "ProjectSettings|%{link_start}What are description templates?%{link_end}"
 msgstr "%{link_start}什么是描述模板？%{link_end}"
@@ -30491,7 +30494,7 @@ msgid "ProjectSettings|Allow"
 msgstr "允许"
 
 msgid "ProjectSettings|Always show thumbs-up and thumbs-down award emoji buttons on issues, merge requests, and snippets."
-msgstr "始终在议题、合并请求和代码片段上显示赞许和不赞许表情符号按钮。"
+msgstr "始终在工单、合并请求和代码片段上显示赞许和不赞许表情符号按钮。"
 
 msgid "ProjectSettings|Analytics"
 msgstr "分析"
@@ -30614,7 +30617,7 @@ msgid "ProjectSettings|Introduces the risk of merging changes that do not pass t
 msgstr "合并流水线未通过的更改可能会引入风险。"
 
 msgid "ProjectSettings|Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "ProjectSettings|LFS objects from this repository are available to forks. %{linkStart}How do I remove them?%{linkEnd}"
 msgstr "此仓库中的 LFS 对象可供派生。 %{linkStart}我如何移除它们？%{linkEnd}"
@@ -30713,7 +30716,7 @@ msgid "ProjectSettings|Require"
 msgstr "必须"
 
 msgid "ProjectSettings|Require an associated issue from Jira"
-msgstr "需要来自 Jira 的相关议题"
+msgstr "需要来自 Jira 的相关工单"
 
 msgid "ProjectSettings|Require authentication to view media files"
 msgstr "需要验证才能查看媒体文件"
@@ -30974,13 +30977,13 @@ msgid "Projects are organized into groups"
 msgstr "项目被组织成群组"
 
 msgid "Projects are where you store your code, access issues, wiki and other features of GitLab."
-msgstr "项目是您存储您的代码、访问议题、wiki 和其它功能的地方。"
+msgstr "项目是您存储您的代码、访问工单、wiki 和其它功能的地方。"
 
 msgid "Projects contributed to"
 msgstr "贡献的项目"
 
 msgid "Projects help you organize your work. They contain your file repository, issues, merge requests, and so much more."
-msgstr "项目可帮助您组织工作。它们包含您的文件仓库、议题、合并请求等等。"
+msgstr "项目可帮助您组织工作。它们包含您的文件仓库、工单、合并请求等等。"
 
 msgid "Projects in this group can use Git LFS"
 msgstr "此群组中的项目可以使用 Git LFS"
@@ -31223,10 +31226,10 @@ msgid "Promote"
 msgstr "升级"
 
 msgid "Promote issue to an epic"
-msgstr "将议题升级为史诗"
+msgstr "将工单升级为史诗"
 
 msgid "Promote issue to incident"
-msgstr "将议题提升为事件"
+msgstr "将工单提升为事件"
 
 msgid "Promote to epic"
 msgstr "提升到史诗"
@@ -31244,10 +31247,10 @@ msgid "PromoteMilestone|Promotion failed - %{message}"
 msgstr "升级失败 - %{message}"
 
 msgid "Promoted issue to an epic."
-msgstr "将议题升级为史诗."
+msgstr "将工单升级为史诗."
 
 msgid "Promotes issue to incident"
-msgstr "将议题提升为事件"
+msgstr "将工单提升为事件"
 
 msgid "Promotion is not supported."
 msgstr "不支持升级。"
@@ -31283,7 +31286,7 @@ msgid "Promotions|Contact your Administrator to upgrade your license."
 msgstr "请与管理员联系以升级许可证。"
 
 msgid "Promotions|Description templates allow you to define context-specific templates for issue and merge request description fields for your project."
-msgstr "描述模板允许您为项目的议题和合并请求描述字段定义特定上下文的模板。"
+msgstr "描述模板允许您为项目的工单和合并请求描述字段定义特定上下文的模板。"
 
 msgid "Promotions|Dismiss Service Desk promotion"
 msgstr "关闭服务台促销"
@@ -31301,7 +31304,7 @@ msgid "Promotions|Epics let you manage your portfolio of projects more efficient
 msgstr "Epic 让您可以通过追踪跨项目和里程碑共享主题的问题组，更有效地管理项目组合。"
 
 msgid "Promotions|Improve issues management with Issue weight and GitLab Enterprise Edition."
-msgstr "使用GitLab企业版中议题权重带来的增强议题管理功能。"
+msgstr "使用GitLab企业版中工单权重带来的增强工单管理功能。"
 
 msgid "Promotions|Improve merge requests and customer support with GitLab Enterprise Edition."
 msgstr "使用极狐GitLab改进合并请求和客户支持。"
@@ -31379,16 +31382,16 @@ msgid "Promotions|Upgrade your plan to improve repositories."
 msgstr "升级您的方案以提升仓库功能。"
 
 msgid "Promotions|Webhooks allow you to trigger a URL if, for example, new code is pushed or a new issue is created. You can configure webhooks to listen for specific events like pushes, issues or merge requests. Group webhooks will apply to all projects in a group, allowing you to standardize webhook functionality across your entire group."
-msgstr "Webhooks 允许您在例如推送新代码或创建新议题时触发 URL。您可以配置 webhook 来侦听特定事件，例如推送、议题或合并请求。群组 webhook 将应用于群组中的所有项目，允许您在整个群组中标准化 webhook 功能。"
+msgstr "Webhooks 允许您在例如推送新代码或创建新工单时触发 URL。您可以配置 webhook 来侦听特定事件，例如推送、工单或合并请求。群组 webhook 将应用于群组中的所有项目，允许您在整个群组中标准化 webhook 功能。"
 
 msgid "Promotions|Weight"
 msgstr "权重"
 
 msgid "Promotions|Weighting your issue"
-msgstr "使您的议题分出轻重"
+msgstr "使您的工单分出轻重"
 
 msgid "Promotions|When you have a lot of issues, it can be hard to get an overview. By adding a weight to your issues, you can get a better idea of the effort, cost, required time, or value of each, and so better manage them."
-msgstr "当议题数目很多时，很难得到一个整体情况。 通过给议题添加权重，可以更好地了解工作量、 成本、所需时间或每个议题的价值，从而更好地进行管理。"
+msgstr "当工单数目很多时，很难得到一个整体情况。 通过给工单添加权重，可以更好地了解工作量、 成本、所需时间或每个工单的价值，从而更好地进行管理。"
 
 msgid "Promotions|You can restrict access to protected branches by choosing a role (Maintainers, Developers) as well as certain users."
 msgstr "您可以通过选择角色（维护者、开发者）以及某些用户来限制对受保护分支的访问。"
@@ -31679,7 +31682,7 @@ msgid "Published on status page"
 msgstr "已发布到状态页"
 
 msgid "Publishes this issue to the associated status page."
-msgstr "将此议题发布到相关的状态页面。"
+msgstr "将此工单发布到相关的状态页面。"
 
 msgid "Pull"
 msgstr "拉取"
@@ -31928,7 +31931,7 @@ msgid "Read more about related epics"
 msgstr "阅读更多关于相关史诗的信息"
 
 msgid "Read more about related issues"
-msgstr "了解更多关于相关议题的信息"
+msgstr "了解更多关于相关工单的信息"
 
 msgid "Read their documentation."
 msgstr "阅读他们的文档。"
@@ -32015,7 +32018,7 @@ msgid "Redis"
 msgstr "Redis"
 
 msgid "Reduce incident management alert volume (for example, if too many issues are being created)."
-msgstr "减少事件管理警报量（例如，如果创建的议题过多）。"
+msgstr "减少事件管理警报量（例如，如果创建的工单过多）。"
 
 msgid "Reduce project visibility"
 msgstr "降低项目可见性"
@@ -32171,8 +32174,11 @@ msgstr "关联到 %{issuable_type} %{add_related_issue_link}"
 msgid "Related feature flags"
 msgstr "相关的功能标志"
 
+msgid "Related incidents or issues"
+msgstr "相关的事件或工单"
+
 msgid "Related issues"
-msgstr "相关议题"
+msgstr "相关工单"
 
 msgid "Related merge requests"
 msgstr "相关合并请求"
@@ -32464,7 +32470,7 @@ msgid "Removed all labels."
 msgstr "已删除所有标签。"
 
 msgid "Removed an issue from an epic."
-msgstr "从史诗中移除了一个议题。"
+msgstr "从史诗中移除了一个工单。"
 
 msgid "Removed group can not be restored!"
 msgstr "已删除的群组无法恢复！"
@@ -32512,7 +32518,7 @@ msgid "Removes all labels."
 msgstr "删除所有标记。"
 
 msgid "Removes an issue from an epic."
-msgstr "从史诗中移除一个议题。"
+msgstr "从史诗中移除一个工单。"
 
 msgid "Removes parent epic %{epic_ref}."
 msgstr "删除父史诗%{epic_ref}。"
@@ -34236,7 +34242,7 @@ msgid "Search for an emoji"
 msgstr "搜索 emoji"
 
 msgid "Search for projects, issues, etc."
-msgstr "搜索项目、议题等等…"
+msgstr "搜索项目、工单等等…"
 
 msgid "Search for this text"
 msgstr "搜索此文本"
@@ -34308,10 +34314,10 @@ msgid "SearchAutocomplete|All GitLab"
 msgstr "在整个 GitLab"
 
 msgid "SearchAutocomplete|Issues I've created"
-msgstr "我创建的议题"
+msgstr "我创建的工单"
 
 msgid "SearchAutocomplete|Issues assigned to me"
-msgstr "指派给我的议题"
+msgstr "指派给我的工单"
 
 msgid "SearchAutocomplete|Merge requests I've created"
 msgstr "我创建的合并请求"
@@ -34364,7 +34370,7 @@ msgstr[0] "史诗"
 
 msgid "SearchResults|issue"
 msgid_plural "SearchResults|issues"
-msgstr[0] "议题"
+msgstr[0] "工单"
 
 msgid "SearchResults|merge request"
 msgid_plural "SearchResults|merge requests"
@@ -35030,10 +35036,10 @@ msgid "SecurityReports|Configure security testing"
 msgstr "配置安全测试"
 
 msgid "SecurityReports|Create Jira issue"
-msgstr "创建 Jira 议题"
+msgstr "创建 Jira 工单"
 
 msgid "SecurityReports|Create issue"
-msgstr "创建议题"
+msgstr "创建工单"
 
 msgid "SecurityReports|Development vulnerabilities"
 msgstr "开发漏洞"
@@ -35060,7 +35066,7 @@ msgid "SecurityReports|Either you don't have permission to view this dashboard o
 msgstr "您无权查看此仪表盘或尚未设置仪表盘。请向管理员查询您的权限设置，或检查仪表盘配置并继续。"
 
 msgid "SecurityReports|Ensure that %{trackingStart}issue tracking%{trackingEnd} is enabled for this project and you have %{permissionsStart}permission to create new issues%{permissionsEnd}."
-msgstr "请确保此项目启用%{trackingStart}议题跟踪%{trackingEnd}并且您有%{permissionsStart}权限创建新议题%{permissionsEnd}。"
+msgstr "请确保此项目启用%{trackingStart}工单跟踪%{trackingEnd}并且您有%{permissionsStart}权限创建新工单%{permissionsEnd}。"
 
 msgid "SecurityReports|Error fetching the vulnerabilities over time. Please check your network connection and try again."
 msgstr "获取漏洞数量时超时。请检查您的网络连接，然后重试。"
@@ -35084,10 +35090,10 @@ msgid "SecurityReports|Image"
 msgstr "镜像"
 
 msgid "SecurityReports|Issue Created"
-msgstr "已创建议题"
+msgstr "已创建工单"
 
 msgid "SecurityReports|Issues created from a vulnerability cannot be removed."
-msgstr "由漏洞生成的议题不可被删除。"
+msgstr "由漏洞生成的工单不可被删除。"
 
 msgid "SecurityReports|Learn more about setting up your dashboard"
 msgstr "了解更多关于仪表盘创建的信息"
@@ -35219,7 +35225,7 @@ msgid "SecurityReports|There was an error adding the comment."
 msgstr "添加评论时出错。"
 
 msgid "SecurityReports|There was an error creating the issue."
-msgstr "创建议题时出错。"
+msgstr "创建工单时出错。"
 
 msgid "SecurityReports|There was an error creating the merge request."
 msgstr "创建合并请求时出错。"
@@ -35276,7 +35282,7 @@ msgid "SecurityReports|While it's rare to have no vulnerabilities for your pipel
 msgstr "虽然您的流水线中没有漏洞，这种现象很罕见，但也是有可能的。无论如何，建议您仔细检查设置以确保仪表板的配置正确。"
 
 msgid "SecurityReports|With issues"
-msgstr "有议题"
+msgstr "有工单"
 
 msgid "SecurityReports|You do not have sufficient permissions to access this report"
 msgstr "您没有足够的权限访问此报告"
@@ -35438,7 +35444,7 @@ msgid "Select project to create %{type}"
 msgstr "选择要创建 %{type} 的项目"
 
 msgid "Select project to create issue"
-msgstr "选择要创建议题的项目"
+msgstr "选择要创建工单的项目"
 
 msgid "Select projects"
 msgstr "选择项目"
@@ -35504,7 +35510,7 @@ msgid "Selected tag is already in use. Choose another option."
 msgstr "所选标签已在使用中。选择另一个选项。"
 
 msgid "Selecting a GitLab user will add a link to the GitLab user in the descriptions of issues and comments (e.g. \"By %{link_open}@johnsmith%{link_close}\"). It will also associate and/or assign these issues and comments with the selected user."
-msgstr "选择GitLab用户将在议题和评论的描述中加入指向该GitLab用户的链接(例如“由%{link_open}@johnsmith%{link_close}”)。它还将与所选用户关联和/或分配这些议题和评论。"
+msgstr "选择GitLab用户将在工单和评论的描述中加入指向该GitLab用户的链接(例如“由%{link_open}@johnsmith%{link_close}”)。它还将与所选用户关联和/或分配这些工单和评论。"
 
 msgid "Self monitoring"
 msgstr "自我监控"
@@ -35633,7 +35639,7 @@ msgid "Service Desk"
 msgstr "服务台"
 
 msgid "Service Desk allows people to create issues in your GitLab instance without their own user account. It provides a unique email address for end users to create issues in a project. Replies can be sent either through the GitLab interface or by email. End users only see threads through email."
-msgstr "服务台允许人们在没有自己的用户账号的情况下在您的 GitLab 实例中创建议题。它为最终用户在项目中创建议题提供了一个唯一的电子邮件地址。回复可以通过 GitLab 界面或通过电子邮件发送。最终用户只能通过电子邮件查看主题。"
+msgstr "服务台允许人们在没有自己的用户账号的情况下在您的 GitLab 实例中创建工单。它为最终用户在项目中创建工单提供了一个唯一的电子邮件地址。回复可以通过 GitLab 界面或通过电子邮件发送。最终用户只能通过电子邮件查看主题。"
 
 msgid "Service Ping payload not found in the application cache"
 msgstr "在应用程序缓存中找不到服务 Ping 有效负载"
@@ -35654,7 +35660,7 @@ msgid "ServiceDesk|For help setting up the Service Desk for your instance, pleas
 msgstr "有关为您的实例设置服务台的帮助，请联系管理员。"
 
 msgid "ServiceDesk|Issues created from Service Desk emails will appear here. Each comment becomes part of the email conversation."
-msgstr "从服务台电子邮件创建的议题将显示在此处，每条评论都成为电子邮件对话的一部分。"
+msgstr "从服务台电子邮件创建的工单将显示在此处，每条评论都成为电子邮件对话的一部分。"
 
 msgid "ServiceDesk|Service Desk is not enabled"
 msgstr "服务台未启用"
@@ -35693,7 +35699,7 @@ msgid "Set %{epic_ref} as the parent epic."
 msgstr "将%{epic_ref}设置为父史诗。"
 
 msgid "Set a default description template to be used for new issues. %{link_start}What are description templates?%{link_end}"
-msgstr "设置用于新议题的默认描述模板。 %{link_start}什么是描述模板？%{link_end}"
+msgstr "设置用于新工单的默认描述模板。 %{link_start}什么是描述模板？%{link_end}"
 
 msgid "Set a password on your account to pull or push via %{protocol}."
 msgstr "为账号创建一个用于推送或拉取的 %{protocol} 密码。"
@@ -36009,7 +36015,7 @@ msgid "Show all epics"
 msgstr "显示所有史诗"
 
 msgid "Show all issues."
-msgstr "显示所有议题。"
+msgstr "显示所有工单。"
 
 msgid "Show all milestones"
 msgstr "显示所有里程碑"
@@ -36154,7 +36160,7 @@ msgid_plural "Showing %{count} projects"
 msgstr[0] "显示%{count}个项目"
 
 msgid "Showing %{limit} of %{total_count} issues. "
-msgstr "显示%{total_count}个议题中的%{limit}项. "
+msgstr "显示%{total_count}个工单中的%{limit}项. "
 
 msgid "Showing %{pageSize} of %{total} %{issuableType}"
 msgstr "显示 %{pageSize} / %{total} %{issuableType}"
@@ -36163,7 +36169,7 @@ msgid "Showing all epics"
 msgstr "显示所有史诗"
 
 msgid "Showing all issues"
-msgstr "已显示全部议题"
+msgstr "已显示全部工单"
 
 msgid "Showing data for workflow items created in this date range. Date range limited to %{maxDateRange} days."
 msgstr "显示在此日期范围内创建的工作流事项的数据。日期范围最多 %{maxDateRange} 天。"
@@ -36182,6 +36188,9 @@ msgstr "显示版本#%{versionNumber}"
 
 msgid "Shows issues for group '%{group_name}' from Nov 1, 2019 to Dec 31, 2019"
 msgstr "显示群组 “%{group_name}” 从 2019 年 11 月 1 日到 2019 年 12 月 31 日的议题"
+
+msgid "Shows issues and %{labels_count} labels for group '%{group_name}' from Nov 1, 2019 to Dec 31, 2019"
+msgstr "为群组 “%{group_name}” 显示从 2019 年 11 月 1 日到 2019 年 12 月 31 日的工单和 %{labels_count} 个标记"
 
 msgid "Side-by-side"
 msgstr "并排"
@@ -36328,7 +36337,7 @@ msgid "Signing in using your %{label} account without a pre-existing GitLab acco
 msgstr "没有预先存在的GitLab帐户的情况下无法使用您的%{label}帐户登录。"
 
 msgid "Similar issues"
-msgstr "相似议题"
+msgstr "相似工单"
 
 msgid "Simulate a pipeline created for the default branch"
 msgstr "模拟为默认分支创建的流水线"
@@ -36529,7 +36538,7 @@ msgid "Someone edited the file the same time you did. Please check out %{link_st
 msgstr "有人在您编辑文件的同时编辑了该文件。请检查 %{link_start}文件 %{icon}%{link_end} 并确保您的更改不会无意中删除他们的更改。"
 
 msgid "Someone edited the issue at the same time you did. Please check out %{linkStart}the issue%{linkEnd} and make sure your changes will not unintentionally remove theirs."
-msgstr "其他用户同时编辑了这个议题。请检查%{linkStart}议题%{linkEnd}并确保您的更改不会无意中移除他们的更改。"
+msgstr "其他用户同时编辑了这个工单。请检查%{linkStart}工单%{linkEnd}并确保您的更改不会无意中移除他们的更改。"
 
 msgid "Someone edited this %{issueType} at the same time you did. The description has been updated and you will need to make your changes again."
 msgstr "有人与您同时编辑了%{issueType} 。描述已被更新，您需要重新修改。"
@@ -36562,7 +36571,7 @@ msgid "Something went wrong trying to change the locked state of this %{issuable
 msgstr "试图改变 %{issuableDisplayName} 的锁定状态时出错了"
 
 msgid "Something went wrong trying to load issue contacts."
-msgstr "尝试加载议题联系人时出错。"
+msgstr "尝试加载工单联系人时出错。"
 
 msgid "Something went wrong when reordering designs. Please try again"
 msgstr "重新排序设计时出了点问题。请再试一次"
@@ -36655,7 +36664,7 @@ msgid "Something went wrong while obtaining the Let's Encrypt certificate."
 msgstr "获取Let's Encrypt证书时出了错。"
 
 msgid "Something went wrong while promoting the issue to an epic. Please try again."
-msgstr "将议题升级到史诗时出错。请再试一次。"
+msgstr "将工单升级到史诗时出错。请再试一次。"
 
 msgid "Something went wrong while reopening a requirement."
 msgstr "重新打开需求时出了错。"
@@ -36745,7 +36754,7 @@ msgid "Sort direction: Descending"
 msgstr "排序方向：降序"
 
 msgid "SortOptions|Blocking"
-msgstr "阻塞议题数"
+msgstr "阻塞工单数"
 
 msgid "SortOptions|Closed date"
 msgstr "关闭日期"
@@ -37312,7 +37321,7 @@ msgid "StatusPage|Bucket %{docsLink}"
 msgstr "存储桶%{docsLink}"
 
 msgid "StatusPage|Configure file storage settings to link issues in this project to an external status page."
-msgstr "配置文件存储设置，将此项目中的议题链接到外部状态页面。"
+msgstr "配置文件存储设置，将此项目中的工单链接到外部状态页面。"
 
 msgid "StatusPage|S3 Bucket name"
 msgstr "S3存储桶名称"
@@ -38276,7 +38285,7 @@ msgid "TasksToBeDone|Create/import code into a project (repository)"
 msgstr "创建/导入代码到项目（仓库）"
 
 msgid "TasksToBeDone|Create/import issues (tickets) to collaborate on ideas and plan work"
-msgstr "创建/导入议题（工单），协作想法和规划工作"
+msgstr "创建/导入工单（工单），协作想法和规划工作"
 
 msgid "TasksToBeDone|Set up CI/CD pipelines to build, test, deploy, and monitor code"
 msgstr "设置 CI/CD 流水线来构建、测试、部署和监视代码"
@@ -38300,7 +38309,7 @@ msgid "Template"
 msgstr "模板"
 
 msgid "Template to append to all Service Desk issues"
-msgstr "附加到所有服务台生成议题的模板"
+msgstr "附加到所有服务台生成工单的模板"
 
 msgid "TemplateRepository|Create common files more quickly, and standardize their format."
 msgstr "更快地创建共同文件并使其格式标准化。"
@@ -38585,7 +38594,7 @@ msgid "TestHooks|Ensure the project has deployments."
 msgstr "确保项目已经部署。"
 
 msgid "TestHooks|Ensure the project has issues."
-msgstr "确保项目有议题。"
+msgstr "确保项目有工单。"
 
 msgid "TestHooks|Ensure the project has merge requests."
 msgstr "确保项目有合并请求。"
@@ -38718,10 +38727,10 @@ msgid "The ID of the application."
 msgstr "应用程序ID。"
 
 msgid "The Issue Tracker is the place to add things that need to be improved or solved in a project"
-msgstr "议题跟踪用于管理需求改进或者解决的问题"
+msgstr "工单跟踪用于管理需求改进或者解决的问题"
 
 msgid "The Issue Tracker is the place to add things that need to be improved or solved in a project. You can register or sign in to create issues for this project."
-msgstr "议题跟踪用于管理需求改进或者解决的问题。请注册或登录后为当前项目创建议题。"
+msgstr "工单跟踪用于管理需求改进或者解决的问题。请注册或登录后为当前项目创建工单。"
 
 msgid "The Prometheus server responded with \"bad request\". Please check your queries are correct and are supported in your Prometheus version. %{documentationLink}"
 msgstr "Prometheus服务器以“错误请求”响应。请检查您的查询是否正确，并且当前的Prometheus版本支持。 %{documentationLink}"
@@ -38745,7 +38754,7 @@ msgid "The application will be used where the client secret can be kept confiden
 msgstr "应用程序可用于客户端密钥可以保持保密的地方。原生移动应用和单页应用被视为为非保密。"
 
 msgid "The associated issue #%{issueId} has been closed as the error is now resolved."
-msgstr "相关的议题#%{issueId}已关闭，因为该错误已经解决。"
+msgstr "相关的工单#%{issueId}已关闭，因为该错误已经解决。"
 
 msgid "The branch for this project has no active pipeline configuration."
 msgstr "此项目的分支没有活跃的流水线配置。"
@@ -38778,7 +38787,7 @@ msgid "The connection will time out after %{timeout}. For repositories that take
 msgstr "该连接将在 %{timeout}后超时。如仓库导入耗时超过该时间，请使用克隆/推送组合。"
 
 msgid "The contact does not belong to the issue group's root ancestor"
-msgstr "联系人不属于议题群组的根父组"
+msgstr "联系人不属于工单群组的根父组"
 
 msgid "The content editor may change the markdown formatting style of the document, which may not match your original markdown style."
 msgstr "内容编辑器可能会更改文档的 Markdown 格式样式，这可能与您原来的 Markdown 样式不匹配。"
@@ -38802,7 +38811,7 @@ msgid "The current incident"
 msgstr "当前事件"
 
 msgid "The current issue"
-msgstr "当前议题"
+msgstr "当前工单"
 
 msgid "The current user is not authorized to access the job log."
 msgstr "当前用户无权访问作业日志。"
@@ -39044,7 +39053,7 @@ msgid "The page could not be displayed because it timed out."
 msgstr "页面已超时，无法显示。"
 
 msgid "The parent epic is confidential and can only contain confidential epics and issues"
-msgstr "父史诗是私密的，只能包含私密史诗和议题"
+msgstr "父史诗是私密的，只能包含私密史诗和工单"
 
 msgid "The password for the Jenkins server."
 msgstr "Jenkins 服务器的密码。"
@@ -39149,7 +39158,7 @@ msgid "The start date must be ealier than the end date."
 msgstr "开始日期必须早于结束日期。"
 
 msgid "The subject will be used as the title of the new issue, and the message will be the description. %{quickActionsLinkStart}Quick actions%{quickActionsLinkEnd} and styling with %{markdownLinkStart}Markdown%{markdownLinkEnd} are supported."
-msgstr "该主题将用作新议题的标题，信息将作为说明。 支持 %{quickActionsLinkStart}快速操作%{quickActionsLinkEnd} 并使用支持的 %{markdownLinkStart}Markdown%{markdownLinkEnd} 风格。"
+msgstr "该主题将用作新工单的标题，信息将作为说明。 支持 %{quickActionsLinkStart}快速操作%{quickActionsLinkEnd} 并使用支持的 %{markdownLinkStart}Markdown%{markdownLinkEnd} 风格。"
 
 msgid "The tag name can't be changed for an existing release."
 msgstr "对于现有发布，不能更改标签名称。"
@@ -39248,7 +39257,7 @@ msgid "There are no closed epics"
 msgstr "没有已关闭的史诗"
 
 msgid "There are no closed issues"
-msgstr "没有已关闭的议题"
+msgstr "没有已关闭的工单"
 
 msgid "There are no closed merge requests"
 msgstr "没有已关闭的合并请求"
@@ -39260,7 +39269,7 @@ msgid "There are no custom project templates set up for this GitLab instance. Th
 msgstr "没有为此GitLab实例设置自定义项目模板。它们是从GitLab的管理区域启用的。请与您的GitLab实例管理员联系以设置自定义项目模板。"
 
 msgid "There are no issues to show"
-msgstr "当前无议题"
+msgstr "当前无工单"
 
 msgid "There are no issues with the selected labels"
 msgstr "所选标记没有问题"
@@ -39272,7 +39281,7 @@ msgid "There are no open epics"
 msgstr "没有开放中的史诗"
 
 msgid "There are no open issues"
-msgstr "没有未关闭的议题"
+msgstr "没有未关闭的工单"
 
 msgid "There are no open merge requests"
 msgstr "没有未关闭的合并请求"
@@ -39425,7 +39434,7 @@ msgid "There was an error creating the dashboard, branch named: %{branch} alread
 msgstr "创建仪表板时发生错误，名为%{branch}的分支已存在。"
 
 msgid "There was an error creating the issue"
-msgstr "创建议题时出错"
+msgstr "创建工单时出错"
 
 msgid "There was an error deleting the To Do."
 msgstr "删除待办事项时出现错误"
@@ -39548,13 +39557,13 @@ msgid "There was an error with the reCAPTCHA. Please solve the reCAPTCHA again."
 msgstr "reCAPTCHA 验证错误。请再次验证 reCAPTCHA。"
 
 msgid "These dates affect how your epics appear in the roadmap. Set a fixed date or one inherited from the milestones assigned to issues in this epic."
-msgstr "这些日期会影响您的史诗在路线图中的显示方式。设置一个固定日期或从分配给此史诗中议题的里程碑继承的日期。"
+msgstr "这些日期会影响您的史诗在路线图中的显示方式。设置一个固定日期或从分配给此史诗中工单的里程碑继承的日期。"
 
 msgid "These examples show how to trigger this project's pipeline for a branch or tag."
 msgstr "这些示例显示了如何为分支或标记触发此项目的流水线。"
 
 msgid "These existing issues have a similar title. It might be better to comment there instead of creating another similar issue."
-msgstr "这些现有的议题具有类似的标题。在那里评论可能更好，而不是创建另一个类似的问题。"
+msgstr "这些现有的工单具有类似的标题。在那里评论可能更好，而不是创建另一个类似的问题。"
 
 msgid "These runners are shared across projects in this group."
 msgstr "这些Runner在该群组中的项目之间共享。"
@@ -39650,7 +39659,7 @@ msgid "This attachment has been truncated to avoid exceeding the maximum allowed
 msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括%{count} 个%{issuables} 中的%{written_count}个。考虑缩小选择的 %{issuables} 再导出。"
 
 msgid "This attachment has been truncated to avoid exceeding the maximum allowed attachment size of %{size_limit}. %{written_count} of %{issues_count} issues have been included. Consider re-exporting with a narrower selection of issues."
-msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括了 %{issues_count} 个议题中的 %{written_count} 个，考虑缩小导出的选择范围。"
+msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括了 %{issues_count} 个工单中的 %{written_count} 个，考虑缩小导出的选择范围。"
 
 msgid "This attachment has been truncated to avoid exceeding the maximum allowed attachment size of %{size_limit}. %{written_count} of %{merge_requests_count} merge requests have been included. Consider re-exporting with a narrower selection of merge requests."
 msgstr "此附件已被截断，以避免超过最大允许的附件大小 %{size_limit}。 其中包括%{merge_requests_count} 个合并请求中的%{written_count}个。考虑缩小合并请求的选择范围。"
@@ -39818,7 +39827,7 @@ msgid "This invitation was sent to %{mail_to_invite_email}, but you are signed i
 msgstr "此邀请已发送至 %{mail_to_invite_email}，但您以 %{link_to_current_user} 身份使用电子邮件 %{mail_to_current_user}登录。"
 
 msgid "This is a \"Ghost User\", created to hold all issues authored by users that have since been deleted. This user cannot be removed."
-msgstr "此用户为“幽灵用户”，用于持有被删除用户的所有议题。该用户无法被删除。"
+msgstr "此用户为“幽灵用户”，用于持有被删除用户的所有工单。该用户无法被删除。"
 
 msgid "This is a Jira user."
 msgstr "这是一个 Jira 用户。"
@@ -39854,22 +39863,22 @@ msgid "This is your current session"
 msgstr "这是您当前的会话"
 
 msgid "This issue cannot be assigned to a confidential epic because it is public."
-msgstr "此议题不能分配给私密史诗，因为它是公开的。"
+msgstr "此工单不能分配给私密史诗，因为它是公开的。"
 
 msgid "This issue cannot be made public because it belongs to a confidential epic."
-msgstr "此议题不能公开，因为它属于私密史诗。"
+msgstr "此工单不能公开，因为它属于私密史诗。"
 
 msgid "This issue is confidential and should only be visible to team members with at least Reporter access."
-msgstr "此议题是保密的，只能显示给拥有至少“报告人”访问权限的团队成员。"
+msgstr "此工单是保密的，只能显示给拥有至少“报告人”访问权限的团队成员。"
 
 msgid "This issue is currently blocked by the following issues:"
 msgstr "此问题目前被以下问题阻止："
 
 msgid "This issue is hidden because its author has been banned"
-msgstr "此议题已隐藏，因为其作者已被封禁"
+msgstr "此工单已隐藏，因为其作者已被封禁"
 
 msgid "This issue is in a child epic of the filtered epic"
-msgstr "此议题在筛选史诗的子史诗中"
+msgstr "此工单在筛选史诗的子史诗中"
 
 msgid "This job could not start because it could not retrieve the needed artifacts%{punctuation}%{invalid_dependencies}"
 msgstr "此作业无法启动，因为它无法获取所需的产物%{punctuation}%{invalid_dependencies}"
@@ -40046,7 +40055,7 @@ msgid "This project does not belong to a group and cannot make use of group runn
 msgstr "此项目不属于群组，不能使用群组Runner。"
 
 msgid "This project does not have %{service_desk_link_start}Service Desk%{service_desk_link_end} enabled, so the user who created the issue will no longer receive email notifications about new activity."
-msgstr "此项目未启用%{service_desk_link_start}服务台%{service_desk_link_end}。因此创建议题的用户将不再收到关于议题更新的电子邮件通知。"
+msgstr "此项目未启用%{service_desk_link_start}服务台%{service_desk_link_end}。因此创建工单的用户将不再收到关于工单更新的电子邮件通知。"
 
 msgid "This project does not have a wiki homepage yet"
 msgstr "该项目尚无wiki主页"
@@ -40082,7 +40091,7 @@ msgid "This project will be deleted on %{date} since its parent group '%{parent_
 msgstr "此项目将于 %{date} 删除，因为它的父组 '%{parent_group_name}'已计划删除。"
 
 msgid "This project will live in your group %{strong_open}%{namespace}%{strong_close}. A project is where you store your files (repository), plan your work (issues), publish your documentation (wiki), and so much more."
-msgstr "该项目将存在于您的群组%{strong_open}%{namespace}%{strong_close}中。在项目中，您可以存放文件(仓库)，计划工作(议题)，发布文档(Wiki)等等。"
+msgstr "该项目将存在于您的群组%{strong_open}%{namespace}%{strong_close}中。在项目中，您可以存放文件(仓库)，计划工作(工单)，发布文档(Wiki)等等。"
 
 msgid "This release was created with a date in the past. Evidence collection at the moment of the release is unavailable."
 msgstr "此发布是使用过去的日期创建的，当时 Evidence 收集功能不可用。"
@@ -40199,7 +40208,7 @@ msgid "Time based: Yes"
 msgstr "基于时间：是"
 
 msgid "Time before an issue gets scheduled"
-msgstr "议题被列入日程表的时间"
+msgstr "工单被列入日程表的时间"
 
 msgid "Time before an issue starts implementation"
 msgstr "开始进行编码前的时间"
@@ -40552,7 +40561,7 @@ msgid "To import an SVN repository, check out %{svn_link}."
 msgstr "要导入SVN仓库，请查看 %{svn_link}。"
 
 msgid "To keep this project going, create a new issue"
-msgstr "为了保持这个项目的进行，请创建一个新的议题"
+msgstr "为了保持这个项目的进行，请创建一个新的工单"
 
 msgid "To keep this project going, create a new merge request"
 msgstr "为了保持这个项目的进行，请创建一个新的合并请求"
@@ -40582,10 +40591,10 @@ msgid "To preserve performance only %{strong_open}%{display_size} of %{real_size
 msgstr "为了保证性能，仅显示文件中的总计%{strong_open}%{real_size}中的%{display_size}%{strong_close}。"
 
 msgid "To protect this issue's confidentiality, %{linkStart}fork this project%{linkEnd} and set the fork's visibility to private."
-msgstr "为了保护此议题的机密性， %{linkStart}派生此项目%{linkEnd}并将可见性设置为私有项目。"
+msgstr "为了保护此工单的机密性， %{linkStart}派生此项目%{linkEnd}并将可见性设置为私有项目。"
 
 msgid "To protect this issue's confidentiality, a private fork of this project was selected."
-msgstr "为了保证此议题的私密性，选择了该项目的私有派生。"
+msgstr "为了保证此工单的私密性，选择了该项目的私有派生。"
 
 msgid "To reactivate your account, %{gitlab_link_start}sign in to GitLab.%{link_end}"
 msgstr "要重新激活您的帐户， %{gitlab_link_start}登录到 GitLab。%{link_end}"
@@ -40663,7 +40672,7 @@ msgid "Todos count"
 msgstr "待办事项计数"
 
 msgid "Todos|Are you looking for things to do? Take a look at %{strongStart}%{openIssuesLinkStart}open issues%{openIssuesLinkEnd}%{strongEnd}, contribute to %{strongStart}%{mergeRequestLinkStart}a merge request%{mergeRequestLinkEnd}%{mergeRequestLinkEnd}%{strongEnd}, or mention someone in a comment to automatically assign them a new to-do item."
-msgstr "您正在寻找要做的事情吗？ 查看 %{strongStart}%{openIssuesLinkStart}打开的议题%{openIssuesLinkEnd}%{strongEnd}，贡献给 %{strongStart}%{mergeRequestLinkStart}合并请求%{mergeRequestLinkEnd}%{mergeRequestLinkEnd}%{strongEnd}，或在评论中提及某人，自动分配新的待办事项。"
+msgstr "您正在寻找要做的事情吗？ 查看 %{strongStart}%{openIssuesLinkStart}打开的工单%{openIssuesLinkEnd}%{strongEnd}，贡献给 %{strongStart}%{mergeRequestLinkStart}合并请求%{mergeRequestLinkEnd}%{mergeRequestLinkEnd}%{strongEnd}，或在评论中提及某人，自动分配新的待办事项。"
 
 msgid "Todos|Filter by author"
 msgstr "按作者筛选"
@@ -40687,7 +40696,7 @@ msgid "Todos|Undo mark all as done"
 msgstr "撤销标记全部完成"
 
 msgid "Todos|When an issue or merge request is assigned to you, or when you receive a %{strongStart}@mention%{strongEnd} in a comment, this automatically triggers a new item in your To-Do List."
-msgstr "当一个议题或合并请求分配给您，或者当您收到评论中的 %{strongStart}@mention%{strongEnd} 时，会自动触发您的待办事项列表中的一个新事项。"
+msgstr "当一个工单或合并请求分配给您，或者当您收到评论中的 %{strongStart}@mention%{strongEnd} 时，会自动触发您的待办事项列表中的一个新事项。"
 
 msgid "Todos|You're all done!"
 msgstr "已经全部完成了！"
@@ -40858,7 +40867,7 @@ msgid "TotalRefCountIndicator|1000+"
 msgstr "1000+"
 
 msgid "Track groups of issues that share a theme, across projects and milestones"
-msgstr "在不同项目和里程碑中跟踪具有同一主题的议题组"
+msgstr "在不同项目和里程碑中跟踪具有同一主题的工单组"
 
 msgid "Track important events in your GitLab instance."
 msgstr "跟踪您的 GitLab 实例中的重要事件。"
@@ -41344,7 +41353,7 @@ msgid "Unable to update this epic at this time."
 msgstr "当前无法更新此 史诗。"
 
 msgid "Unable to update this issue at this time."
-msgstr "当前无法更新这个议题。"
+msgstr "当前无法更新这个工单。"
 
 msgid "Unable to verify the user"
 msgstr "无法验证用户"
@@ -41362,7 +41371,7 @@ msgid "Unarchive project"
 msgstr "取消归档项目"
 
 msgid "Unarchiving the project restores its members' ability to make commits, and create issues, comments, and other entities. %{strong_start}After you unarchive the project, it displays in the search and on the dashboard.%{strong_end} %{link_start}Learn more.%{link_end}"
-msgstr "取消归档项目将恢复其成员提交、创建议题、评论和其他的能力。%{strong_start}取消归档项目后，它会显示在搜索和仪表盘上。%{strong_end} %{link_start}了解更多。%{link_end}"
+msgstr "取消归档项目将恢复其成员提交、创建工单、评论和其他的能力。%{strong_start}取消归档项目后，它会显示在搜索和仪表盘上。%{strong_end} %{link_start}了解更多。%{link_end}"
 
 msgid "Unassign from commenting user"
 msgstr "取消分配给评论用户"
@@ -41941,7 +41950,7 @@ msgid "UsageQuota|out of %{formattedLimit} of your namespace storage"
 msgstr "，您命名空间存储上限总计%{formattedLimit}"
 
 msgid "UsageTrends|Could not load the issues and merge requests chart. Please refresh the page to try again."
-msgstr "无法加载议题和合并请求图表，请刷新页面重试。"
+msgstr "无法加载工单和合并请求图表，请刷新页面重试。"
 
 msgid "UsageTrends|Could not load the pipelines chart. Please refresh the page to try again."
 msgstr "无法加载流水线图表，请刷新页面重试。"
@@ -41953,10 +41962,10 @@ msgid "UsageTrends|Groups"
 msgstr "群组"
 
 msgid "UsageTrends|Issues"
-msgstr "议题"
+msgstr "工单"
 
 msgid "UsageTrends|Issues & merge requests"
-msgstr "议题和合并请求"
+msgstr "工单和合并请求"
 
 msgid "UsageTrends|Items"
 msgstr "事项"
@@ -42001,7 +42010,7 @@ msgid "UsageTrends|There was an error fetching the groups. Please try again."
 msgstr "获取群组时出错，请重试。"
 
 msgid "UsageTrends|There was an error fetching the issues. Please try again."
-msgstr "获取议题时出错，请重试。"
+msgstr "获取工单时出错，请重试。"
 
 msgid "UsageTrends|There was an error fetching the merge requests. Please try again."
 msgstr "获取合并请求时出错，请重试。"
@@ -42070,10 +42079,10 @@ msgid "Use hashed storage paths for newly created and renamed repositories. Alwa
 msgstr "对新创建和重命名的仓库使用哈希存储路径。自 13.0 起始终启用。%{link_start}了解更多。%{link_end}"
 
 msgid "Use issue count"
-msgstr "使用议题计数"
+msgstr "使用工单计数"
 
 msgid "Use issue weight"
-msgstr "使用议题权重"
+msgstr "使用工单权重"
 
 msgid "Use one line per URI"
 msgstr "每个URI占一行"
@@ -42350,7 +42359,7 @@ msgid "UserProfile|Groups are the best way to manage projects and members."
 msgstr "群组是管理项目和成员的最佳方式。"
 
 msgid "UserProfile|Join or create a group to start contributing by commenting on issues or submitting merge requests!"
-msgstr "加入或创建一个群组，通过评论议题或提交合并请求来开始贡献！"
+msgstr "加入或创建一个群组，通过评论工单或提交合并请求来开始贡献！"
 
 msgid "UserProfile|Most Recent Activity"
 msgstr "最新活动"
@@ -42620,16 +42629,16 @@ msgid "ValueStreamAnalytics|Median time between merge request merge and deployme
 msgstr "对于在给定时间内部署的所有管理信息系统，从合并请求合并到部署到生产环境之间的中位时间。"
 
 msgid "ValueStreamAnalytics|Median time from issue created to issue closed."
-msgstr "从议题创建到关闭的中位数时间。"
+msgstr "从工单创建到关闭的中位数时间。"
 
 msgid "ValueStreamAnalytics|Median time from the earliest commit of a linked issue's merge request to when that issue is closed."
-msgstr "从一个关联议题的合并请求最早提交到该议题结束时的中位时间。"
+msgstr "从一个关联工单的合并请求最早提交到该工单结束时的中位时间。"
 
 msgid "ValueStreamAnalytics|Number of commits pushed to the default branch"
 msgstr "推送到默认分支的提交数量"
 
 msgid "ValueStreamAnalytics|Number of new issues created."
-msgstr "创建新议题的数量"
+msgstr "创建新工单的数量"
 
 msgid "ValueStreamAnalytics|Percentage of deployments that cause an incident in production."
 msgstr "导致生产事故的部署百分比。"
@@ -42770,7 +42779,7 @@ msgid "View all environments."
 msgstr "查看所有环境。"
 
 msgid "View all issues"
-msgstr "查看所有议题"
+msgstr "查看所有工单"
 
 msgid "View all personal projects"
 msgstr "查看所有个人项目"
@@ -42838,13 +42847,13 @@ msgid "View incident details."
 msgstr "查看事件详情。"
 
 msgid "View incident issues."
-msgstr "查看事件议题。"
+msgstr "查看事件工单。"
 
 msgid "View issue"
-msgstr "查看议题"
+msgstr "查看工单"
 
 msgid "View issues"
-msgstr "查看议题"
+msgstr "查看工单"
 
 msgid "View it on GitLab"
 msgstr "使用GitLab查看"
@@ -43040,7 +43049,7 @@ msgid "VulnerabilityManagement|Could not process %{issueReference}: %{errorMessa
 msgstr "无法处理%{issueReference}: %{errorMessage}。"
 
 msgid "VulnerabilityManagement|Create Jira issue"
-msgstr "创建 Jira 议题"
+msgstr "创建 Jira 工单"
 
 msgid "VulnerabilityManagement|Enter a name"
 msgstr "输入名称"
@@ -43052,7 +43061,7 @@ msgid "VulnerabilityManagement|Enter the CVE or CWE identifier URL"
 msgstr "输入 CVE 或 CWE 标识符 URL"
 
 msgid "VulnerabilityManagement|Fetching linked Jira issues"
-msgstr "获取关联的 Jira 议题"
+msgstr "获取关联的 Jira 工单"
 
 msgid "VulnerabilityManagement|Identifier code and URL are required fields"
 msgstr "识别码和 URL 是必填字段"
@@ -43067,7 +43076,7 @@ msgid "VulnerabilityManagement|Needs triage"
 msgstr "需要分类"
 
 msgid "VulnerabilityManagement|Read more about related issues"
-msgstr "阅读更多相关议题"
+msgstr "阅读更多相关工单"
 
 msgid "VulnerabilityManagement|Related Jira issues"
 msgstr "相关 Jira 问题"
@@ -43094,7 +43103,7 @@ msgid "VulnerabilityManagement|Something went wrong while trying to delete the c
 msgstr "试图删除评论时出错。请稍后再试。"
 
 msgid "VulnerabilityManagement|Something went wrong while trying to fetch related Jira issues. Please check the %{linkStart}Jira integration settings%{linkEnd} and try again."
-msgstr "尝试获取相关的 Jira 议题时出错。请检查 %{linkStart}Jira 集成设置%{linkEnd} 并重试。"
+msgstr "尝试获取相关的 Jira 工单时出错。请检查 %{linkStart}Jira 集成设置%{linkEnd} 并重试。"
 
 msgid "VulnerabilityManagement|Something went wrong while trying to refresh the vulnerability. Please try again later."
 msgstr "试图刷新漏洞时出错。请稍后再试。"
@@ -43106,7 +43115,7 @@ msgid "VulnerabilityManagement|Something went wrong while trying to save the com
 msgstr "试图保存评论时出错。请稍后再试。"
 
 msgid "VulnerabilityManagement|Something went wrong while trying to unlink the issue. Please try again later."
-msgstr "尝试取消与议题的链接时出错。请稍后再试。"
+msgstr "尝试取消与工单的链接时出错。请稍后再试。"
 
 msgid "VulnerabilityManagement|Something went wrong, could not get user."
 msgstr "出错了，无法读取用户。"
@@ -43133,7 +43142,7 @@ msgid "VulnerabilityManagement|Will not fix or a false-positive"
 msgstr "将不修复或为误报"
 
 msgid "VulnerabilityManagement|invalid issue link or ID"
-msgstr "无效的议题链接或ID"
+msgstr "无效的工单链接或ID"
 
 msgid "VulnerabilityStatusTypes|All statuses"
 msgstr "所有状态"
@@ -43358,7 +43367,7 @@ msgid "We could not determine the path to remove the epic"
 msgstr "我们无法确定删除史诗的路径"
 
 msgid "We could not determine the path to remove the issue"
-msgstr "我们无法确定删除议题的路径"
+msgstr "我们无法确定删除工单的路径"
 
 msgid "We couldn't find any %{scope} matching %{term}"
 msgstr "找不到任何匹配%{term}的%{scope}"
@@ -43373,7 +43382,7 @@ msgid "We couldn't reach the Prometheus server. Either the server no longer exis
 msgstr "无法连接Prometheus服务器。服务器不再存在，或者配置信息需要更新。"
 
 msgid "We created a sandbox project that will help you learn the basics of GitLab. You’ll be guided by issues in an issue board. You can go through the issues at your own pace."
-msgstr "我们创建了一个沙盒项目，将帮助您学习 GitLab 的基础知识。您将通过议题面板中的议题获得指导。您可以按照自己的节奏通读这些议题。"
+msgstr "我们创建了一个沙盒项目，将帮助您学习 GitLab 的基础知识。您将通过工单面板中的工单获得指导。您可以按照自己的节奏通读这些工单。"
 
 msgid "We detected potential spam in the %{humanized_resource_name}. Please solve the reCAPTCHA to proceed."
 msgstr "我们在%{humanized_resource_name}检测到潜在滥用行为。请输入此reCAPTCHA验证码并继续。"
@@ -43511,13 +43520,13 @@ msgid "Webhooks Help"
 msgstr "Webhooks帮助"
 
 msgid "Webhooks|A comment is added to a confidential issue."
-msgstr "一条评论被添加到机密议题。"
+msgstr "一条评论被添加到机密工单。"
 
 msgid "Webhooks|A comment is added to an issue or merge request."
-msgstr "一条评论被添加到议题或合并请求。"
+msgstr "一条评论被添加到工单或合并请求。"
 
 msgid "Webhooks|A confidential issue is created, updated, closed, or reopened."
-msgstr "已创建、更新、关闭或重新打开机密议题。"
+msgstr "已创建、更新、关闭或重新打开机密工单。"
 
 msgid "Webhooks|A deployment starts, finishes, fails, or is canceled."
 msgstr "部署开始、完成、失败或被取消。"
@@ -43550,7 +43559,7 @@ msgid "Webhooks|A wiki page is created or updated."
 msgstr "已创建或更新 wiki 页面。"
 
 msgid "Webhooks|An issue is created, updated, closed, or reopened."
-msgstr "已创建、更新、关闭或重新打开议题。"
+msgstr "已创建、更新、关闭或重新打开工单。"
 
 msgid "Webhooks|Are you sure you want to delete this group hook?"
 msgstr "您确实需要删除这个群组 hook 吗？"
@@ -43568,7 +43577,7 @@ msgid "Webhooks|Confidential comments"
 msgstr "私密评论"
 
 msgid "Webhooks|Confidential issues events"
-msgstr "私密议题事件"
+msgstr "私密工单事件"
 
 msgid "Webhooks|Delete webhook"
 msgstr "删除 webhook"
@@ -43589,7 +43598,7 @@ msgid "Webhooks|Feature flag events"
 msgstr "功能标志事件"
 
 msgid "Webhooks|Issues events"
-msgstr "议题事件"
+msgstr "工单事件"
 
 msgid "Webhooks|Job events"
 msgstr "作业事件"
@@ -43757,7 +43766,7 @@ msgid "When enabled, job logs are collected by Datadog and displayed along with 
 msgstr "启用后，Datadog 会收集作业日志并与流水线执行跟踪一起显示。"
 
 msgid "When merge requests and commits in the default branch close, any issues they reference also close."
-msgstr "当默认分支中的合并请求和提交关闭时，它们引用的任何议题也会关闭。"
+msgstr "当默认分支中的合并请求和提交关闭时，它们引用的任何工单也会关闭。"
 
 msgid "When this merge request is accepted"
 msgid_plural "When these merge requests are accepted"
@@ -43846,13 +43855,13 @@ msgid "WikiEmptyIssueMessage|Suggest wiki improvement"
 msgstr "Wiki 改进建议"
 
 msgid "WikiEmptyIssueMessage|You must be a group member in order to add wiki pages. If you have suggestions for how to improve the wiki for this group, consider opening an issue in the %{issues_link}."
-msgstr "只有该群组的成员才可以添加Wiki页面，如果您有任何关于群组Wiki的改进建议，请通过%{issues_link}提交议题。"
+msgstr "只有该群组的成员才可以添加Wiki页面，如果您有任何关于群组Wiki的改进建议，请通过%{issues_link}提交工单。"
 
 msgid "WikiEmptyIssueMessage|You must be a project member in order to add wiki pages. If you have suggestions for how to improve the wiki for this project, consider opening an issue in the %{issues_link}."
-msgstr "只有该项目的成员才可以添加 Wiki 页面，如果您有任何关于项目 Wiki 的改进建议，请通过 %{issues_link} 提交议题。"
+msgstr "只有该项目的成员才可以添加 Wiki 页面，如果您有任何关于项目 Wiki 的改进建议，请通过 %{issues_link} 提交工单。"
 
 msgid "WikiEmptyIssueMessage|issue tracker"
-msgstr "议题跟踪"
+msgstr "工单跟踪"
 
 msgid "WikiEmpty| Have a Confluence wiki already? Use that instead."
 msgstr "已经有Confluence Wiki？可以直接使用。"
@@ -44213,7 +44222,7 @@ msgid "Yes, add it"
 msgstr "是的，添加它"
 
 msgid "Yes, close issue"
-msgstr "是的，关闭议题"
+msgstr "是的，关闭工单"
 
 msgid "Yes, delete project"
 msgstr "是的，删除项目"
@@ -44658,7 +44667,7 @@ msgid "You have declined the invitation to join %{title} %{name}."
 msgstr "您已拒绝加%{title}%{name}的邀请。"
 
 msgid "You have imported from this project %{numberOfPreviousImports} times before. Each new import will create duplicate issues."
-msgstr "您已从该项目导入%{numberOfPreviousImports} 次。每次导入都会产生重复的议题。"
+msgstr "您已从该项目导入%{numberOfPreviousImports} 次。每次导入都会产生重复的工单。"
 
 msgid "You have insufficient permissions to configure escalation policies for this project"
 msgstr "您没有足够的权限为此项目配置升级策略"
@@ -44691,7 +44700,7 @@ msgid "You have insufficient permissions to remove this Namespace Ban"
 msgstr "您没有足够的权限删除此命名空间封禁"
 
 msgid "You have insufficient permissions to set customer relations contacts for this issue"
-msgstr "您没有足够的权限为此议题设置客户关系联系人"
+msgstr "您没有足够的权限为此工单设置客户关系联系人"
 
 msgid "You have insufficient permissions to update an on-call schedule for this project"
 msgstr "您没有足够的权限来更新此项目的on-call计划"
@@ -44918,6 +44927,9 @@ msgstr "您的 %{spammable_entity_type} 已被识别为垃圾邮件。请更改�
 msgid "Your %{strong}%{plan_name}%{strong_close} subscription expires on %{strong}%{expires_on}%{strong_close}. If you do not renew, you will lose access to your paid features on %{strong}%{downgrades_on}%{strong_close}. After that date, you can't create issues or merge requests, or use many other features."
 msgstr "您的 %{strong}%{plan_name}%{strong_close} 订阅将于 %{strong}%{expires_on}%{strong_close} 到期。如果您不续订，您将无法在 %{strong}%{downgrades_on}%{strong_close} 访问您的付费功能。在该日期之后，您将无法创建议题或合并请求，或使用许多其他功能。"
 
+msgid "Your %{strong}%{plan_name}%{strong_close} subscription expires on %{strong}%{expires_on}%{strong_close}. After that date, you cannot create issues or merge requests, or use many other features."
+msgstr "您的%{strong}%{plan_name}%{strong_close}订阅将于%{strong}%{expires_on}%{strong_close}到期。此后，您将无法创建工单或合并请求，同时也无法访问其他众多功能。"
+
 msgid "Your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} will expire on %{strong}%{expires_on}%{strong_close}."
 msgstr "您为%{strong}%{namespace_name}%{strong_close}的%{strong}%{plan_name}%{strong_close}订阅将于%{strong}%{expires_on}%{strong_close}到期。"
 
@@ -45110,10 +45122,10 @@ msgid "Your instance is approaching its licensed user count"
 msgstr "您的实例即将达到许可用户数"
 
 msgid "Your issues are being imported. Once finished, you'll get a confirmation email."
-msgstr "您的议题正在导入。完成后，您将收到一封确认电子邮件。"
+msgstr "您的工单正在导入。完成后，您将收到一封确认电子邮件。"
 
 msgid "Your issues will be imported in the background. Once finished, you'll get a confirmation email."
-msgstr "您的议题将在后台导入。完成后，您将收到一封确认电子邮件。"
+msgstr "您的工单将在后台导入。完成后，您将收到一封确认电子邮件。"
 
 msgid "Your license does not support on-call rotations"
 msgstr "您的许可证不支持 on-call 轮换"
@@ -45228,7 +45240,7 @@ msgid "Your username is %{username}."
 msgstr "您的用户名是%{username}。"
 
 msgid "ZenTaoIntegration|Failed to load ZenTao issue. View the issue in ZenTao, or reload the page."
-msgstr "无法加载禅道议题。在禅道中查看议题，或重新加载页面。"
+msgstr "无法加载禅道工单。在禅道中查看工单，或重新加载页面。"
 
 msgid "ZenTaoIntegration|This is a ZenTao user."
 msgstr "这是一个禅道用户。"
@@ -45255,7 +45267,7 @@ msgid "ZentaoIntegration|Open ZenTao"
 msgstr "打开禅道"
 
 msgid "ZentaoIntegration|Use ZenTao as this project's issue tracker."
-msgstr "使用禅道作为此项目的议题跟踪器。"
+msgstr "使用禅道作为此项目的工单跟踪器。"
 
 msgid "ZentaoIntegration|ZenTao"
 msgstr "禅道"
@@ -45273,7 +45285,7 @@ msgid "ZentaoIntegration|ZenTao Web URL"
 msgstr "禅道 Web URL"
 
 msgid "ZentaoIntegration|ZenTao issues"
-msgstr "禅道议题"
+msgstr "禅道工单"
 
 msgid "Zoom meeting added"
 msgstr "已添加Zoom会议"
@@ -45316,7 +45328,7 @@ msgid "added %{emails}"
 msgstr "添加了 %{emails}"
 
 msgid "added a Zoom call to this issue"
-msgstr "添加Zoom通话到此议题"
+msgstr "添加Zoom通话到此工单"
 
 msgid "ago"
 msgstr "前"
@@ -45337,7 +45349,7 @@ msgid "already being used for another iteration within this cadence."
 msgstr "已用于此周期中的另一次迭代。"
 
 msgid "already has a \"created\" issue link"
-msgstr "已经有“已创建”的议题链接"
+msgstr "已经有“已创建”的工单链接"
 
 msgid "already shared with this group"
 msgstr "已与该群组分享"
@@ -45658,13 +45670,13 @@ msgid "ciReport|Coverage fuzzing"
 msgstr "Coverage Fuzzing"
 
 msgid "ciReport|Create Jira issue"
-msgstr "创建 Jira 议题"
+msgstr "创建 Jira 工单"
 
 msgid "ciReport|Create a merge request to implement this solution, or download and apply the patch manually."
 msgstr "创建一个合并请求来执行这个解决方案，或者下载并手动应用补丁。"
 
 msgid "ciReport|Create issue"
-msgstr "创建议题"
+msgstr "创建工单"
 
 msgid "ciReport|DAST"
 msgstr "DAST"
@@ -45709,7 +45721,7 @@ msgid "ciReport|IaC Scanning"
 msgstr "IaC 扫描"
 
 msgid "ciReport|Investigate this vulnerability by creating an issue"
-msgstr "通过创建议题来调查此漏洞"
+msgstr "通过创建工单来调查此漏洞"
 
 msgid "ciReport|License Compliance"
 msgstr "许可证合规"
@@ -45809,7 +45821,7 @@ msgid "ciReport|TTFB P95"
 msgstr "TTFB P95"
 
 msgid "ciReport|There was an error creating the issue. Please try again."
-msgstr "创建议题时发生错误。请再试一次。"
+msgstr "创建工单时发生错误。请再试一次。"
 
 msgid "ciReport|There was an error creating the merge request. Please try again."
 msgstr "创建合并请求时出错。请再试一次。"
@@ -45852,7 +45864,7 @@ msgid "closed %{timeago}"
 msgstr "已关闭于 %{timeago}"
 
 msgid "closed issue"
-msgstr "已关闭议题"
+msgstr "已关闭工单"
 
 msgid "collect usage information"
 msgstr "收集使用信息"
@@ -46176,7 +46188,7 @@ msgid "is"
 msgstr "是"
 
 msgid "is already associated to a GitLab Issue. New issue will not be associated."
-msgstr "已经与一个GitLab议题关联。新的议题将不会被关联。"
+msgstr "已经与一个GitLab工单关联。新的工单将不会被关联。"
 
 msgid "is an invalid IP address range"
 msgstr "是无效的 IP 地址范围"
@@ -46248,16 +46260,16 @@ msgid "is too long (maximum is 1000 entries)"
 msgstr "太长（最多1000个条目）"
 
 msgid "issue"
-msgstr "议题"
+msgstr "工单"
 
 msgid "issues at risk"
-msgstr "存在风险的议题"
+msgstr "存在风险的工单"
 
 msgid "issues need attention"
-msgstr "需要关注的议题"
+msgstr "需要关注的工单"
 
 msgid "issues on track"
-msgstr "进展正常的议题"
+msgstr "进展正常的工单"
 
 msgid "it is larger than %{limit}"
 msgstr "大于%{limit}"
@@ -46442,10 +46454,10 @@ msgid "mrWidget|Approved by you and others"
 msgstr "由您或其他人核准"
 
 msgid "mrWidget|Assign yourself to these issues"
-msgstr "将这些议题分配给自己"
+msgstr "将这些工单分配给自己"
 
 msgid "mrWidget|Assign yourself to this issue"
-msgstr "将这个议题分配给自己"
+msgstr "将这个工单分配给自己"
 
 msgid "mrWidget|Cancel auto-merge"
 msgstr "取消自动合并"
@@ -46467,10 +46479,10 @@ msgstr "关闭:"
 
 msgid "mrWidget|Closes issue"
 msgid_plural "mrWidget|Closes issues"
-msgstr[0] "关闭议题"
+msgstr[0] "关闭工单"
 
 msgid "mrWidget|Create issue to resolve all threads"
-msgstr "创建议题来解决所有主题"
+msgstr "创建工单来解决所有主题"
 
 msgid "mrWidget|Delete source branch"
 msgstr "删除源分支"
@@ -46516,7 +46528,7 @@ msgstr "允许可以合并的成员添加提交。"
 
 msgid "mrWidget|Mentions issue"
 msgid_plural "mrWidget|Mentions issues"
-msgstr[0] "提及议题"
+msgstr[0] "提及工单"
 
 msgid "mrWidget|Merge blocked: all required approvals must be given."
 msgstr "合并被阻止：必须获得所有要求的批准。"
@@ -46654,7 +46666,7 @@ msgid "mrWidget|To change this default message, edit the template for squash com
 msgstr "要更改此默认消息，请编辑压缩提交消息的模板。 %{linkStart}了解更多信息。%{linkEnd}"
 
 msgid "mrWidget|To merge, a Jira issue key must be mentioned in the title or description."
-msgstr "要合并，必须在标题或描述中提到Jira议题的key。"
+msgstr "要合并，必须在标题或描述中提到Jira工单的key。"
 
 msgid "mrWidget|Users who can write to the source or target branches can resolve the conflicts."
 msgstr "可以写入源或目标分支的用户可以解决冲突。"
@@ -46780,7 +46792,7 @@ msgid "only available on top-level groups."
 msgstr "只能在最顶级群组中使用。"
 
 msgid "open issue"
-msgstr "开启的议题"
+msgstr "开启的工单"
 
 msgid "or"
 msgstr "或"
@@ -46931,7 +46943,7 @@ msgid "removed"
 msgstr "已删除"
 
 msgid "removed a Zoom call from this issue"
-msgstr "从当前议题中移除Zoom通话"
+msgstr "从当前工单中移除Zoom通话"
 
 msgid "rendered diff"
 msgstr "渲染差异"
@@ -47086,6 +47098,12 @@ msgstr "下列事件或议题"
 
 msgid "the following issues"
 msgstr "下列议题"
+
+msgid "the following incident(s) or issue(s)"
+msgstr "下列事件或工单"
+
+msgid "the following issue(s)"
+msgstr "下列工单"
 
 msgid "the wiki"
 msgstr "wiki"
@@ -47243,4 +47261,3 @@ msgstr "{project}"
 
 msgid "✔"
 msgstr "✔"
-
