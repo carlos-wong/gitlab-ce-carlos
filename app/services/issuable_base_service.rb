@@ -275,6 +275,8 @@ class IssuableBaseService < ::BaseProjectService
     handle_quick_actions(issuable)
     filter_params(issuable)
 
+    params.delete(:description)
+
     change_additional_attributes(issuable)
     old_associations = associations_before_update(issuable)
 
