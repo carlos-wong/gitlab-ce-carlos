@@ -460,7 +460,7 @@ gem 'gitaly', '~> 12.9.0.pre.rc4'
 
 gem 'grpc', '~> 1.24.0'
 
-gem 'google-protobuf', '~> 3.8.0'
+gem 'google-protobuf', '~> 3.21.7'
 
 gem 'toml-rb', '~> 1.0.0'
 
