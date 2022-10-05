@@ -283,7 +283,7 @@ gem 'rack-proxy', '~> 0.6.0'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'uglifier', '~> 2.7.2'
 
-gem 'addressable', '~> 2.7'
+gem 'addressable', '~> 2.8'
 gem 'font-awesome-rails', '~> 4.7'
 gem 'gemojione', '~> 3.3'
 gem 'gon', '~> 6.2'
