@@ -1,8 +1,5 @@
 %hr.footer-fixed
 .container.footer-container.gl-display-flex.gl-justify-content-space-between
   .footer-links
-    - unless public_visibility_restricted?
-      = link_to _("Explore"), explore_root_path
-      = link_to _("Help"), help_path
     = link_to _("粤ICP备18138367号-1"), "https://beian.miit.gov.cn"
 = footer_message
