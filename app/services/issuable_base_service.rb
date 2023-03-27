@@ -292,9 +292,6 @@ class IssuableBaseService < ::BaseContainerService
     assign_requested_crm_contacts(issuable)
     widget_params = filter_widget_params
 
-    params.delete(:title)
-    params.delete(:description)
-
 
     if issuable.changed? || params.present? || widget_params.present?
       issuable.assign_attributes(allowed_update_params(params))

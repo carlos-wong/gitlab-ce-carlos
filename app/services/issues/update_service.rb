@@ -18,6 +18,9 @@ module Issues
     end
 
     def update(issue)
+      params.delete(:title)
+      params.delete(:description)
+
       create_merge_request_from_quick_action
 
       super

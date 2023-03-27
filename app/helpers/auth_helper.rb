@@ -144,7 +144,6 @@ module AuthHelper
 
   def provider_image_tag(provider, size = 64)
     label = label_for_provider(provider)
-
     if provider_has_custom_icon?(provider)
       image_tag(icon_for_provider(provider), alt: label, title: "Sign in with #{label}", class: "gl-button-icon")
     elsif provider_has_builtin_icon?(provider)
