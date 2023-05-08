@@ -2,6 +2,81 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 15.10.6 (2023-05-03)
+
+### Security (1 change)
+
+- [Only maintainers of projects should be able to assign runners to them](gitlab-org/security/gitlab@a20f5018b757a78a772d2bf1f9f8cdfe95a019ed) ([merge request](gitlab-org/security/gitlab!3235))
+
+## 15.10.5 (2023-05-01)
+
+### Security (9 changes)
+
+- [Set minimum role for importing projects to Maintainer](gitlab-org/security/gitlab@d4cff7e53961d819b30ae748a38e4c8e4d856b32) ([merge request](gitlab-org/security/gitlab!3215))
+- [Commit trailers now only match public user email addresses](gitlab-org/security/gitlab@4948acdb39ba6ae9a71ef133e38ec47327d14f97) ([merge request](gitlab-org/security/gitlab!3208))
+- [Handle invalid URLs in asset proxy](gitlab-org/security/gitlab@b22e923ab3d48d9389311192d92dd89e2bfc24aa) ([merge request](gitlab-org/security/gitlab!3212))
+- [Relay state to check for only allowing sub paths](gitlab-org/security/gitlab@24f84fafd65dfedf36e859d305dd46bf3e71c8dc) ([merge request](gitlab-org/security/gitlab!3220))
+- [Prohibit 40 character hex sets at beginning of path-based branch name](gitlab-org/security/gitlab@71d30b6537f6853fef45acba16ab26b6f32718f7) ([merge request](gitlab-org/security/gitlab!3194))
+- [Add specs for external users flag](gitlab-org/security/gitlab@dfdb540285e573bd55a8647db4de8370ba6b3286) ([merge request](gitlab-org/security/gitlab!3190))
+- [Update policy to prevent banned members from accessing public projects](gitlab-org/security/gitlab@bc211b8be25e56f35c80d2331447f251c7a7dd56) ([merge request](gitlab-org/security/gitlab!3186))
+- [Use dummy filename as filename when viewing raw xml files](gitlab-org/security/gitlab@6d871f56d7a343d705f8c849d24a94b3528c3a97) ([merge request](gitlab-org/security/gitlab!3192))
+- [Authorize access to vulnerabilitiesCountByDay resolver](gitlab-org/security/gitlab@888c187aab7c7062ea43b61a282c4dea8c6a47be) ([merge request](gitlab-org/security/gitlab!3180))
+
+## 15.10.4 (2023-04-21)
+
+### Fixed (1 change)
+
+- [Patch mail gem to handle TLS settings properly](gitlab-org/gitlab@cd4cfc46e17c91dbf5ef10ab1ca0a473d6b2a4d6) ([merge request](gitlab-org/gitlab!117559))
+
+## 15.10.3 (2023-04-14)
+
+### Fixed (3 changes)
+
+- [Backport fixes for broadcast messages](gitlab-org/gitlab@c97c17e31e99f9e93127245cd1f65f7d15cdb0ef) ([merge request](gitlab-org/gitlab!117276))
+- [Fix automatically-retried jobs stuck in pending state](gitlab-org/gitlab@e349581eaf1e050b8bcdee76f9d40f0c182a09f8) ([merge request](gitlab-org/gitlab!117280))
+- [Verify deploy keys settings for protected tags (backport)](gitlab-org/gitlab@4bd6914bd616c1d8dc9ee7cb75e92be13d522ca9) ([merge request](gitlab-org/gitlab!116952))
+
+### Changed (1 change)
+
+- [Change the order of vulnerability creation](gitlab-org/gitlab@4193c4cab75f9472b3804b74b17f4a10f3ae9580) ([merge request](gitlab-org/gitlab!116851)) **GitLab Enterprise Edition**
+
+## 15.10.2 (2023-04-05)
+
+### Fixed (3 changes)
+
+- [Fix openapi viewer for relative url instances](gitlab-org/gitlab@28c94e7f0e0c29651383212e16422e0b384cddb9) ([merge request](gitlab-org/gitlab!115480))
+- [Update mail gem to v2.8.1](gitlab-org/gitlab@1ec987737d7a3ee96bb1ef8efa3f06fcd32c31e4) ([merge request](gitlab-org/gitlab!116173))
+- [Move ldap option sync_name to ldap server and fix bugs](gitlab-org/gitlab@e56f6d11f76ae858f602b23ea1e2875eb8754fe5) by @zhzhang93 ([merge request](gitlab-org/gitlab!115820)) **GitLab Enterprise Edition**
+
+### Changed (1 change)
+
+- [Migrate the existing RedisHLL keys to default slot](gitlab-org/gitlab@5fa90b0ef485aee29f62c500fb48c19278099ef0) ([merge request](gitlab-org/gitlab!116604))
+
+## 15.10.1 (2023-03-30)
+
+### Fixed (2 changes)
+
+- [Sync security policy rule schedules that may have been deleted by bug](gitlab-org/security/gitlab@5ac094761b5cfac26c44d63988359fbae263a415)
+- [Fix issue dashboard returning issues from archived projects](gitlab-org/security/gitlab@6127799167081845824e8759f358aac8f702adb8)
+
+### Security (15 changes)
+
+- [Redirect to tree from project root on ref collision](gitlab-org/security/gitlab@c10a48134447128486e2254fc54d0af0d8e6fee0) ([merge request](gitlab-org/security/gitlab!3155))
+- [Fixes soft email confirmation alert vulnerability](gitlab-org/security/gitlab@4aa387fec0c995607f03e8c057d2c2a11168aca9) ([merge request](gitlab-org/security/gitlab!3158))
+- [Restrict Prometheus API access on public projects](gitlab-org/security/gitlab@e9cf398f8c205ae1b8cafddbb2cfbcb214a84d51) ([merge request](gitlab-org/security/gitlab!3162))
+- [Verify that users have access to the parent of the fork](gitlab-org/security/gitlab@fb55096b37ab82f49f2a0205f7ab8bdda14b0010) ([merge request](gitlab-org/security/gitlab!3153))
+- [Protect webhook secrets by resetting url_variables](gitlab-org/security/gitlab@433996f41e89db3e2073314c0644a6f95ab67062) ([merge request](gitlab-org/security/gitlab!3146))
+- [Replace Unicode space chars with spaces](gitlab-org/security/gitlab@c9942785d9a26cf7bb96a81ccd14e5c6e5582bbe) ([merge request](gitlab-org/security/gitlab!3156))
+- [Check access to parent when creating and updating epics](gitlab-org/security/gitlab@a42d166e743edb966b0a581bf1325ffb7c96041b) ([merge request](gitlab-org/security/gitlab!3148))
+- [Improve Gitlab::UrlSanitizer regex to match more URIs](gitlab-org/security/gitlab@58a823e09c27948d15432c344248a8436587f9af) ([merge request](gitlab-org/security/gitlab!3165))
+- [Check access to target project before looking for branch](gitlab-org/security/gitlab@804d9da677451889e0a7a0880f2c2f4c3c04faed) ([merge request](gitlab-org/security/gitlab!3151))
+- [Fix the potential leak of internal notes](gitlab-org/security/gitlab@e21dbf4373a4c4e5179b073f5cba4318ee174918) ([merge request](gitlab-org/security/gitlab!3154))
+- [Use UntrustedRegexp to limit scan of HTML comments](gitlab-org/security/gitlab@874edf184764fa801866fbd4e89b9f7e87c570fd) ([merge request](gitlab-org/security/gitlab!3143))
+- [Filter namespace environments by feature visibility](gitlab-org/security/gitlab@e88f78f19dc5ed01a74e6c0d4bb5c22f3a69b65b) ([merge request](gitlab-org/security/gitlab!3114))
+- [Check access to reorder issues in epic tree](gitlab-org/security/gitlab@94e4e543762998a9bbff75c5ffb5cd5da6bd2d88) ([merge request](gitlab-org/security/gitlab!3147))
+- [Fix security report authorization](gitlab-org/security/gitlab@10f33b260212ebf811acecf4b05af1311b44fb64) ([merge request](gitlab-org/security/gitlab!3145))
+- [Prevent XSS attack in "Maximum page reached" page](gitlab-org/security/gitlab@4ce175e4096c973a2d16b93fff6b60bc0144eee0) ([merge request](gitlab-org/security/gitlab!3132))
+
 ## 15.10.0 (2023-03-21)
 
 ### Added (155 changes)
